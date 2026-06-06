@@ -1,0 +1,10 @@
+version : "3.8"
+services :
+  admin :
+    image : switon/php81:220528
+    volumes :
+      - ./:/var/www/html
+    command : php -d opcache.enable_cli=on /var/www/html/public/index.php
+    ports :
+      - ${WEB_PORT}:9501
+    restart : always

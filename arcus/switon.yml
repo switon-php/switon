@@ -1,0 +1,29 @@
+# Switon YAML config
+# Behaviour: vendor/switon/kernel/spec/config/yaml.md (load, merge, DI definitions)
+# YAML subset: vendor/switon/yaml/subset.md
+# Top-level keys are service IDs (usually interface FQCNs).
+
+Switon\Core\AppInterface:
+  id: arcus
+  name: Arcus
+  env: ${APP_ENV:-dev}
+  debug: ${APP_DEBUG:-true}
+  timezone: Asia/Shanghai
+  version: v0.1
+
+Switon\Http\ServerOptions:
+  type: ${SERVER_TYPE:-auto}
+  port: ${SERVER_PORT:-9501}
+  settings:
+    enable_static_handler: ${APP_DEBUG:-true}
+
+Switon\Routing\RouterInterface:
+  prefix: /api
+
+Switon\Http\RequestHandlerInterface:
+  filters:
+    cors: Switon\Http\Filter\CorsFilter
+    accessLog: null
+
+Psr\Log\LoggerInterface:
+  level: ${LOG_LEVEL:-debug}

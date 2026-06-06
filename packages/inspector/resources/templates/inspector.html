@@ -1,0 +1,471 @@
+<!doctype html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Switon Inspector</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/response.js/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        body {
+            overflow-y: scroll;
+        }
+
+        #global tr td:nth-child(1) {
+            width: 5%;
+        }
+
+        #global tr td:nth-child(2) {
+            width: 20%;
+        }
+
+        .tab-pane .nav-tabs {
+            font-size: 12px;
+        }
+
+        .tab-pane .nav-tabs > li > a {
+            padding: 5px 10px;
+        }
+
+        table pre {
+            border: none;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 80px;
+        }
+
+        #dependencies pre {
+            max-height: 200px;
+        }
+
+        #config pre {
+            max-height: 500px;
+        }
+
+        .inspector {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000000;
+        }
+
+        .inspector a {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #fff;
+            color: #333;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            font-size: 12px;
+        }
+
+        .inspector a:hover {
+            background: #f5f5f5;
+        }
+
+        .warning {
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <ul class="nav nav-tabs" id="tabs">
+        <li v-if="requestContext"><a href="#global" data-toggle="tab">1. Global</a></li>
+        <li v-if="sql"><a href="#sql" data-toggle="tab">2. SQL</a></li>
+        <li v-if="logger"><a href="#logger" data-toggle="tab">3. Log</a></li>
+        <li v-if="router"><a href="#router" data-toggle="tab">4. Router</a></li>
+        <li v-if="dependencies"><a href="#dependencies" data-toggle="tab">5. Dependencies</a></li>
+        <li v-if="listener_stats"><a href="#listener_stats" data-toggle="tab">6. Listeners</a></li>
+        <li v-if="dependencies"><a href="#contexts" data-toggle="tab">7. Contexts</a></li>
+        <li v-if="app"><a href="#application" data-toggle="tab">8. Application</a></li>
+        <li v-if="providers"><a href="#providers" data-toggle="tab">9. Providers</a></li>
+        <li v-if="basic"><a href="#basic" data-toggle="tab">10. Basic</a></li>
+        <li v-if="events"><a href="#events" data-toggle="tab">11. Events</a></li>
+        <li v-if="event_mappings"><a href="#event_mappings" data-toggle="tab">12. Event Mappings</a></li>
+        <li v-if="files"><a href="#files" data-toggle="tab">13. Files</a></li>
+        <li v-if="renderer"><a href="#renderer" data-toggle="tab">14. Renderer</a></li>
+    </ul>
+    <div class="inspector" v-if="basic && basic.request"><a :href="basic.request.url" :title="basic.request.url"
+                                                            target="_self">&#8592; Back</a></div>
+    <div class="tab-content">
+        <global-tab v-if="requestContext" :context="requestContext"></global-tab>
+        <sql-tab v-if="sql" :sql="sql"></sql-tab>
+        <logger-tab v-if="logger" :logger="logger"></logger-tab>
+        <router-tab v-if="router" :routes="router"></router-tab>
+        <dependencies-tab v-if="dependencies" :dependencies="dependencies"></dependencies-tab>
+        <listener-stats-tab v-if="listener_stats" :stats="listener_stats"></listener-stats-tab>
+        <contexts-tab v-if="dependencies" :dependencies="dependencies"></contexts-tab>
+        <app-tab v-if="app" :app="app"></app-tab>
+        <providers-tab v-if="providers" :providers="providers"></providers-tab>
+        <basic-tab v-if="basic" :basic="basic" :size-analysis="sizeAnalysis"></basic-tab>
+        <events-tab v-if="events" :events="events"></events-tab>
+        <event-mappings-tab v-if="event_mappings" :event-mappings="event_mappings"></event-mappings-tab>
+        <files-tab v-if="files" :files="files" :display-files="files"></files-tab>
+        <renderer-tab v-if="renderer" :renderer="renderer"></renderer-tab>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@1.11.3/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/vue@2.6.9/dist/vue.min.js'></script>
+
+<script>
+    /* ============================================================
+       Tab Navigation (jQuery + Bootstrap, event delegation)
+       ============================================================ */
+    $(function () {
+        function updateHash(hash) {
+            if (window.location.hash !== hash) {
+                history.replaceState ? history.replaceState(null, null, hash) : (window.location.hash = hash);
+            }
+        }
+
+        function activateTabByHash(hash) {
+            if (!hash) return false;
+            var $tab = $("a[href='" + hash + "']");
+            if ($tab.length) {
+                var $pane = $(hash);
+                if ($pane.length && $pane.hasClass('active')) return true;
+                // Wait for Vue component to render if pane doesn't exist yet
+                if (!$pane.length) {
+                    var attempts = 0;
+                    var checkPane = function () {
+                        var $p = $(hash);
+                        if ($p.length) {
+                            $tab.tab('show');
+                        } else if (attempts < 20) {
+                            attempts++;
+                            setTimeout(checkPane, 50);
+                        }
+                    };
+                    setTimeout(checkPane, 50);
+                    return true;
+                }
+                $tab.tab('show');
+                return true;
+            }
+            // Check if this is a sub-tab (like #global-common, #app-info)
+            // Only treat as sub-tab if the main tab exists and is a known parent tab
+            // Main tabs with hyphens (like #listener_stats, #event_mappings) should not be treated as sub-tabs
+            var parts = hash.split('-');
+            var knownParentTabs = ['global', 'app'];
+            if (parts.length >= 2 && knownParentTabs.indexOf(parts[0].substring(1)) !== -1) {
+                var mainHash = '#' + parts[0].substring(1);
+                var $mainTab = $("a[href='" + mainHash + "']");
+                if (!$mainTab.length) return false;
+                var $mainPane = $(mainHash);
+                if ($mainPane.length && $mainPane.hasClass('active')) {
+                    var $subTab = $("a[href='" + hash + "']");
+                    if ($subTab.length) {
+                        $subTab.tab('show');
+                        return true;
+                    }
+                    setTimeout(function () {
+                        var $s = $("a[href='" + hash + "']");
+                        if ($s.length) $s.tab('show');
+                    }, 50);
+                    return true;
+                }
+                var targetHash = hash, mainHashCl = mainHash;
+                $mainTab.tab('show');
+                $mainTab.one('shown.bs.tab', function () {
+                    updateHash(targetHash);
+                    localStorage.setItem('__inspector.last', targetHash);
+                    var $mp = $(mainHashCl);
+                    var $st = $mp.length ? $mp.find("a[href='" + targetHash + "']") : $("a[href='" + targetHash + "']");
+                    if ($st.length) {
+                        $st.tab('show');
+                        return;
+                    }
+                    setTimeout(function () {
+                        var $st = $mp.length ? $mp.find("a[href='" + targetHash + "']") : $("a[href='" + targetHash + "']");
+                        if ($st.length) {
+                            $st.tab('show');
+                        } else if ($mp.length) {
+                            var obs = new MutationObserver(function () {
+                                var $st = $mp.find("a[href='" + targetHash + "']");
+                                if ($st.length) {
+                                    $st.tab('show');
+                                    obs.disconnect();
+                                }
+                            });
+                            obs.observe($mp[0], {childList: true, subtree: true});
+                            setTimeout(function () {
+                                obs.disconnect();
+                            }, 2000);
+                        }
+                    }, 100);
+                });
+                return true;
+            }
+            return false;
+        }
+
+        // Event delegation — works for Vue-rendered DOM
+        $('#app').on('shown.bs.tab', '#tabs > li > a', function (e) {
+            updateHash(e.target.hash);
+            localStorage.setItem('__inspector.last', e.target.hash);
+            setTimeout(function () {
+                var $input = $(e.target.hash).find('input[type="text"]').first();
+                if ($input.length) $input.focus();
+            }, 100);
+        });
+        $('#app').on('shown.bs.tab', '.tab-pane .nav-tabs a[data-toggle="tab"]', function (e) {
+            updateHash(e.target.hash);
+            localStorage.setItem('__inspector.last', e.target.hash);
+        });
+        $(window).on('hashchange', function () {
+            if (window.location.hash) activateTabByHash(window.location.hash);
+        });
+
+        window.__inspectorActivateTab = activateTabByHash;
+        window.__inspectorUpdateHash = updateHash;
+
+        var initialHash = window.location.hash || localStorage.getItem('__inspector.last') || '#application';
+        updateHash(initialHash);
+        if (!activateTabByHash(initialHash)) window.__inspectorInitialHash = initialHash;
+
+        // Keyboard navigation
+        var tabMap = {
+            49: '#global',
+            50: '#sql',
+            51: '#log',
+            52: '#router',
+            53: '#dependencies',
+            54: '#listener_stats',
+            55: '#contexts',
+            56: '#application',
+            57: '#providers',
+            58: '#basic',
+            59: '#events'
+        };
+        document.addEventListener('keydown', function (e) {
+            var k = e.keyCode || e.which;
+            if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+                if (tabMap[k]) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    var $t = $('a[href="' + tabMap[k] + '"]');
+                    if ($t.length) $t.tab('show');
+                    return false;
+                }
+                if (k === 37 || k === 39) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    var $all = $('#tabs > li:not(.dropdown) > a[data-toggle="tab"]');
+                    var ci = $all.index($('#tabs > li.active > a'));
+                    if (ci === -1) ci = 0;
+                    var ni = k === 37 ? (ci > 0 ? ci - 1 : $all.length - 1) : (ci < $all.length - 1 ? ci + 1 : 0);
+                    $all.eq(ni).tab('show');
+                    return false;
+                }
+            }
+        }, true);
+    });
+
+    /* ============================================================
+       Data & Shared Mixin
+       ============================================================ */
+    var raw = typeof INSPECTOR_DATA === 'string' ? JSON.parse(INSPECTOR_DATA) : INSPECTOR_DATA;
+    var data = {};
+    for (var k in raw) data[k.replace(/-/g, '_')] = raw[k];
+
+    var jsonMixin = {
+        filters: {
+            json: function (v, indent) {
+                if (v === undefined || v === null) return '';
+                return JSON.stringify(v, null, indent || 0);
+            }
+        },
+        methods: {
+            jsonStringify: function (d) {
+                return JSON.stringify(d, null, 4);
+            }
+        }
+    };
+
+    /* ============================================================
+       Reusable: filter-input
+       ============================================================ */
+    Vue.component('filter-input', {
+        props: ['value', 'label', 'placeholder'],
+        template:
+            '<label style="position:relative;display:inline-block;margin-left:10px">' +
+            '{{label}}: ' +
+            '<input type="text" :value="value" @input="$emit(\'input\',$event.target.value)" ' +
+            ':placeholder="placeholder||\'Filter\'" style="width:120px;padding-right:20px">' +
+            '<span v-if="value" @click="$emit(\'input\',\'\')" ' +
+            'style="position:absolute;right:3px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:#999">&times;</span>' +
+            '</label>'
+    });
+
+    /* ============================================================
+       Reusable: kv-table
+       ============================================================ */
+    Vue.component('kv-table', {
+        props: ['items'],
+        template:
+            '<table class="table table-bordered table-condensed"><tbody>' +
+            '<tr v-for="(value, key, index) in items">' +
+            '<td style="width:5%">{{index+1}}</td>' +
+            '<td style="width:30%">{{key}}</td>' +
+            '<td><slot :value="value" :item-key="key">{{value}}</slot></td>' +
+            '</tr>' +
+            '</tbody></table>'
+    });
+
+    /* ============================================================
+       Reusable: generic-tab (JSON renderer for unknown collectors)
+       ============================================================ */
+    Vue.component('generic-tab', {
+        mixins: [jsonMixin],
+        props: ['data', 'collectorKey'],
+        template:
+            '<div class="tab-pane" :id="collectorKey">' +
+            '<h4>{{collectorKey}} <small class="text-muted">(Generic View)</small></h4>' +
+            '<pre style="max-height: 600px; overflow: auto; background: #f5f5f5; padding: 15px; border-radius: 4px;">{{jsonStringify(data)}}</pre>' +
+            '</div>'
+    });
+
+    /* ============================================================
+       Tab: Global
+       ============================================================ */
+    Vue.component('global-tab', {
+        props: ['context'],
+        computed: {
+            headersSorted: function () {
+                var headers = [], imp = ['authorization', 'cookie', 'content-type', 'accept'];
+                for (var n in (this.context.headers || {})) {
+                    var nl = n.toLowerCase();
+                    var p = nl.startsWith('x-') ? 0 : imp.indexOf(nl) !== -1 ? 1 : 2;
+                    headers.push({name: n, value: this.context.headers[n], highlight: p < 2, priority: p});
+                }
+                headers.sort(function (a, b) {
+                    return a.priority !== b.priority ? a.priority - b.priority : a.name.localeCompare(b.name);
+                });
+                return headers;
+            },
+            dynamicSections: function () {
+                var s = {}, skip = ['attributes', '_REQUEST', 'headers'];
+                for (var n in this.context) {
+                    var v = this.context[n];
+                    if (typeof v === 'object' && v !== null && skip.indexOf(n) === -1) s[n] = v;
+                }
+                return s;
+            }
+        },
+        template:
+            '<div class="tab-pane" id="global">' +
+            '<ul class="nav nav-tabs" style="margin-bottom:10px">' +
+            '<li class="active"><a href="#global-common" data-toggle="tab">Common</a></li>' +
+            '<li v-for="(val, name) in dynamicSections"><a :href="\'#global-\'+name" data-toggle="tab">{{name}} ({{Object.keys(val).length}})</a></li>' +
+            '</ul>' +
+            '<div class="tab-content">' +
+            '<div class="tab-pane active" id="global-common">' +
+            '<h4>attributes ({{Object.keys(context.attributes||{}).length}})</h4>' +
+            '<kv-table :items="context.attributes||{}"></kv-table>' +
+            '<h4>_REQUEST ({{Object.keys(context._REQUEST||{}).length}})</h4>' +
+            '<kv-table :items="context._REQUEST||{}"></kv-table>' +
+            '<h4>headers ({{Object.keys(context.headers||{}).length}})</h4>' +
+            '<table class="table table-bordered table-condensed">' +
+            '<thead><tr><td style="width:5%">#</td><td style="width:30%">name</td><td>value</td></tr></thead>' +
+            '<tbody><tr v-for="(item,index) in headersSorted" :class="{info:item.highlight}">' +
+            '<td>{{index+1}}</td><td>{{item.name}}</td><td>{{item.value}}</td>' +
+            '</tr></tbody>' +
+            '</table>' +
+            '</div>' +
+            '<div v-for="(gData, gName) in dynamicSections" class="tab-pane" :id="\'global-\'+gName">' +
+            '<h4>{{gName}} ({{Object.keys(gData).length}})</h4>' +
+            '<kv-table :items="gData"></kv-table>' +
+            '</div>' +
+            '</div>' +
+            '</div>'
+    });
+
+
+    /* ============================================================
+       Tab: Contexts
+       ============================================================ */
+    Vue.component('contexts-tab', {
+        mixins: [jsonMixin],
+        props: ['dependencies'],
+        data: function () {
+            return {idFilter: ''};
+        },
+        computed: {
+            filtered: function () {
+                var out = {};
+                for (var id in this.dependencies) {
+                    var item = this.dependencies[id];
+                    if (!item.properties.context) continue;
+                    if (this.idFilter && id.toLowerCase().indexOf(this.idFilter.toLowerCase()) === -1) continue;
+                    out[id] = item;
+                }
+                return out;
+            }
+        },
+        template:
+            '<div class="tab-pane" id="contexts">' +
+            '<h4>Contexts({{Object.keys(filtered).length}}) <small>' +
+            '<filter-input v-model="idFilter" label="ID"></filter-input>' +
+            '</small></h4>' +
+            '<table class="table table-bordered table-condensed">' +
+            '<thead><tr><td width="5%">#</td><td width="5%">object_id</td><td width="40%">id</td><td>contexts</td></tr></thead>' +
+            '<tbody><tr v-for="(item, id, index) in filtered">' +
+            '<td>{{index+1}}</td>' +
+            '<td>#{{item.object_id}}</td>' +
+            '<td :title="item.class"><pre>{{id}}<div v-if="!id.startsWith(item.class)">=> {{item.class}}</div></pre></td>' +
+            '<td :title="jsonStringify(item.properties.context)"><pre>{{item.properties.context | json(4)}}</pre></td>' +
+            '</tr></tbody>' +
+            '</table>' +
+            '</div>'
+    });
+
+    <!-- COLLECTOR_COMPONENTS -->
+
+    /* ============================================================
+       Root App
+       ============================================================ */
+    var app = new Vue({
+        el: '#app',
+        data: data,
+        computed: {
+            requestContext: function () {
+                var d = this.dependencies;
+                if (d && d['Switon\\Http\\RequestInterface']) return d['Switon\\Http\\RequestInterface'].properties.context;
+                return null;
+            },
+            sizeAnalysis: function () {
+                return this.$data._size_analysis || null;
+            },
+        },
+        mounted: function () {
+            var self = this;
+            this.$nextTick(function () {
+                self.$nextTick(function () {
+                    var hash = window.location.hash || window.__inspectorInitialHash;
+                    if (hash && window.__inspectorActivateTab) {
+                        if (!window.__inspectorActivateTab(hash)) {
+                            setTimeout(function () {
+                                window.__inspectorActivateTab(hash);
+                            }, 100);
+                        }
+                        window.__inspectorInitialHash = null;
+                    }
+                });
+            });
+        }
+    });
+</script>
+</body>
+</html>

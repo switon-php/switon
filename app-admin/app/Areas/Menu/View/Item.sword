@@ -1,0 +1,45 @@
+<m-dialog mode="create">
+    <m-select prop="group_id" options="groups" value-key="group_id" label-key="group_name" label="{{t('menu.group_name')}}" url="/menu/group/list"></m-select>
+    <m-text prop="item_name" label="{{t('menu.item_name')}}"></m-text>
+    <m-text prop="display_order" label="{{t('dict.sort')}}" :default="0"></m-text>
+    <m-text prop="url" label="{{t('menu.link')}}"></m-text>
+    <m-text prop="permission_code" label="{{t('menu.permission_code')}}"></m-text>
+    <m-text prop="icon" label="{{t('label.icon')}}" default="el-icon-arrow-right"></m-text>
+</m-dialog>
+
+<m-navbar>
+    <ma-create></ma-create>
+    <m-select prop="group_id" options="groups" value-key="group_id" label-key="group_name" url="/menu/group/list"></m-select>
+</m-navbar>
+
+<m-dialog mode="edit">
+    <m-select prop="group_id" options="groups" value-key="group_id" label-key="group_name" url="/menu/group/list"></m-select>
+    <m-text prop="item_name"></m-text>
+    <m-text prop="display_order"></m-text>
+    <m-text prop="url"></m-text>
+    <m-text prop="permission_code"></m-text>
+    <m-text prop="icon"></m-text>
+</m-dialog>
+<m-table>
+    <m-selection></m-selection>
+    <m-index></m-index>
+    <m-text prop="item_id" label="Id" width="50"></m-text>
+    <m-text prop="item_name" width="150"></m-text>
+    <m-text prop="url" show-overflow-tooltip></m-text>
+    <m-text prop="permission_code"></m-text>
+    <m-text prop="display_order" width="50"></m-text>
+    <m-text prop="icon" width="150"></m-text>
+    <m-account prop="updated_by"></m-account>
+    <m-timestamp prop="updated_at"></m-timestamp>
+    <m-actions actions="edit,delete"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('menu.item')}}',
+                permissions: {},
+            }
+        });
+    </script>
+@append

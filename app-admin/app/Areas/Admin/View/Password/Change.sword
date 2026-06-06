@@ -1,0 +1,71 @@
+<el-row class="change-password-box">
+    <el-form :model="edit" size="small">
+        <h1 align="center">{{t('auth.password_change')}}</h1>
+        <el-input v-model.trim="edit.admin_name" disabled>
+            <template slot="prepend">{{t('auth.account')}}</template>
+        </el-input>
+        <el-input v-model.trim="edit.old_password" type="password" placeholder="{{t('auth.password_old')}}" autofocus>
+            <template slot="prepend">{{t('auth.password_old')}}</template>
+        </el-input>
+        <el-input v-model.trim="edit.new_password" type="password" placeholder="{{t('auth.password_new')}}">
+            <template slot="prepend">{{t('auth.password_new')}}</template>
+        </el-input>
+        <el-input v-model.trim="edit.new_password_confirm" type="password" placeholder="{{t('auth.password_new_confirm')}}">
+            <template slot="prepend">{{t('auth.password_new_confirm')}}</template>
+        </el-input>
+        <el-form-item>
+            <el-button @click="change" type="primary" class="change-password"
+                       :disabled="!edit.old_password||!edit.new_password||!edit.new_password_confirm">{{t('auth.confirm')}}
+            </el-button>
+        </el-form-item>
+    </el-form>
+</el-row>
+@section('css')
+    <style type="text/css">
+        .el-form {
+            margin: 10% auto;
+            width: 300px;
+        }
+
+        .change-password {
+            display: block;
+            margin: 10px auto;
+        }
+    </style>
+@append
+@section('script')
+    @inject('identity', 'Switon\Principal\IdentityInterface')
+    <script>
+        vm = new App({
+            data: {
+                i18n: window.AdminMessages || {},
+                model: {
+                    admin_name: {!! json($identity->getName()) !!},
+                    old_password: '',
+                    new_password: '',
+                    new_password_confirm: '',
+                },
+            },
+            methods: {
+                t(key) {
+                    return this.adminT(key);
+                },
+                change() {
+                    this.$axios.post(document.location.href, Qs.stringify(this.edit)).then((res) => {
+                        if (res.data.code === 0) {
+                            window.location.href = BASE_URL;
+                        } else {
+                            this.$alert(res.data.msg);
+                        }
+                    }).catch((error) => {
+                        if (error.response.data.msg) {
+                            this.$alert(error.response.data.msg, this.adminT('common.error'));
+                        } else {
+                            this.$alert(error.response.statusText, this.adminT('common.error'));
+                        }
+                    });
+                },
+            }
+        });
+    </script>
+@append

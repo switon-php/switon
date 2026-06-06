@@ -1,0 +1,58 @@
+{
+    "name": "switon/invocation",
+    "description": "Method-level guard and interceptor contracts for managed invocations for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "invocation",
+        "interceptor",
+        "attribute"
+    ],
+    "homepage": "https://github.com/switon-php/invocation",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/invocation",
+        "issues": "https://github.com/switon-php/invocation/issues",
+        "docs": "https://docs.switon.dev/latest/invocation"
+    },
+    "require": {
+        "php": ">=8.3"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Invocation\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Invocation\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}

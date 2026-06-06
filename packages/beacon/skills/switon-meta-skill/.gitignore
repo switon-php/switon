@@ -1,0 +1,3 @@
+# Selection test output — do not run with tmp_dir inside this skill; use workspace tmp/ or runtime
+tmp-selection*/
+tmp/

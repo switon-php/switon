@@ -1,0 +1,127 @@
+{
+  "name": "switon/monorepo",
+  "description": "Monorepo workspace for Switon Framework packages and distributions",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "switon",
+      "email": "admin@switon.dev"
+    }
+  ],
+  "require": {
+    "php": ">=8.3",
+    "ext-json": "*",
+    "psr/container": "^2.0",
+    "psr/log": "^2.0",
+    "psr/event-dispatcher": "^1.0",
+    "psr/simple-cache": "^3.0",
+    "switon/context": "^1.0",
+    "switon/core": "^1.0",
+    "switon/crypto": "^1.0",
+    "switon/db": "^1.0",
+    "switon/di": "^1.0",
+    "switon/event": "^1.0",
+    "switon/http": "^1.0",
+    "switon/i18n": "^1.0",
+    "switon/inspector": "^1.0",
+    "switon/invoker": "^1.0",
+    "switon/orm": "^1.0",
+    "switon/orm-codegen": "^1.0",
+    "switon/pool": "^1.0",
+    "switon/principal": "^1.0",
+    "switon/query": "^1.0",
+    "switon/redis": "^1.0",
+    "switon/renderer": "^1.0",
+    "switon/router": "^1.0",
+    "switon/schedule": "^1.0",
+    "switon/sharding": "^1.0",
+    "switon/sync": "^1.0",
+    "switon/testing": "^1.0",
+    "switon/validation": "^1.0",
+    "switon/id": "^1.0",
+    "switon/log": "^1.0",
+    "switon/session": "^1.0",
+    "switon/jwt": "^1.0",
+    "switon/command": "^1.0",
+    "switon/yaml": "^1.0",
+    "switon/kernel": "^1.0",
+    "switon/composer-extra": "^1.0",
+    "switon/beacon": "^1.0",
+    "switon/binding": "^1.0",
+    "switon/authz": "^1.0",
+    "switon/captcha": "^1.0",
+    "switon/cli": "^1.0",
+    "switon/throttle": "^1.0",
+    "switon/mail": "^1.0",
+    "switon/storage": "^1.0",
+    "switon/openapi": "^1.0",
+    "switon/dict": "^1.0",
+    "ext-zlib": "*",
+    "ext-sockets": "*",
+    "ext-fileinfo": "*"
+  },
+  "require-dev": {
+    "composer/composer": "^2.0",
+    "friendsofphp/php-cs-fixer": "^3.0",
+    "phpunit/phpunit": "^12.0",
+    "phpstan/phpstan": "^2.0",
+    "phpstan/extension-installer": "^1.4",
+    "ext-pdo": "*"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "repositories": [
+    {
+      "type": "path",
+      "url": "packages/*",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
+  "config": {
+    "preferred-install": {
+      "*": "symlink"
+    },
+    "allow-plugins": {
+      "switon/composer-extra": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "keywords": [
+    "switon",
+    "framework",
+    "php",
+    "monorepo"
+  ],
+  "scripts": {
+    "phpstan": "bash scripts/run-phpstan.sh",
+    "phpstan:core": "bash scripts/run-phpstan.sh core",
+    "phpstan:event": "bash scripts/run-phpstan.sh event",
+    "phpstan:composer-extra": "bash scripts/run-phpstan.sh composer-extra",
+    "phpstan:di": "bash scripts/run-phpstan.sh di",
+    "phpstan:validation": "bash scripts/run-phpstan.sh validation",
+    "phpstan:authz": "bash scripts/run-phpstan.sh authz",
+    "phpstan:beacon": "bash scripts/run-phpstan.sh beacon",
+    "phpstan:binding": "bash scripts/run-phpstan.sh binding",
+    "phpstan:cache": "bash scripts/run-phpstan.sh cache",
+    "phpstan:captcha": "bash scripts/run-phpstan.sh captcha",
+    "phpstan:cli": "bash scripts/run-phpstan.sh cli",
+    "phpstan:command": "bash scripts/run-phpstan.sh command",
+    "phpstan:console": "bash scripts/run-phpstan.sh console",
+    "phpstan:context": "bash scripts/run-phpstan.sh context",
+    "phpstan:crypto": "bash scripts/run-phpstan.sh crypto",
+    "phpstan:db": "bash scripts/run-phpstan.sh db",
+    "phpstan:dict": "bash scripts/run-phpstan.sh dict",
+    "phpstan:executor": "bash scripts/run-phpstan.sh executor",
+    "phpstan:http": "bash scripts/run-phpstan.sh http",
+    "phpstan:http-client": "bash scripts/run-phpstan.sh http-client",
+    "phpstan:http-cache": "bash scripts/run-phpstan.sh http-cache",
+    "phpstan:i18n": "bash scripts/run-phpstan.sh i18n",
+    "test:unit": "bash tests/run.sh --all --fast --silent",
+    "cs-fixer": "bash scripts/run-cs-fixer.sh --all",
+    "cs-fixer:fix": "bash scripts/run-cs-fixer.sh --fix --all",
+    "framework:sync": "bash scripts/sync-framework-links.sh"
+  }
+}

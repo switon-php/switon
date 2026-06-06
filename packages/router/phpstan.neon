@@ -1,0 +1,12 @@
+parameters:
+    level: 7
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    paths:
+        - src
+    tmpDir: tests/.phpstan.cache
+    ignoreErrors:
+        -
+            message: '#ReflectionClass constructor expects class-string#'
+            path: src/Command/RouterCommand.php
+            count: 1

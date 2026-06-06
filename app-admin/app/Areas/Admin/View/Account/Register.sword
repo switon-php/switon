@@ -1,0 +1,144 @@
+@layout(false)
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Switon Admin · {{t('auth.register_title')}}</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <script>(function(){var k='switon.admin.theme',L={switon:'light',beacon:'light',forest:'light',ocean:'light',ember:'light',lilac:'light',slate:'light',crimson:'light',azure:'light',coral:'light',mint:'light',midnight:'light',gold:'light',rose:'light',copper:'light',frost:'light',lagoon:'light',cherry:'light',graphite:'light',moss:'light',plum:'light',mui:'light',semi:'light',naive:'light',linear:'light',notion:'light',chakra:'light',tailwind:'light',vercel:'light',dracula:'dark',antd:'light',arco:'light',bootstrap:'light',carbon:'light',element:'light',fluent:'light',github:'light',radix:'light',shadcn:'light',stripe:'light'},a=['light','dark'],t=localStorage.getItem(k);if(t&&L[t]){localStorage.setItem(k,L[t]);t=L[t];}t=t&&a.indexOf(t)>=0?t:'light';document.documentElement.setAttribute('data-admin-theme',t);})();</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme-skins.css">
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 14px;
+            box-sizing: border-box;
+            font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .register-box {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            transform: translateY(-6vh);
+        }
+
+        .register-box > div {
+            margin-bottom: 10px;
+        }
+
+        .background {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            z-index: -1000;
+        }
+    </style>
+</head>
+
+<body>
+<script>var BASE_URL = '{{url()}}';</script>
+
+<div id="app" class="register-box auth-box">
+    <h1 class="auth-title">{{t('auth.register_title')}}</h1>
+    <el-input v-model.trim="request.admin_name" placeholder="{{t('auth.username')}}" ref="admin_name">
+        <template slot="prepend">{{t('auth.account')}}</template>
+    </el-input>
+    <el-input v-model.trim="request.email" placeholder="{{t('auth.email')}}" ref="email">
+        <template slot="prepend">{{t('auth.email')}}</template>
+    </el-input>
+    <el-input v-model.trim="request.password" type="password" placeholder="{{t('auth.password')}}" ref="password">
+        <template slot="prepend">{{t('auth.password')}}</template>
+    </el-input>
+    <el-row>
+        <el-col :span="16">
+            <el-input v-model.trim="request.captcha_code" placeholder="{{t('auth.captcha')}}" @keyup.enter.native="login">
+                <template slot="prepend">{{t('auth.captcha')}}</template>
+            </el-input>
+        </el-col>
+        <el-col :offset="1" :span="7">
+            <img class="auth-captcha" :src="captcha_blob" @click="refreshCaptcha">
+        </el-col>
+    </el-row>
+    <el-button @click="register" style="width:100%" type="primary"
+               :disabled="request.admin_name===''||request.password===''||request.email===''">{{t('auth.register')}}
+    </el-button>
+    <div class="auth-link-row">
+        <a class="auth-link" href="/login">{{t('auth.has_account')}}</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js"></script>
+<script>
+    Vue.prototype.$axios = axios;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            request: {
+                admin_name: '',
+                email: '',
+                password: '',
+                captcha_code: '',
+                captcha_key: '',
+            },
+            captcha_blob: ''
+        },
+        mounted() {
+            this.refreshCaptcha();
+        },
+        methods: {
+            refreshCaptcha() {
+                this.request.captcha_code = '';
+                this.$axios.post(BASE_URL + '/admin/account/captcha').then((res) => {
+                    if (res.data && res.data.data) {
+                        this.request.captcha_key = res.data.data.key;
+                        this.captcha_blob = res.data.data.blob;
+                    }
+                });
+            },
+            register() {
+                if (this.request.admin_name === '' || this.request.password === '') {
+                    return;
+                }
+
+                this.$axios.post(document.location.href, this.request).then((res) => {
+                    if (res.data.code === 0) {
+                        window.location.href = BASE_URL + '/';
+                    } else {
+                        this.request.captcha_code = '';
+                        this.refreshCaptcha();
+                        this.$alert(res.data.msg ? res.data.msg : res.data, '{{t('common.error')}}');
+                    }
+                }).catch((error) => {
+                    this.refreshCaptcha();
+
+                    if (error.response.data.msg) {
+                        this.$alert(error.response.data.msg, '{{t('common.error')}}');
+                    } else {
+                        this.$alert(error.response.statusText, '{{t('common.error')}}');
+                    }
+                });
+            },
+        }
+    });
+</script>
+</body>
+</html>

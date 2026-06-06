@@ -1,0 +1,42 @@
+<m-navbar>
+    <ma-create></ma-create>
+    <m-text prop="keyword" placeholder="{{t('rbac.role')}}"></m-text>
+</m-navbar>
+<m-dialog mode="create">
+    <m-text prop="role_code" label="{{t('rbac.role_code')}}"></m-text>
+    <m-text prop="role_name" label="{{t('rbac.role_name')}}"></m-text>
+    <m-switch prop="enabled" :default="true"></m-switch>
+</m-dialog>
+<m-dialog mode="edit">
+    <m-text prop="role_id" disabled></m-text>
+    <m-text prop="role_code" label="{{t('rbac.role_code')}}" disabled></m-text>
+    <m-text prop="role_name" label="{{t('rbac.role_name')}}"></m-text>
+</m-dialog>
+<m-dialog mode="detail">
+    <m-text prop="role_id"></m-text>
+    <m-text prop="role_code" label="{{t('rbac.role_code')}}"></m-text>
+    <m-text prop="role_name" label="{{t('rbac.role_name')}}"></m-text>
+    <m-bool prop="enabled"></m-bool>
+    <m-bool prop="builtin"></m-bool>
+    <m-text prop="permissions" label="{{t('rbac.permissions')}}"></m-text>
+    <m-timestamp prop="updated_at" :smart-display="false"></m-timestamp>
+</m-dialog>
+
+<m-table :size="15">
+    <m-selection></m-selection>
+    <m-index></m-index>
+    <m-text prop="role_code" label="{{t('rbac.role_code')}}" width="180"></m-text>
+    <m-text prop="role_name" label="{{t('rbac.role_name')}}" min-width="220" show-overflow-tooltip></m-text>
+    <m-text prop="permissions" label="{{t('rbac.permissions')}}" min-width="320" show-overflow-tooltip></m-text>
+    <m-timestamp prop="updated_at" :smart-display="false" width="190"></m-timestamp>
+    <m-actions actions="detail,edit,enable,delete"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('rbac.role')}}',
+            }
+        });
+    </script>
+@append

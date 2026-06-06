@@ -1,0 +1,63 @@
+{
+    "name": "switon/mail",
+    "description": "Outbound mail with fluent messages, SMTP serialization, and pooled transport for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "mail",
+        "smtp",
+        "email"
+    ],
+    "homepage": "https://github.com/switon-php/mail",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/mail",
+        "issues": "https://github.com/switon-php/mail/issues",
+        "docs": "https://docs.switon.dev/latest/mail"
+    },
+    "require": {
+        "ext-curl": "*",
+        "php": ">=8.3",
+        "psr/event-dispatcher": "^1.0",
+        "switon/core": "^1.0",
+        "switon/event": "^1.0",
+        "switon/pool": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Mail\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Mail\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}

@@ -1,0 +1,241 @@
+[
+  {
+    "install": "switon/beacon",
+    "namespace": "\u2014",
+    "keywords": "AGENTS.md skills SKILL.md standards-index tool:list packages:official"
+  },
+  {
+    "install": "switon/binding",
+    "namespace": "Switon\\Binding",
+    "keywords": "argument-binding input-binding hydration parameter-resolver typed-input",
+    "classes": "ArgumentResolvable ArgumentsBinder ArgumentsBinderInterface Attribute/ParameterResolvedBy Event/ActionArgumentsResolved Event/ActionArgumentsResolving Exception Exception/InputBindingNestingDepthExceededException Exception/TooManyPositionalArgumentsException Exception/UnsupportedParameterTypeException InputBinder InputBinderInterface ObjectResolver ObjectResolverInterface ParameterResolverInterface ScalarResolver ScalarResolverInterface"
+  },
+  {
+    "install": "switon/authz",
+    "namespace": "Switon\\Authorizing",
+    "keywords": "voter policy class+method-level lookup",
+    "classes": "Attribute/Authorize Authorization AuthorizationContext Lookup Permissions PermissionsInterface ServiceProvider Voter"
+  },
+  {
+    "install": "switon/cache",
+    "namespace": "Switon\\Caching",
+    "keywords": "prefix hit miss redis",
+    "classes": "Command/CacheCommand Event/CacheDeleted Event/CacheHit Event/CacheMiss Event/CacheMultipleWritten Event/CacheWritten Exception Exception/CachePrefixRequiredException ServiceProvider SimpleCache"
+  },
+  {
+    "install": "switon/captcha",
+    "namespace": "Switon\\Captcha",
+    "keywords": "too-frequent expired gd imagick redis",
+    "classes": "AbstractCaptcha Adapter/Gd Adapter/Imagick Captcha Exception Exception/CaptchaAlreadyVerifiedException Exception/CaptchaDataInvalidException Exception/CaptchaExpiredException Exception/CaptchaMismatchException Exception/CaptchaNotFoundException Exception/CaptchaTooFrequentException Exception/InvalidCaptchaException Store"
+  },
+  {
+    "install": "switon/cli",
+    "namespace": "Switon\\Cli",
+    "keywords": "gnu-options --no-flag tool:list bash-completion router hidden",
+    "classes": "AnsiWidthCalculator Command/CompletionCommand Command/CommandHelpRenderer Command/HelpCommand Command/ListCommand CommandDiscovery CommandHelpRenderer CommandInspector Console ErrorHandler Event/AbstractCommandEvent Event/CliInvoked Event/CliInvoking Event/CommandDuplicate Event/CommandExecuted Event/CommandExecuting Event/ConsoleDebug Event/ConsoleError Event/ConsoleInfo Event/ConsoleWarning Event/ToolInvoked Event/ToolInvoking Exception Exception/OptionsException Handler Kernel Options ProgressBar Router Server ServiceProvider TerminalWidthDetector"
+  },
+  {
+    "install": "switon/composer-extra-plugin",
+    "namespace": "Switon\\ComposerExtraPlugin",
+    "keywords": "extra.switon composer-extra.json",
+    "classes": "ComposerExtraPluginInterface Plugin"
+  },
+  {
+    "install": "switon/context",
+    "namespace": "Switon\\Context",
+    "keywords": "context-isolation propagated request-scope",
+    "classes": "ContextManager Event/ChildContextCreated Event/ChildContextInherited Event/ChildContextPropagated Exception Exception/ContextException ServiceProvider"
+  },
+  {
+    "install": "switon/core",
+    "namespace": "Switon\\Core",
+    "keywords": "context-aware path-alias @alias filesystem service-discovery service-provider autowired",
+    "classes": "App Attribute/ArrayOf Attribute/Autowired Attribute/Communal Attribute/EventLevel Attribute/EventListener Attribute/Hidden Attribute/Tool Backtrace Categorized ClassName Clock Command/KeyCommand Command/PasswordCommand Command/VersionCommand ComposerExtra Console/Colors Contract/ActionMappingAttribute Contract/App Contract/Authenticator Contract/Categorizable Contract/Clock Contract/Collector Contract/Console Contract/Container Contract/ContextAware Contract/ContextConnScoped Contract/ContextIsolated Contract/ContextManager Contract/EventLog Contract/Filesystem Contract/FilterMatcher Contract/Injector Contract/Input Contract/Lazy Contract/ListenerProvider Contract/Locale Contract/Maker Contract/PathAlias Contract/Random Contract/Request Contract/ServiceProvider Event/EventSilent Event/Level Event/ObservabilityProbe Exception Exception/AliasNotFoundException Exception/CircularAliasException Exception/ComposerExtraNotFoundException Exception/CreateDirectoryFailedException Exception/DsnFormatException Exception/FileNotFoundException Exception/InternalErrorException Exception/InvalidAliasNameException Exception/InvalidArgumentException Exception/InvalidValueException Exception/JsonException Exception/MisuseException Exception/NonCloneableException Exception/NotAuthenticatedException Exception/NotImplementedException Exception/NotSupportedException Exception/PreconditionException Exception/ProjectRootDetectionException Exception/RuntimeException Filesystem FilterMatcher Inspector/AppCollector Inspector/FilesCollector Inspector/ProviderCollector Json Naming PathAlias Random Runtime ServiceProvider StopFlow Strings"
+  },
+  {
+    "install": "switon/principal",
+    "namespace": "Switon\\Principal",
+    "keywords": "identity tenant request-scope current-caller current-tenant",
+    "classes": "Identity IdentityContext IdentityInterface Tenant TenantContext TenantInterface"
+  },
+  {
+    "install": "switon/crypto",
+    "namespace": "Switon\\Crypto",
+    "keywords": "cipher mac secret-key derived rotate",
+    "classes": "Cipher RotatingCipher Validator Exception Exception/DataTooShortException Exception/DecryptionFailedException Exception/EncryptionFailedException Exception/IVGenerationException Exception/InvalidCipherMethodException Exception/InvalidRawKeyException Exception/MissingDecryptRuleException Exception/MissingSecretException Exception/ValidationFailedException"
+  },
+  {
+    "install": "switon/db",
+    "namespace": "Switon\\Db",
+    "keywords": "pool url-config cross-db rw-split transaction prepared table-scan pool-transient",
+    "classes": "AbstractConnection Client Command/DbCommand Connection Connection/Adapter/Mssql Connection/Adapter/Mysql Connection/Adapter/Pgsql Connection/Adapter/Sqlite Event/AbstractDbExecuted Event/AbstractDbExecuting Event/DbAbnormal Event/DbBegin Event/DbClose Event/DbCommit Event/DbConnected Event/DbConnecting Event/DbDeleted Event/DbDeleting Event/DbExecuted Event/DbExecuting Event/DbInserted Event/DbInserting Event/DbMetadata Event/DbQueried Event/DbQuerySkipped Event/DbQuerying Event/DbRollback Event/DbUpdated Event/DbUpdating Event/DbUpserted Event/DbUpserting Exception Exception/ConnectionException Exception/ConnectionNotReleasedException Exception/CrossDatabaseTransactionException Exception/NoActiveTransactionException Exception/ReadonlyException Exception/TransactionNotClosedException Exception/TransientClientException Exception/UnknownOperatorException Exception/UnsafeOperationException Exception/UnsupportedParameterTypeException Fragment/Increment Inspector/SqlCollector Inspector/SqlCollectorContext PoolConfiguration PoolConfigurator PreparedEmulator SqlFragment TableScanner TransactionManager TransactionManagerContext"
+  },
+  {
+    "install": "switon/dict",
+    "namespace": "Switon\\Dict",
+    "keywords": "controlled-values typed-parameter dict-value options reader type-code",
+    "classes": "Attribute/DictValue Dict DictEntry DictReaderInterface DictResolver DictType Exception Exception/DictItemNotFoundException Exception/DictTypeCodeRequiredException Exception/DictTypeNotFoundException Exception/UnsupportedDictParameterTypeException ServiceProvider"
+  },
+  {
+    "install": "switon/di",
+    "namespace": "Switon\\Di",
+    "keywords": "container autowire interceptor inheritance lazy named factory",
+    "classes": "Attribute/Interceptor Command/ContainerCommand Container Event/FactoryObjectInjected Event/SingletonCreated Exception Exception/CircularDependencyException Exception/InterfaceAutowiringException Exception/MissingConfigurationException Exception/MissingTypeDeclarationException Exception/NotFoundException Exception/ReflectionException Exception/ServiceAlreadyResolvedException Exception/ServiceInjectionException Exception/UnsupportedDefinitionException Factory Injector Invoker LazyPropertyProxy NamedLookup ServiceProvider"
+  },
+  {
+    "install": "switon/event",
+    "namespace": "Switon\\Eventing",
+    "keywords": "listener peer-listener listener-scan business event-log observability",
+    "classes": "Event/BusinessRegistered Event/DispatchFailed Event/ObservabilityRegistered Event/WildcardBusinessRegistered Event/WildcardObservabilityRegistered EventDispatcher EventDispatcherContext EventLogger EventWrapper ListenerProvider ListenerDiscovery ServiceProvider"
+  },
+  {
+    "install": "switon/http",
+    "namespace": "Switon\\Http",
+    "keywords": "exception-dispatch context-isolation route-mapping cache-control request-id lifecycle swoole renderer",
+    "classes": "AbstractServer Attribute/CacheControl Attribute/ETag BearerToken Command/FilterCommand Controller ControllerRegistry Cookies Cookies/Exception CookiesContext DefaultExceptionHandler Event/AbstractRequestDispatch Event/AssetSending Event/AssetSent Event/BodySending Event/BodySent Event/ChunkWriting Event/ChunkWritten Event/ControllerResolved Event/HeadersSending Event/HeadersSent Event/RequestAuthenticated Event/RequestAuthenticating Event/RequestAuthorized Event/RequestAuthorizing Event/RequestBegin Event/RequestEnd Event/RequestFailed Event/RequestInvoked Event/RequestInvoking Event/RequestReady Event/RequestReceived Event/RequestRendered Event/RequestRendering Event/RequestRouted Event/RequestRouting Event/RequestValidated Event/RequestValidating Event/ResponseStringify Exception Exception/ActionNotFoundException Exception/ControllerNotFoundException Exception/ForbiddenException Exception/HeadersAlreadySentException Exception/InvalidAssociativeArrayException Exception/InvalidControllerException Exception/InvalidIndexedArrayException Exception/NotFoundException Exception/TooManyRequestsException Exception/UnauthorizedException Exception/UnsupportedSerializerException ExceptionDispatcher ExceptionHandler Filter/AccessLogFilter Filter/AppendResponseTimeFilter Filter/CorsFilter Filter/Event/AccessLogWriteFailed Filter/MappingValidatorFilter Filter/RequestIdFilter Filter/RequestLocaleFilter Filter/SlowlogFilter FilterDiscovery ForbiddenHandler HandlerId Interceptor Kernel Request Request/Exception Request/File Request/File/Exception RequestContext RequestHandler RequestHandler/Exception Response Response/AttachmentRenderer Response/CsvRenderer Response/JsonRenderer Response/XmlRenderer ResponseContext Server Server/Adapter/Fpm Server/Adapter/Native/Headers Server/Adapter/Native/Sender Server/Adapter/Php Server/Adapter/Swoole Server/Adapter/SwooleContext Server/Attribute/ServerCallback Server/Detector Server/Event/ServerBeforeShutdown Server/Event/ServerClose Server/Event/ServerConnect Server/Event/ServerDispatchedTask Server/Event/ServerFinish Server/Event/ServerManagerStart Server/Event/ServerManagerStop Server/Event/ServerPacket Server/Event/ServerPipeMessage Server/Event/ServerReady Server/Event/ServerShutdown Server/Event/ServerStart Server/Event/ServerStarted Server/Event/ServerTask Server/Event/ServerTaskerError Server/Event/ServerTaskerExit Server/Event/ServerTaskerStart Server/Event/ServerTaskerStop Server/Event/ServerWorkerError Server/Event/ServerWorkerExit Server/Event/ServerWorkerStart Server/Event/ServerWorkerStop Server/Listener/LogServerStatusListener Server/Listener/RenameProcessTitleListener Server/Network Server/StaticHandler ServerOptions ServiceProvider SseEvent Transformer/NormalizeActionReturnTransformer UnauthorizedHandler UrlGenerator"
+  },
+  {
+    "install": "switon/http-cache",
+    "namespace": "Switon\\HttpCache",
+    "keywords": "page-cache ttl etag redis",
+    "classes": "Attribute/PageCache PageCacheFilter PageCacheFilterContext ServiceProvider"
+  },
+  {
+    "install": "switon/http-client",
+    "namespace": "Switon\\HttpClient",
+    "keywords": "rest curl pool lifecycle retry",
+    "classes": "Command/DateCommand Curl Engine Event/HttpClientComplete Event/HttpClientError Event/HttpClientRequested Event/HttpClientRequesting Event/HttpClientStart Event/HttpClientSuccess Exception Exception/BadGatewayException Exception/BadRequestException Exception/BadResponseException Exception/ClientErrorException Exception/ConfigurationException Exception/ConnectTimeoutException Exception/ConnectionException Exception/ContentTypeException Exception/DecompressionException Exception/DnsException Exception/FileException Exception/ForbiddenException Exception/GatewayTimeoutException Exception/HttpStatusException Exception/InternalServerErrorException Exception/InvalidJsonException Exception/NotFoundException Exception/RedirectionException Exception/RequestException Exception/ResponseException Exception/ResponseParseException Exception/ServerErrorException Exception/ServiceUnavailableException Exception/SslException Exception/TimeoutException Exception/TooManyRequestsException Exception/UnauthorizedException Exception/UnsupportedProxyException File HttpClient LocalFile MemoryFile Request Response Response/Cookie"
+  },
+  {
+    "install": "switon/i18n",
+    "namespace": "Switon\\I18n",
+    "keywords": "locale t fallback catalog icu",
+    "classes": "Event/TranslationKeyMissing Exception Exception/LocaleFileNotFoundException Locale LocaleContext ServiceProvider Translator"
+  },
+  {
+    "install": "switon/id",
+    "namespace": "Switon\\Id",
+    "keywords": "snowflake uuid7 ulid nanoid ksuid cuid2",
+    "classes": "Command/IdCommand Cuid2 IdGenerator Ksuid MongoId NanoId ServiceProvider ShortUuid Snowflake Ulid Uuid4 Uuid7"
+  },
+  {
+    "install": "switon/inspector",
+    "namespace": "Switon\\Inspector",
+    "keywords": "x-inspector-link x-inspector-route collectors deps events ui",
+    "classes": "BasicCollector Collector/DependencyCollector Collector/EventCollector Collector/EventCollectorContext Collector/EventMappingsCollector Collector/ListenerStatsCollector Collector/LoggerCollector Collector/LoggerCollectorContext CollectorDiscovery Command/InspectorCommand DataDump Dumper Event/InspectorLinkGenerated HtmlRenderer Inspector InspectorContext Listener/RenderListener Listener/RouteHeaderListener ServiceProvider Storage"
+  },
+  {
+    "install": "switon/invoker",
+    "namespace": "Switon\\Invoking",
+    "keywords": "callable-invocation invocation-guards interceptors container-fallback reflection-dispatch",
+    "classes": "Invoker InvokerInterface Exception Exception/MissingConfigurationException Exception/MissingTypeDeclarationException Exception/ServiceInjectionException"
+  },
+  {
+    "install": "switon/jwt",
+    "namespace": "Switon\\Jwt",
+    "keywords": "algorithms kid jwks clock-skew scope",
+    "classes": "Exception Exception/AlgorithmMismatchException Exception/ExpiredException Exception/MalformedException Exception/NoCredentialException Exception/NotBeforeException Exception/SignatureException Jwt"
+  },
+  {
+    "install": "switon/kernel",
+    "namespace": "Switon\\Kernel",
+    "keywords": "bootstrap root-detection env config/* fatal-error convention-first",
+    "classes": "Config Env Event/FatalErrorOccurred Event/ServiceBootstrapped Exception Exception/ConfigLoadException Exception/EnvVariableNotFoundException Exception/MalformedEnvFileException Exception/RootDirectoryNotFoundException FatalHandler FatalHandlerInterface Kernel KernelInterface ProviderResourceRegistrar ServiceBootstrapper Version VersionInterface"
+  },
+  {
+    "install": "switon/log",
+    "namespace": "Switon\\Logging",
+    "keywords": "appender category-from-caller event multi-levels syslog",
+    "classes": "Appender Appender/FileAppender Appender/MemoryAppender Appender/MemoryAppenderContext Appender/StdoutAppender Appender/SyslogAppender Event/LoggerLogged Exception Exception/InvalidSyslogConfigException Formatter Level LogEntry Logger ServiceProvider"
+  },
+  {
+    "install": "switon/orm",
+    "namespace": "Switon\\Orm",
+    "keywords": "entity relation fillable transaction sharding auto-id events morph",
+    "classes": "AbstractEntityManager AbstractRepository AdditionalRelationCriteria Attribute/BelongsTo Attribute/BelongsToMany Attribute/Column Attribute/Connection Attribute/DateFormat Attribute/Exists Attribute/Fillable Attribute/HasMany Attribute/HasManyThrough Attribute/HasManyToMany Attribute/HasOne Attribute/Id Attribute/Immutable Attribute/JunctionMany Attribute/MorphMany Attribute/MorphTo Attribute/NamingStrategy Attribute/ReferencedKey Attribute/RelationAttribute Attribute/Repository Attribute/Table Attribute/Transactional Attribute/Transient Attribute/Transiently Attribute/Unique Entity EntityFiller EntityManager EntityMetadata Event/AbstractEntityEvent Event/EntityCreated Event/EntityCreating Event/EntityDeleted Event/EntityDeleting Event/EntityEvent Event/EntityUpdated Event/EntityUpdating Event/RelationDataInconsistency Exception Exception/EntityNotFoundException Exception/InvalidIdStrategyException Exception/JunctionFieldsInferenceException Exception/PrimaryKeyImmutableException Exception/PrimaryKeyMissingException Exception/PrimaryKeyNotFoundException Exception/RelationFieldMissingException Exception/RelationNotFoundException Exception/RepositoryNotFoundException IdGenerator JunctionRepositoryTrait NamingStrategy NamingStrategy/CamelNamingStrategy NamingStrategy/DefaultNamingStrategy Page QueryBuilder Relation Relation/AbstractRelation Relation/BelongsToRelation Relation/HasManyRelation Relation/HasManyThroughRelation Relation/HasManyToManyRelation Relation/HasOneRelation Relation/JunctionManyRelation Relation/MorphManyRelation Relation/MorphToRelation RelationManager Repository Sharding"
+  },
+  {
+    "install": "switon/orm-codegen",
+    "namespace": "Switon\\OrmCodegen",
+    "keywords": "entity:make scaffold generator entity repository sword-template",
+    "classes": "Command/EntityCommand EntityScanner Exception/ReservedAreaException Exception/TemplateCompilationException Generator/EntityClassResolver Generator/EntityGenerator Generator/FilePathGenerator Generator/OutputDirectoryResolver Generator/RepositoryGenerator Generator/TemplateCompiler"
+  },
+  {
+    "install": "switon/pool",
+    "namespace": "Switon\\Pooling",
+    "keywords": "raii owner-multi-type acquire release weakmap events",
+    "classes": "Event/ResourceAcquired Event/ResourceAcquiring Event/ResourceBusy Event/ResourceReturned Exception Exception/BusyException Exception/FullException Exception/PoolAlreadyExistsException Exception/PoolNotFoundException PoolGuard PoolManager"
+  },
+  {
+    "install": "switon/query",
+    "namespace": "Switon\\Query",
+    "keywords": "filter-specs symbolic-operators condition-builder sharding paginator eager-load",
+    "classes": "AbstractConditionBuilder AbstractQuery ConditionBuilder Exception Exception/EntityClassRequiredException Exception/InvalidFilterException Exception/InvalidSortDirectionException Exception/NotFoundException Exception/PaginationException Paginator Query ShardMerger ShardingContext ShardingJoinValidator Table"
+  },
+  {
+    "install": "switon/redis",
+    "namespace": "Switon\\Redis",
+    "keywords": "uri pool call-in-pool pool-transient redis-log",
+    "classes": "Client Command/RedisCommand Connection Event/RedisCalled Event/RedisCalling Event/RedisClose Event/RedisConnected Event/RedisConnecting Exception Exception/AuthException Exception/CallInPoolException Exception/ConnectionException Exception/DatabaseSelectException Exception/InvalidUriFormatException Logging/RedisLogAppender"
+  },
+  {
+    "install": "switon/renderer",
+    "namespace": "Switon\\Rendering",
+    "keywords": "blade-style directives @layout @widget @block asset-hash once+stack render-event",
+    "classes": "Command/SwordCommand Engine Engine/Php Engine/Sword Engine/Sword/Compiler Engine/Sword/Loop Event/RendererRendered Event/RendererRendering Exception Exception/RendererNotLockedException Exception/ReservedVariableException Exception/TemplateCompilationException Inspector/RendererCollector Inspector/RendererCollectorContext Renderer RendererContext"
+  },
+  {
+    "install": "switon/router",
+    "namespace": "Switon\\Routing",
+    "keywords": "spring-style [GetMapping] [ViewGet] mapping-scan dynamic-prefix route-not-found",
+    "classes": "Attribute/DeleteMapping Attribute/GetMapping Attribute/HeadMapping Attribute/Mapping Attribute/OptionsMapping Attribute/PatchMapping Attribute/PostMapping Attribute/PutMapping Attribute/RequestMapping Attribute/ViewGetMapping Attribute/ViewMapping Attribute/ViewPatchMapping Attribute/ViewPostMapping Attribute/ViewPutMapping Attribute/Viewable Command/RouterCommand Event/RouteNotFound Event/RouteParamsResolved Exception Exception/DynamicPrefixRequiresUriException Exception/MethodNotAllowedException Exception/NotFoundRouteException Exception/PatternInvalidException Inspector/RouterCollector MappingPath MappingScanner Matcher PatternCompiler RegexRoute Route Router"
+  },
+  {
+    "install": "switon/session",
+    "namespace": "Switon\\Session",
+    "keywords": "context-aware lazy-write ttl cookie-name session-id regenerate-id events",
+    "classes": "AbstractSession AbstractSessionContext Bag Event/SessionCreate Event/SessionDestroy Event/SessionEnd Event/SessionStart Event/SessionUnserializeFailed Event/SessionUpdate Exception ServiceProvider Session"
+  },
+  {
+    "install": "switon/sharding",
+    "namespace": "Switon\\Sharding",
+    "keywords": "db:user_id%4 base:field%n base:field:strategy:config modulo hash shard-validate",
+    "classes": "Event/ShardValidationFailed Exception Exception/InvalidShardingStrategyException Exception/ShardingNotSupportedException Exception/ShardingTooManyException ShardingManager Strategy Strategy/AbstractStrategy Strategy/Crc32Strategy Strategy/HashStrategy Strategy/ListStrategy Strategy/ModuloStrategy Strategy/RangeStrategy"
+  },
+  {
+    "install": "switon/sync",
+    "namespace": "Switon\\Sync",
+    "keywords": "go-style channel waitgroup mutex lock wait-timeout dual-runtime",
+    "classes": "Channel Exception Exception/ChannelClosedException Exception/ChannelEmptyException Exception/ChannelFullException Exception/WaitGroupConcurrentException Exception/WaitTimeoutException Lock Mutex Stack WaitGroup"
+  },
+  {
+    "install": "switon/testing",
+    "namespace": "Switon\\Testing",
+    "keywords": "testcase app-bootstrap builtin-mocks run.sh",
+    "classes": "ComposerExtra Container/Container EventDispatcher Mock/MockCache Mock/MockConsole Mock/MockProgressBar MockClock MockEventDispatcher MockListenerProvider MockLogger MockRandom TestCase"
+  },
+  {
+    "install": "switon/throttle",
+    "namespace": "Switon\\Throttle",
+    "keywords": "ratelimit multi-window sliding-window 10/m burst redis identity+ip per-user+global",
+    "classes": "Attribute/RateLimit Exception Exception/RateLimitExceededException RateLimiter ServiceProvider"
+  },
+  {
+    "install": "switon/validation",
+    "namespace": "Switon\\Validating",
+    "keywords": "constraint-attributes fail-fast validate-values missing-field-preserve requestbody-dto locale-templates",
+    "classes": "AbstractConstraint Attribute/Account Attribute/Alnum Attribute/Alpha Attribute/Constant Attribute/Date Attribute/Decimal Attribute/Defaults Attribute/Digit Attribute/Email Attribute/EndsWith Attribute/EqualTo Attribute/In Attribute/Ip Attribute/Length Attribute/Lowercase Attribute/Max Attribute/MaxLength Attribute/Min Attribute/MinLength Attribute/Mobile Attribute/NotEmpty Attribute/NotIn Attribute/Range Attribute/Regex Attribute/Required Attribute/Safe Attribute/StartsWith Attribute/Trim Attribute/Type Attribute/Uppercase Attribute/Url Attribute/Uuid Attribute/Xdigit Constraint Exception Exception/ConstraintViolationException Exception/InvalidConstraintTargetException Exception/LocaleTemplateNotFoundException Exception/UnsupportedValidationTypeException Exception/ValidateFailedException Validation Validator"
+  },
+  {
+    "install": "switon/view",
+    "namespace": "Switon\\Viewing",
+    "keywords": "controller-action-convention controller-defaults widget layout block vars flash",
+    "classes": "Asset Event/VarsResolved Event/VarsResolving ServiceProvider View ViewContext ViewRenderer Widget"
+  },
+  {
+    "install": "switon/yaml",
+    "namespace": "Switon\\Yaml",
+    "keywords": "yaml subset interpolation block-scalar strict parser",
+    "classes": "Exception/YamlParseException YamlReader YamlReaderInterface"
+  }
+]

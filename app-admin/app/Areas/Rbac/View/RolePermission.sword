@@ -1,0 +1,170 @@
+<m-navbar>
+    <ma-edit :disabled="editDisabled"></ma-edit>
+    <m-time-tag prefix="{{t('rbac.last_scan_prefix')}}" :value="lastScanAt"></m-time-tag>
+    <m-select prop="role_id" options="roles" url="/rbac/role-permission/roles" placeholder="{{t('rbac.select_please')}}"></m-select>
+</m-navbar>
+<m-dialog mode="edit">
+    <template slot="edit-title">
+        <el-input v-model="permissionEditFilter.controller" size="small" clearable placeholder="{{t('rbac.filter_controller')}}" maxlength="20" class="sw-rbac-perm-title-filter"></el-input>
+    </template>
+    <div class="sw-rbac-perm-edit">
+        <el-table :data="filteredPermissionTableRows" class="sw-rbac-perm-table" border size="small">
+            <el-table-column label="{{t('rbac.controller')}}">
+                <template slot-scope="scope">
+                    <el-tooltip :content="controllerCellTitle(scope.row)" placement="top" popper-class="sw-rbac-perm-tooltip" :open-delay="250">
+                        <span class="sw-rbac-perm-controller-cell">@{{ scope.row.controllerId }}</span>
+                    </el-tooltip>
+                </template>
+            </el-table-column>
+            <el-table-column label="{{t('rbac.action')}}">
+                <template slot-scope="scope">
+                    <div class="sw-rbac-perm-row-actions">
+                        <el-checkbox-group v-model="edit.permission_ids">
+                            <template v-if="scope.row.group.wildcard && scope.row.group.wildcard.permission_id">
+                                <el-checkbox :label="parseInt(scope.row.group.wildcard.permission_id)"
+                                             class="sw-rbac-perm-inline-check">
+                                    <el-tooltip :content="controllerActionTitle(scope.row, '*')" placement="top" popper-class="sw-rbac-perm-tooltip" :open-delay="250">
+                                        <span class="sw-rbac-perm-inline-label">
+                                            <span class="sw-rbac-perm-suffix">*</span>
+                                        </span>
+                                    </el-tooltip>
+                                </el-checkbox>
+                            </template>
+                            <template v-for="(leaf, suffix) in (scope.row.group.actions || {})" :key="scope.row.controllerId + '-' + suffix">
+                                <el-checkbox v-if="leaf.permission_id"
+                                             :label="parseInt(leaf.permission_id)"
+                                             class="sw-rbac-perm-inline-check">
+                                    <el-tooltip :content="controllerActionTitle(scope.row, suffix)" placement="top" popper-class="sw-rbac-perm-tooltip" :open-delay="250">
+                                        <span class="sw-rbac-perm-inline-label">
+                                            <span class="sw-rbac-perm-suffix">@{{ suffix }}</span>
+                                        </span>
+                                    </el-tooltip>
+                                </el-checkbox>
+                            </template>
+                        </el-checkbox-group>
+                    </div>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+</m-dialog>
+<m-table>
+    <m-index></m-index>
+    <m-link prop="permission_id" href="/rbac/permission" width="50" label="{{t('rbac.permission_id_short')}}"></m-link>
+    <m-text prop="permission_code" label="{{t('rbac.permission_code')}}" min-width="200"></m-text>
+    <m-text prop="roles" label="{{t('rbac.role_list')}}" min-width="160" v-slot="{row}">
+        <el-button size="small" v-for="role in row.roles" :key="role.role_id" type="text"
+                   @click.native="request.role_id = role.role_id" :disabled="request.role_id == role.role_id"
+                   :title="role.role_code">
+            @{{ role.role_name }}
+        </el-button>
+    </m-text>
+    <m-text prop="role_name" label="{{t('rbac.role_name')}}" show-overflow-tooltip></m-text>
+</m-table>
+
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('rbac.role_permission')}}',
+                request: {role_id: ''},
+                edit: {
+                    role_id: '',
+                    permission_ids: []
+                },
+
+                permissionEditFilter: {
+                    controller: '',
+                },
+
+                permissionGroups: {},
+                roles: [],
+                lastScanAt: 0,
+            },
+            created() {
+                this.loadLastScanAt();
+            },
+            computed: {
+                editDisabled() {
+                    const excludes = ['anonymous', 'authenticated'];
+                    const roles = Array.isArray(this.roles) ? this.roles : [];
+                    for (let i = 0; i < roles.length; i++) {
+                        let role = roles[i];
+                        if (role.role_id == this.request.role_id) {
+                            return excludes.includes(role.role_code);
+                        }
+                    }
+                    return false;
+                },
+                permissionTableRows() {
+                    const g = this.permissionGroups;
+                    if (!g || typeof g !== 'object') {
+                        return [];
+                    }
+                    return Object.keys(g).sort().map((id) => ({controllerId: id, group: g[id]}));
+                },
+                filteredPermissionTableRows() {
+                    const rows = this.permissionTableRows;
+                    const d = String((this.permissionEditFilter && this.permissionEditFilter.controller) || '').trim().toLowerCase();
+                    if (!d) {
+                        return rows;
+                    }
+                    return rows.filter((row) => String(row.controllerId).toLowerCase().includes(d));
+                }
+            },
+            methods: {
+                /** permission_code 形式：controller::action；通配传 '*' → ::* */
+                controllerActionTitle(row, actionSuffix) {
+                    const ctrl = row && row.controllerId ? String(row.controllerId) : '';
+                    const act = String(actionSuffix === undefined || actionSuffix === null ? '' : actionSuffix);
+                    if (ctrl) {
+                        return act !== '' ? ctrl + '::' + act : ctrl;
+                    }
+                    return act;
+                },
+                /** 控制器列悬停：首行 controller id；次行为动作后缀列表（逗号分隔），不重复控制器前缀 */
+                controllerCellTitle(row) {
+                    const lines = [];
+                    const id = row && row.controllerId ? String(row.controllerId) : '';
+                    if (id) {
+                        lines.push(id);
+                    }
+                    const g = row && row.group;
+                    if (!g) {
+                        return lines.join('\n');
+                    }
+                    const suffixes = Object.keys((g.actions || {}));
+                    if (suffixes.length > 0) {
+                        lines.push(suffixes.join(', '));
+                    }
+                    return lines.join('\n');
+                },
+                loadLastScanAt() {
+                    this.ajaxGet('/rbac/permission/last-scan', {}, (payload) => {
+                        this.lastScanAt = Number((payload && payload.last_scan_at) || 0);
+                    });
+                },
+                show_edit() {
+                    if (!this.request.role_id) {
+                        return;
+                    }
+
+                    this.ajaxGet('granted', {role_id: this.request.role_id}, (res) => {
+                        this.$set(this.edit, 'permission_ids', this._.map(res, (id) => parseInt(id)));
+                        this.$set(this.edit, 'role_id', this.request.role_id);
+
+                        this.ajaxGet('/rbac/permission/catalog', {
+                            assignable_only: 1,
+                        }, (payload) => {
+                            this.lastScanAt = Number((payload && payload.last_scan_at) || this.lastScanAt || 0);
+                            const g = payload && payload.groups && typeof payload.groups === 'object' ? payload.groups : {};
+                            this.permissionGroups = g;
+                            this.permissionEditFilter.controller = '';
+                            this.editVisible = true;
+                        });
+                    });
+                }
+            }
+        });
+    </script>
+@append

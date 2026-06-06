@@ -1,0 +1,52 @@
+<m-navbar>
+    <m-button action="rebuild" @click="do_rebuild" type="primary" icon="el-icon-refresh">{{t('rbac.scan_again')}}</m-button>
+    <m-time-tag prefix="{{t('rbac.last_scan_prefix')}}" :value="lastScanAt"></m-time-tag>
+    <md-select prop="derived" dict="rbac.permission.derived" placeholder="{{t('rbac.permission_type')}}" value-type="int"></md-select>
+    <m-text prop="keyword" placeholder="{{t('rbac.keyword_permission_match')}}" width="220"></m-text>
+</m-navbar>
+<m-dialog mode="edit">
+    <m-text prop="permission_id" disabled></m-text>
+    <m-text prop="permission_code" disabled></m-text>
+    <m-text prop="authorize" disabled></m-text>
+    <md-select prop="derived" disabled label="{{t('rbac.permission_type')}}" dict="rbac.permission.derived" value-type="int"></md-select>
+    <m-text prop="display_name"></m-text>
+</m-dialog>
+<m-table row-class-name="el-alert el-alert--warning is-light">
+    <m-selection></m-selection>
+    <m-index></m-index>
+    <m-id prop="permission_id" label="{{t('rbac.permission_id')}}"></m-id>
+    <m-text prop="display_name" label="{{t('rbac.display_name')}}" min-width="120"></m-text>
+    <m-text prop="permission_code" label="{{t('rbac.permission_code')}}" min-width="220"></m-text>
+    <md-text prop="derived" label="{{t('rbac.permission_type')}}" dict="rbac.permission.derived" width="120"></md-text>
+    <m-tags prop="roles" label="{{t('rbac.role_list')}}" min-width="140"></m-tags>
+    <m-text prop="assignable" width="80" label="{{t('rbac.assignable')}}"></m-text>
+    <m-text prop="authorize" label="{{t('rbac.authorize_builtin')}}" min-width="160"></m-text>
+    <m-timestamp prop="updated_at"></m-timestamp>
+    <m-actions actions="edit,delete"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('rbac.permission')}}',
+                lastScanAt: 0,
+            },
+            created() {
+                this.loadLastScanAt();
+            },
+            methods: {
+                loadLastScanAt() {
+                    this.ajaxGet('last-scan', {}, (payload) => {
+                        this.lastScanAt = Number((payload && payload.last_scan_at) || 0);
+                    });
+                },
+                do_rebuild() {
+                    this.ajaxPost("rebuild", {}, () => {
+                        this.reload();
+                        this.loadLastScanAt();
+                    });
+                }
+            }
+        });
+    </script>
+@append

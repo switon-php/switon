@@ -1,0 +1,11 @@
+parameters:
+    ignoreErrors:
+        # Rpc is analysed per-package; queue may be absent from monorepo vendor until wired in app composer.
+        -
+            identifier: class.notFound
+            message: '~Switon\\Queue\\~'
+        -
+            identifier: assign.propertyType
+            message: '~does not accept array<int\|string~'
+        -
+            identifier: while.alwaysTrue

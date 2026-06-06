@@ -1,0 +1,18 @@
+parameters:
+    ignoreErrors:
+        -
+            identifier: method.nonObject
+            message: '~PDOStatement\|false~'
+        -
+            identifier: return.type
+            message: '~should return int but returns int\|false~'
+        -
+            identifier: nullsafe.neverNull
+        -
+            identifier: argument.type
+            message: '~function trim expects string, array~'
+        -
+            identifier: assign.propertyType
+            message: '~does not accept array<mixed>\|string~'
+        -
+            identifier: binaryOp.invalid

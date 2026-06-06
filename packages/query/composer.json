@@ -1,0 +1,68 @@
+{
+    "name": "switon/query",
+    "description": "Fluent read SQL builder with joins, pagination, and shard-aware execution for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "query-builder",
+        "sql",
+        "database"
+    ],
+    "homepage": "https://github.com/switon-php/query",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/query",
+        "issues": "https://github.com/switon-php/query/issues",
+        "docs": "https://docs.switon.dev/latest/query"
+    },
+    "require": {
+        "php": ">=8.3",
+        "psr/event-dispatcher": "^1.0",
+        "switon/core": "^1.0",
+        "switon/db": "^1.0",
+        "switon/di": "^1.0",
+        "switon/sharding": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Query\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Query\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "phpstan": {
+            "includes": [
+                "phpstan-extension.neon"
+            ]
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}

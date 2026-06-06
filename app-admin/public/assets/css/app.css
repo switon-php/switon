@@ -1,0 +1,284 @@
+[v-cloak] {
+    display: none;
+}
+
+.right {
+    float: right;
+}
+
+.left {
+    float: left;
+}
+
+.clearfix {
+    *zoom: 1;
+}
+
+.clearfix:before,
+.clearfix:after {
+    display: table;
+    line-height: 0;
+    content: "";
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.el-pagination {
+    text-align: center;
+}
+
+.el-aside {
+    width: 210px !important;
+}
+
+/* One row height for group title and leaf items (theme aligns typography in admin-theme.css) */
+.el-menu-item,
+.el-submenu__title,
+.el-submenu .el-menu-item {
+    height: 36px;
+    line-height: 36px;
+}
+
+.el-submenu__title {
+    padding: 0 12px !important;
+}
+
+.el-submenu .el-menu-item {
+    padding: 0 12px 0 24px !important;
+}
+
+.el-table--small td, .el-table--small th {
+    padding: 2px 0;
+}
+
+.el-dialog {
+    width: 600px;
+}
+
+.el-dialog .el-form-item__label {
+    width: 30%;
+    font-weight: 700;
+}
+
+.el-dialog .el-input {
+    width: 70%;
+}
+
+.el-dialog .el-select {
+    width: 60%
+}
+
+/*[v-cloak] {*/
+/*display: none;*/
+/*}*/
+
+.product-name {
+    margin: 8px 30px;
+
+}
+
+.product-name span {
+    font-size: 1.1em;
+}
+
+.el-aside {
+    min-height: 800px;
+}
+
+/* Header height: see admin-theme.css (#app .el-header) */
+
+.el-link.operate {
+    margin-left: 10px;
+}
+
+.search-box .el-date-editor {
+    width: 220px;
+}
+
+.el-dialog .el-form-item {
+    margin-bottom: 15px !important;
+}
+
+.el-message-box.error-response {
+    width: 50%;
+}
+
+/* Active menu & backtop: admin-theme.css */
+
+.el-dialog .el-form-item {
+    margin-bottom: 30px;
+}
+
+.el-dialog .el-form-item--mini {
+    margin-bottom: 0;
+}
+
+.el-dialog .el-input {
+    width: 260px;
+}
+
+.el-dialog__body {
+    padding: 10px;
+}
+
+.el-form-item--small .el-form-item__error {
+    padding-top: 10px;
+    margin-left: 175px;
+}
+
+.el-menu-item .el-link {
+    display: inline-block;
+    min-width: 200px;
+}
+
+.el-menu-item .el-link.is-underline:hover:after {
+    border-bottom: none !important;
+}
+
+#server-time {
+    font-size: 0.8em;
+}
+
+.my-menu-tabs .el-tabs__item {
+    padding: 0 15px;
+}
+
+.el-main {
+    padding-top: 1px;
+}
+
+.el-date-editor--daterange{
+    width: 250px !important;
+}
+
+/* Inspector Panel Styles */
+.inspector-panel {
+    position: fixed;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999999;
+    user-select: none;
+}
+
+.inspector-toggle {
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    background-color: #409EFF;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+    color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    position: relative;
+    flex-shrink: 0;
+}
+
+
+.inspector-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 2px;
+    padding: 2px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 1px solid #e4e7ed;
+}
+
+.inspector-content .inspector-toggle {
+    order: -1;
+}
+
+.inspector-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    padding: 1px 3px;
+    background-color: #f5f7fa;
+    border-radius: 2px;
+    font-size: 9px;
+}
+
+.inspector-pagination span {
+    padding: 0 3px;
+    user-select: none;
+}
+
+.inspector-pagination span.disabled {
+    opacity: 0.3;
+}
+
+.inspector-pagination .page-info {
+    font-weight: bold;
+    font-size: 9px;
+}
+
+.inspector-links {
+    display: flex;
+    flex-direction: row;
+    gap: 1px;
+    overflow: visible;
+}
+
+.inspector-link {
+    width: 24px;
+    height: 20px;
+    line-height: 17px;
+    border-radius: 2px 2px 0 0;
+    text-align: center;
+    font-size: 10px;
+    color: #303133;
+    text-decoration: none;
+    display: block;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    font-weight: 600;
+    background-color: #e4e7ed;
+    box-sizing: border-box;
+    position: relative;
+    flex-shrink: 0;
+}
+
+
+/* HTTP Method Bottom Border Colors - using pseudo element */
+.inspector-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    pointer-events: none;
+    border-radius: 0 0 2px 2px;
+}
+
+.inspector-link-get::after {
+    background-color: #67C23A; /* Green - Safe read operation */
+}
+
+.inspector-link-post::after {
+    background-color: #F56C6C; /* Red - Create/Submit, needs attention */
+}
+
+.inspector-link-put::after {
+    background-color: #E6A23C; /* Orange - Update */
+}
+
+.inspector-link-delete::after {
+    background-color: #C0392B; /* Dark Red - Delete, dangerous */
+}
+
+.inspector-link-patch::after {
+    background-color: #F39C12; /* Yellow - Partial update */
+}
+
+/* Recent batch - use golden text color */
+.inspector-link-recent {
+    color: #FF6B00;
+    font-weight: 700;
+}

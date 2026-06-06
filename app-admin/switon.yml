@@ -1,0 +1,99 @@
+# Switon YAML config
+# Behaviour: vendor/switon/kernel/spec/config/yaml.md (load, merge, DI definitions)
+# YAML subset: vendor/switon/yaml/subset.md
+# Top-level keys are service IDs (usually interface FQCNs).
+
+Switon\Core\AppInterface:
+  id: admin-133
+  name: Switon
+  env: ${APP_ENV:-dev}
+  debug: ${APP_DEBUG:-false}
+  timezone: Asia/Shanghai
+  version: 0.3
+
+Switon\Http\ServerOptions:
+  type: ${SERVER_TYPE:-php}
+  port: ${SERVER_PORT:-9501}
+  settings:
+    enable_static_handler: ${APP_DEBUG:-false}
+
+Switon\Routing\RouterInterface:
+  prefix: ""
+
+Switon\Http\RequestHandlerInterface:
+  filters:
+    authentication: App\Filter\AuthenticationFilter
+    locale: Switon\Http\Filter\RequestLocaleFilter
+    cors: Switon\Http\Filter\CorsFilter
+    accessLog: null
+
+Switon\Core\LocaleInterface:
+  default: zh-cn
+
+Switon\Http\Filter\RequestLocaleFilter:
+  supported:
+    - zh-cn
+    - en
+  aliases:
+    zh: zh-cn
+    zh-hans: zh-cn
+    en-us: en
+    en-gb: en
+
+Switon\Core\TranslatorInterface:
+  fallbacks:
+    zh: [zh-cn]
+    zh-hans: [zh-cn]
+    en-us: [en]
+    en-gb: [en]
+
+Switon\Session\SessionInterface:
+  ttl: 86400
+  params:
+    path: /
+
+Switon\Authorizing\LookupInterface:
+  class: App\Areas\Rbac\Repository\RoleRepository
+
+Switon\Dict\DictReaderInterface:
+  class: App\Areas\Dict\Service\DictGuard
+
+Switon\Dict\OptionReaderInterface:
+  class: App\Areas\Dict\Service\DictGuard
+
+Switon\Crypto\CipherInterface:
+  secret: ${MASTER_KEY:-dev}
+  method: AES-128-CBC
+
+Switon\Db\ClientInterface:
+  class: Switon\Di\Factory
+  default:
+    uri: ${DB_URL}
+
+Switon\Redis\ClientInterface:
+  class: Switon\Di\Factory
+  default:
+    uri: ${REDIS_URL}
+  redisDb: "#default"
+  redisCache: "#default"
+  redisBroker: "#default"
+
+Switon\Captcha\StoreInterface:
+  class: Switon\Captcha\Store
+  prefix: "captcha:"
+
+Switon\Captcha\CaptchaInterface:
+  class: Switon\Captcha\Captcha
+
+Switon\Validating\ValidatorInterface:
+  dirs:
+    - "@switon.validator.resources"
+    - "@root/resources/validation"
+
+Psr\Log\LoggerInterface:
+  class: Switon\Logging\Logger
+  level: ${LOG_LEVEL:-debug}
+  appenders:
+    file:
+      class: Switon\Logging\Appender\FileAppender
+      line_format1: ""

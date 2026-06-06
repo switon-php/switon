@@ -1,0 +1,10 @@
+parameters:
+    ignoreErrors:
+        -
+            identifier: argument.type
+            message: '~imagecolorallocate expects int<0, 255>, int given~'
+        -
+            identifier: argument.type
+            message: '~function image(filledrectangle|ttftext) expects int, int~'
+        -
+            identifier: isset.offset

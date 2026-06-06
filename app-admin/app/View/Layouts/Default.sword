@@ -1,0 +1,267 @@
+<?php
+
+use Switon\Core\LocaleInterface;
+
+$__app = \Switon\Core\App::get('Switon\Core\App');
+$__siteName = (string)$__app->name();
+/** @var \Switon\Core\LocaleInterface $__locale */
+$__locale = \Switon\Core\App::get(\Switon\Core\LocaleInterface::class);
+$__adminMessages = [
+    'common.success' => t('common.success'),
+    'common.error' => t('common.error'),
+    'common.network_error_retry' => t('common.network_error_retry'),
+    'common.server_error' => t('common.server_error'),
+    'common.request_invalid' => t('common.request_invalid'),
+    'common.forbidden' => t('common.forbidden'),
+    'common.not_found' => t('common.not_found'),
+    'common.yes' => t('common.yes'),
+    'common.no' => t('common.no'),
+    'layout.sidebar.expand' => t('layout.sidebar.expand'),
+    'layout.sidebar.collapse' => t('layout.sidebar.collapse'),
+    'layout.home' => t('layout.home'),
+    'layout.cache_enabled' => t('layout.cache_enabled'),
+    'layout.cache_disabled' => t('layout.cache_disabled'),
+    'layout.recent_login' => t('layout.recent_login'),
+    'layout.recent_actions' => t('layout.recent_actions'),
+    'layout.logout' => t('layout.logout'),
+    'layout.welcome' => t('layout.welcome'),
+    'crud.create' => t('crud.create'),
+    'crud.create_title_prefix' => t('crud.create_title_prefix'),
+    'crud.edit' => t('crud.edit'),
+    'crud.save' => t('crud.save'),
+    'crud.cancel' => t('crud.cancel'),
+    'crud.delete' => t('crud.delete'),
+    'crud.detail' => t('crud.detail'),
+    'crud.more' => t('crud.more'),
+    'crud.operations' => t('crud.operations'),
+    'crud.close' => t('crud.close'),
+    'crud.confirm_delete' => t('crud.confirm_delete', ['name' => '{name}']),
+    'crud.bad_list_response' => t('crud.bad_list_response'),
+    'table.select' => t('table.select'),
+    'table.selected_count' => t('table.selected_count', ['count' => '{count}']),
+    'table.clear_selection' => t('table.clear_selection'),
+    'table.column_config' => t('table.column_config'),
+    'table.restore_default' => t('table.restore_default'),
+    'table.done' => t('table.done'),
+    'table.preview' => t('table.preview'),
+    'table.preview_pdf' => t('table.preview_pdf'),
+    'table.open_attachment' => t('table.open_attachment'),
+    'table.view_attachment' => t('table.view_attachment'),
+    'table.attachment_preview' => t('table.attachment_preview'),
+    'table.attachment_preview_unsupported' => t('table.attachment_preview_unsupported'),
+    'table.view' => t('table.view'),
+    'table.json_detail' => t('table.json_detail'),
+    'table.file' => t('table.file'),
+    'table.uploaded_file' => t('table.uploaded_file'),
+    'table.no_uploaded_file' => t('table.no_uploaded_file'),
+    'table.select_file' => t('table.select_file'),
+    'table.truncated_hint' => t('table.truncated_hint'),
+    'action.enable' => t('action.enable'),
+    'action.disable' => t('action.disable'),
+    'action.activate' => t('action.activate'),
+    'action.lock' => t('action.lock'),
+    'action.select' => t('action.select'),
+    'action.clear' => t('action.clear'),
+    'action.search' => t('action.search'),
+    'copy.empty' => t('copy.empty'),
+    'copy.success' => t('copy.success'),
+    'copy.failed' => t('copy.failed'),
+    'copy.copy' => t('copy.copy'),
+    'copy.copy_row_json' => t('copy.copy_row_json'),
+    'copy.row_json_success' => t('copy.row_json_success'),
+    'copy.serialize_failed' => t('copy.serialize_failed'),
+    'copy.serialize_failed_with_reason' => t('copy.serialize_failed_with_reason', ['reason' => '{reason}']),
+    'date.start' => t('date.start'),
+    'date.end' => t('date.end'),
+    'date.today' => t('date.today'),
+    'date.yesterday' => t('date.yesterday'),
+    'date.last_3_days' => t('date.last_3_days'),
+    'date.last_week' => t('date.last_week'),
+    'date.last_month' => t('date.last_month'),
+    'date.last_3_months' => t('date.last_3_months'),
+    'date.last_year' => t('date.last_year'),
+    'date.this_week' => t('date.this_week'),
+    'date.this_month' => t('date.this_month'),
+    'date.this_quarter' => t('date.this_quarter'),
+    'label.admin_id' => t('label.admin_id'),
+    'label.admin_name' => t('label.admin_name'),
+    'label.created_at' => t('label.created_at'),
+    'label.updated_at' => t('label.updated_at'),
+    'label.created_by' => t('label.created_by'),
+    'label.updated_by' => t('label.updated_by'),
+    'label.data' => t('label.data'),
+    'label.client_ip' => t('label.client_ip'),
+    'label.display_order' => t('label.display_order'),
+    'label.display_name' => t('label.display_name'),
+    'label.role_code' => t('label.role_code'),
+    'label.role_name' => t('label.role_name'),
+    'label.white_ip' => t('label.white_ip'),
+    'label.status' => t('label.status'),
+    'label.tag' => t('label.tag'),
+    'label.icon' => t('label.icon'),
+    'label.path' => t('label.path'),
+    'label.builtin' => t('label.builtin'),
+    'label.enabled' => t('label.enabled'),
+    'label.type' => t('label.type'),
+    'label.method' => t('label.method'),
+    'label.handler' => t('label.handler'),
+    'label.url' => t('label.url'),
+    'label.client_udid' => t('label.client_udid'),
+    'label.mime' => t('label.mime'),
+    'label.ext' => t('label.ext'),
+    'label.action' => t('label.action'),
+    'label.search' => t('label.search'),
+    'label.scene_prefix' => t('label.scene_prefix'),
+];
+?>
+        <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{$__siteName}}</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <script>(function () {
+            var k = 'switon.admin.theme', L = {
+                switon: 'light',
+                beacon: 'light',
+                forest: 'light',
+                ocean: 'light',
+                ember: 'light',
+                lilac: 'light',
+                slate: 'light',
+                crimson: 'light',
+                azure: 'light',
+                coral: 'light',
+                mint: 'light',
+                midnight: 'light',
+                gold: 'light',
+                rose: 'light',
+                copper: 'light',
+                frost: 'light',
+                lagoon: 'light',
+                cherry: 'light',
+                graphite: 'light',
+                moss: 'light',
+                plum: 'light',
+                mui: 'light',
+                semi: 'light',
+                naive: 'light',
+                linear: 'light',
+                notion: 'light',
+                chakra: 'light',
+                tailwind: 'light',
+                vercel: 'light',
+                dracula: 'dark',
+                antd: 'light',
+                arco: 'light',
+                bootstrap: 'light',
+                carbon: 'light',
+                element: 'light',
+                fluent: 'light',
+                github: 'light',
+                radix: 'light',
+                shadcn: 'light',
+                stripe: 'light'
+            }, a = ['light', 'dark'], t = localStorage.getItem(k);
+            if (t && L[t]) {
+                localStorage.setItem(k, L[t]);
+                t = L[t];
+            }
+            t = t && a.indexOf(t) >= 0 ? t : 'light';
+            document.documentElement.setAttribute('data-admin-theme', t);
+        })();</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/switon.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme-skins.css">
+    @yield('css')
+</head>
+<body>
+<script>
+    var BASE_URL = '{{url()}}';
+    window.__SWITON_ADMIN_LOCALE__ = {!! json($__locale->get()) !!};
+    window.__SWITON_ADMIN_MESSAGES__ = {!! json($__adminMessages) !!};
+</script>
+<el-container id="app" :class="{ 'admin-main-scrolled': mainScrolled, 'admin-main-at-bottom': mainAtBottom }" v-cloak>
+    <inspector-links></inspector-links>
+    {{--    <el-aside style="overflow: hidden">@widget('SideMenu')</el-aside>--}}
+    <el-aside class="admin-aside" :class="{ 'admin-aside--collapsed': sidebarCollapsed }">
+        <div class="product-name">
+            <div class="product-name__title-wrap">
+                <el-link v-if="!sidebarCollapsed" class="product-name__title" href="/"
+                         title="{{$__siteName}}">{{$__siteName}}</el-link>
+            </div>
+            <button type="button" class="product-name__toggle"
+                    :title="sidebarCollapsed ? adminT('layout.sidebar.expand') : adminT('layout.sidebar.collapse')"
+                    :aria-expanded="sidebarCollapsed ? 'false' : 'true'" @click="toggleSidebarCollapse">
+                <i class="fa" :class="sidebarCollapsed ? 'fa-angle-double-right' : 'fa-angle-double-left'"></i>
+            </button>
+        </div>
+        <div class="admin-aside-scroll" id="admin-aside-scroll">
+            <m-menu></m-menu>
+        </div>
+        <footer class="admin-aside-footer" title="Version">
+            <span class="admin-aside-version">v{{$__app->version()}}</span>
+        </footer>
+    </el-aside>
+    <el-container direction="vertical">
+        <el-main>
+            <my-menu-tabs></my-menu-tabs>
+            @content()
+            <el-backtop target=".el-main" :right="24" :bottom="24">
+                <div><i class="el-icon-top el-backtop-icon"></i></div>
+            </el-backtop>
+        </el-main>
+    </el-container>
+</el-container>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.26.1/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.2/min/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qs@6.10.3/dist/qs.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-i18n@8.15.1/dist/vue-i18n.min.js"></script>
+<script src="/assets/js/ui.js"></script>
+<script src="/assets/js/core.js"></script>
+<script src="/assets/js/layout.js"></script>
+<script src="/assets/js/components.js"></script>
+<script src="/assets/js/bootstrap.js"></script>
+<script>
+    // Initialize inspector links for the current page BEFORE Vue component mounts
+    @if(isset($inspector) && $inspector)
+        window.inspectorLinkCounter = 1;
+    window.lastRequestTime = Date.now();
+    window.currentBatchId = 1;
+    window.inspectorLinks = [{
+        url: '{{$inspector}}',
+        requestUrl: window.location.href,
+        method: 'GET',
+        index: 1,
+        timestamp: Date.now(),
+        batchId: 1
+    }];
+    @else
+        window.inspectorLinks = window.inspectorLinks || [];
+    window.inspectorLinkCounter = window.inspectorLinkCounter || 0;
+    window.lastRequestTime = window.lastRequestTime || 0;
+    window.currentBatchId = window.currentBatchId || 0;
+    @endif
+</script>
+@yield('script')
+<script>
+    if (typeof vm === 'undefined') {
+        vm = new App();
+    }
+    Vue.prototype.BASE_URL = window.BASE_URL;
+    bootAdminShell(vm);
+</script>
+</body>
+</html>

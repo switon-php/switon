@@ -1,0 +1,35 @@
+<m-navbar>
+    <ma-create></ma-create>
+</m-navbar>
+<m-dialog mode="create">
+    <m-text prop="group_name"></m-text>
+    <m-text prop="display_order" :default="0"></m-text>
+    <m-text prop="icon" default="el-icon-caret-right"></m-text>
+</m-dialog>
+<m-dialog mode="edit">
+    <m-text prop="group_name"></m-text>
+    <m-text prop="display_order"></m-text>
+    <m-text prop="icon"></m-text>
+</m-dialog>
+<m-table>
+    <m-selection></m-selection>
+    <m-index></m-index>
+    <m-text prop="group_id" label="Id" width="50"></m-text>
+    <m-text prop="display_order" width="50"></m-text>
+    <m-text prop="group_name" label="{{t('menu.group_name')}}"></m-text>
+    <m-text prop="icon" width="130" show-overflow-tooltip></m-text>
+    <m-account prop="updated_by"></m-account>
+    <m-timestamp prop="updated_at"></m-timestamp>
+    <m-account prop="created_by"></m-account>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-actions actions="edit,delete"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('menu.group')}}',
+            }
+        });
+    </script>
+@append

@@ -1,0 +1,29 @@
+<table class="system_info">
+    <tr>
+        <th width="180px"></th>
+        <th></th>
+    </tr>
+    <tr v-for="(value, name) in data">
+        <td>@{{name}}:</td>
+        <td>
+            <span v-if="Array.isArray(value)">@{{value.length}} items</span>
+            <span v-else>@{{value}}</span>
+        </td>
+    </tr>
+</table>
+
+@section('css')
+    <style>
+        .system_info tr:hover {
+            background-color: var(--sw-table-hover-row);
+        }
+    </style>
+@append
+
+@section('script')
+    <script>
+        vm = new App({
+            data: {!! \Switon\Core\Json::stringify(['data' => $data]) !!}
+        });
+    </script>
+@append

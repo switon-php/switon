@@ -1,0 +1,15 @@
+includes:
+    - phpstan-extension.neon
+    - phpstan-package.neon
+
+parameters:
+    level: 7
+    treatPhpDocTypesAsCertain: false
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    paths:
+        - src
+    excludePaths:
+        analyse:
+            - src/PhpStan
+    tmpDir: tests/.phpstan.cache

@@ -1,0 +1,75 @@
+name: Package Release Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package directory name under packages/
+        required: true
+        type: string
+  push:
+    tags:
+      - '*-v*'
+
+jobs:
+  resolve:
+    name: Resolve package
+    runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.resolve.outputs.package }}
+    steps:
+      - name: Resolve package from dispatch or tag
+        id: resolve
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            package="${{ inputs.package }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+            package="${tag%%-v*}"
+          fi
+
+          if [ -z "$package" ]; then
+            echo "Unable to resolve package name." >&2
+            exit 1
+          fi
+
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+
+  release-check:
+    name: Release / ${{ needs.resolve.outputs.package }}
+    needs: resolve
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Validate package directory
+        shell: bash
+        run: |
+          package="${{ needs.resolve.outputs.package }}"
+          if [ ! -d "packages/$package" ]; then
+            echo "Unknown package: $package" >&2
+            exit 1
+          fi
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install monorepo dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Install shared test dependencies
+        if: needs.resolve.outputs.package != 'skeleton'
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: packages/testing
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Run package release check
+        run: bash build/release-check.sh "${{ needs.resolve.outputs.package }}"

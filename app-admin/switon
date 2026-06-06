@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Default XDEBUG_MODE=off to avoid bus error/segfault at PHP shutdown (Xdebug observer). Set XDEBUG_MODE=debug to attach a debugger.
+XDEBUG_MODE=${XDEBUG_MODE:-off} php switon.php "$@"

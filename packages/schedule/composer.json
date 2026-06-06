@@ -1,0 +1,75 @@
+{
+    "name": "switon/schedule",
+    "description": "Recurring scheduled tasks with a shared app clock, discovery, and optional Redis locking for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "schedule",
+        "tasks",
+        "scheduler"
+    ],
+    "homepage": "https://github.com/switon-php/schedule",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/schedule",
+        "issues": "https://github.com/switon-php/schedule/issues",
+        "docs": "https://docs.switon.dev/latest/schedule"
+    },
+    "require": {
+        "php": ">=8.3",
+        "psr/event-dispatcher": "^1.0",
+        "psr/container": "^2.0",
+        "switon/cli": "^1.0",
+        "switon/composer-extra": "^1.0",
+        "switon/core": "^1.0",
+        "switon/event": "^1.0",
+        "switon/executor": "^1.0",
+        "switon/redis": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Schedule\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Schedule\\Tests\\": "tests/",
+            "App\\": "tests/Fixtures/App/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "switon": {
+            "providers": [
+                "Switon\\Schedule\\ServiceProvider"
+            ],
+            "commands": [
+                "Switon\\Schedule\\Command\\ScheduleCommand"
+            ]
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}

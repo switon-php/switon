@@ -1,0 +1,18 @@
+includes:
+    - phpstan-extension.neon
+    - phpstan-package.neon
+
+parameters:
+    level: 7
+    stubFiles:
+        - phpstan-stubs/DiInvokerInterface.stub
+        - phpstan-stubs/ReflectionFunction.stub
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    paths:
+        - src
+    excludePaths:
+        analyseAndScan:
+            - src/InvokerInterface.php
+            - vendor/switon/di/src/InvokerInterface.php
+    tmpDir: tests/.phpstan.cache

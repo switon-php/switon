@@ -1,0 +1,104 @@
+{
+    "name": "switon/beacon",
+    "description": "App-facing AI rules, skills, standards pointers, and CLI diagnostics for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "beacon",
+        "ai",
+        "diagnostics",
+        "skills"
+    ],
+    "homepage": "https://github.com/switon-php/beacon",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/beacon",
+        "issues": "https://github.com/switon-php/beacon/issues",
+        "docs": "https://docs.switon.dev/latest/beacon"
+    },
+    "require": {
+        "php": ">=8.3",
+        "composer-runtime-api": "^2.0",
+        "switon/authz": "^1.0",
+        "switon/binding": "^1.0",
+        "switon/cache": "^1.0",
+        "switon/cli": "^1.0",
+        "switon/command": "^1.0",
+        "switon/composer-extra": "^1.0",
+        "switon/core": "^1.0",
+        "switon/db": "^1.0",
+        "switon/di": "^1.0",
+        "switon/event": "^1.0",
+        "switon/http": "^1.0",
+        "switon/http-client": "^1.0",
+        "switon/invocation": "^1.0",
+        "switon/invoker": "^1.0",
+        "switon/jwt": "^1.0",
+        "switon/kernel": "^1.0",
+        "switon/log": "^1.0",
+        "switon/orm": "^1.0",
+        "switon/principal": "^1.0",
+        "switon/query": "^1.0",
+        "switon/redis": "^1.0",
+        "switon/renderer": "^1.0",
+        "switon/router": "^1.0",
+        "switon/session": "^1.0",
+        "switon/sharding": "^1.0",
+        "switon/validation": "^1.0",
+        "switon/view": "^1.0",
+        "switon/yaml": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Beacon\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Beacon\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "switon": {
+            "providers": [
+                "Switon\\Beacon\\ServiceProvider"
+            ],
+            "commands": [
+                "Switon\\Beacon\\Command\\ClassCommand",
+                "Switon\\Beacon\\Command\\CodeCommand",
+                "Switon\\Beacon\\Command\\ConfigCommand",
+                "Switon\\Beacon\\Command\\DiCommand",
+                "Switon\\Beacon\\Command\\PackagesCommand",
+                "Switon\\Beacon\\Command\\EventCommand",
+                "Switon\\Beacon\\Command\\ComposerExtraCommand",
+                "Switon\\Beacon\\Command\\PathCommand",
+                "Switon\\Beacon\\Command\\ToolCommand"
+            ]
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}

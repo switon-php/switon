@@ -1,0 +1,43 @@
+parameters:
+    ignoreErrors:
+        # preg_split() may return false; core already covers many string|false call sites.
+        -
+            identifier: argument.type
+            message: '~\|false given~'
+        -
+            identifier: assign.propertyType
+            message: '~\|false~'
+        -
+            identifier: argument.type
+            message: '~expects non-empty-array, list<mixed> given~'
+        -
+            identifier: assign.propertyType
+            message: '~\$builtResult~'
+        -
+            identifier: assign.propertyType
+            message: '~does not accept array<int\|string~'
+        -
+            identifier: return.type
+            message: '~array<int\|string~'
+        -
+            identifier: offsetAccess.invalidOffset
+            path: src/ShardMerger.php
+        -
+            identifier: offsetAccess.notFound
+            path: src/ShardMerger.php
+        -
+            identifier: argument.type
+            message: '~expects array<int\|string, array<string, mixed>\|string>, array<int, mixed> given~'
+        -
+            identifier: nullsafe.neverNull
+        -
+            identifier: argument.type
+            message: '~expects string, string\|Switon\\Query\\Table given~'
+        -
+            identifier: binaryOp.invalid
+        -
+            identifier: expr.resultUnused
+        -
+            identifier: argument.type
+            path: src/AbstractQuery.php
+            message: '~Parameter #1 \$fields of method Switon\\Query\\QueryInterface.*::select\(\) expects~'

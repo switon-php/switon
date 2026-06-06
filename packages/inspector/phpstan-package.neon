@@ -1,0 +1,5 @@
+parameters:
+    ignoreErrors:
+        -
+            identifier: isset.offset
+            path: src/Collector/ListenerStatsCollector.php

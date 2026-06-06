@@ -1,0 +1,563 @@
+@layout(false)
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{$app_name}} · {{$i18n['login']}}</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <script>(function(){var k='switon.admin.theme',L={switon:'light',beacon:'light',forest:'light',ocean:'light',ember:'light',lilac:'light',slate:'light',crimson:'light',azure:'light',coral:'light',mint:'light',midnight:'light',gold:'light',rose:'light',copper:'light',frost:'light',lagoon:'light',cherry:'light',graphite:'light',moss:'light',plum:'light',mui:'light',semi:'light',naive:'light',linear:'light',notion:'light',chakra:'light',tailwind:'light',vercel:'light',dracula:'dark',antd:'light',arco:'light',bootstrap:'light',carbon:'light',element:'light',fluent:'light',github:'light',radix:'light',shadcn:'light',stripe:'light'},a=['light','dark'],t=localStorage.getItem(k);if(t&&L[t]){localStorage.setItem(k,L[t]);t=L[t];}t=t&&a.indexOf(t)>=0?t:'light';document.documentElement.setAttribute('data-admin-theme',t);})();</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme-skins.css">
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 14px;
+            box-sizing: border-box;
+            font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 248px;
+            margin: 0 auto;
+            padding: 15px 14px 10px;
+            border-radius: 12px;
+            background: var(--sw-auth-panel-bg);
+            border: 1px solid var(--sw-auth-panel-border);
+            box-shadow: var(--sw-shadow), 0 0 0 1px rgba(15, 23, 42, 0.04);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            transform: translateY(-10vh);
+        }
+
+        [data-admin-theme="dark"] .login-box {
+            box-shadow: var(--sw-shadow), 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        .background {
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            z-index: -1000;
+        }
+
+        .login-title {
+            margin: 0 0 4px;
+            text-align: center;
+            font-size: 19px;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: .2px;
+            color: var(--sw-ink);
+        }
+
+        [data-admin-theme="dark"] .login-title {
+            color: var(--sw-ink);
+        }
+
+        .app-brand {
+            margin: 0;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: .08em;
+            line-height: 1.3;
+            color: var(--sw-ink-muted);
+            user-select: none;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .login-brand {
+            margin: 0 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--sw-border);
+        }
+
+        .login-subtitle {
+            margin: 7px 0 13px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--sw-ink-muted);
+        }
+
+        .login-action-head {
+            margin-bottom: 12px;
+        }
+
+        [data-admin-theme="dark"] .login-subtitle {
+            color: var(--sw-ink-muted);
+        }
+
+        .login-row {
+            margin-bottom: 9px;
+        }
+
+        .password-forget {
+            padding-top: 10px;
+            text-align: right;
+        }
+
+        .input-tip {
+            margin-top: -4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            line-height: 1.35;
+            color: var(--sw-ink-muted);
+        }
+
+        .status-tip {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            line-height: 1.5;
+            background: color-mix(in srgb, var(--sw-accent-soft) 88%, white);
+            color: var(--sw-accent-hover);
+        }
+
+        .status-tip.warning {
+            background: rgba(245, 158, 11, 0.12);
+            color: #b45309;
+        }
+
+        .input-tip.warning {
+            color: #b45309;
+        }
+
+        .field-error {
+            margin-top: -4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            line-height: 1.35;
+            color: #b42318;
+        }
+
+        [data-admin-theme="dark"] .input-tip {
+            color: var(--sw-ink-muted);
+        }
+
+        [data-admin-theme="dark"] .status-tip {
+            background: color-mix(in srgb, var(--sw-accent-soft) 92%, transparent);
+            color: color-mix(in srgb, white 80%, var(--sw-accent) 20%);
+        }
+
+        [data-admin-theme="dark"] .status-tip.warning {
+            background: rgba(245, 158, 11, 0.16);
+            color: #fde68a;
+        }
+
+        [data-admin-theme="dark"] .input-tip.warning {
+            color: #fbbf24;
+        }
+
+        [data-admin-theme="dark"] .field-error {
+            color: #fda4af;
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 12px 10px 9px;
+                transform: translateY(-5vh);
+            }
+
+            .login-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body id="particles-js">
+<script>var BASE_URL = '{{url()}}';</script>
+<canvas class="background"></canvas>
+<div id="app" class="login-box">
+    <div class="login-brand">
+        <div class="app-brand" title="{{$app_id}}">{{$app_name}}</div>
+    </div>
+    <div class="login-action-head">
+        <h1 class="login-title">{{$i18n['title']}}</h1>
+        <p class="login-subtitle">{{$i18n['subtitle']}}</p>
+    </div>
+    <el-row class="login-row">
+        <el-col :span="24">
+            <el-input
+                v-model.trim="request.admin_name"
+                ref="admin_name"
+                placeholder="{{$i18n['username']}}"
+                clearable
+                maxlength="64"
+                autocomplete="username"
+                @focus="onAccountFocus"
+                @keyup.enter.native="login"
+            >
+                <template slot="prepend">{{$i18n['account']}}</template>
+            </el-input>
+        </el-col>
+    </el-row>
+    <div v-if="errors.admin_name" class="field-error" v-text="errors.admin_name"></div>
+    <el-row class="login-row">
+        <el-col :span="24">
+            <el-input
+                v-model="request.password"
+                type="password"
+                ref="password"
+                placeholder="{{$i18n['password']}}"
+                show-password
+                maxlength="128"
+                autocomplete="current-password"
+                @focus="onPasswordFocus"
+                @keyup.native="onPasswordKeyup"
+                @blur="capsLockOn = false"
+                @keyup.enter.native="login"
+            >
+                <template slot="prepend">{{$i18n['password']}}</template>
+            </el-input>
+        </el-col>
+    </el-row>
+    <div v-if="errors.password" class="field-error" v-text="errors.password"></div>
+    <div v-if="capsLockOn" class="input-tip warning">{{$i18n['caps_lock_warning']}}</div>
+    <el-row class="login-row">
+        <el-col :span="24">
+            <el-checkbox v-model="request.remember_me">{{$i18n['remember_me']}}</el-checkbox>
+        </el-col>
+    </el-row>
+    <el-row class="login-row">
+        <el-col :span="24">
+            <el-button
+                @click="login"
+                style="width:100%"
+                type="primary"
+                :loading="submitting"
+                :disabled="submitting || request.admin_name==='' || request.password===''"
+            >{{$i18n['login']}}
+            </el-button>
+            <div class="password-forget">
+                <a href="/admin/password/forget">
+                    <span style="font-size: 1em;">{{$i18n['forgot']}}</span>
+                </a>
+            </div>
+        </el-col>
+    </el-row>
+    <div v-if="errors.form" class="field-error" v-text="errors.form"></div>
+    <div v-if="statusHint.text" class="status-tip" :class="{ warning: statusHint.type === 'warning' }" v-text="statusHint.text"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qs@6.7.0/dist/qs.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particlesjs@2.2.3/dist/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-cookies@1.7.0/vue-cookies.min.js"></script>
+<script>
+    Vue.prototype.$axios = axios;
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    var I18N = {!! json($i18n) !!};
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            request: {
+                admin_name: '',
+                password: '',
+                remember_me: true
+            },
+            submitting: false,
+            capsLockOn: false,
+            statusHint: {
+                text: '',
+                type: 'info'
+            },
+            errors: {
+                admin_name: '',
+                password: '',
+                form: ''
+            }
+        },
+        mounted() {
+            this.$cookies.config('30d', document.location.pathname);
+
+            this.request.remember_me = this.$cookies.get('remember_me') !== '0';
+            this.request.admin_name = this.$cookies.get('admin_name');
+
+            if (this.request.admin_name) {
+                this.$refs.password.focus();
+            } else {
+                this.$refs.admin_name.focus();
+            }
+        },
+        watch: {
+            'request.admin_name': function (value) {
+                var normalized = this.normalizeAccount(value);
+                if (normalized !== value) {
+                    this.request.admin_name = normalized;
+                }
+                this.errors.admin_name = '';
+                this.errors.form = '';
+                this.statusHint.text = '';
+            },
+            'request.password': function () {
+                this.errors.password = '';
+                this.errors.form = '';
+                this.statusHint.text = '';
+            }
+        },
+        methods: {
+            clearErrors() {
+                this.errors.admin_name = '';
+                this.errors.password = '';
+                this.errors.form = '';
+                this.statusHint.text = '';
+            },
+            detectErrorField(message, explicitField, errorCode) {
+                switch ((errorCode || '').toString()) {
+                    case 'AUTH_INVALID_CREDENTIALS':
+                    case 'AUTH_LOGIN_LOCKED':
+                        return 'password';
+                    case 'AUTH_ACCOUNT_INACTIVE':
+                    case 'AUTH_ACCOUNT_LOCKED':
+                    case 'AUTH_IP_NOT_WHITELISTED':
+                        return 'form';
+                }
+
+                var field = (explicitField || '').toString().toLowerCase();
+                if (field === 'admin_name' || field === 'username' || field === 'account') {
+                    return 'admin_name';
+                }
+                if (field === 'password') {
+                    return 'password';
+                }
+
+                var text = (message || '').toString();
+                if (/username or password|invalid credentials/i.test(text)) {
+                    return 'password';
+                }
+                if (/admin.?name|account|username/i.test(text) && !/password/i.test(text)) {
+                    return 'admin_name';
+                }
+                if (/password/i.test(text)) {
+                    return 'password';
+                }
+                return 'form';
+            },
+            toFriendlyError(message, explicitField, errorCode) {
+                switch ((errorCode || '').toString()) {
+                    case 'AUTH_INVALID_CREDENTIALS':
+                        return I18N.invalid_credentials;
+                    case 'AUTH_LOGIN_LOCKED':
+                    case 'AUTH_ACCOUNT_INACTIVE':
+                    case 'AUTH_ACCOUNT_LOCKED':
+                    case 'AUTH_IP_NOT_WHITELISTED':
+                        return (message || '').toString().trim() || I18N.login_failed_retry;
+                }
+
+                var raw = (message || '').toString().trim();
+                var field = (explicitField || '').toString().toLowerCase();
+                var msg = raw.replace(/^[A-Za-z0-9_\\\\]+Exception:\s*/, '');
+                var lowerRaw = raw.toLowerCase();
+                var lowerMsg = msg.toLowerCase();
+
+                if (/username or password|invalid credentials/.test(lowerRaw)) {
+                    return I18N.invalid_credentials;
+                }
+                if (/network error|timeout|request failed/.test(lowerRaw)) {
+                    return I18N.network_error;
+                }
+                if (!msg) {
+                    return I18N.login_failed_retry;
+                }
+                // If backend returned a long debug payload, keep a short user-facing part.
+                return lowerMsg.length > 80 ? msg.slice(0, 80) : msg;
+            },
+            extractStatusHint(message, errorCode, meta) {
+                meta = meta && typeof meta === 'object' ? meta : {};
+                switch ((errorCode || '').toString()) {
+                    case 'AUTH_INVALID_CREDENTIALS':
+                        if (meta.count !== undefined && meta.count !== null && meta.count !== '') {
+                            return {
+                                text: I18N.login_retry_hint.replace('{count}', meta.count),
+                                type: 'warning'
+                            };
+                        }
+                        break;
+                    case 'AUTH_LOGIN_LOCKED':
+                        if (meta.minutes !== undefined && meta.minutes !== null && meta.minutes !== '') {
+                            return {
+                                text: I18N.login_locked_hint.replace('{minutes}', meta.minutes),
+                                type: 'warning'
+                            };
+                        }
+                        break;
+                    case 'AUTH_IP_NOT_WHITELISTED':
+                        return {
+                            text: I18N.ip_not_whitelisted_hint,
+                            type: 'warning'
+                        };
+                }
+
+                var text = (message || '').toString().trim();
+                var remain = text.match(/(\d+)\s+attempts?\s+remaining/i);
+                if (remain) {
+                    return {
+                        text: I18N.login_retry_hint.replace('{count}', remain[1]),
+                        type: 'warning'
+                    };
+                }
+                var minutes = text.match(/try again in\s+(\d+)\s+minutes?/i);
+                if (minutes) {
+                    return {
+                        text: I18N.login_locked_hint.replace('{minutes}', minutes[1]),
+                        type: 'warning'
+                    };
+                }
+                if (/allowlist|whitelist/i.test(text)) {
+                    return {
+                        text: I18N.ip_not_whitelisted_hint,
+                        type: 'warning'
+                    };
+                }
+                return {
+                    text: '',
+                    type: 'info'
+                };
+            },
+            applyLoginError(message, explicitField, errorCode, meta) {
+                var msg = (message || '').toString().trim() || I18N.login_failed_retry;
+                var field = this.detectErrorField(msg, explicitField, errorCode);
+                var friendly = this.toFriendlyError(msg, explicitField, errorCode);
+                this.clearErrors();
+                this.errors[field] = friendly;
+                this.statusHint = this.extractStatusHint(msg, errorCode, meta);
+            },
+            getInputByRef(refName, event) {
+                var input = event && event.target ? event.target : null;
+                if (!input && this.$refs[refName] && this.$refs[refName].$refs) {
+                    input = this.$refs[refName].$refs.input;
+                }
+                return input;
+            },
+            applyInputHints(input, hints) {
+                if (!input) {
+                    return;
+                }
+                Object.keys(hints).forEach(function (key) {
+                    input.setAttribute(key, hints[key]);
+                });
+                // Best-effort hint for browsers that still honor ime-mode.
+                input.style.imeMode = 'disabled';
+            },
+            normalizeAccount(value) {
+                var text = (value || '').toString();
+                text = text.replace(/[\uFF01-\uFF5E]/g, function (char) {
+                    return String.fromCharCode(char.charCodeAt(0) - 65248);
+                });
+                text = text.replace(/\u3000/g, ' ');
+                return text.replace(/\s+/g, '');
+            },
+            onAccountFocus(event) {
+                var input = this.getInputByRef('admin_name', event);
+                this.applyInputHints(input, {
+                    'inputmode': 'latin',
+                    'autocomplete': 'username',
+                    'autocapitalize': 'none',
+                    'spellcheck': 'false',
+                    'lang': 'en'
+                });
+            },
+            onPasswordFocus(event) {
+                var input = this.getInputByRef('password', event);
+                this.applyInputHints(input, {
+                    'inputmode': 'latin',
+                    'autocomplete': 'current-password',
+                    'autocapitalize': 'none',
+                    'spellcheck': 'false',
+                    'lang': 'en'
+                });
+            },
+            onPasswordKeyup(event) {
+                if (!event || !event.getModifierState) {
+                    return;
+                }
+                this.capsLockOn = event.getModifierState('CapsLock');
+            },
+            login() {
+                if (this.submitting) {
+                    return;
+                }
+                if (this.request.admin_name === '' || this.request.password === '') {
+                    return;
+                }
+
+                this.submitting = true;
+                this.clearErrors();
+                this.$axios.post(document.location.href, Qs.stringify(this.request)).then((res) => {
+                    var payload = res && res.data ? res.data : {};
+                    if (payload.code === 0) {
+                        if (this.request.remember_me) {
+                            this.$cookies.set('admin_name', this.request.admin_name);
+                            this.$cookies.remove('remember_me');
+                        } else {
+                            this.$cookies.remove('admin_name');
+                            this.$cookies.set('remember_me', '0');
+                        }
+
+                        window.location.href = "{{$redirect}}";
+                    } else {
+                        this.applyLoginError(
+                            payload.msg || payload.message || payload,
+                            payload.field || '',
+                            payload.error || '',
+                            payload.meta || {}
+                        );
+                    }
+                }).catch((error) => {
+                    var data = error && error.response ? error.response.data : null;
+                    if (data && (data.msg || data.message || data.field)) {
+                        this.applyLoginError(
+                            data.msg || data.message || I18N.login_failed_retry,
+                            data.field || '',
+                            data.error || '',
+                            data.meta || {}
+                        );
+                        return;
+                    }
+                    this.applyLoginError(
+                        error && error.response ? error.response.statusText : I18N.network_error,
+                        '',
+                        false
+                    );
+                }).then(() => {
+                    this.submitting = false;
+                });
+            },
+        }
+    });
+
+    (function () {
+        let len = sessionStorage.length;
+        for (let i = 0; i < len; i++) {
+            let key = sessionStorage.key(i);
+            if (key && key.startsWith('axios.cache.') && key.match(/\bcache=2\b/)) {
+                sessionStorage.removeItem(key);
+            }
+        }
+    })();
+
+</script>
+</body>
+</html>

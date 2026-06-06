@@ -1,0 +1,122 @@
+@layout(false)
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Switon Admin · {{$i18n['title']}}</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <script>(function(){var k='switon.admin.theme',L={switon:'light',beacon:'light',forest:'light',ocean:'light',ember:'light',lilac:'light',slate:'light',crimson:'light',azure:'light',coral:'light',mint:'light',midnight:'light',gold:'light',rose:'light',copper:'light',frost:'light',lagoon:'light',cherry:'light',graphite:'light',moss:'light',plum:'light',mui:'light',semi:'light',naive:'light',linear:'light',notion:'light',chakra:'light',tailwind:'light',vercel:'light',dracula:'dark',antd:'light',arco:'light',bootstrap:'light',carbon:'light',element:'light',fluent:'light',github:'light',radix:'light',shadcn:'light',stripe:'light'},a=['light','dark'],t=localStorage.getItem(k);if(t&&L[t]){localStorage.setItem(k,L[t]);t=L[t];}t=t&&a.indexOf(t)>=0?t:'light';document.documentElement.setAttribute('data-admin-theme',t);})();</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme.css">
+    <link rel="stylesheet" href="/assets/css/admin-theme-skins.css">
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 14px;
+            box-sizing: border-box;
+            font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            transform: translateY(-6vh);
+        }
+
+        .login-box > div {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<script>var BASE_URL = '{{url()}}';</script>
+<div id="app" class="login-box auth-box">
+    <h1 class="auth-title">{{$i18n['title']}}</h1>
+    <el-input v-model.trim="request.admin_name" placeholder="{{$i18n['username']}}" autofocus>
+        <template slot="prepend">{{$i18n['account']}}</template>
+    </el-input>
+    <el-input v-model.trim="request.email" placeholder="{{$i18n['email']}}">
+        <template slot="prepend">{{$i18n['email']}}</template>
+    </el-input>
+    <el-row>
+        <el-col :span="16">
+            <el-input v-model.trim="request.captcha_code" placeholder="{{$i18n['captcha']}}">
+                <template slot="prepend">{{$i18n['captcha']}}</template>
+            </el-input>
+        </el-col>
+        <el-col :offset="1" :span="7">
+            <img class="auth-captcha" :src="captcha_blob" @click="refreshCaptcha">
+        </el-col>
+    </el-row>
+    <el-button @click="login" style="width:100%" type="primary">{{$i18n['submit']}}</el-button>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.6/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.18.0/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qs@6.7.0/dist/qs.js"></script>
+<script>
+    Vue.prototype.$axios = axios;
+    var I18N = {!! json($i18n) !!};
+
+    axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+    vm = new Vue({
+        el: '#app',
+        data: {
+            request: {
+                admin_name: '',
+                email: '',
+                captcha_code: '',
+                captcha_key: ''
+            },
+            captcha_blob: ''
+        },
+        mounted() {
+            this.refreshCaptcha();
+        },
+        methods: {
+            refreshCaptcha() {
+                this.request.captcha_code = '';
+                this.$axios.get(BASE_URL + '/admin/password/captcha').then((res) => {
+                    if (res.data && res.data.data) {
+                        this.request.captcha_key = res.data.data.key;
+                        this.captcha_blob = res.data.data.blob;
+                    }
+                });
+            },
+            login() {
+                this.$axios.post(document.location.href, Qs.stringify(this.request)).then((res) => {
+                    if (res.data.code === 0) {
+                        window.location.href = "{{$redirect}}";
+                    } else {
+                        this.request.captcha_code = '';
+                        this.refreshCaptcha();
+                        this.$alert(res.data.msg, I18N.error);
+                    }
+                }).catch((error) => {
+                    this.refreshCaptcha();
+
+                    if (error.response.data.msg) {
+                        this.$alert(error.response.data.msg, I18N.error);
+                    } else {
+                        this.$alert(error.response.statusText, I18N.error);
+                    }
+                });
+            },
+        }
+    });
+</script>
+</body>
+</html>

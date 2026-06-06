@@ -1,0 +1,6 @@
+parameters:
+    ignoreErrors:
+        -
+            identifier: argument.type
+            path: src/Jwt.php
+            message: '~Parameter #2 \$timestamp of function date expects int\|null~'

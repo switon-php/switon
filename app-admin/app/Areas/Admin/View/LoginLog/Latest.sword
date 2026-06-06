@@ -1,0 +1,21 @@
+<m-navbar>
+    <m-date prop="created_at"></m-date>
+</m-navbar>
+
+<m-table :size="15">
+    <m-index></m-index>
+    <m-id prop="login_id"></m-id>
+    <m-ip prop="client_ip"></m-ip>
+    <m-text prop="client_udid" width="150" show-overflow-tooltip></m-text>
+    <m-text prop="user_agent" show-overflow-tooltip></m-text>
+    <m-timestamp prop="created_at"></m-timestamp>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('admin.recent_login')}}'
+            }
+        });
+    </script>
+@append

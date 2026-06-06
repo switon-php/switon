@@ -1,0 +1,31 @@
+<m-navbar>
+    <ma-create></ma-create>
+</m-navbar>
+<m-dialog mode="create">
+    <m-admin prop="staff_id" label="{{t('org.staff')}}"></m-admin>
+    <m-select prop="position_id" options="positions" value-key="position_id" label-key="position_name" label="{{t('org.position_label')}}" url="/org/position/list"></m-select>
+    <m-switch prop="is_primary" label="{{t('org.primary_position')}}" :default="true"></m-switch>
+</m-dialog>
+<m-dialog mode="edit">
+    <m-admin prop="staff_id" label="{{t('org.staff')}}"></m-admin>
+    <m-select prop="position_id" options="positions" value-key="position_id" label-key="position_name" url="/org/position/list"></m-select>
+    <m-switch prop="is_primary" label="{{t('org.primary_position')}}"></m-switch>
+</m-dialog>
+<m-table :size="15">
+    <m-index></m-index>
+    <m-text prop="id" label="Id" width="60"></m-text>
+    <m-ref-text prop="staff_id" label="{{t('org.staff')}}" options="admins" url="/rbac/admin/options?status=1" value-key="admin_id" label-key="admin_name" width="160" show-overflow-tooltip></m-ref-text>
+    <m-ref-text prop="position_id" label="{{t('org.position_label')}}" options="positions" url="/org/position/list" value-key="position_id" label-key="position_name" min-width="200" show-overflow-tooltip></m-ref-text>
+    <m-bool prop="is_primary" label="{{t('org.primary_position')}}" width="80"></m-bool>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-actions actions="edit,delete"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('org.staff_position')}}',
+            }
+        });
+    </script>
+@append

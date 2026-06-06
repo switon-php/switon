@@ -1,0 +1,9 @@
+services:
+    -
+        class: Switon\Query\PhpStan\ShardingManagerTableArgumentMethodsClassReflectionExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+    -
+        class: Switon\Query\PhpStan\AbstractQueryExecuteReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension

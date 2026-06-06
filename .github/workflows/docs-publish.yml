@@ -1,0 +1,110 @@
+name: Publish Docs
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to publish
+        required: false
+        type: string
+      version:
+        description: Version directory to publish, for example latest or 2.1.0
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Resolve docs version
+        id: version
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            version="${{ inputs.version }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="latest"
+          fi
+
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare gh-pages worktree
+        shell: bash
+        run: |
+          remote_url="$(git remote get-url origin)"
+
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages --depth=1
+            git worktree add -B gh-pages .site refs/remotes/origin/gh-pages
+          else
+            mkdir .site
+            git -C .site init -b gh-pages
+            git -C .site remote add origin "$remote_url"
+          fi
+
+      - name: Build docs
+        env:
+          DOCS_BASE: /${{ steps.version.outputs.value }}/
+          DOCS_VERSION: ${{ steps.version.outputs.value }}
+          DOCS_ORIGIN: ${{ vars.DOCS_ORIGIN || 'https://docs.switon.dev' }}
+        run: |
+          if [ -f .site/versions.json ]; then
+            versions="$(node --input-type=module -e "import fs from 'node:fs'; const data = JSON.parse(fs.readFileSync('.site/versions.json', 'utf8')); const next = '${{ steps.version.outputs.value }}'; const parse = (value) => { const match = value.match(/^v?(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?$/); return match ? [Number(match[1] ?? 0), Number(match[2] ?? 0), Number(match[3] ?? 0)] : null; }; const compare = (left, right) => { const l = parse(left); const r = parse(right); if (l && r) { for (let i = 0; i < 3; i += 1) { if (l[i] !== r[i]) return r[i] - l[i]; } return 0; } if (l) return -1; if (r) return 1; return right.localeCompare(left); }; const values = new Set(Array.isArray(data) ? data : []); values.add('latest'); values.add(next); const ordered = [...values].filter((value) => value !== 'latest').sort(compare); console.log(['latest', ...ordered].join(','));")"
+          else
+            versions="latest,${{ steps.version.outputs.value }}"
+          fi
+
+          export DOCS_VERSIONS="$versions"
+          npm run docs:build
+
+      - name: Publish version into site tree
+        env:
+          DOCS_CNAME: ${{ vars.DOCS_CNAME }}
+        run: |
+          node scripts/docs/publish-version.mjs \
+            --dist docs/.vitepress/dist \
+            --site .site \
+            --version "${{ steps.version.outputs.value }}" \
+            --default latest \
+            ${DOCS_CNAME:+--cname "$DOCS_CNAME"}
+
+      - name: Commit and push gh-pages
+        shell: bash
+        run: |
+          git -C .site config user.name "github-actions[bot]"
+          git -C .site config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C .site add .
+
+          if git -C .site diff --cached --quiet; then
+            echo "No docs changes to publish."
+            exit 0
+          fi
+
+          git -C .site commit -m "docs: publish ${{ steps.version.outputs.value }}"
+          git -C .site push origin gh-pages

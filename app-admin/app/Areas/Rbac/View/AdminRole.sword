@@ -1,0 +1,44 @@
+<m-navbar>
+    <m-select prop="role_id" options="roles" url="/rbac/admin-role/roles" value-key="role_id" label-key="role_name" placeholder="{{t('rbac.select_please')}}"></m-select>
+    <m-text prop="keyword" placeholder="{{t('auth.username')}}"></m-text>
+</m-navbar>
+<m-dialog mode="edit">
+    <template slot="edit-title">
+        <span v-if="edit.admin_name" class="sw-rbac-admin-role-title-context">
+            <span class="sw-rbac-admin-role-title-sep" aria-hidden="true">·</span>
+            <span class="sw-rbac-admin-role-title-name" :title="edit.admin_name">@{{ edit.admin_name }}</span>
+        </span>
+    </template>
+    <m-roles></m-roles>
+</m-dialog>
+
+<m-table :size="15">
+    <m-selection></m-selection>
+    <m-index></m-index>
+    <m-id prop="admin_id"></m-id>
+    <m-account prop="admin_name"></m-account>
+    <m-tags prop="roles" label="{{t('rbac.role_list')}}"></m-tags>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-actions actions="edit"></m-actions>
+</m-table>
+@section('script')
+    <script>
+
+        vm = new App({
+            data: {
+                topic: '{{t('admin.user_roles')}}',
+                roles: [],
+                edit: {
+                    role_ids: [],
+                },
+            },
+            methods: {
+                show_edit(row) {
+                    this.edit = this.composeEdit(row);
+                    this.$set(this.edit, 'role_ids', this._.map(row.roles || [], 'role_id'));
+                    this.editVisible = true;
+                }
+            },
+        });
+    </script>
+@append

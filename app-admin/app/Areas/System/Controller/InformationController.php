@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Areas\System\Controller;
+
+use App\Controller\Controller;
+use Switon\Authorizing\Attribute\Authorize;
+use Switon\Core\Attribute\Autowired;
+use Switon\Core\AppInterface;
+use Switon\Kernel\VersionInterface;
+use Switon\Routing\Attribute\RequestMapping;
+use Switon\Routing\Attribute\ViewMapping;
+
+use function apache_get_version;
+use function date;
+use function function_exists;
+use function get_declared_classes;
+use function get_loaded_extensions;
+use function implode;
+use function ini_get;
+use function php_ini_loaded_file;
+use function php_uname;
+use function sort;
+
+#[Authorize]
+#[RequestMapping('/system/information')]
+class InformationController extends Controller
+{
+    #[Autowired] protected AppInterface $app;
+    #[Autowired] protected VersionInterface $frameworkVersion;
+
+    #[ViewMapping]
+    public function indexAction(): array
+    {
+        $data = [];
+
+        $data['framework_version'] = $this->frameworkVersion->version();
+        $data['app_version'] = $this->app->version();
+        $data['php_version'] = PHP_VERSION;
+        $data['sapi'] = PHP_SAPI;
+
+        if (function_exists('apache_get_version')) {
+            $data['apache_version'] = apache_get_version();
+        }
+
+        $data['operating_system'] = php_uname();
+        $data['system_time'] = date('Y-m-d H:i:s');
+        $data['server_ip'] = $this->request->server('SERVER_ADDR');
+        $data['client_ip'] = $this->request->server('REMOTE_ADDR');
+        $data['upload_max_filesize'] = ini_get('upload_max_filesize');
+        $data['post_max_size'] = ini_get('post_max_size');
+        $data['loaded_ini'] = php_ini_loaded_file();
+        $loaded_extensions = get_loaded_extensions();
+        sort($loaded_extensions);
+        $data['loaded_extensions'] = implode(', ', $loaded_extensions);
+        $loaded_classes = get_declared_classes();
+        $data['loaded_classes'] = implode(', ', $loaded_classes);
+
+        return ['data' => $data];
+    }
+}

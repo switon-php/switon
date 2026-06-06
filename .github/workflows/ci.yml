@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover-packages:
+    name: Discover packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Build package matrix
+        id: packages
+        shell: bash
+        run: |
+          mapfile -t packages < <(find packages -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort)
+          filtered=()
+          for package in "${packages[@]}"; do
+            if [ "$package" = "skeleton" ]; then
+              continue
+            fi
+            filtered+=("\"$package\"")
+          done
+
+          json="[$(IFS=,; echo "${filtered[*]}")]"
+          echo "packages=$json" >> "$GITHUB_OUTPUT"
+
+  workspace:
+    name: Workspace checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Setup Composer cache
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Validate monorepo composer metadata
+        run: composer validate --no-check-lock --no-plugins
+
+      - name: Validate admin app composer metadata
+        working-directory: app-admin
+        run: composer validate --no-check-lock --no-plugins
+
+  docs:
+    name: Docs checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install docs dependencies
+        run: npm ci
+
+      - name: Check docs links and build
+        run: make docs-check
+
+  package:
+    name: Package / ${{ matrix.package }}
+    needs: discover-packages
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install monorepo dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Install shared test dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: packages/testing
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Run release check
+        run: bash build/release-check.sh "${{ matrix.package }}" --fast
+
+  skeleton:
+    name: Package / skeleton
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Run skeleton distribution release check
+        run: bash build/release-check.sh skeleton

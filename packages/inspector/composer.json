@@ -1,0 +1,87 @@
+{
+    "name": "switon/inspector",
+    "description": "Request-scoped development inspection with collector payloads and multi-format views for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "inspector",
+        "debugging",
+        "observability"
+    ],
+    "homepage": "https://github.com/switon-php/inspector",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/inspector",
+        "issues": "https://github.com/switon-php/inspector/issues",
+        "docs": "https://docs.switon.dev/latest/inspector"
+    },
+    "require": {
+        "php": ">=8.3",
+        "psr/event-dispatcher": "^1.0",
+        "switon/composer-extra": "^1.0",
+        "switon/core": "^1.0",
+        "switon/di": "^1.0",
+        "switon/event": "^1.0",
+        "switon/http": "^1.0",
+        "switon/kernel": "^1.0",
+        "switon/log": "^1.0",
+        "switon/redis": "^1.0",
+        "switon/router": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Inspector\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Inspector\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "switon": {
+            "providers": [
+                "Switon\\Inspector\\ServiceProvider"
+            ],
+            "commands": [
+                "Switon\\Inspector\\Command\\InspectorCommand"
+            ],
+            "collectors": {
+                "basic": "Switon\\Inspector\\BasicCollector",
+                "app": "Switon\\Inspector\\Collector\\AppCollector",
+                "files": "Switon\\Inspector\\Collector\\FilesCollector",
+                "dependencies": "Switon\\Inspector\\Collector\\DependencyCollector",
+                "events": "Switon\\Inspector\\Collector\\EventCollector",
+                "event-mappings": "Switon\\Inspector\\Collector\\EventMappingsCollector",
+                "listener-stats": "Switon\\Inspector\\Collector\\ListenerStatsCollector",
+                "logger": "Switon\\Inspector\\Collector\\LoggerCollector",
+                "providers": "Switon\\Inspector\\Collector\\ProviderCollector"
+            }
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}

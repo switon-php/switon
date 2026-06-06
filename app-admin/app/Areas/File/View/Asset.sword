@@ -1,0 +1,73 @@
+<?php $sceneAccepts = \Switon\Core\App::get(\App\Areas\File\Service\AssetScenePolicy::class)->acceptMap(); ?>
+<m-navbar>
+    <m-upload
+        type="primary"
+        icon="el-icon-upload2"
+        action="upload"
+        :auto-reload="true"
+        :extra-data="uploadExtraData"
+        :accept="uploadAccept"
+    >{{t('file.upload')}}</m-upload>
+    <md-select prop="scene" dict="file.scene" placeholder="{{t('file.scene')}}" default="asset"></md-select>
+    <m-text prop="keyword" placeholder="{{t('file.keyword_name_mime_ext')}}"></m-text>
+</m-navbar>
+<m-dialog mode="edit">
+    <m-text prop="asset_name" label="{{t('file.name')}}"></m-text>
+    <m-text prop="remark" label="{{t('file.remark')}}"></m-text>
+</m-dialog>
+<m-dialog mode="detail">
+    <m-text prop="asset_id" label="Id"></m-text>
+    <md-text prop="scene" label="{{t('file.scene')}}" dict="file.scene"></md-text>
+    <m-text prop="asset_name" label="{{t('file.name')}}"></m-text>
+    <m-file-preview prop="asset_url" name-prop="asset_name" mime-prop="mime_type"></m-file-preview>
+    <m-text prop="asset_ext" label="{{t('file.ext')}}"></m-text>
+    <m-text prop="mime_type" label="MIME"></m-text>
+    <m-file-size prop="asset_size" label="{{t('file.size')}}"></m-file-size>
+    <m-link-external prop="asset_url" label="{{t('file.access_url')}}" text-prop="asset_url"></m-link-external>
+    <m-text prop="asset_path" label="{{t('file.storage_path')}}"></m-text>
+    <m-text prop="asset_hash" label="Hash"></m-text>
+    <m-text prop="remark" label="{{t('file.remark')}}"></m-text>
+    <m-timestamp prop="created_at" :smart-display="false"></m-timestamp>
+</m-dialog>
+<m-table :size="15">
+    <m-index></m-index>
+    <m-text prop="asset_id" label="Id" width="64"></m-text>
+    <md-text prop="scene" label="{{t('file.scene')}}" dict="file.scene" width="100"></md-text>
+    <m-file-preview prop="asset_url" name-prop="asset_name" mime-prop="mime_type" width="110"></m-file-preview>
+    <m-link-external prop="asset_url" text-prop="asset_name" label="{{t('file.name')}}" min-width="220"></m-link-external>
+    <m-text prop="asset_ext" label="{{t('file.ext')}}" width="90"></m-text>
+    <m-text prop="mime_type" label="MIME" min-width="180" show-overflow-tooltip></m-text>
+    <m-file-size prop="asset_size" label="{{t('file.size')}}" width="120"></m-file-size>
+    <m-account prop="created_by" width="120"></m-account>
+    <m-timestamp prop="created_at" width="170"></m-timestamp>
+    <m-actions>
+        <template v-slot="{row}">
+            <ma-detail :row="row"></ma-detail>
+            <ma-edit :row="row"></ma-edit>
+            <ma-delete :row="row"></ma-delete>
+        </template>
+    </m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('file.asset')}}',
+                sceneAccepts: {!! \Switon\Core\Json::stringify($sceneAccepts) !!},
+            },
+            computed: {
+                uploadAccept() {
+                    return this.sceneAccepts[this.request.scene || 'asset'] || this.sceneAccepts['*'] || '';
+                }
+            },
+            methods: {
+                uploadExtraData(file) {
+                    return {
+                        asset_name: file.name,
+                        scene: this.request.scene || 'asset'
+                    };
+                }
+            }
+        });
+    </script>
+@append

@@ -1,0 +1,117 @@
+/**
+ * Switon Admin — two themes:
+ * - light: default clean workbench with teal accent.
+ * - dark: dark workbench.
+ * Switch: html[data-admin-theme="…"] or localStorage `switon.admin.theme`. Legacy ids → layout.js ADMIN_THEME_LEGACY.
+ */
+html[data-admin-theme="switon"],
+html[data-admin-theme="light"] {
+    color-scheme: light;
+    /* Slightly deeper canvas + borders so white panels read (teal accent unchanged) */
+    --sw-bg-page: #f4f6f9;
+    --sw-bg-elevated: #ffffff;
+    --sw-ink: #1f2937;
+    --sw-ink-muted: #5c6370;
+    --sw-border: #dde1e7;
+    --sw-border-strong: #c5cad3;
+    --sw-accent: #159887;
+    --sw-accent-hover: #0f7b6d;
+    --sw-accent-soft: rgba(21, 152, 135, 0.1);
+    --sw-accent-glow: rgba(21, 152, 135, 0.16);
+    --sw-accent-grad-start: #1aa996;
+    --sw-accent-grad-start-hover: #24bba6;
+    --sw-accent-pressed-border: #0d6559;
+    --sw-menu-hover-bg: rgba(21, 152, 135, 0.05);
+    --sw-menu-active-bg: rgba(21, 152, 135, 0.08);
+    --sw-table-hover-row: rgba(21, 152, 135, 0.045);
+    /* Table body = page tint (not #fff) so m-table matches el-main */
+    --sw-table-body-bg: #ffffff;
+    --sw-table-header-bg: #eef1f6;
+    --sw-table-striped-bg: #f7f8fb;
+    --sw-dialog-header-1: #ffffff;
+    --sw-dialog-header-2: #f4f6f9;
+    --sw-dialog-shadow: rgba(15, 23, 42, 0.12);
+    --sw-btn-primary-shadow: rgba(21, 152, 135, 0.15);
+    --sw-sidebar: #f4f6f9;
+    --sw-sidebar-2: #eef1f5;
+    --sw-sidebar-ink: #374151;
+    --sw-sidebar-ink-muted: #5c6370;
+    --sw-auth-radial: rgba(21, 152, 135, 0.08);
+    --sw-auth-top: #f8fbfb;
+    --sw-auth-mid: #fbfcfd;
+    --sw-auth-bottom: #ffffff;
+    --sw-header-bg: rgba(255, 255, 255, 0.92);
+    --sw-field-bg: #ffffff;
+    --sw-field-bg-disabled: #f4f5f7;
+    --sw-main-glow-1: rgba(21, 152, 135, 0.03);
+    --sw-main-glow-2: rgba(21, 152, 135, 0.015);
+    --sw-card-border: rgba(55, 65, 81, 0.1);
+    --sw-auth-panel-border: rgba(55, 65, 81, 0.1);
+    --sw-panel-bg: rgba(255, 255, 255, 0.96);
+    --sw-panel-bg-strong: rgba(255, 255, 255, 0.94);
+    --sw-auth-panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(250, 252, 252, 0.99) 100%);
+    --sw-sidebar-brand-hover: var(--sw-accent);
+    --sw-sidebar-active-ink: var(--sw-accent-hover);
+    --sw-menu-active-border: var(--sw-accent);
+    --sw-menu-active-shadow: none;
+    --sw-theme-light-active: #d28a1d;
+    --sw-theme-light-bg: rgba(251, 191, 36, 0.14);
+    --sw-theme-dark-active: #111827;
+    --sw-theme-dark-bg: rgba(17, 24, 39, 0.08);
+    --sw-shadow: 0 1px 3px rgba(15, 23, 42, 0.07), 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+html[data-admin-theme="dark"] {
+    color-scheme: dark;
+    --sw-bg-page: #18181b;
+    --sw-bg-elevated: #27272a;
+    --sw-ink: #fafafa;
+    --sw-ink-muted: #a1a1aa;
+    --sw-border: #3f3f46;
+    --sw-border-strong: #52525b;
+    --sw-accent: #3b82f6;
+    --sw-accent-hover: #2563eb;
+    --sw-accent-soft: rgba(59, 130, 246, 0.14);
+    --sw-accent-glow: rgba(59, 130, 246, 0.35);
+    --sw-accent-grad-start: #60a5fa;
+    --sw-accent-grad-start-hover: #93c5fd;
+    --sw-accent-pressed-border: #1d4ed8;
+    --sw-menu-hover-bg: rgba(59, 130, 246, 0.1);
+    --sw-menu-active-bg: rgba(59, 130, 246, 0.16);
+    /* Opaque: semi-transparent rgba lets theme-chalk white leak through on hover */
+    --sw-table-hover-row: color-mix(in srgb, var(--sw-table-body-bg) 82%, var(--sw-accent) 18%);
+    --sw-table-body-bg: #27272a;
+    --sw-table-header-bg: #27272a;
+    --sw-table-striped-bg: #18181b;
+    --sw-dialog-header-1: #27272a;
+    --sw-dialog-header-2: #3f3f46;
+    --sw-dialog-shadow: rgba(0, 0, 0, 0.5);
+    --sw-btn-primary-shadow: rgba(37, 99, 235, 0.35);
+    --sw-sidebar: #18181b;
+    --sw-sidebar-2: #27272a;
+    --sw-sidebar-ink: #e4e4e7;
+    --sw-sidebar-ink-muted: #a1a1aa;
+    --sw-auth-radial: rgba(59, 130, 246, 0.12);
+    --sw-auth-top: #09090b;
+    --sw-auth-mid: #18181b;
+    --sw-auth-bottom: #27272a;
+    --sw-header-bg: rgba(39, 39, 42, 0.88);
+    --sw-field-bg: #242428;
+    --sw-field-bg-disabled: #1b1b1e;
+    --sw-main-glow-1: rgba(59, 130, 246, 0.12);
+    --sw-main-glow-2: rgba(236, 201, 75, 0.08);
+    --sw-card-border: rgba(82, 82, 91, 0.88);
+    --sw-auth-panel-border: rgba(255, 255, 255, 0.06);
+    --sw-panel-bg: rgba(39, 39, 42, 0.88);
+    --sw-panel-bg-strong: rgba(39, 39, 42, 0.78);
+    --sw-auth-panel-bg: linear-gradient(180deg, rgba(39, 39, 42, 0.96) 0%, rgba(24, 24, 27, 0.94) 100%);
+    --sw-sidebar-brand-hover: #ffffff;
+    --sw-sidebar-active-ink: #fafafa;
+    --sw-menu-active-border: #60a5fa;
+    --sw-menu-active-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.12), 0 8px 20px rgba(0, 0, 0, 0.22);
+    --sw-theme-light-active: #facc15;
+    --sw-theme-light-bg: rgba(250, 204, 21, 0.14);
+    --sw-theme-dark-active: #111827;
+    --sw-theme-dark-bg: rgba(241, 245, 249, 0.88);
+    --sw-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.28);
+}

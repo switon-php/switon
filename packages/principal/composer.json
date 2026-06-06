@@ -1,0 +1,61 @@
+{
+    "name": "switon/principal",
+    "description": "Runtime contracts for resolved caller identity and tenant state after boundary resolution for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "principal",
+        "identity",
+        "tenant"
+    ],
+    "homepage": "https://github.com/switon-php/principal",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/principal",
+        "issues": "https://github.com/switon-php/principal/issues",
+        "docs": "https://docs.switon.dev/latest/principal"
+    },
+    "require": {
+        "php": ">=8.3",
+        "switon/core": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Principal\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Principal\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "switon": {
+            "providers": []
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}

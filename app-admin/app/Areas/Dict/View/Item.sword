@@ -1,0 +1,126 @@
+<m-navbar>
+    <m-button action="create" type="primary" icon="el-icon-plus" @click="openCreate">{{t('dict.item')}}</m-button>
+    <m-text prop="keyword" placeholder="{{t('dict.keyword_code_name_value')}}"></m-text>
+    <m-select prop="type_id" options="types" value-key="type_id" label-key="type_name" label="{{t('dict.type_label')}}" url="/dict/type/list"></m-select>
+    <md-select prop="status" dict="common.status" placeholder="{{t('label.status')}}"></md-select>
+</m-navbar>
+<m-dialog mode="create" @open="prepareCreate">
+    <m-select prop="type_id" options="creatableTypes" value-key="type_id" label-key="type_name" label="{{t('dict.type_label')}}"></m-select>
+    <m-text prop="item_code" label="{{t('dict.code')}}"></m-text>
+    <m-text prop="item_name" label="{{t('dict.name')}}"></m-text>
+    <m-text prop="item_value" :label="itemValueLabel(createType)" :placeholder="itemValuePlaceholder(createType)"></m-text>
+    <m-switch prop="is_default" label="{{t('dict.default')}}" :default="false"></m-switch>
+    <m-switch prop="status" label="{{t('label.status')}}" :default="true"></m-switch>
+    <m-text prop="display_order" label="{{t('dict.sort')}}" :default="0"></m-text>
+    <m-text prop="tag" label="{{t('dict.tag')}}" :default="0"></m-text>
+    <m-text prop="remark" label="{{t('dict.remark')}}" default=""></m-text>
+</m-dialog>
+<m-dialog mode="edit">
+    <m-select prop="type_id" options="editableTypes" value-key="type_id" label-key="type_name" label="{{t('dict.type_label')}}" :disabled="isBuiltinItemEdit"></m-select>
+    <m-text prop="item_code" label="{{t('dict.code')}}" :disabled="isBuiltinItemEdit"></m-text>
+    <m-text prop="item_name" label="{{t('dict.name')}}"></m-text>
+    <m-text prop="item_value" :label="itemValueLabel(editType)" :placeholder="itemValuePlaceholder(editType)" :disabled="isBuiltinItemEdit"></m-text>
+    <m-switch prop="is_default" label="{{t('dict.default')}}" :disabled="isBuiltinItemEdit"></m-switch>
+    <m-switch prop="status" label="{{t('label.status')}}" :disabled="isBuiltinItemEdit"></m-switch>
+    <m-text prop="display_order" label="{{t('dict.sort')}}"></m-text>
+    <m-text prop="tag" label="{{t('dict.tag')}}"></m-text>
+    <m-text prop="remark" label="{{t('dict.remark')}}"></m-text>
+</m-dialog>
+<m-table :size="15">
+    <m-selection></m-selection>
+    <m-index></m-index>
+    <m-text prop="item_id" label="Id" width="64"></m-text>
+    <m-text prop="type" label="{{t('dict.type_label')}}" min-width="120" v-slot="{row}">@{{ row.type ? row.type.type_name : '' }}</m-text>
+    <m-text prop="item_code" label="{{t('dict.code')}}" min-width="150" show-overflow-tooltip></m-text>
+    <m-text prop="item_name" label="{{t('dict.name')}}" min-width="150" show-overflow-tooltip></m-text>
+    <m-text prop="item_value" label="{{t('dict.value')}}" min-width="120" show-overflow-tooltip></m-text>
+    <m-bool prop="is_default" label="{{t('dict.default')}}" width="70"></m-bool>
+    <md-tag prop="status" label="{{t('label.status')}}" dict="common.status" width="70"></md-tag>
+    <m-text prop="display_order" label="{{t('dict.sort')}}" width="72"></m-text>
+    <m-account prop="updated_by" width="120"></m-account>
+    <m-timestamp prop="updated_at" width="170"></m-timestamp>
+    <m-actions actions="edit">
+        <template v-slot="{row}">
+            <ma-delete :row="row" :disabled="Number((row.type && row.type.builtin) || 0) === 1"></ma-delete>
+        </template>
+    </m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('dict.item')}}',
+                types: [],
+            },
+            computed: {
+                creatableTypes() {
+                    const types = Array.isArray(this.types) ? this.types : [];
+                    return types.filter((row) => Number(row.builtin || 0) !== 1);
+                },
+                createType() {
+                    const typeId = Number((this.create && this.create.type_id) || (this.request && this.request.type_id) || 0);
+                    return this.findType(typeId);
+                },
+                editableTypes() {
+                    const currentTypeId = Number((this.edit && this.edit.type_id) || 0);
+                    const types = Array.isArray(this.types) ? this.types : [];
+                    return types.filter((row) => Number(row.builtin || 0) !== 1 || Number(row.type_id) === currentTypeId);
+                },
+                editType() {
+                    const typeId = Number((this.edit && this.edit.type_id) || 0);
+                    return this.findType(typeId);
+                },
+                isBuiltinItemEdit() {
+                    const typeId = Number((this.edit && this.edit.type_id) || 0);
+                    const type = this.findType(typeId);
+                    return Number((type && type.builtin) || 0) === 1;
+                }
+            },
+            methods: {
+                findType(typeId) {
+                    const types = Array.isArray(this.types) ? this.types : [];
+                    return types.find((row) => Number(row.type_id) === Number(typeId)) || null;
+                },
+                normalizeCreateTypeId(typeId) {
+                    const current = this.findType(typeId);
+                    if (current && Number(current.builtin || 0) !== 1) {
+                        return Number(current.type_id);
+                    }
+
+                    const first = this.creatableTypes[0];
+                    return first ? Number(first.type_id) : 0;
+                },
+                openCreate() {
+                    const types = Array.isArray(this.types) ? this.types : [];
+                    if (types.length > 0 && this.creatableTypes.length === 0) {
+                        this.$message({type: 'warning', duration: 1500, message: this.adminT('dict.create_custom_type_first')});
+                        return;
+                    }
+
+                    this.createVisible = true;
+                },
+                prepareCreate() {
+                    const currentTypeId = Number((this.create && this.create.type_id) || (this.request && this.request.type_id) || 0);
+                    const normalizedTypeId = this.normalizeCreateTypeId(currentTypeId);
+                    if (normalizedTypeId > 0) {
+                        this.$set(this.create, 'type_id', normalizedTypeId);
+                    }
+
+                    if (currentTypeId > 0 && currentTypeId !== normalizedTypeId) {
+                        this.$message({
+                            type: 'warning',
+                            duration: 1500,
+                            message: this.adminT('dict.builtin_type_create_switch')
+                        });
+                    }
+                },
+                itemValueLabel(type) {
+                    return type && type.value_type === 'int' ? this.adminT('dict.value_integer') : this.adminT('dict.value');
+                },
+                itemValuePlaceholder(type) {
+                    return type && type.value_type === 'int' ? this.adminT('dict.value_integer_placeholder') : '';
+                }
+            }
+        });
+    </script>
+@append

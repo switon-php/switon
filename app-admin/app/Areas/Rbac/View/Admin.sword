@@ -1,0 +1,136 @@
+<m-navbar>
+    <ma-create></ma-create>
+    <m-text prop="keyword" placeholder="{{t('rbac.keyword_username_email')}}"></m-text>
+    <md-select prop="status" dict="admin.status"></md-select>
+</m-navbar>
+
+<m-dialog mode="create">
+    <m-text prop="admin_name"></m-text>
+    <m-text prop="email"></m-text>
+    <m-text prop="password"></m-text>
+    <m-upload prop="avatar_id" label="{{t('rbac.avatar')}}" scene="avatar" accept="image/*" :default="0"></m-upload>
+    <m-text prop="white_ip" default="*"></m-text>
+    <m-select prop="role_id" label="{{t('rbac.role')}}" options="roles" url="/rbac/admin/roles" value-key="role_id" label-key="role_name"></m-select>
+    <md-radio prop="status" dict="admin.status" :default="1"></md-radio>
+</m-dialog>
+
+<m-dialog mode="edit">
+    <m-text prop="admin_name" disabled></m-text>
+    <m-text prop="email"></m-text>
+    <m-text prop="password"></m-text>
+    <m-upload prop="avatar_id" label="{{t('rbac.avatar')}}" scene="avatar" accept="image/*" :default="0"></m-upload>
+    <m-text prop="white_ip"></m-text>
+    <m-roles></m-roles>
+</m-dialog>
+
+<m-dialog mode="detail">
+    <m-text prop="admin_id"></m-text>
+    <m-text prop="admin_name"></m-text>
+    <md-tag prop="status" label="{{t('rbac.account_status')}}" dict="admin.status"></md-tag>
+    <m-text prop="email"></m-text>
+    <m-image prop="avatar.asset_url" label="{{t('rbac.avatar')}}" :width="72" :height="72"></m-image>
+    <m-text prop="avatar.asset_name" label="{{t('rbac.avatar_file')}}"></m-text>
+    <m-text prop="white_ip"></m-text>
+    <m-text prop="login_ip"></m-text>
+    <m-timestamp prop="login_time"></m-timestamp>
+    <el-form-item label="{{t('rbac.session')}}:">
+        <el-tag size="mini" :type="detail && detail.session_id ? 'success' : 'info'">
+            @{{ detail && detail.session_id ? t('rbac.online') : t('rbac.offline') }}
+        </el-tag>
+    </el-form-item>
+    <m-text prop="fail_count" label="{{t('rbac.fail_count')}}"></m-text>
+    <m-timestamp prop="failed_at" label="{{t('rbac.last_failed')}}"></m-timestamp>
+    <el-form-item label="{{t('rbac.login_limit')}}:">
+        <el-tag v-if="isTemporarilyLocked(detail)" size="mini" type="warning">@{{ lockedUntilText(detail) }}</el-tag>
+        <span v-else>-</span>
+    </el-form-item>
+    <m-timestamp prop="created_at"></m-timestamp>
+</m-dialog>
+
+<m-table :size="15">
+    <m-index></m-index>
+    <m-image prop="avatar.asset_url" label="{{t('rbac.avatar')}}" :width="40" :height="40"></m-image>
+    <m-account prop="admin_name"></m-account>
+    <m-email></m-email>
+    <m-tags prop="roles" label="{{t('rbac.role')}}"></m-tags>
+    <md-tag prop="status" label="{{t('rbac.account_status')}}" dict="admin.status" width="100"></md-tag>
+    <m-ip prop="login_ip" label="{{t('rbac.login_ip')}}"></m-ip>
+    <m-timestamp prop="login_time" label="{{t('rbac.login_time')}}"></m-timestamp>
+    <el-table-column prop="session_id" label="{{t('rbac.session')}}" width="90">
+        <template slot="header">
+            <span title="session_id">{{t('rbac.session')}}</span>
+        </template>
+        <template slot-scope="scope">
+            <el-tag size="mini" :type="scope.row.session_id ? 'success' : 'info'">
+                @{{ scope.row.session_id ? t('rbac.online') : t('rbac.offline') }}
+            </el-tag>
+        </template>
+    </el-table-column>
+    <el-table-column prop="locked_until" label="{{t('rbac.login_limit')}}" width="180">
+        <template slot="header">
+            <span title="locked_until">{{t('rbac.login_limit')}}</span>
+        </template>
+        <template slot-scope="scope">
+            <el-tag v-if="isTemporarilyLocked(scope.row)" size="mini" type="warning">{{t('rbac.locked_temp')}}</el-tag>
+            <span v-else>-</span>
+        </template>
+    </el-table-column>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-actions>
+        <template v-slot="{row}">
+            <ma-detail :row="row"></ma-detail>
+            <ma-edit :row="row"></ma-edit>
+            <ma-status :row="row"></ma-status>
+            <ma-post
+                :row="row"
+                action="unlock-login"
+                id-prop="admin_id"
+                type="warning"
+                icon="el-icon-unlock"
+                title="{{t('rbac.unlock_login_lock')}}"
+                confirm-text="{{t('rbac.unlock_login_lock_confirm')}}"
+                :visible="isTemporarilyLocked(row)"
+            ></ma-post>
+            <ma-post
+                :row="row"
+                action="kick"
+                id-prop="admin_id"
+                type="danger"
+                icon="el-icon-switch-button"
+                title="{{t('rbac.force_logout')}}"
+                confirm-text="{{t('rbac.force_logout_confirm')}}"
+                :visible="!!row.session_id"
+            ></ma-post>
+        </template>
+    </m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('rbac.user')}}',
+                roles: [],
+            },
+            methods: {
+                t(key, bind) {
+                    return this.adminT(key, bind);
+                },
+                isTemporarilyLocked(row) {
+                    return Number((row && row.locked_until) || 0) > Math.floor(Date.now() / 1000);
+                },
+                lockedUntilText(row) {
+                    const value = Number((row && row.locked_until) || 0);
+                    if (value <= 0) {
+                        return '-';
+                    }
+                    return this.t('rbac.lock_until', {time: this.$moment(value * 1000).format('YYYY-MM-DD HH:mm:ss')});
+                },
+                show_edit(row) {
+                    this.edit = this.composeEdit(row);
+                    this.$set(this.edit, 'role_ids', this._.map(row.roles, 'role_id'));
+                    this.editVisible = true;
+                }
+            },
+        });
+    </script>
+@append

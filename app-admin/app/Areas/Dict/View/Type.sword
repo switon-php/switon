@@ -1,0 +1,55 @@
+<m-navbar>
+    <ma-create></ma-create>
+    <m-text prop="keyword" placeholder="{{t('dict.keyword_code_name')}}"></m-text>
+    <md-select prop="status" dict="common.status" placeholder="{{t('label.status')}}"></md-select>
+</m-navbar>
+<m-dialog mode="create">
+    <m-text prop="type_code" label="{{t('dict.code')}}"></m-text>
+    <m-text prop="type_name" label="{{t('dict.name')}}"></m-text>
+    <md-select prop="value_type" label="{{t('dict.value_type')}}" dict="dict.value.type" default="string"></md-select>
+    <m-switch prop="status" label="{{t('label.status')}}" :default="true"></m-switch>
+    <m-text prop="display_order" label="{{t('dict.sort')}}" :default="0"></m-text>
+    <m-text prop="remark" label="{{t('dict.remark')}}" default=""></m-text>
+</m-dialog>
+<m-dialog mode="edit">
+    <m-text prop="type_code" label="{{t('dict.code')}}" :disabled="isBuiltinTypeEdit"></m-text>
+    <m-text prop="type_name" label="{{t('dict.name')}}"></m-text>
+    <md-select prop="value_type" label="{{t('dict.value_type')}}" dict="dict.value.type" :disabled="isBuiltinTypeEdit"></md-select>
+    <m-switch prop="status" label="{{t('label.status')}}" :disabled="isBuiltinTypeEdit"></m-switch>
+    <m-text prop="display_order" label="{{t('dict.sort')}}"></m-text>
+    <m-text prop="remark" label="{{t('dict.remark')}}"></m-text>
+</m-dialog>
+<m-table :size="15">
+    <m-selection></m-selection>
+    <m-index></m-index>
+    <m-text prop="type_id" label="Id" width="64"></m-text>
+    <m-text prop="type_code" label="{{t('dict.code')}}" min-width="180" show-overflow-tooltip v-slot="{row}">
+        <a :href="'/dict/item/index?type_id=' + row.type_id">@{{ row.type_code }}</a>
+    </m-text>
+    <m-text prop="type_name" label="{{t('dict.name')}}" min-width="180" show-overflow-tooltip></m-text>
+    <md-text prop="value_type" label="{{t('dict.value_type')}}" dict="dict.value.type" width="90"></md-text>
+    <m-bool prop="builtin" label="{{t('dict.builtin')}}" width="70"></m-bool>
+    <md-tag prop="status" label="{{t('label.status')}}" dict="common.status" width="70"></md-tag>
+    <m-text prop="display_order" label="{{t('dict.sort')}}" width="72"></m-text>
+    <m-account prop="updated_by" width="120"></m-account>
+    <m-timestamp prop="updated_at" width="170"></m-timestamp>
+    <m-actions actions="edit">
+        <template v-slot="{row}">
+            <ma-delete :row="row" :disabled="Number(row.builtin) === 1"></ma-delete>
+        </template>
+    </m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('dict.type')}}',
+            },
+            computed: {
+                isBuiltinTypeEdit() {
+                    return Number((this.edit && this.edit.builtin) || 0) === 1;
+                }
+            }
+        });
+    </script>
+@append

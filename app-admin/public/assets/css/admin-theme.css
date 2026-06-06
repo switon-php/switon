@@ -1,0 +1,1609 @@
+/**
+ * Switon Admin — visual theme (Element UI 2 overrides).
+ * Load after theme-chalk/index.css and app.css.
+ */
+/* Default = light: clean surfaces + teal accent (see admin-theme-skins.css) */
+:root {
+    color-scheme: light;
+    --sw-bg-page: #f4f6f9;
+    --sw-bg-elevated: #ffffff;
+    --sw-ink: #1f2937;
+    --sw-ink-muted: #5c6370;
+    --sw-border: #dde1e7;
+    --sw-border-strong: #c5cad3;
+    /* Dialog / dense lists: checkboxes use neutral fill instead of Element primary */
+    --sw-checkbox-on-bg: #5c6370;
+    --sw-checkbox-on-border: #4f5663;
+    --sw-checkbox-on-hover-bg: #6b7280;
+    --sw-checkbox-on-hover-border: #5c6370;
+    --sw-checkbox-focus-ring: rgba(92, 99, 112, 0.22);
+    /* Default el-tag (no success|warning|danger|info): neutral chip */
+    --sw-tag-chip-bg: rgba(92, 99, 112, 0.09);
+    --sw-tag-chip-border: rgba(92, 99, 112, 0.22);
+    --sw-tag-chip-bg-hover: rgba(92, 99, 112, 0.13);
+    --sw-tag-chip-border-hover: rgba(92, 99, 112, 0.3);
+    --sw-accent: #159887;
+    --sw-accent-hover: #0f7b6d;
+    --sw-accent-soft: rgba(21, 152, 135, 0.1);
+    --sw-accent-glow: rgba(21, 152, 135, 0.16);
+    --sw-accent-grad-start: #1aa996;
+    --sw-accent-grad-start-hover: #24bba6;
+    --sw-accent-pressed-border: #0d6559;
+    --sw-menu-hover-bg: rgba(21, 152, 135, 0.05);
+    --sw-menu-active-bg: rgba(21, 152, 135, 0.08);
+    --sw-table-hover-row: rgba(21, 152, 135, 0.045);
+    --sw-table-body-bg: #ffffff;
+    --sw-table-header-bg: #eef1f6;
+    --sw-table-striped-bg: #f7f8fb;
+    --sw-dialog-header-1: #ffffff;
+    --sw-dialog-header-2: #f4f6f9;
+    --sw-dialog-shadow: rgba(15, 23, 42, 0.12);
+    --sw-btn-primary-shadow: rgba(21, 152, 135, 0.15);
+    --sw-sidebar: #f4f6f9;
+    --sw-sidebar-2: #eef1f5;
+    --sw-sidebar-ink: #374151;
+    --sw-sidebar-ink-muted: #5c6370;
+    --sw-auth-radial: rgba(21, 152, 135, 0.08);
+    --sw-auth-top: #f8fbfb;
+    --sw-auth-mid: #fbfcfd;
+    --sw-auth-bottom: #ffffff;
+    --sw-header-bg: rgba(255, 255, 255, 0.92);
+    --sw-field-bg: #ffffff;
+    --sw-field-bg-disabled: #f4f5f7;
+    --sw-main-glow-1: rgba(21, 152, 135, 0.03);
+    --sw-main-glow-2: rgba(21, 152, 135, 0.015);
+    --sw-card-border: rgba(55, 65, 81, 0.1);
+    --sw-auth-panel-border: rgba(55, 65, 81, 0.1);
+    --sw-panel-bg: rgba(255, 255, 255, 0.96);
+    --sw-panel-bg-strong: rgba(255, 255, 255, 0.94);
+    --sw-auth-panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(250, 252, 252, 0.99) 100%);
+    --sw-sidebar-brand-hover: var(--sw-accent);
+    --sw-sidebar-active-ink: var(--sw-accent-hover);
+    --sw-menu-active-border: var(--sw-accent);
+    --sw-menu-active-shadow: none;
+    --sw-theme-light-active: #d28a1d;
+    --sw-theme-light-bg: rgba(251, 191, 36, 0.14);
+    --sw-theme-dark-active: #111827;
+    --sw-theme-dark-bg: rgba(17, 24, 39, 0.08);
+    --sw-radius: 8px;
+    --sw-radius-sm: 6px;
+    --sw-shadow: 0 1px 3px rgba(15, 23, 42, 0.07), 0 10px 28px rgba(15, 23, 42, 0.06);
+    /* v-loading mask starts below thead (mini table ~41px); tune if header height changes */
+    --sw-table-loading-mask-top: 41px;
+    /* Tab row + single-line brand strip; shell rule Y = main_pad + navbar_row */
+    --sw-navbar-row-h: 32px;
+    --sw-shell-header-h: calc(var(--sw-main-pad-top) + var(--sw-navbar-row-h));
+    --sw-main-pad-top: 0;
+    --sw-font: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Pairs with DM Sans (same family); use for tabular time cells + JSON tooltip */
+    --sw-font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* --- Shell (main layout) --- */
+body {
+    font-family: var(--sw-font);
+    color: var(--sw-ink);
+    background: var(--sw-bg-page);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+#app.el-container {
+    min-height: 100vh;
+    background: var(--sw-bg-page);
+    position: relative;
+    overflow-x: hidden;
+}
+
+#app > .el-container {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+/* Desktop: only main scrolls; sidebar stays in viewport */
+@media (min-width: 901px) {
+    body {
+        overflow: hidden;
+    }
+
+    #app.el-container {
+        height: 100vh;
+        max-height: 100vh;
+        overflow: hidden;
+        align-items: stretch;
+    }
+
+    #app > .el-container {
+        flex: 1 1 0%;
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+        max-height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #app .el-main {
+        flex: 1 1 0%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Inspector is fixed UI; do not consume flex width beside aside + main */
+    #app > inspector-links {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 0;
+        z-index: 1000;
+        overflow: visible;
+    }
+}
+
+#app > .el-aside {
+    background: linear-gradient(180deg, var(--sw-sidebar) 0%, var(--sw-sidebar-2) 100%);
+    border-right: 1px solid var(--sw-border);
+    box-shadow: none;
+    position: relative;
+    z-index: 2;
+    /* Must match el-main padding-top so left/right rules share one Y */
+    padding: var(--sw-main-pad-top) 0 0;
+    box-sizing: border-box;
+}
+
+/* Brand (top) + scrollable menu + version footer pinned to bottom */
+#app > .el-aside.admin-aside {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    transition: width 0.2s ease;
+}
+
+@media (min-width: 901px) {
+    #app > .el-aside.admin-aside {
+        align-self: stretch;
+    }
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed {
+    width: 44px !important;
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed .product-name {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed .product-name__title-wrap {
+    display: none;
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed .admin-aside-footer {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed .admin-aside-version {
+    display: none;
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed .el-menu-vertical-demo {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed .el-menu-vertical-demo .el-submenu__title,
+#app > .el-aside.admin-aside.admin-aside--collapsed .el-menu-vertical-demo .el-menu-item {
+    justify-content: center;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#app > .el-aside.admin-aside.admin-aside--collapsed .el-submenu__title > i:not(.el-submenu__icon-arrow),
+#app > .el-aside.admin-aside.admin-aside--collapsed .el-menu-item > i {
+    margin-right: 0;
+}
+
+#app .admin-aside-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#app .admin-aside-footer {
+    flex-shrink: 0;
+    padding: 8px 20px 12px;
+    border-top: 1px solid var(--sw-border);
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--sw-sidebar-ink-muted);
+    letter-spacing: 0.02em;
+}
+
+#app .admin-aside-version {
+    font-family: var(--sw-font-mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Full-width bottom rule (matches .admin-workbar); symmetric vertical padding so title is not bottom-heavy */
+#app .product-name {
+    margin: 0 0 8px;
+    padding: 5px 12px 5px 20px;
+    width: 100%;
+    max-width: 100%;
+    height: var(--sw-navbar-row-h);
+    min-height: 0;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--sw-border);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+#app .product-name__title-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#app .product-name__toggle {
+    order: -1;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--sw-sidebar-ink-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 180ms ease, color 180ms ease;
+}
+
+#app .product-name__toggle:hover {
+    color: var(--sw-sidebar-ink);
+    background: var(--sw-menu-hover-bg);
+}
+
+#app .product-name .el-link.product-name__title {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    padding: 0;
+    color: var(--sw-sidebar-ink) !important;
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#app .product-name .el-link.product-name__mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    font-size: 1.1rem;
+    color: var(--sw-sidebar-ink) !important;
+}
+
+#app .product-name .el-link.product-name__mark:hover {
+    color: var(--sw-sidebar-brand-hover) !important;
+}
+
+#app .product-name .el-link.product-name__title:hover {
+    color: var(--sw-sidebar-brand-hover) !important;
+}
+
+#app .el-menu-vertical-demo {
+    border-right: none;
+    background: transparent !important;
+    padding: 4px 0 12px;
+}
+
+/* Avoid default nested menu “card” background (level-1 vs level-2 same surface) */
+#app .el-menu-vertical-demo .el-menu {
+    background: transparent !important;
+}
+
+/* Group headers: slightly stronger than leaves */
+#app .el-menu-vertical-demo .el-submenu__title {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--sw-sidebar-ink) !important;
+    margin: 4px 8px 2px;
+    border-radius: 0 8px 8px 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Leaf rows: subtle inset + radius; transparent left border so active 3px bar does not shift text */
+#app .el-menu-vertical-demo .el-menu-item {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--sw-sidebar-ink) !important;
+    transition: background-color 180ms ease, color 180ms ease;
+    margin: 1px 8px;
+    border-radius: 0 8px 8px 0;
+    border-left: 3px solid transparent;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#app .el-menu-vertical-demo .el-submenu__title:hover,
+#app .el-menu-vertical-demo .el-menu-item:hover {
+    background: var(--sw-menu-hover-bg) !important;
+}
+
+/* Element UI adds a right-side chevron (.el-submenu__icon-arrow); hide it — group already reads as a section */
+#app .el-menu-vertical-demo .el-submenu__icon-arrow {
+    display: none !important;
+}
+
+/* Icon column alignment (group icon only, not the hidden arrow) */
+#app .el-submenu__title > i:not(.el-submenu__icon-arrow),
+#app .el-menu-item > i {
+    flex: 0 0 20px;
+    width: 20px;
+    margin-right: 2px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--sw-sidebar-ink-muted);
+}
+
+#app .el-menu-vertical-demo .el-submenu__title > span,
+#app .el-menu-vertical-demo .el-menu-item > span,
+#app .el-menu-vertical-demo .el-menu-item .el-link {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#app .el-menu-item.is-active i {
+    color: var(--sw-sidebar-active-ink);
+}
+
+/* Link reads as menu label, not a standalone anchor (overrides app.css min-width:200px) */
+#app .el-menu-vertical-demo .el-menu-item .el-link {
+    display: block;
+    min-width: 0 !important;
+    max-width: 100%;
+    padding: 0;
+    vertical-align: baseline;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#app .el-menu-vertical-demo .el-menu-item .el-link:hover {
+    color: inherit !important;
+}
+
+/* Collapsed sidebar submenu popup: keep it compact like the inline menu. */
+.el-menu--popup {
+    min-width: 0 !important;
+    width: max-content;
+    max-width: 220px;
+    padding: 4px !important;
+    border-radius: 10px;
+    background: var(--sw-panel-bg) !important;
+    border: 1px solid var(--sw-border);
+    box-shadow: var(--sw-shadow);
+}
+
+.el-menu--popup .el-menu-item {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    line-height: 32px;
+    margin: 0;
+    padding: 0 8px !important;
+    border-radius: 8px;
+    font-size: 13px;
+    min-width: 0;
+}
+
+.el-menu--popup .el-menu-item > i {
+    display: none !important;
+}
+
+.el-menu--popup .el-menu-item .el-link {
+    min-width: 0 !important;
+    max-width: 100%;
+    font-size: inherit;
+    color: inherit !important;
+}
+
+.el-menu--popup .el-menu-item:hover {
+    background: var(--sw-menu-hover-bg) !important;
+}
+
+.el-menu--popup .el-menu-item.is-active {
+    background: var(--sw-menu-active-bg) !important;
+    color: var(--sw-sidebar-active-ink) !important;
+    border-left: none;
+    padding-left: 8px !important;
+    box-shadow: none;
+}
+
+/* Active leaf: same left inset as before (21px + 3px bar) */
+#app .el-menu-item.is-active {
+    background: var(--sw-menu-active-bg) !important;
+    border-left: 3px solid var(--sw-menu-active-border);
+    padding-left: 21px !important;
+    color: var(--sw-sidebar-active-ink) !important;
+    box-shadow: var(--sw-menu-active-shadow);
+}
+
+#app .admin-theme-switcher {
+    display: inline-block;
+    padding: 0;
+    margin-right: 2px;
+    vertical-align: middle;
+    background: transparent;
+    border: none;
+}
+
+#app .admin-theme-button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border-radius: 999px;
+    color: var(--sw-ink-muted);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: background-color 180ms ease, color 180ms ease, opacity 180ms ease;
+}
+
+#app .admin-theme-button:hover {
+    color: var(--sw-ink);
+    background: var(--sw-menu-hover-bg);
+    border-color: var(--sw-border);
+    opacity: 1;
+}
+
+#app .admin-theme-button.theme-light {
+    color: var(--sw-theme-light-active);
+    background: color-mix(in srgb, var(--sw-theme-light-bg) 55%, transparent);
+    border-color: color-mix(in srgb, var(--sw-border) 70%, transparent);
+    opacity: 1;
+}
+
+#app .admin-theme-button.theme-dark {
+    color: var(--sw-theme-dark-active);
+    background: color-mix(in srgb, var(--sw-theme-dark-bg) 38%, transparent);
+    border-color: color-mix(in srgb, var(--sw-border) 78%, transparent);
+    opacity: 1;
+}
+
+#app .el-main {
+    padding: var(--sw-main-pad-top) 14px 18px !important;
+    background: transparent;
+    position: relative;
+    /* overflow-y set in @media (min-width: 901px); do not use visible here — it overrides scroll */
+    min-width: 0;
+}
+
+#app .admin-workbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    height: var(--sw-navbar-row-h);
+    min-height: 0;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--sw-border);
+}
+
+/* Filter row stays available while the lighter history row scrolls away with content. */
+#app .m-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    min-height: var(--sw-navbar-row-h);
+    padding: 4px 0 0;
+    margin-bottom: 0;
+    background: var(--sw-bg-page);
+    box-sizing: border-box;
+}
+
+#app .admin-workbar-tools {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+#app .my-menu-tabs.el-tabs {
+    margin: 0;
+}
+
+#app .my-menu-tabs {
+    margin-bottom: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+
+/* History tabs only navigate away — panes are empty; hiding content avoids extra vertical space */
+#app .my-menu-tabs .el-tabs__content {
+    display: none !important;
+}
+
+#app .my-menu-tabs .el-tabs__header {
+    margin: 0 !important;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#app .my-menu-tabs .el-tabs__nav-wrap {
+    min-width: 0;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+#app .my-menu-tabs .el-tabs__nav-scroll {
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+}
+
+#app .my-menu-tabs .el-tabs__nav {
+    white-space: nowrap;
+}
+
+#app .my-menu-tabs .el-tabs__item {
+    padding: 0 10px !important;
+    font-size: 12px;
+    height: var(--sw-navbar-row-h);
+    line-height: var(--sw-navbar-row-h);
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Full-width rule is on .admin-workbar; hide tabs nav line to avoid double stroke */
+#app .my-menu-tabs .el-tabs__nav-wrap::after {
+    display: none;
+}
+
+#app .my-menu-tabs .el-tabs__item {
+    font-weight: 400;
+    color: var(--sw-ink-muted);
+}
+
+#app .my-menu-tabs .el-tabs__item.is-active {
+    color: var(--sw-accent);
+}
+
+#app .my-menu-tabs .el-tabs__item:hover {
+    color: var(--sw-ink);
+}
+
+#app .my-menu-tabs .el-tabs__active-bar {
+    background-color: var(--sw-accent);
+    height: 2px;
+    border-radius: 3px 3px 0 0;
+}
+
+#app .admin-user-menu {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+#app .admin-avatar {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--sw-bg-elevated) 88%, var(--sw-bg-page));
+    border: 1px solid var(--sw-border);
+    color: var(--sw-ink);
+    cursor: pointer;
+    box-shadow: none;
+}
+
+#app .admin-avatar__text {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+#app .admin-avatar__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+}
+
+#app .admin-avatar__badge {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: #ef4444;
+    box-shadow: 0 0 0 2px var(--sw-bg-page);
+}
+
+.admin-user-dropdown .el-dropdown-menu__item {
+    white-space: nowrap;
+}
+
+.admin-user-dropdown .el-dropdown-menu__item.is-disabled {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Primary & links --- */
+.el-button--primary {
+    background: linear-gradient(180deg, var(--sw-accent-grad-start) 0%, var(--sw-accent) 100%);
+    border-color: var(--sw-accent);
+    box-shadow: 0 1px 2px var(--sw-btn-primary-shadow);
+    border-radius: 8px;
+    transition: box-shadow 180ms ease, filter 180ms ease;
+}
+
+.el-button--primary:hover,
+.el-button--primary:focus {
+    background: linear-gradient(180deg, var(--sw-accent-grad-start-hover) 0%, var(--sw-accent-hover) 100%);
+    border-color: var(--sw-accent-hover);
+    box-shadow: 0 4px 12px var(--sw-btn-primary-shadow);
+}
+
+.el-button--primary.is-active,
+.el-button--primary:active {
+    background: var(--sw-accent-hover);
+    border-color: var(--sw-accent-pressed-border);
+}
+
+.el-link.el-link--primary {
+    color: var(--sw-accent) !important;
+}
+
+.el-link.el-link--primary:hover {
+    color: var(--sw-accent-hover) !important;
+}
+
+/* --- Form controls --- */
+.el-input__inner:focus,
+.el-textarea__inner:focus {
+    border-color: var(--sw-accent);
+    box-shadow: 0 0 0 3px var(--sw-accent-soft);
+}
+
+.el-select .el-input.is-focus .el-input__inner {
+    border-color: var(--sw-accent);
+}
+
+.el-input__inner,
+.el-textarea__inner,
+.el-input-group__prepend,
+.el-input-group__append {
+    background: var(--sw-field-bg);
+    border-color: var(--sw-border);
+    color: var(--sw-ink);
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.el-input.is-disabled .el-input__inner,
+.el-textarea.is-disabled .el-textarea__inner {
+    background: var(--sw-field-bg-disabled);
+    color: var(--sw-ink-muted);
+}
+
+.el-input-group__prepend,
+.el-input-group__append {
+    color: var(--sw-ink-muted);
+}
+
+.el-select-dropdown,
+.el-dropdown-menu,
+.el-message-box,
+.el-popover {
+    border-color: var(--sw-border);
+    box-shadow: var(--sw-shadow);
+}
+
+.el-select-dropdown__item.selected {
+    color: var(--sw-accent);
+}
+
+.el-card,
+#app .result-box,
+table.system_info,
+#app .change-password-box .el-form {
+    background: var(--sw-panel-bg);
+    border: 1px solid var(--sw-card-border);
+    border-radius: 12px;
+    box-shadow: var(--sw-shadow);
+}
+
+#app .result-box,
+table.system_info,
+#app .change-password-box .el-form {
+    padding: 16px;
+}
+
+table.system_info {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table.system_info td,
+table.system_info th {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--sw-border);
+}
+
+table.system_info tr:last-child td,
+table.system_info tr:last-child th {
+    border-bottom: none;
+}
+
+/* --- Table (m-table → el-table; theme-chalk uses #fff — override with !important) --- */
+#app .el-table {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--sw-border) !important;
+    box-shadow: var(--sw-shadow);
+    background-color: var(--sw-table-body-bg);
+    color: var(--sw-ink);
+}
+
+#app .el-table th.el-table__cell {
+    background: var(--sw-table-header-bg) !important;
+    color: var(--sw-ink);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+}
+
+#app .el-table--border td.el-table__cell,
+#app .el-table--border th.el-table__cell {
+    border-color: var(--sw-border) !important;
+}
+
+#app .el-table .el-table__body td.el-table__cell,
+#app .el-table .el-table__body-wrapper tbody td.el-table__cell,
+#app .el-table tbody td.el-table__cell {
+    background-color: var(--sw-table-body-bg) !important;
+    color: var(--sw-ink);
+}
+
+#app .el-table .el-table__fixed-right .el-table__fixed-body-wrapper td.el-table__cell,
+#app .el-table .el-table__fixed .el-table__fixed-body-wrapper td.el-table__cell {
+    background-color: var(--sw-table-body-bg) !important;
+}
+
+#app .el-table .cell {
+    color: inherit;
+}
+
+/* m-tag in tables: wrap tags but cap cell height so rows don’t blow the table layout */
+#app .sw-table-tag-cell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+    line-height: 1.45;
+    max-height: 4.5em;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* m-timestamp / m-time: DM Mono pairs with DM Sans; 0.92em so it doesn’t shout vs body */
+#app .sw-ts-cell {
+    font-family: var(--sw-font-mono);
+    font-size: 0.92em;
+    line-height: inherit;
+    font-weight: inherit;
+    letter-spacing: 0;
+    color: inherit;
+    white-space: nowrap;
+}
+
+/* Copy control: show on cell hover / focus (m-text copyable, m-index JSON, …) */
+#app .sw-table-cell-with-copy {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+#app .sw-table-cell-with-copy > span,
+#app .sw-table-cell-with-copy > a {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#app .sw-table-cell-with-copy .sw-copy-btn {
+    flex-shrink: 0;
+    opacity: 0;
+    padding: 0 2px;
+    transition: opacity 0.12s ease;
+}
+
+#app .sw-table-cell-with-copy:hover .sw-copy-btn,
+#app .sw-table-cell-with-copy:focus-within .sw-copy-btn {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    #app .sw-table-cell-with-copy .sw-copy-btn {
+        opacity: 0.55;
+    }
+}
+
+/* m-index: full-row JSON preview in tooltip (popper is on body; class on popper) */
+.el-tooltip__popper.sw-row-json-tooltip {
+    max-width: min(560px, 92vw) !important;
+    max-height: min(440px, 72vh) !important;
+    padding: 8px 10px !important;
+    pointer-events: auto;
+}
+
+.el-tooltip__popper.sw-row-json-tooltip .sw-row-json-tooltip__pre {
+    margin: 0;
+    max-height: min(400px, 68vh);
+    overflow: auto;
+    font-size: 11px;
+    line-height: 1.4;
+    white-space: pre;
+    text-align: left;
+    font-family: var(--sw-font-mono);
+}
+
+/*
+ * Table overflow tooltips (and other default El tooltips): theme-chalk sets word-wrap:break-word.
+ * With a narrow reference (table cell), the popper can measure like a narrow column and split
+ * short strings such as controller::action across lines. Prefer content width + a generous cap.
+ */
+.el-tooltip__popper:not(.sw-row-json-tooltip):not(.sw-rbac-perm-tooltip) {
+    width: max-content !important;
+    max-width: min(92vw, 720px) !important;
+    word-wrap: normal !important;
+    word-break: normal;
+    overflow-wrap: break-word;
+    line-height: 1.45;
+    box-sizing: border-box;
+}
+
+/* RBAC 角色权限编辑：大号 tooltip（原生 title 无法调字号） */
+.el-tooltip__popper.sw-rbac-perm-tooltip {
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+    padding: 10px 14px !important;
+    max-width: min(640px, 92vw) !important;
+    white-space: pre-line !important;
+    word-break: break-word;
+    box-sizing: border-box;
+}
+
+#app .el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+    background: var(--sw-table-striped-bg) !important;
+}
+
+#app .el-table__body tr:hover > td.el-table__cell,
+#app .el-table__body tr.hover-row > td.el-table__cell {
+    background: var(--sw-table-hover-row) !important;
+}
+
+#app .el-table__empty-block {
+    background-color: var(--sw-table-body-bg);
+}
+
+#app .el-table__empty-text {
+    color: var(--sw-ink-muted);
+}
+
+/* Loading only over tbody: header stays normal; mask matches body bg */
+#app .el-table .el-loading-mask {
+    background-color: var(--sw-table-body-bg);
+    top: var(--sw-table-loading-mask-top);
+    height: auto;
+    bottom: 0;
+}
+
+/* Contain wide tables: horizontal scroll here instead of stretching el-main (overflow-x: hidden) */
+#app .m-table {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    box-sizing: border-box;
+}
+
+#app .m-table .el-pagination {
+    margin: 10px 0;
+    transition: margin 140ms ease, padding 140ms ease, background-color 140ms ease, border-color 140ms ease;
+}
+
+@media (min-width: 901px) {
+    /* Only compact/fix pager after the main pane actually scrolls; at top keep normal in-flow layout. */
+    #app.admin-main-scrolled:not(.admin-main-at-bottom) .m-table .el-pagination {
+        position: sticky;
+        bottom: 0;
+        z-index: 3;
+        padding: 6px 0 2px;
+        margin: 0 auto;
+        width: fit-content;
+        max-width: calc(100% - 24px);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--sw-panel-bg-strong) 60%, transparent) 0,
+            color-mix(in srgb, var(--sw-panel-bg-strong) 86%, transparent) 6px,
+            var(--sw-panel-bg-strong) 100%
+        );
+        border-radius: 10px 10px 0 0;
+        box-sizing: border-box;
+    }
+
+    #app.admin-main-scrolled:not(.admin-main-at-bottom) .m-table .el-pagination.is-background .btn-prev,
+    #app.admin-main-scrolled:not(.admin-main-at-bottom) .m-table .el-pagination.is-background .btn-next,
+    #app.admin-main-scrolled:not(.admin-main-at-bottom) .m-table .el-pagination.is-background .el-pager li {
+        background-color: color-mix(in srgb, var(--sw-table-body-bg) 97%, transparent);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sw-border) 88%, transparent);
+    }
+}
+
+/* --- Pagination --- */
+#app .el-pagination.is-background .btn-prev,
+#app .el-pagination.is-background .btn-next,
+#app .el-pagination.is-background .el-pager li {
+    background-color: var(--sw-table-body-bg);
+    color: var(--sw-ink);
+}
+
+#app .el-pagination.is-background .el-pager li:not(.disabled).active {
+    background-color: var(--sw-accent) !important;
+    color: #fff;
+}
+
+#app .el-pagination.is-background .el-pager li:not(.disabled):hover {
+    color: var(--sw-accent);
+}
+
+#app .el-pagination.is-background .el-pagination__jump,
+#app .el-pagination.is-background .el-pagination__total,
+#app .el-pagination.is-background .el-pagination__sizes .el-input__inner {
+    color: var(--sw-ink-muted);
+}
+
+/* --- Dialog --- */
+.el-dialog {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 48px var(--sw-dialog-shadow), 0 0 1px rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--sw-card-border);
+}
+
+.el-dialog__header {
+    background: linear-gradient(180deg, var(--sw-dialog-header-1) 0%, var(--sw-dialog-header-2) 100%);
+    border-bottom: 1px solid var(--sw-border);
+    padding: 14px 18px;
+}
+
+.el-dialog__title {
+    font-weight: 600;
+    color: var(--sw-ink);
+    letter-spacing: 0.01em;
+}
+
+
+
+/* Role-permission edit: table — one row per controller, actions inline */
+#app .el-dialog.edit-dialog:has(.sw-rbac-perm-edit) {
+    width: min(960px, 96vw) !important;
+}
+
+#app .sw-rbac-perm-edit {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+/* ~20 chars (ch ≈ digit width); + room for clear; cap on narrow viewports */
+#app .edit-dialog .sw-rbac-perm-title-filter.el-input {
+    width: min(216px, calc(20ch + 2.75rem));
+    max-width: 58vw;
+}
+
+#app .sw-rbac-perm-table {
+    width: 100%;
+}
+
+/* 1/3 控制器 · 2/3 动作；列 min-width + 表 min-width 避免窄弹窗把排版压乱 */
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__header-wrapper table,
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__body-wrapper table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 520px;
+}
+
+#app .edit-dialog .sw-rbac-perm-table.el-table colgroup col:nth-child(1) {
+    width: 33.333% !important;
+}
+
+#app .edit-dialog .sw-rbac-perm-table.el-table colgroup col:nth-child(2) {
+    width: 66.667% !important;
+}
+
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__header-wrapper th.el-table__cell:nth-child(1),
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__body-wrapper td.el-table__cell:nth-child(1) {
+    min-width: 200px;
+}
+
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__header-wrapper th.el-table__cell:nth-child(2),
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__body-wrapper td.el-table__cell:nth-child(2) {
+    min-width: 320px;
+}
+
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__body td.el-table__cell {
+    vertical-align: top;
+}
+
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__body .cell {
+    white-space: normal;
+    word-break: break-word;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+#app .edit-dialog .sw-rbac-perm-table.el-table .el-table__header .cell {
+    font-size: 13px;
+}
+
+#app .sw-rbac-perm-table .cell {
+    line-height: 1.4;
+}
+
+#app .sw-rbac-perm-controller-cell {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+    cursor: default;
+}
+
+#app .sw-rbac-perm-row-actions .el-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 8px 14px;
+    width: 100%;
+    min-width: 0;
+}
+
+/* RBAC permission matrix + role grids: soften Element default primary on checkboxes */
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox .el-checkbox__inner,
+#app .sw-rbac-role-checkbox-group .el-checkbox__inner {
+    border-radius: 4px;
+    border-color: var(--sw-border-strong);
+    background-color: var(--sw-field-bg);
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox:not(.is-disabled):hover .el-checkbox__inner,
+#app .sw-rbac-role-checkbox-group .el-checkbox:not(.is-disabled):hover .el-checkbox__inner {
+    border-color: #a8b0bc;
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox__input.is-focus .el-checkbox__inner,
+#app .sw-rbac-role-checkbox-group .el-checkbox__input.is-focus .el-checkbox__inner {
+    box-shadow: 0 0 0 2px var(--sw-checkbox-focus-ring);
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox__input.is-checked .el-checkbox__inner,
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox__input.is-indeterminate .el-checkbox__inner,
+#app .sw-rbac-role-checkbox-group .el-checkbox__input.is-checked .el-checkbox__inner,
+#app .sw-rbac-role-checkbox-group .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+    background-color: var(--sw-checkbox-on-bg);
+    border-color: var(--sw-checkbox-on-border);
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox__input.is-checked:not(.is-disabled) .el-checkbox__inner:hover,
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox__input.is-indeterminate:not(.is-disabled) .el-checkbox__inner:hover,
+#app .sw-rbac-role-checkbox-group .el-checkbox__input.is-checked:not(.is-disabled) .el-checkbox__inner:hover,
+#app .sw-rbac-role-checkbox-group .el-checkbox__input.is-indeterminate:not(.is-disabled) .el-checkbox__inner:hover {
+    background-color: var(--sw-checkbox-on-hover-bg);
+    border-color: var(--sw-checkbox-on-hover-border);
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox__input.is-checked .el-checkbox__inner::after,
+#app .sw-rbac-role-checkbox-group .el-checkbox__input.is-checked .el-checkbox__inner::after {
+    border-color: #fff;
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox__input.is-indeterminate .el-checkbox__inner::before,
+#app .sw-rbac-role-checkbox-group .el-checkbox__input.is-indeterminate .el-checkbox__inner::before {
+    background-color: #fff;
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox.is-checked .el-checkbox__label,
+#app .sw-rbac-role-checkbox-group .el-checkbox.is-checked .el-checkbox__label {
+    color: var(--sw-ink);
+}
+
+#app .edit-dialog .sw-rbac-perm-inline-label {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+#app .sw-rbac-perm-row-actions .el-checkbox.sw-rbac-perm-inline-check {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    margin-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+#app .sw-rbac-perm-row-actions .el-checkbox.sw-rbac-perm-inline-check .el-checkbox__label {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding-left: 6px !important;
+    line-height: 1.3;
+    font-size: 12px;
+}
+
+#app .edit-dialog .sw-rbac-perm-row-actions .el-checkbox.sw-rbac-perm-inline-check .el-checkbox__label {
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+#app .sw-rbac-perm-suffix {
+    font-family: var(--sw-font-mono);
+    font-size: 11px;
+}
+
+#app .edit-dialog .sw-rbac-perm-suffix {
+    font-size: 12px;
+}
+
+/* RBAC: assignable roles grid (admin / admin-role edit dialogs) */
+#app .sw-rbac-role-checkbox-group {
+    padding: 30px 50px;
+}
+
+#app .sw-rbac-role-checkbox-group .el-checkbox {
+    width: 20%;
+    text-align: left;
+}
+
+/* Admin-role edit: one-line context after topic — "编辑-用户角色 · 用户名" */
+#app .edit-dialog .sw-rbac-admin-role-title-context {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.28em;
+    min-width: 0;
+}
+
+#app .edit-dialog .sw-rbac-admin-role-title-sep {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.25;
+    color: var(--sw-border-strong);
+    user-select: none;
+}
+
+#app .edit-dialog .sw-rbac-admin-role-title-name {
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 1.25;
+    color: var(--sw-ink-muted);
+    max-width: min(260px, 46vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* --- Tags: default / primary blue → neutral chip; keep semantic types --- */
+.el-tag {
+    border-radius: 4px;
+}
+
+#app .el-tag:not(.el-tag--success):not(.el-tag--warning):not(.el-tag--danger):not(.el-tag--info) {
+    background-color: var(--sw-tag-chip-bg);
+    border-color: var(--sw-tag-chip-border);
+    color: var(--sw-ink-muted);
+}
+
+#app .el-tag:not(.el-tag--success):not(.el-tag--warning):not(.el-tag--danger):not(.el-tag--info):hover {
+    background-color: var(--sw-tag-chip-bg-hover);
+    border-color: var(--sw-tag-chip-border-hover);
+    color: var(--sw-ink);
+}
+
+/* --- Backtop --- */
+.el-backtop {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(180deg, var(--sw-accent-grad-start) 0%, var(--sw-accent) 100%) !important;
+    box-shadow: 0 4px 14px var(--sw-accent-glow) !important;
+    opacity: 0.92;
+    z-index: 8;
+    user-select: none;
+    -webkit-user-select: none;
+    caret-color: transparent;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.el-backtop:hover {
+    opacity: 1;
+    background: linear-gradient(180deg, var(--sw-accent-grad-start-hover) 0%, var(--sw-accent-hover) 100%) !important;
+}
+
+.el-backtop:focus,
+.el-backtop:active,
+.el-backtop:focus-visible {
+    outline: none !important;
+}
+
+.el-backtop-icon {
+    background-color: transparent !important;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* --- Inspector (dev) --- */
+.inspector-toggle {
+    background: linear-gradient(180deg, var(--sw-accent-grad-start) 0%, var(--sw-accent) 100%) !important;
+}
+
+.inspector-content {
+    border-radius: var(--sw-radius-sm);
+    border-color: var(--sw-border) !important;
+}
+
+/* --- Auth pages (login / register / reset) --- */
+body:has(#app.login-box),
+body:has(#app.register-box),
+body:has(#app.auth-box) {
+    min-height: 100vh;
+    margin: 0;
+    background:
+        radial-gradient(ellipse 100% 60% at 50% -10%, var(--sw-auth-radial), transparent 50%),
+        linear-gradient(165deg, var(--sw-auth-top) 0%, var(--sw-auth-mid) 38%, var(--sw-auth-bottom) 100%);
+}
+
+#app.login-box,
+#app.register-box,
+#app.auth-box {
+    padding: 28px 28px 32px;
+    border-radius: 12px;
+    background: var(--sw-auth-panel-bg);
+    border: 1px solid var(--sw-auth-panel-border);
+    box-shadow: var(--sw-shadow), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    max-width: 360px;
+}
+
+html[data-admin-theme="dark"] #app.login-box,
+html[data-admin-theme="dark"] #app.register-box,
+html[data-admin-theme="dark"] #app.auth-box {
+    box-shadow: var(--sw-shadow), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+#app.login-box h1,
+#app.register-box h1,
+#app.auth-box h1 {
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sw-ink);
+    margin-top: 0;
+}
+
+#app.login-box .password-forget span,
+#app.register-box .password-forget span {
+    color: var(--sw-ink-muted) !important;
+}
+
+#app.auth-box h3 {
+    margin: 0;
+    color: var(--sw-ink);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+#app.auth-box .auth-title {
+    text-align: center;
+}
+
+#app.auth-box .auth-link-row {
+    padding-top: 10px;
+    text-align: right;
+}
+
+#app.auth-box .auth-link,
+#app.auth-box .auth-link:visited {
+    font-size: 12px;
+    color: var(--sw-ink-muted);
+    text-decoration: none;
+}
+
+#app.auth-box .auth-link:hover {
+    color: var(--sw-accent);
+}
+
+#app.auth-box .auth-captcha {
+    display: block;
+    width: 100%;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--sw-border);
+    background: var(--sw-field-bg);
+    cursor: pointer;
+}
+
+#app.auth-box .auth-static-field .el-input__inner[readonly] {
+    background: var(--sw-field-bg-disabled);
+    border-color: var(--sw-border);
+    color: var(--sw-ink-muted);
+}
+
+#app.auth-box .auth-status {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#app.auth-box .auth-status--info {
+    background: color-mix(in srgb, var(--sw-accent-soft) 88%, white);
+    color: var(--sw-accent-hover);
+}
+
+#app.auth-box .auth-status--warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #b45309;
+}
+
+#app.auth-box .auth-error {
+    margin-top: -4px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #b42318;
+}
+
+html[data-admin-theme="dark"] #app.auth-box .auth-status--info {
+    background: color-mix(in srgb, var(--sw-accent-soft) 92%, transparent);
+    color: color-mix(in srgb, white 80%, var(--sw-accent) 20%);
+}
+
+html[data-admin-theme="dark"] #app.auth-box .auth-status--warning {
+    background: rgba(245, 158, 11, 0.16);
+    color: #fde68a;
+}
+
+html[data-admin-theme="dark"] #app.auth-box .auth-error {
+    color: #fda4af;
+}
+
+/* Dark theme only (`dark`): theme-chalk defaults are light — align surfaces to --sw-* */
+html[data-admin-theme="dark"] .el-input__inner,
+html[data-admin-theme="dark"] .el-textarea__inner {
+    background-color: var(--sw-bg-elevated);
+    color: var(--sw-ink);
+    border-color: var(--sw-border);
+}
+
+html[data-admin-theme="dark"] .el-input__inner::placeholder,
+html[data-admin-theme="dark"] .el-textarea__inner::placeholder {
+    color: var(--sw-ink-muted);
+}
+
+html[data-admin-theme="dark"] .el-input.is-disabled .el-input__inner {
+    background-color: var(--sw-bg-page);
+    color: var(--sw-ink-muted);
+}
+
+html[data-admin-theme="dark"] .el-select-dropdown {
+    background-color: var(--sw-bg-elevated);
+    border-color: var(--sw-border);
+}
+
+html[data-admin-theme="dark"] .el-select-dropdown__item {
+    color: var(--sw-ink);
+}
+
+html[data-admin-theme="dark"] .el-select-dropdown__item.hover,
+html[data-admin-theme="dark"] .el-select-dropdown__item:hover {
+    background-color: var(--sw-menu-hover-bg);
+}
+
+html[data-admin-theme="dark"] .el-dialog {
+    background: var(--sw-bg-elevated);
+}
+
+html[data-admin-theme="dark"] .el-dialog__body {
+    color: var(--sw-ink);
+}
+
+html[data-admin-theme="dark"] .el-message-box {
+    background: var(--sw-bg-elevated);
+    border-color: var(--sw-border);
+}
+
+html[data-admin-theme="dark"] .el-dropdown-menu {
+    background-color: var(--sw-bg-elevated);
+    border-color: var(--sw-border);
+}
+
+html[data-admin-theme="dark"] .el-dropdown-menu__item {
+    color: var(--sw-ink);
+}
+
+html[data-admin-theme="dark"] .el-dropdown-menu__item:not(.is-disabled):hover {
+    background-color: var(--sw-menu-hover-bg);
+    color: var(--sw-ink);
+}
+
+html[data-admin-theme="dark"] .el-card {
+    background: var(--sw-bg-elevated);
+    border-color: var(--sw-border);
+    color: var(--sw-ink);
+}
+
+html[data-admin-theme="dark"] #app .admin-avatar {
+    background: color-mix(in srgb, var(--sw-bg-elevated) 82%, var(--sw-bg-page));
+    border-color: var(--sw-border);
+    color: var(--sw-ink);
+}
+
+html[data-admin-theme="dark"] #app .admin-avatar__badge {
+    box-shadow: 0 0 0 2px var(--sw-bg-page);
+}
+
+html[data-admin-theme="dark"] .el-tabs__item {
+    color: var(--sw-ink-muted);
+}
+
+html[data-admin-theme="dark"] .el-popover {
+    background: var(--sw-bg-elevated);
+    border-color: var(--sw-border);
+    color: var(--sw-ink);
+}
+
+@media (max-width: 900px) {
+    body {
+        overflow: auto;
+    }
+
+    :root {
+        --sw-main-pad-top: 6px;
+    }
+
+    #app.el-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #app > .el-aside {
+        width: 100% !important;
+        min-height: auto;
+        height: auto;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--sw-border);
+    }
+
+    #app > .el-aside.admin-aside--collapsed {
+        width: 100% !important;
+    }
+
+    #app .product-name__toggle {
+        display: none;
+    }
+
+    #app .el-main {
+        padding: var(--sw-main-pad-top) 10px 10px !important;
+    }
+
+    #app .admin-workbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+        height: auto;
+        min-height: var(--sw-navbar-row-h);
+    }
+
+    #app .m-navbar {
+        position: static;
+        min-height: 0;
+        padding-top: 0;
+        margin-bottom: 0;
+    }
+
+    #app .admin-workbar-tools {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    #app.login-box,
+    #app.register-box,
+    #app.auth-box {
+        margin: 16px;
+        max-width: none;
+    }
+}

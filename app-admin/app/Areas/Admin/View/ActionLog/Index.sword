@@ -1,0 +1,37 @@
+<m-navbar>
+    <m-text prop="admin_name"></m-text>
+    <m-text prop="handler"></m-text>
+    <m-text prop="tag"></m-text>
+    <m-text prop="client_ip"></m-text>
+    <m-date prop="created_at"></m-date>
+</m-navbar>
+<m-dialog mode="detail">
+    <m-text prop="id"></m-text>
+    <m-text prop="admin_name"></m-text>
+    <m-text prop="method"></m-text>
+    <m-text prop="handler"></m-text>
+    <m-text prop="tag"></m-text>
+    <m-text prop="url" label="{{t('label.url')}}"></m-text>
+    <m-text prop="client_ip"></m-text>
+    <m-text prop="client_udid"></m-text>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-json prop="data"></m-json>
+</m-dialog>
+<m-table :size="15">
+    <m-index></m-index>
+    <m-id prop="id"></m-id>
+    <m-account prop="admin_name"></m-account>
+    <m-text prop="method" label="{{t('label.method')}}" width="100"></m-text>
+    <m-text prop="handler" label="{{t('label.handler')}}" width="250" show-overflow-tooltip></m-text>
+    <m-text prop="tag" label="Tag" width="100"></m-text>
+    <m-text prop="data" label="{{t('label.data')}}" show-overflow-tooltip></m-text>
+    <m-ip prop="client_ip"></m-ip>
+    <m-text prop="client_udid" label="{{t('label.client_udid')}}" width="200"></m-text>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-actions actions="detail"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App();
+    </script>
+@append

@@ -1,0 +1,40 @@
+<m-navbar>
+    <ma-create></ma-create>
+    <m-text prop="keyword" placeholder="{{t('org.keyword_code_name_type')}}"></m-text>
+    <md-select prop="status" dict="org.status" placeholder="{{t('label.status')}}"></md-select>
+</m-navbar>
+<m-dialog mode="create">
+    <m-text prop="group_code" label="{{t('org.code')}}"></m-text>
+    <m-text prop="group_name" label="{{t('org.name')}}"></m-text>
+    <md-select prop="type" label="{{t('org.group_type')}}" dict="org.group.type"></md-select>
+    <m-text prop="display_order" label="{{t('dict.sort')}}" :default="0"></m-text>
+    <m-switch prop="status" :default="true"></m-switch>
+</m-dialog>
+<m-dialog mode="edit">
+    <m-text prop="group_code"></m-text>
+    <m-text prop="group_name"></m-text>
+    <md-select prop="type" label="{{t('org.group_type')}}" dict="org.group.type"></md-select>
+    <m-text prop="display_order"></m-text>
+    <m-switch prop="status"></m-switch>
+</m-dialog>
+<m-table :size="15">
+    <m-index></m-index>
+    <m-text prop="group_id" label="Id" width="64"></m-text>
+    <m-text prop="group_code" label="{{t('org.code')}}" width="160" show-overflow-tooltip></m-text>
+    <m-text prop="group_name" label="{{t('org.name')}}" min-width="220" show-overflow-tooltip></m-text>
+    <md-text prop="type" label="{{t('org.group_type')}}" dict="org.group.type" width="96"></md-text>
+    <m-text prop="display_order" label="{{t('dict.sort')}}" width="72"></m-text>
+    <md-tag prop="status" label="{{t('label.status')}}" dict="org.status" width="70"></md-tag>
+    <m-account prop="updated_by" width="120"></m-account>
+    <m-timestamp prop="updated_at" width="170"></m-timestamp>
+    <m-actions actions="edit,delete"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('org.group')}}',
+            }
+        });
+    </script>
+@append

@@ -1,0 +1,36 @@
+<m-navbar>
+    <m-text prop="handler"></m-text>
+    <m-text prop="tag"></m-text>
+    <m-date prop="created_at"></m-date>
+</m-navbar>
+
+<m-dialog mode="detail">
+    <m-text prop="id"></m-text>
+    <m-text prop="method"></m-text>
+    <m-text prop="handler"></m-text>
+    <m-text prop="url"></m-text>
+    <m-text prop="tag"></m-text>
+    <m-text prop="client_ip"></m-text>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-json prop="data"></m-json>
+</m-dialog>
+<m-table :size="15">
+    <m-index></m-index>
+    <m-id prop="id"></m-id>
+    <m-text prop="method" width="100"></m-text>
+    <m-text prop="handler" show-overflow-tooltip></m-text>
+    <m-text prop="tag" label="Tag" width="100"></m-text>
+    <m-ip prop="client_ip"></m-ip>
+    <m-text prop="client_udid" width="200" show-overflow-tooltip></m-text>
+    <m-timestamp prop="created_at"></m-timestamp>
+    <m-actions actions="detail"></m-actions>
+</m-table>
+@section('script')
+    <script>
+        vm = new App({
+            data: {
+                topic: '{{t('admin.recent_actions')}}'
+            }
+        });
+    </script>
+@append

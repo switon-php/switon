@@ -1,0 +1,1 @@
+../packages/skeleton/AGENTS.md

@@ -1,0 +1,74 @@
+{
+    "name": "switon/captcha",
+    "description": "Sessionless image CAPTCHA challenges with shared-store verification for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "captcha",
+        "verification",
+        "security",
+        "image"
+    ],
+    "homepage": "https://github.com/switon-php/captcha",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/captcha",
+        "issues": "https://github.com/switon-php/captcha/issues",
+        "docs": "https://docs.switon.dev/latest/captcha"
+    },
+    "require": {
+        "php": ">=8.3",
+        "psr/event-dispatcher": "^1.0",
+        "switon/binding": "^1.0",
+        "switon/core": "^1.0",
+        "switon/event": "^1.0",
+        "switon/http": "^1.0",
+        "switon/invocation": "^1.0",
+        "switon/redis": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "suggest": {
+        "ext-imagick": "Required for ImageMagick adapter (preferred)",
+        "ext-gd": "Required for GD adapter (fallback)"
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Captcha\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Captcha\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "switon": {
+            "providers": [
+                "Switon\\Captcha\\ServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}
