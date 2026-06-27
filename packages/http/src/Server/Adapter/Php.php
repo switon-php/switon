@@ -23,7 +23,6 @@ use function get_included_files;
 use function header;
 use function putenv;
 use function readfile;
-use function shell_exec;
 
 /**
  * Runs the built-in PHP server flow and native-SAPI fallback.
@@ -154,7 +153,10 @@ class Php extends AbstractServer
 
     protected function runCliCommand(string $command): void
     {
-        shell_exec($command);
+        passthru($command, $exitCode);
+        if ($exitCode !== 0) {
+            exit($exitCode);
+        }
     }
 
     protected function terminateProcess(): never
