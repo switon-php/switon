@@ -49,7 +49,7 @@
   "require-dev": {
     "phpunit/phpunit": "^12.0",
     "switon/beacon": "^1.0",
-    "switon/composer-extra-plugin": "^1.0",
+    "switon/composer-extra": "^1.0",
     "switon/orm-codegen": "^1.0"
   },
   "autoload": {
@@ -78,7 +78,7 @@
       "*": "symlink"
     },
     "allow-plugins": {
-      "switon/composer-extra-plugin": true
+      "switon/composer-extra": true
     }
   },
   "extra": {
