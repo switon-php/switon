@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Switon\I18n\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
+use Switon\Core\TranslatorInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -16,16 +18,22 @@ use Switon\Eventing\Severity;
  * @see \Switon\I18n\Translator
  */
 #[EventLevel(Severity::INFO)]
-class TranslationKeyMissing implements JsonSerializable
+class TranslationKeyMissing implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param string $key Translation key returned to the caller as the fallback value.
      * @param string $locale Effective locale used for the failed lookup.
      */
     public function __construct(
+        public TranslatorInterface $sender,
         public string $key,
         public string $locale,
     ) {
+    }
+
+    public function getSender(): TranslatorInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

@@ -127,7 +127,7 @@ class EntityManager extends AbstractEntityManager
             $this->transactionManager->ensureConnection($connection);
         }
 
-        $this->dispatchEvent(new EntityCreating($entity));
+        $this->dispatchEvent(new EntityCreating($this, $entity));
 
         $fieldValues = $this->entityHydrator->dehydrate($entity, $fields);
         $defaultValueFields = [];
@@ -167,7 +167,7 @@ class EntityManager extends AbstractEntityManager
             }
         }
 
-        $this->dispatchEvent(new EntityCreated($entity));
+        $this->dispatchEvent(new EntityCreated($this, $entity));
 
         return $entity;
     }
@@ -219,7 +219,7 @@ class EntityManager extends AbstractEntityManager
 
         $primaryKey = $this->entityMetadata->getPrimaryKey($entityClass);
 
-        $this->eventDispatcher->dispatch(new EntitiesCreating($entityClass, $entities));
+        $this->eventDispatcher->dispatch(new EntitiesCreating($this, $entityClass, $entities));
 
         // Resolve and validate shard for all entities (based on entity values).
         // Bulk insert requires a single database + single table.
@@ -240,7 +240,7 @@ class EntityManager extends AbstractEntityManager
         }
 
         foreach ($entities as $entity) {
-            $this->dispatchEvent(new EntityCreating($entity));
+            $this->dispatchEvent(new EntityCreating($this, $entity));
         }
 
         $useTransaction = $this->transactionManager->useTransaction($connection);
@@ -312,10 +312,10 @@ class EntityManager extends AbstractEntityManager
         }
 
         foreach ($entities as $entity) {
-            $this->dispatchEvent(new EntityCreated($entity));
+            $this->dispatchEvent(new EntityCreated($this, $entity));
         }
 
-        $this->eventDispatcher->dispatch(new EntitiesCreated($entityClass, $entities));
+        $this->eventDispatcher->dispatch(new EntitiesCreated($this, $entityClass, $entities));
 
         return $entities;
     }
@@ -344,7 +344,7 @@ class EntityManager extends AbstractEntityManager
             $this->transactionManager->ensureConnection($connection);
         }
 
-        $this->dispatchEvent(new EntityCreating($entity));
+        $this->dispatchEvent(new EntityCreating($this, $entity));
 
         $fieldValues = $this->entityHydrator->dehydrate($entity, $fields);
 
@@ -364,7 +364,7 @@ class EntityManager extends AbstractEntityManager
             $db->insert($table, $fieldValues);
         }
 
-        $this->dispatchEvent(new EntityCreated($entity));
+        $this->dispatchEvent(new EntityCreated($this, $entity));
 
         return $entity;
     }
@@ -396,7 +396,7 @@ class EntityManager extends AbstractEntityManager
         $changedFields = $this->getChangedFields($fields, $entityValues, $originalValues);
 
         if ($changedFields === []) {
-            $this->eventDispatcher->dispatch(new EntityUnchanged($entity, $original));
+            $this->eventDispatcher->dispatch(new EntityUnchanged($this, $entity, $original));
             return $entity;
         }
 
@@ -404,7 +404,7 @@ class EntityManager extends AbstractEntityManager
         $this->validate($entity, $changedFields);
 
         $this->autoFiller->onUpdating($entity);
-        $this->dispatchEvent(new EntityUpdating($entity, $original));
+        $this->dispatchEvent(new EntityUpdating($this, $entity, $original));
 
         $entityValues = $this->entityHydrator->dehydrate($entity, $fields);
 
@@ -420,7 +420,7 @@ class EntityManager extends AbstractEntityManager
         }
 
         if ($fieldValues === []) {
-            $this->eventDispatcher->dispatch(new EntityUnchanged($entity, $original));
+            $this->eventDispatcher->dispatch(new EntityUnchanged($this, $entity, $original));
 
             return $entity;
         }
@@ -445,7 +445,7 @@ class EntityManager extends AbstractEntityManager
             : $this->namedLookup->by(ClientInterface::class, $connection);
         $db->update($table, $fieldValues, [$columnMap[$primaryKey] ?? $primaryKey => $entity->$primaryKey]);
 
-        $this->dispatchEvent(new EntityUpdated($entity, $original));
+        $this->dispatchEvent(new EntityUpdated($this, $entity, $original));
 
         return $entity;
     }
@@ -468,7 +468,7 @@ class EntityManager extends AbstractEntityManager
             $this->transactionManager->ensureConnection($connection);
         }
 
-        $this->dispatchEvent(new EntityDeleting($entity));
+        $this->dispatchEvent(new EntityDeleting($this, $entity));
 
         $columnMap = $this->entityMetadata->getColumnMap($entityClass);
         $db = $useTransaction
@@ -477,7 +477,7 @@ class EntityManager extends AbstractEntityManager
 
         $db->delete($table, [$columnMap[$primaryKey] ?? $primaryKey => $entity->$primaryKey]);
 
-        $this->dispatchEvent(new EntityDeleted($entity));
+        $this->dispatchEvent(new EntityDeleted($this, $entity));
 
         return $entity;
     }

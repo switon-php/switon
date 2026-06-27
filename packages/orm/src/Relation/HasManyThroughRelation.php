@@ -182,6 +182,7 @@ class HasManyThroughRelation extends AbstractRelation
         // Dispatch event if orphaned records were found
         if ($orphanedForeignKeyValues !== []) {
             $this->eventDispatcher->dispatch(new RelationDataInconsistency(
+                sender: $this,
                 relationName: $name,
                 parentEntityClass: $this->selfEntityClass,
                 relatedEntityClass: $this->relatedEntityClass,

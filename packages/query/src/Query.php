@@ -8,8 +8,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Exception\InvalidValueException;
 use Switon\Db\ClientInterface;
-use Switon\Db\Event\DbQuerySkipped;
 use Switon\Di\NamedLookupInterface;
+use Switon\Query\Event\QuerySkipped;
 use Switon\Sharding\Exception\ShardingNotSupportedException;
 use Switon\Sharding\Exception\ShardingTooManyException;
 use Throwable;
@@ -36,13 +36,13 @@ use function substr;
  * Default SQL implementation of <code>QueryInterface</code>.
  *
  * Use when you need SQL generation with bind parameters, joins, and sharding-aware execution.
- * Emits <code>\Switon\Db\Event\DbQuerySkipped</code> when execution is skipped by impossible conditions.
+ * Emits <code>\Switon\Query\Event\QuerySkipped</code> when execution is skipped by impossible conditions.
  *
  * Road-signs:
  * - PredicatePipeline parse/compile
  * - joins via Table + condition
  * - shard merge <code>ShardMergerInterface</code>
- * - emits <code>DbQuerySkipped</code> on impossible filters
+ * - emits <code>QuerySkipped</code> on impossible filters
  * - fail ShardingNotSupported/TooMany
  *
  * @see \Switon\Query\AbstractQuery
@@ -55,7 +55,7 @@ use function substr;
  * @see \Switon\Query\ShardMergerInterface
  * @see \Switon\Di\NamedLookupInterface
  * @see \Switon\Sharding\Exception\ShardingNotSupportedException
- * @see \Switon\Db\Event\DbQuerySkipped
+ * @see \Switon\Query\Event\QuerySkipped
  * @see \Switon\Db\ClientInterface
  */
 class Query extends AbstractQuery
@@ -327,7 +327,7 @@ class Query extends AbstractQuery
     /**
      * {@inheritDoc}
      *
-     * Dispatches <code>DbQuerySkipped</code> when conditions are unsatisfiable
+     * Dispatches <code>QuerySkipped</code> when conditions are unsatisfiable
      * (for example, <code>whereIn('id', [])</code>) so log listeners can record
      * the skipped query.
      */
@@ -337,7 +337,7 @@ class Query extends AbstractQuery
         $conditions = $compiled['conditions'];
         if (in_array('FALSE', $conditions, true)) {
             $bind = array_merge($compiled['bind'], $this->clauses->extraBind);
-            $this->eventDispatcher->dispatch(new DbQuerySkipped($this->sql ?? '', $bind));
+            $this->eventDispatcher->dispatch(new QuerySkipped($this, $this->sql ?? '', $bind));
             return [];
         }
 

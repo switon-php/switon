@@ -14,7 +14,8 @@ class RpcEventsTest extends TestCase
 {
     public function testRpcCallingJsonSerializeMatchesPublicState(): void
     {
-        $event = new RpcCalling('Svc::go', ['a' => 1], 'cid-9', 2.5);
+        $sender = $this->createStub(\Switon\Rpc\RpcInterface::class);
+        $event = new RpcCalling($sender, 'Svc::go', ['a' => 1], 'cid-9', 2.5);
 
         $this->assertSame([
             'method' => 'Svc::go',
@@ -26,7 +27,8 @@ class RpcEventsTest extends TestCase
 
     public function testRpcReceivedJsonSerializeMatchesPublicState(): void
     {
-        $event = new RpcReceived('Alias', [10], 'c1', '.reply-q');
+        $sender = $this->createStub(\Switon\Rpc\RpcInterface::class);
+        $event = new RpcReceived($sender, 'Alias', [10], 'c1', '.reply-q');
 
         $this->assertSame([
             'method' => 'Alias',
@@ -39,7 +41,8 @@ class RpcEventsTest extends TestCase
     public function testRpcDaemonFailedJsonSerializeExposesErrorDiagnostics(): void
     {
         $error = RuntimeException::of('daemon pull failed', [], 3);
-        $event = new RpcDaemonFailed('InFlight::Method', $error);
+        $sender = $this->createStub(\Switon\Rpc\RpcInterface::class);
+        $event = new RpcDaemonFailed($sender, 'InFlight::Method', $error);
         $data = $event->jsonSerialize();
 
         $this->assertSame('InFlight::Method', $data['method']);

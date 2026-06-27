@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Http\RequestInterface;
+use Switon\Http\RequestHandlerInterface;
 
 /**
  * Application hook before request body parsing.
@@ -27,10 +29,18 @@ use Switon\Http\RequestInterface;
  * @see \Switon\Http\RequestHandler::handle()
  */
 #[EventLevel(Severity::DEBUG)]
-class RequestAdjust implements JsonSerializable
+class RequestAdjust implements JsonSerializable, SenderAwareInterface
 {
-    public function __construct(public RequestInterface $request)
+    public function __construct(
+        public RequestHandlerInterface $sender,
+        public RequestInterface $request
+    )
     {
+    }
+
+    public function getSender(): RequestHandlerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

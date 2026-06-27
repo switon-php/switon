@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Routing\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Routing\RouterInterface;
@@ -18,18 +19,22 @@ use Switon\Routing\RouterInterface;
  * @see \Switon\Routing\RouterInterface::match()
  */
 #[EventLevel(Severity::INFO)]
-class RouteNotFound implements JsonSerializable
+class RouteNotFound implements JsonSerializable, SenderAwareInterface
 {
     /**
-     * @param RouterInterface $router Router instance that attempted matching.
      * @param string $uri Request URI.
      * @param string $method Request HTTP method.
      */
     public function __construct(
-        public RouterInterface $router,
+        public RouterInterface $sender,
         public string          $uri,
         public string          $method
     ) {
+    }
+
+    public function getSender(): RouterInterface
+    {
+        return $this->sender;
     }
 
     /**

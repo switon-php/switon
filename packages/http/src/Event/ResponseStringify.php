@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Http\ResponseInterface;
+use Switon\Http\RequestHandlerInterface;
 
 /**
  * Event emitted before a response is stringified.
@@ -23,10 +25,18 @@ use Switon\Http\ResponseInterface;
  * @see \Switon\Inspector\Inspector::onResponseStringify()
  */
 #[EventLevel(Severity::DEBUG)]
-class ResponseStringify implements JsonSerializable
+class ResponseStringify implements JsonSerializable, SenderAwareInterface
 {
-    public function __construct(public ResponseInterface $response)
+    public function __construct(
+        public RequestHandlerInterface $sender,
+        public ResponseInterface $response
+    )
     {
+    }
+
+    public function getSender(): RequestHandlerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

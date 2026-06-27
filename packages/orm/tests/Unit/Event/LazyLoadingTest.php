@@ -6,6 +6,7 @@ namespace Switon\Orm\Tests\Unit\Event;
 
 use Switon\Orm\Entity;
 use Switon\Orm\Event\LazyLoading;
+use Switon\Orm\RelationManagerInterface;
 use Switon\Orm\Tests\TestCase;
 
 class LazyLoadingTest extends TestCase
@@ -13,7 +14,7 @@ class LazyLoadingTest extends TestCase
     public function testEventSetsExpectedProperties(): void
     {
         $entity = new Entity();
-        $event = new LazyLoading($entity, 'posts');
+        $event = new LazyLoading($this->createStub(RelationManagerInterface::class), $entity, 'posts');
 
         $this->assertSame($entity, $event->entity);
         $this->assertSame('posts', $event->relationName);

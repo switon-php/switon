@@ -13,7 +13,9 @@ class ExecutorEventsTest extends TestCase
 {
     public function testRunnerStartingJsonSerialize(): void
     {
-        $event = new RunnerStarting('Svc:job', ['a' => 1]);
+        $executor = $this->createStub(\Switon\Executor\ExecutorInterface::class);
+        $runner = $this->createStub(\Switon\Core\RunnerInterface::class);
+        $event = new RunnerStarting($executor, $runner, 'Svc:job', ['a' => 1]);
 
         $this->assertSame(['task' => 'Svc:job'], $event->jsonSerialize());
     }
@@ -21,7 +23,9 @@ class ExecutorEventsTest extends TestCase
     public function testRunnerFinishedJsonSerializeWithError(): void
     {
         $err = new RuntimeException('x', 7);
-        $event = new RunnerFinished('T', null, null, $err, 1.25);
+        $executor = $this->createStub(\Switon\Executor\ExecutorInterface::class);
+        $runner = $this->createStub(\Switon\Core\RunnerInterface::class);
+        $event = new RunnerFinished($executor, $runner, 'T', null, null, $err, 1.25);
 
         $data = $event->jsonSerialize();
         $this->assertSame('T', $data['task']);

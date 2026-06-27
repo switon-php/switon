@@ -167,7 +167,7 @@ class ContextManager implements ContextManagerInterface
                     $context_class = $this->findContext($object);
                     if (is_subclass_of($context_class, ContextIsolated::class)) {
                         $context = $ao[$object_id] = $this->createContext($object);
-                        $this->eventDispatcher->dispatch(new ChildContextCreated($object::class, get_class($context), Coroutine::getCid(), $parent_cid));
+                        $this->eventDispatcher->dispatch(new ChildContextCreated($this, $object::class, get_class($context), Coroutine::getCid(), $parent_cid));
                         return $context;
                     }
 
@@ -176,13 +176,13 @@ class ContextManager implements ContextManagerInterface
 
                     if (($context = $parent_ao[$object_id] ?? null) !== null) {
                         $ao[$object_id] = $context;
-                        $this->eventDispatcher->dispatch(new ChildContextInherited($object::class, get_class($context), $current_cid, $parent_cid));
+                        $this->eventDispatcher->dispatch(new ChildContextInherited($this, $object::class, get_class($context), $current_cid, $parent_cid));
                         return $context;
                     }
 
                     $context = $ao[$object_id] = $this->createContext($object);
                     $parent_ao[$object_id] = $context;
-                    $this->eventDispatcher->dispatch(new ChildContextPropagated($object::class, get_class($context), $current_cid, $parent_cid));
+                    $this->eventDispatcher->dispatch(new ChildContextPropagated($this, $object::class, get_class($context), $current_cid, $parent_cid));
                     // Propagate up to root so all ancestors and their other children share
                     $ancestor_cid = $parent_cid;
                     while (true) {

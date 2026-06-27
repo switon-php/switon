@@ -79,7 +79,7 @@ class Executor implements ExecutorInterface
         }
 
         $startedAt = $this->clock->microtime();
-        $this->eventDispatcher->dispatch(new RunnerStarting($task, $payload));
+        $this->eventDispatcher->dispatch(new RunnerStarting($this, $runner, $task, $payload));
         $result = null;
         $error = null;
 
@@ -91,6 +91,8 @@ class Executor implements ExecutorInterface
         } finally {
             $this->eventDispatcher->dispatch(
                 new RunnerFinished(
+                    $this,
+                    $runner,
                     $task,
                     $payload,
                     $result,

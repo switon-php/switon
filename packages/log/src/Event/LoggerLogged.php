@@ -6,6 +6,7 @@ namespace Switon\Logging\Event;
 
 use JsonSerializable;
 use Psr\Log\LoggerInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\EventSilent;
 use Switon\Eventing\Severity;
@@ -23,22 +24,26 @@ use Switon\Logging\LogEntry;
  * @see \Switon\Logging\LogEntry
  */
 #[EventLevel(Severity::DEBUG)]
-class LoggerLogged implements EventSilent, JsonSerializable
+class LoggerLogged implements EventSilent, JsonSerializable, SenderAwareInterface
 {
     /**
-     * @param LoggerInterface $logger Logger that processed the entry.
      * @param string $level PSR-3 log level.
      * @param mixed $message Original message before formatting and interpolation.
      * @param array<string, mixed> $context Original logging context.
      * @param LogEntry $logEntry Prepared log entry that appenders will receive next.
      */
     public function __construct(
-        public LoggerInterface $logger,
+        public LoggerInterface $sender,
         public string          $level,
         public mixed           $message,
         public array           $context,
         public LogEntry        $logEntry,
     ) {
+    }
+
+    public function getSender(): LoggerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

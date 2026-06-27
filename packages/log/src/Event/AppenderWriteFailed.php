@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Logging\Event;
 
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\EventSilent;
 use Switon\Eventing\Severity;
@@ -16,7 +17,7 @@ use Switon\Eventing\Severity;
  * @see \Switon\Logging\Appender\FileAppender
  */
 #[EventLevel(Severity::WARNING)]
-class AppenderWriteFailed implements EventSilent
+class AppenderWriteFailed implements EventSilent, SenderAwareInterface
 {
     /**
      * @param string $appender Appender name or class that failed.
@@ -25,10 +26,16 @@ class AppenderWriteFailed implements EventSilent
      * @param string $reason Human-readable failure reason.
      */
     public function __construct(
+        public \Switon\Logging\AppenderInterface $sender,
         public string $appender,
         public string $operation,
         public string $target,
         public string $reason,
     ) {
+    }
+
+    public function getSender(): \Switon\Logging\AppenderInterface
+    {
+        return $this->sender;
     }
 }

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Orm\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Orm\Entity;
+use Switon\Orm\EntityManagerInterface;
 
 /**
  * Dispatched after a bulk entity create operation.
@@ -19,16 +21,22 @@ use Switon\Orm\Entity;
  * @see \Switon\Orm\Event\EntityCreated Per-entity event
  */
 #[EventLevel(Severity::DEBUG)]
-class EntitiesCreated implements JsonSerializable
+class EntitiesCreated implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param class-string<Entity> $entityClass
      * @param array<int, Entity> $entities
      */
     public function __construct(
+        public EntityManagerInterface $sender,
         public string $entityClass,
         public array  $entities,
     ) {
+    }
+
+    public function getSender(): EntityManagerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

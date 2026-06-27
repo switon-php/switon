@@ -156,7 +156,7 @@ class InspectorTest extends TestCase
             ->with($this->isInstanceOf(InspectorLinkGenerated::class));
 
         // Act
-        $event = new RequestBegin($request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $request);
         $inspector->onRequestBegin($event);
 
         // Assert
@@ -182,7 +182,7 @@ class InspectorTest extends TestCase
         $eventDispatcher->expects($this->never())->method('dispatch');
 
         // Act
-        $event = new RequestBegin($request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $request);
         $inspector->onRequestBegin($event);
 
         // Assert
@@ -206,7 +206,7 @@ class InspectorTest extends TestCase
         $response->expects($this->once())->method('setHeader');
         $eventDispatcher->expects($this->once())->method('dispatch');
 
-        $inspector->onRequestBegin(new RequestBegin($request));
+        $inspector->onRequestBegin(new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $request));
 
         $this->assertTrue($inspector->getContext()->enabled);
     }
@@ -227,7 +227,7 @@ class InspectorTest extends TestCase
         $response->expects($this->once())->method('setHeader');
         $eventDispatcher->expects($this->once())->method('dispatch');
 
-        $inspector->onRequestBegin(new RequestBegin($request));
+        $inspector->onRequestBegin(new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $request));
 
         $this->assertTrue($inspector->getContext()->enabled);
     }
@@ -267,7 +267,7 @@ class InspectorTest extends TestCase
             ->with('http://example.com/?__inspector=test-key-123.html');
 
         // Act
-        $event = new RequestEnd($request, $this->container->get(ResponseInterface::class));
+        $event = new RequestEnd($this->createMock(\Switon\Http\RequestHandlerInterface::class), $request, $this->container->get(ResponseInterface::class));
         $inspector->onRequestEnd($event);
     }
 
@@ -289,7 +289,7 @@ class InspectorTest extends TestCase
         $storage->expects($this->never())->method('broadcastLink');
 
         // Act
-        $event = new RequestEnd($request, $this->container->get(ResponseInterface::class));
+        $event = new RequestEnd($this->createMock(\Switon\Http\RequestHandlerInterface::class), $request, $this->container->get(ResponseInterface::class));
         $inspector->onRequestEnd($event);
     }
 
@@ -321,7 +321,7 @@ class InspectorTest extends TestCase
         // Act & Assert
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('collector failed');
-        $inspector->onRequestEnd(new RequestEnd($request, $this->container->get(ResponseInterface::class)));
+        $inspector->onRequestEnd(new RequestEnd($this->createMock(\Switon\Http\RequestHandlerInterface::class), $request, $this->container->get(ResponseInterface::class)));
     }
 
     public function testOnResponseStringifyAppendsLinkWhenTailIsTrueAndContentIsArray(): void
@@ -339,7 +339,7 @@ class InspectorTest extends TestCase
             ->with(['key' => 'value', 'inspector' => 'http://example.com/inspector.html']);
 
         // Act
-        $event = new ResponseStringify($response);
+        $event = new ResponseStringify($this->createMock(\Switon\Http\RequestHandlerInterface::class), $response);
         $inspector->onResponseStringify($event);
     }
 
@@ -355,7 +355,7 @@ class InspectorTest extends TestCase
         $response->expects($this->never())->method('setContent');
 
         // Act
-        $event = new ResponseStringify($response);
+        $event = new ResponseStringify($this->createMock(\Switon\Http\RequestHandlerInterface::class), $response);
         $inspector->onResponseStringify($event);
     }
 
@@ -371,7 +371,7 @@ class InspectorTest extends TestCase
         $response->expects($this->never())->method('setContent');
 
         // Act
-        $event = new ResponseStringify($response);
+        $event = new ResponseStringify($this->createMock(\Switon\Http\RequestHandlerInterface::class), $response);
         $inspector->onResponseStringify($event);
     }
 
@@ -390,7 +390,7 @@ class InspectorTest extends TestCase
             ->with(['ok' => true, 'inspector' => null]);
 
         // Act
-        $event = new ResponseStringify($response);
+        $event = new ResponseStringify($this->createMock(\Switon\Http\RequestHandlerInterface::class), $response);
         $inspector->onResponseStringify($event);
     }
 

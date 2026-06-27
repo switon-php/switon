@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Orm\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Orm\Entity;
+use Switon\Orm\RepositoryInterface;
 
 /**
  * Dispatched after an entity is hydrated from query rows.
@@ -18,10 +20,15 @@ use Switon\Orm\Entity;
  * @see \Switon\Orm\Event\EntitiesLoaded
  */
 #[EventLevel(Severity::DEBUG)]
-class EntityLoaded implements JsonSerializable
+class EntityLoaded implements JsonSerializable, SenderAwareInterface
 {
-    public function __construct(public Entity $entity)
+    public function __construct(public RepositoryInterface $sender, public Entity $entity)
     {
+    }
+
+    public function getSender(): RepositoryInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

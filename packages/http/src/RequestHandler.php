@@ -45,7 +45,6 @@ use Switon\Routing\Exception\MethodNotAllowedException;
 use Switon\Routing\Exception\NotFoundRouteException;
 use Switon\Routing\RouterInterface;
 use Throwable;
-
 use function array_merge;
 use function class_exists;
 use function explode;
@@ -133,15 +132,15 @@ class RequestHandler implements RequestHandlerInterface
     public function handle(): void
     {
         try {
-            $this->eventDispatcher->dispatch(new RequestAdjust($this->request));
+            $this->eventDispatcher->dispatch(new RequestAdjust($this, $this->request));
             $this->request->parseBody();
 
-            $this->eventDispatcher->dispatch(new RequestBegin($this->request));
+            $this->eventDispatcher->dispatch(new RequestBegin($this, $this->request));
 
-            $this->eventDispatcher->dispatch(new RequestAuthenticating($this->request));
-            $this->eventDispatcher->dispatch(new RequestAuthenticated($this->request));
+            $this->eventDispatcher->dispatch(new RequestAuthenticating($this, $this->request));
+            $this->eventDispatcher->dispatch(new RequestAuthenticated($this, $this->request));
 
-            $this->eventDispatcher->dispatch(new RequestRouting($this->router, $this->request));
+            $this->eventDispatcher->dispatch(new RequestRouting($this, $this->router, $this->request));
 
             $uri = $this->request->path();
             $verb = $this->request->verb();
@@ -185,35 +184,35 @@ class RequestHandler implements RequestHandlerInterface
                 ActionNotFoundException::raise('Action not found: {controller}::{action}', ['controller' => $controller, 'action' => $action]);
             }
 
-            $this->eventDispatcher->dispatch(new RequestRouted($this->router, $matcher, $this->request));
+            $this->eventDispatcher->dispatch(new RequestRouted($this, $this->router, $matcher, $this->request));
 
             $method = new ReflectionMethod($controller, $action);
 
-            $this->eventDispatcher->dispatch(new RequestAuthorizing($method));
-            $this->eventDispatcher->dispatch(new RequestAuthorized($method));
+            $this->eventDispatcher->dispatch(new RequestAuthorizing($this, $method));
+            $this->eventDispatcher->dispatch(new RequestAuthorized($this, $method));
 
-            $this->eventDispatcher->dispatch(new RequestValidating($method));
-            $this->eventDispatcher->dispatch(new RequestValidated($method));
+            $this->eventDispatcher->dispatch(new RequestValidating($this, $method));
+            $this->eventDispatcher->dispatch(new RequestValidated($this, $method));
 
-            $this->eventDispatcher->dispatch(new RequestReady($method));
+            $this->eventDispatcher->dispatch(new RequestReady($this, $method));
 
-            $this->eventDispatcher->dispatch(new RequestInvoking($method));
+            $this->eventDispatcher->dispatch(new RequestInvoking($this, $method));
             $return = $this->invoke($method);
-            $this->eventDispatcher->dispatch(new RequestInvoked($method, $return));
+            $this->eventDispatcher->dispatch(new RequestInvoked($this, $method, $return));
         } catch (StopFlow) {
             //no-op
         } catch (Throwable $exception) {
             // Dispatch exception to appropriate handler
             $this->exceptionDispatcher->dispatch($exception);
             // Always dispatch RequestFailed event for logging, monitoring, etc.
-            $this->eventDispatcher->dispatch(new RequestFailed($exception));
+            $this->eventDispatcher->dispatch(new RequestFailed($this, $exception));
         }
 
-        $this->eventDispatcher->dispatch(new ResponseAdjust($this->request, $this->response));
+        $this->eventDispatcher->dispatch(new ResponseAdjust($this, $this->request, $this->response));
 
         $content = $this->response->getContent();
         if (is_array($content)) {
-            $this->eventDispatcher->dispatch(new ResponseStringify($this->response));
+            $this->eventDispatcher->dispatch(new ResponseStringify($this, $this->response));
             // Re-fetch: ResponseStringify listeners may replace or convert the body.
             $content = $this->response->getContent();
             if (is_array($content)) {
@@ -228,7 +227,7 @@ class RequestHandler implements RequestHandlerInterface
             $this->httpServer->sendBody();
         }
 
-        $this->eventDispatcher->dispatch(new RequestEnd($this->request, $this->response));
+        $this->eventDispatcher->dispatch(new RequestEnd($this, $this->request, $this->response));
     }
 
     /**
@@ -260,7 +259,7 @@ class RequestHandler implements RequestHandlerInterface
     protected function invoke(ReflectionMethod $rMethod): mixed
     {
         $controller = $this->container->get($rMethod->getDeclaringClass()->getName());
-        $event = new ControllerResolved($controller, $rMethod);
+        $event = new ControllerResolved($this, $controller, $rMethod);
         $this->eventDispatcher->dispatch($event);
 
         // Use controller from event (maybe replaced by listeners)
@@ -277,8 +276,8 @@ class RequestHandler implements RequestHandlerInterface
 
         $alwaysRenderView = $this->hasViewMapping($rMethod);
         if ($this->request->isVerb('GET') && ($alwaysRenderView || !$this->request->wantsJson())) {
-            $this->eventDispatcher->dispatch(new RequestRendering($rMethod, $return, $this->request, $this->response, $this->router->getPrefix()));
-            $this->eventDispatcher->dispatch(new RequestRendered($rMethod, $this->request, $this->response));
+            $this->eventDispatcher->dispatch(new RequestRendering($this, $rMethod, $return, $this->request, $this->response, $this->router->getPrefix()));
+            $this->eventDispatcher->dispatch(new RequestRendered($this, $rMethod, $this->request, $this->response));
             return null;
         }
 

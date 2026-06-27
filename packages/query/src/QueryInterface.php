@@ -199,7 +199,7 @@ interface QueryInterface
      * Executes the query and returns results.
      *
      * Implementations may short-circuit and dispatch
-     * <code>\Switon\Db\Event\DbQuerySkipped</code> when conditions are unsatisfiable.
+     * <code>\Switon\Query\Event\QuerySkipped</code> when conditions are unsatisfiable.
      *
      * @return array<int|string, array<string, mixed>> Query results
      *

@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Switon\Http\Tests\Unit\Filter;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Switon\Core\LocaleInterface;
 use Switon\Http\CookiesInterface;
 use Switon\Http\Event\RequestBegin;
+use Switon\Http\RequestHandlerInterface;
 use Switon\Http\Filter\RequestLocaleFilter;
 use Switon\Http\RequestInterface;
 use Switon\Http\Tests\Fixtures\TestCookiesStub;
 use Switon\Http\Tests\Fixtures\TestRequestStub;
 use Switon\Http\Tests\TestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 final class RequestLocaleFilterTest extends TestCase
 {
     private function makeRecordingLocale(): RecordingLocale
@@ -44,7 +47,7 @@ final class RequestLocaleFilterTest extends TestCase
         $locale = $this->makeRecordingLocale();
 
         $filter = $this->makeFilter($request, $cookies, $locale);
-        $filter->onBegin(new RequestBegin($request));
+        $filter->onBegin(new RequestBegin($this->createMock(RequestHandlerInterface::class), $request));
 
         $this->assertSame(1, $locale->setCount);
         $this->assertSame('fr-ca', $locale->setValue);
@@ -59,7 +62,7 @@ final class RequestLocaleFilterTest extends TestCase
         $locale = $this->makeRecordingLocale();
 
         $filter = $this->makeFilter($request, $cookies, $locale);
-        $filter->onBegin(new RequestBegin($request));
+        $filter->onBegin(new RequestBegin($this->createMock(RequestHandlerInterface::class), $request));
 
         $this->assertSame(1, $locale->setCount);
         $this->assertSame('de-de', $locale->setValue);
@@ -74,7 +77,7 @@ final class RequestLocaleFilterTest extends TestCase
         $locale = $this->makeRecordingLocale();
 
         $filter = $this->makeFilter($request, $cookies, $locale);
-        $filter->onBegin(new RequestBegin($request));
+        $filter->onBegin(new RequestBegin($this->createMock(RequestHandlerInterface::class), $request));
 
         $this->assertSame(1, $locale->setCount);
         $this->assertSame('fr', $locale->setValue);
@@ -89,7 +92,7 @@ final class RequestLocaleFilterTest extends TestCase
         $locale = $this->makeRecordingLocale();
 
         $filter = $this->makeFilter($request, $cookies, $locale);
-        $filter->onBegin(new RequestBegin($request));
+        $filter->onBegin(new RequestBegin($this->createMock(RequestHandlerInterface::class), $request));
 
         $this->assertSame(1, $locale->setCount);
         $this->assertSame('en', $locale->setValue);
@@ -106,7 +109,7 @@ final class RequestLocaleFilterTest extends TestCase
             'aliases' => ['zh' => 'zh-cn'],
             'supported' => ['zh-cn', 'en'],
         ]);
-        $filter->onBegin(new RequestBegin($request));
+        $filter->onBegin(new RequestBegin($this->createMock(RequestHandlerInterface::class), $request));
 
         $this->assertSame(1, $locale->setCount);
         $this->assertSame('zh-cn', $locale->setValue);
@@ -120,7 +123,7 @@ final class RequestLocaleFilterTest extends TestCase
         $locale = $this->makeRecordingLocale();
 
         $filter = $this->makeFilter($request, $cookies, $locale, ['supported' => ['en', 'fr']]);
-        $filter->onBegin(new RequestBegin($request));
+        $filter->onBegin(new RequestBegin($this->createMock(RequestHandlerInterface::class), $request));
 
         $this->assertSame(0, $locale->setCount);
     }
@@ -134,7 +137,7 @@ final class RequestLocaleFilterTest extends TestCase
         $locale = $this->makeRecordingLocale();
 
         $filter = $this->makeFilter($request, $cookies, $locale);
-        $filter->onBegin(new RequestBegin($request));
+        $filter->onBegin(new RequestBegin($this->createMock(RequestHandlerInterface::class), $request));
 
         $this->assertSame(1, $locale->setCount);
         $this->assertSame('en', $locale->setValue);

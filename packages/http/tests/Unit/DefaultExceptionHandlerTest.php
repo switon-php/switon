@@ -80,6 +80,7 @@ class DefaultExceptionHandlerTest extends TestCase
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,

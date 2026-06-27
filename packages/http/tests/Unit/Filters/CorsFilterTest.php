@@ -54,6 +54,7 @@ class CorsFilterTest extends TestCase
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,
@@ -93,7 +94,7 @@ class CorsFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
 
         $this->expectException(StopFlow::class);
         $this->expectExceptionMessage('OPTIONS request handled');
@@ -107,7 +108,7 @@ class CorsFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->filter->onBegin($event);
 
         $this->assertTrue(true);
@@ -124,7 +125,7 @@ class CorsFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $this->response);
         $this->filter->onResponseHeadersSending($event);
 
         $this->assertSame('https://example.com', $this->response->getHeader('Access-Control-Allow-Origin'));
@@ -144,7 +145,7 @@ class CorsFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $this->response);
         $this->filter->onResponseHeadersSending($event);
 
         $this->assertSame(null, $this->response->getHeader('Access-Control-Allow-Origin'));
@@ -173,7 +174,7 @@ class CorsFilterTest extends TestCase
         );
         $request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $response);
         $filter->onResponseHeadersSending($event);
 
         $this->assertSame('https://configured.com', $response->getHeader('Access-Control-Allow-Origin'));
@@ -200,7 +201,7 @@ class CorsFilterTest extends TestCase
         );
         $request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $response);
         $filter->onResponseHeadersSending($event);
 
         $this->assertSame('https://app.example.com', $response->getHeader('Access-Control-Allow-Origin'));
@@ -227,7 +228,7 @@ class CorsFilterTest extends TestCase
         );
         $request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $response);
         $filter->onResponseHeadersSending($event);
 
         $this->assertSame('*', $response->getHeader('Access-Control-Allow-Origin'));
@@ -254,7 +255,7 @@ class CorsFilterTest extends TestCase
         );
         $request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($response);
+        $event = new HeadersSending($this->createStub(\Switon\Http\ServerInterface::class), $response);
         $filter->onResponseHeadersSending($event);
 
         $this->assertSame('https://app.example.com', $response->getHeader('Access-Control-Allow-Origin'));
@@ -283,7 +284,7 @@ class CorsFilterTest extends TestCase
         );
         $request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($response);
+        $event = new HeadersSending($this->createStub(\Switon\Http\ServerInterface::class), $response);
         $filter->onResponseHeadersSending($event);
 
         $this->assertSame('false', $response->getHeader('Access-Control-Allow-Credentials'));

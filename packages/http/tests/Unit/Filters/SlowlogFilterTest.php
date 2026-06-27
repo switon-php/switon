@@ -14,6 +14,7 @@ use Switon\Core\PathAliasInterface;
 use Switon\Http\Event\RequestEnd;
 use Switon\Http\Event\RequestReceived;
 use Switon\Http\Filter\SlowlogFilter;
+use Switon\Http\RequestHandlerInterface;
 use Switon\Http\RequestInterface;
 use Switon\Http\ResponseInterface;
 use Switon\Http\ServerInterface;
@@ -32,6 +33,7 @@ class SlowlogFilterTest extends TestCase
     #[Autowired] protected FilesystemInterface $filesystem;
     #[Autowired] protected AppInterface $app;
     #[Autowired] protected ClockInterface $clock;
+    #[Autowired] protected RequestHandlerInterface $requestHandler;
 
     protected function setUp(): void
     {
@@ -94,6 +96,7 @@ class SlowlogFilterTest extends TestCase
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,
@@ -123,7 +126,7 @@ class SlowlogFilterTest extends TestCase
         $this->filesystem->expects($this->never())
             ->method('append');
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 
@@ -157,7 +160,7 @@ class SlowlogFilterTest extends TestCase
 
         // Ensure event uses the same Request and Response instances that SlowlogFilter has.
         // SlowlogFilter uses $this->request and $this->response, but also accesses $event->request.
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 
@@ -187,7 +190,7 @@ class SlowlogFilterTest extends TestCase
             ->method('append')
             ->with($this->stringContains('slowlog'), $this->stringContains('1.500'));
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 }

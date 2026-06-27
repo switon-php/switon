@@ -54,8 +54,9 @@ class LoggerCollectorTest extends TestCase
         $entry->line = 42;
         $entry->message = 'login ok';
 
+        $logger = $this->createMock(LoggerInterface::class);
         $event = new LoggerLogged(
-            $this->createMock(LoggerInterface::class),
+            $logger,
             'info',
             'login ok',
             [],

@@ -52,7 +52,7 @@ class RouteHeaderListenerTest extends TestCase
             ->with('X-Inspector-Route', $handler);
 
         // Act
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(\Switon\Http\ServerInterface::class), $this->response);
         $listener->onResponseHeadersSending($event);
     }
 
@@ -68,7 +68,7 @@ class RouteHeaderListenerTest extends TestCase
             ->method('setHeader');
 
         // Act
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(\Switon\Http\ServerInterface::class), $this->response);
         $listener->onResponseHeadersSending($event);
     }
 
@@ -85,7 +85,7 @@ class RouteHeaderListenerTest extends TestCase
             ->method('setHeader');
 
         // Act
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(\Switon\Http\ServerInterface::class), $this->response);
         $listener->onResponseHeadersSending($event);
     }
 
@@ -104,7 +104,7 @@ class RouteHeaderListenerTest extends TestCase
             ->with('X-Inspector-Route', $handler);
 
         // Act
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(\Switon\Http\ServerInterface::class), $this->response);
         $listener->onResponseHeadersSending($event);
     }
 
@@ -120,7 +120,7 @@ class RouteHeaderListenerTest extends TestCase
             ->method('setHeader');
 
         // Act
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(\Switon\Http\ServerInterface::class), $this->response);
         $listener->onResponseHeadersSending($event);
     }
 }

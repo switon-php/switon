@@ -41,6 +41,7 @@ class AppendResponseTimeFilterTest extends TestCase
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,
@@ -60,7 +61,7 @@ class AppendResponseTimeFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $this->response);
         $this->filter->onResponseHeadersSending($event);
 
         $responseTime = $this->response->getHeader('X-Response-Time');

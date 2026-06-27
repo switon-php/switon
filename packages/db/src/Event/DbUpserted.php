@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Db\Event;
 
 use Switon\Db\ClientInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -17,14 +18,14 @@ use Switon\Eventing\Severity;
  * @see \Switon\Db\Event\DbUpserting
  */
 #[EventLevel(Severity::DEBUG)]
-class DbUpserted
+class DbUpserted implements SenderAwareInterface
 {
     /**
      * @param array<string, mixed> $insertValues
      * @param array<int|string, mixed> $updateValues
      */
     public function __construct(
-        public ClientInterface $client,
+        public ClientInterface $sender,
         public string          $table,
         public array           $insertValues,
         public array           $updateValues,
@@ -32,5 +33,10 @@ class DbUpserted
         public int             $count,
         public float           $elapsed,
     ) {
+    }
+
+    public function getSender(): ClientInterface
+    {
+        return $this->sender;
     }
 }

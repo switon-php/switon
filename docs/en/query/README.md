@@ -96,6 +96,11 @@ The same grammar also works in `ConditionBuilderInterface::where()`.
 
 When tables span shards, the query routes reads, validates join safety, and merges ordered or grouped rows in memory. Some join or aggregate forms still fail when they are not shard-safe — see [FAQ](faq.md#multi-shard).
 
+The query layer emits:
+
+- `Switon\Query\Event\ShardValidationFailed` — when join shard validation fails, before the exception is rethrown
+- `Switon\Query\Event\QuerySkipped` — when execution is skipped because conditions are unsatisfiable
+
 ---
 
 ## Keep in Mind {#keep-in-mind}

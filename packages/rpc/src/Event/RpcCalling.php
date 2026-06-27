@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Rpc\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -16,17 +17,23 @@ use Switon\Eventing\Severity;
  * @see \Switon\Rpc\Rpc::call()
  */
 #[EventLevel(Severity::DEBUG)]
-class RpcCalling implements JsonSerializable
+class RpcCalling implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param array<int|string, mixed> $params
      */
     public function __construct(
+        public \Switon\Rpc\RpcInterface $sender,
         public string $method,
         public array  $params,
         public string $correlationId,
         public float  $timeout,
     ) {
+    }
+
+    public function getSender(): \Switon\Rpc\RpcInterface
+    {
+        return $this->sender;
     }
 
     /**

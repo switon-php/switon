@@ -8,8 +8,10 @@ use JsonSerializable;
 use Psr\Log\LoggerInterface;
 use Switon\Core\Categorized;
 use Switon\Core\Exception;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\EventLogInterface;
 use Switon\Eventing\Severity;
+use Switon\Http\RequestHandlerInterface;
 use Throwable;
 
 /**
@@ -30,11 +32,17 @@ use Throwable;
  * @see \Switon\Http\DefaultExceptionHandler
  * @see \Switon\Core\Exception
  */
-class RequestFailed implements JsonSerializable, EventLogInterface
+class RequestFailed implements JsonSerializable, EventLogInterface, SenderAwareInterface
 {
     public function __construct(
+        public RequestHandlerInterface $sender,
         public Throwable $exception
     ) {
+    }
+
+    public function getSender(): RequestHandlerInterface
+    {
+        return $this->sender;
     }
 
     public function log(object $event, LoggerInterface $logger): void

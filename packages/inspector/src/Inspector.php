@@ -112,7 +112,7 @@ class Inspector implements InspectorInterface, ContextAware, ObservabilityProbe
         if ($context->enabled) {
             $context->url = $this->urlGenerator->generate("/?__inspector=$context->key.html", true);
             $this->response->setHeader('X-Inspector-Link', $context->url);
-            $this->eventDispatcher->dispatch(new InspectorLinkGenerated($context->url, $context->key));
+            $this->eventDispatcher->dispatch(new InspectorLinkGenerated($this, $context->url, $context->key));
         }
     }
 

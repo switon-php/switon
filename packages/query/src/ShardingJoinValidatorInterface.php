@@ -17,7 +17,7 @@ interface ShardingJoinValidatorInterface
      * Validates join table sharding configuration.
      *
      * Implementations should dispatch
-     * <code>\Switon\Sharding\Event\ShardValidationFailed</code> before rethrowing
+     * <code>\Switon\Query\Event\ShardValidationFailed</code> before rethrowing
      * validation exceptions so failure logs stay consistent.
      *
      * @param array<string, array<int, string>> $mainShards Main table shards array (may be empty if no matching data)

@@ -308,7 +308,7 @@ class LoggerTest extends TestCase
         $this->assertCount(1, $this->eventDispatcher->events, 'Should have dispatched one event');
         $event = $this->eventDispatcher->getLastEvent();
         $this->assertInstanceOf(\Switon\Logging\Event\LoggerLogged::class, $event, 'Event should be LoggerLogged');
-        $this->assertSame($this->logger, $event->logger, 'Event should contain logger instance');
+        $this->assertSame($this->logger, $event->getSender(), 'Event sender should be the logger instance');
         $this->assertSame(LogLevel::INFO, $event->level, 'Event should contain log level');
         $this->assertSame('Test message', $event->message, 'Event should contain message');
     }

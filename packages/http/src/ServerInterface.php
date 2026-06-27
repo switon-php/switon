@@ -22,22 +22,12 @@ namespace Switon\Http;
  * @see \Switon\Http\Server\Adapter\Fpm
  * @see \Switon\Http\Server\Adapter\Swoole
  */
-interface ServerInterface
+interface ServerInterface extends ResponseSenderInterface
 {
     /**
      * Start accepting HTTP requests.
      */
     public function start(): void;
-
-    /**
-     * Send the current response headers.
-     */
-    public function sendHeaders(): void;
-
-    /**
-     * Send the current response body.
-     */
-    public function sendBody(): void;
 
     /**
      * Write one chunk in chunked-transfer mode.

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
+use Switon\Http\ServerInterface;
 
 /**
  * Event emitted after an asset response is sent.
@@ -23,16 +25,22 @@ use Switon\Eventing\Severity;
  * @see \Switon\Http\Event\AssetSending
  */
 #[EventLevel(Severity::DEBUG)]
-class AssetSent implements JsonSerializable
+class AssetSent implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param string $uri Requested URI.
      * @param int $statusCode Final HTTP status code.
      */
     public function __construct(
+        public ServerInterface $sender,
         public string $uri,
         public int    $statusCode,
     ) {
+    }
+
+    public function getSender(): ServerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

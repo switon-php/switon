@@ -57,7 +57,7 @@ class RenderListenerTest extends TestCase
         $this->response->expects($this->never())->method('json');
 
         // Act
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $listener->onRequestBegin($event);
     }
 
@@ -70,7 +70,7 @@ class RenderListenerTest extends TestCase
         $this->storage->expects($this->never())->method('read');
 
         // Act
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $listener->onRequestBegin($event);
     }
 
@@ -92,7 +92,7 @@ class RenderListenerTest extends TestCase
         $listener = $this->makeListener();
 
         // Act & Assert
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->expectException(StopFlow::class);
         $this->expectExceptionMessage('Inspector UI displayed');
         $listener->onRequestBegin($event);
@@ -115,7 +115,7 @@ class RenderListenerTest extends TestCase
         $listener = $this->makeListener();
 
         // Act & Assert
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->expectException(StopFlow::class);
         $this->expectExceptionMessage('Inspector UI displayed');
         $listener->onRequestBegin($event);
@@ -138,7 +138,7 @@ class RenderListenerTest extends TestCase
         $listener = $this->makeListener();
 
         // Act & Assert
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->expectException(StopFlow::class);
         $this->expectExceptionMessage('Inspector UI displayed');
         $listener->onRequestBegin($event);
@@ -160,7 +160,7 @@ class RenderListenerTest extends TestCase
         $listener = $this->makeListener();
 
         // Act & Assert
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->expectException(StopFlow::class);
         $this->expectExceptionMessage('Inspector UI displayed');
         $listener->onRequestBegin($event);
@@ -181,7 +181,7 @@ class RenderListenerTest extends TestCase
         $listener = $this->makeListener();
 
         // Act & Assert
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->expectException(StopFlow::class);
         $this->expectExceptionMessage('Inspector data not found');
         $listener->onRequestBegin($event);
@@ -203,7 +203,7 @@ class RenderListenerTest extends TestCase
             ->willReturn($this->response);
 
         // Act & Assert
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->expectException(StopFlow::class);
         $this->expectExceptionMessage('Inspector UI displayed');
         $listener->onRequestBegin($event);

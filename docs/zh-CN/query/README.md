@@ -101,6 +101,11 @@ final class UserFinder
 
 表跨分片时，查询会路由读、校验 join 安全性，并在内存中合并有序或分组行。部分 join 或聚合形式在**非分片安全**时仍会被拒绝 — 见 [FAQ](faq.md#multi-shard)。
 
+query 层会发出：
+
+- `Switon\Query\Event\ShardValidationFailed` — join 分片校验失败时，在重抛异常**之前**
+- `Switon\Query\Event\QuerySkipped` — 条件不可满足、跳过执行时
+
 ---
 
 ## 使用注意 {#keep-in-mind}

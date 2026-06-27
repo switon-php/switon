@@ -693,7 +693,7 @@ abstract class AbstractRepository implements RepositoryInterface
     protected function hydrateEntity(array $data): Entity
     {
         $entity = $this->entityHydrator->hydrate($this->entityClass, $data);
-        $this->eventDispatcher->dispatch(new EntityLoaded($entity));
+        $this->eventDispatcher->dispatch(new EntityLoaded($this, $entity));
         return $entity;
     }
 
@@ -711,7 +711,7 @@ abstract class AbstractRepository implements RepositoryInterface
             $entities[] = $this->hydrateEntity($row);
         }
 
-        $this->eventDispatcher->dispatch(new EntitiesLoaded($this->entityClass, $entities));
+        $this->eventDispatcher->dispatch(new EntitiesLoaded($this, $this->entityClass, $entities));
 
         return $entities;
     }

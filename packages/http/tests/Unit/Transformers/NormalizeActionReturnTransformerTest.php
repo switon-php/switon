@@ -6,6 +6,7 @@ namespace Switon\Http\Tests\Unit\Transformers;
 
 use ReflectionMethod;
 use Switon\Core\Attribute\Autowired;
+use Switon\Http\RequestHandlerInterface;
 use Switon\Http\Event\RequestInvoked;
 use Switon\Http\Response\JsonRendererInterface;
 use Switon\Http\ResponseInterface;
@@ -22,6 +23,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
     #[Autowired] protected NormalizeActionReturnTransformer $transformer;
     #[Autowired] protected ResponseInterface $response;
     #[Autowired] protected JsonRendererInterface $jsonRenderer;
+    #[Autowired] protected RequestHandlerInterface $requestHandler;
 
     protected function beforeSetUpHttpContainer(): void
     {
@@ -54,7 +56,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => 0, 'msg' => '']);
 
-        $event = new RequestInvoked($this->createDummyMethod(), null);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), null);
         $this->transformer->onInvoked($event);
     }
 
@@ -65,7 +67,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => 0, 'msg' => '', 'data' => $data]);
 
-        $event = new RequestInvoked($this->createDummyMethod(), $data);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $data);
         $this->transformer->onInvoked($event);
     }
 
@@ -76,7 +78,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => -1, 'msg' => $errorMessage]);
 
-        $event = new RequestInvoked($this->createDummyMethod(), $errorMessage);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $errorMessage);
         $this->transformer->onInvoked($event);
     }
 
@@ -87,7 +89,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => $code, 'msg' => '']);
 
-        $event = new RequestInvoked($this->createDummyMethod(), $code);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $code);
         $this->transformer->onInvoked($event);
     }
 
@@ -96,7 +98,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
         $this->jsonRenderer->expects($this->never())
             ->method('render');
 
-        $event = new RequestInvoked($this->createDummyMethod(), $this->response);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $this->response);
         $this->transformer->onInvoked($event);
     }
 
@@ -107,7 +109,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
         $this->jsonRenderer->expects($this->never())
             ->method('render');
 
-        $event = new RequestInvoked($this->createDummyMethod(), $exception);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $exception);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Test exception');
@@ -123,7 +125,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => 0, 'msg' => '', 'data' => $object]);
 
-        $event = new RequestInvoked($this->createDummyMethod(), $object);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $object);
         $this->transformer->onInvoked($event);
     }
 
@@ -134,7 +136,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
         $this->jsonRenderer->expects($this->never())
             ->method('render');
 
-        $event = new RequestInvoked($this->createDummyMethod(), ['key' => 'value']);
+        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), ['key' => 'value']);
         $this->transformer->onInvoked($event);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Mail\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Mail\MailerInterface;
@@ -21,20 +22,25 @@ use Throwable;
  * @see \Switon\Mail\Event\MailSent
  */
 #[EventLevel(Severity::INFO)]
-class MailFailed implements JsonSerializable
+class MailFailed implements JsonSerializable, SenderAwareInterface
 {
     /**
-     * @param MailerInterface $mailer Mailer instance whose delivery attempt failed.
+     * @param MailerInterface $sender Mailer instance whose delivery attempt failed.
      * @param MessageInterface $message Message that failed to send.
      * @param Throwable $exception Delivery failure that interrupted the send.
      * @param float $elapsed Elapsed time in seconds before the failure surfaced.
      */
     public function __construct(
-        public MailerInterface  $mailer,
+        public MailerInterface  $sender,
         public MessageInterface $message,
         public Throwable       $exception,
         public float            $elapsed,
     ) {
+    }
+
+    public function getSender(): \Switon\Mail\MailerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

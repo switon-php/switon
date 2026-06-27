@@ -49,7 +49,7 @@ description: Query：where 语法、paginate、分片 join 与 get() 抛 NotFoun
 
 ### 分片 join 失败？ {#sharded-join-fail}
 
-多半跨了不兼容连接或分片；先查分片边界。
+多半跨了不兼容连接或分片；先查分片边界。重抛异常前，query 层会发出 `Switon\Query\Event\ShardValidationFailed` 供观测。
 
 ### `get()` 为什么抛异常？ {#get-throws}
 

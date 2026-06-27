@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Switon\Http\Server\Adapter\Native;
 
+use Switon\Http\ResponseSenderInterface;
+
 /**
  * Native output adapter boundary for headers and body emission.
  *
@@ -12,9 +14,6 @@ namespace Switon\Http\Server\Adapter\Native;
  * @see \Switon\Http\Event\HeadersSending
  * @see \Switon\Http\Event\BodySending
  */
-interface SenderInterface
+interface SenderInterface extends ResponseSenderInterface
 {
-    public function sendHeaders(): void;
-
-    public function sendBody(): void;
 }

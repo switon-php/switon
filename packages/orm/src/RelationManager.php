@@ -116,7 +116,7 @@ class RelationManager implements RelationManagerInterface
                 );
             }
 
-            $this->eventDispatcher->dispatch(new EarlyLoading($entityClass, $name, $r));
+            $this->eventDispatcher->dispatch(new EarlyLoading($this, $entityClass, $name, $r));
 
             $relatedQuery = $data instanceof QueryInterface
                 ? $data
@@ -128,7 +128,7 @@ class RelationManager implements RelationManagerInterface
 
             $r = $relation->earlyLoad($r, $relatedQuery, $name);
 
-            $this->eventDispatcher->dispatch(new EarlyLoaded($entityClass, $name, $r));
+            $this->eventDispatcher->dispatch(new EarlyLoaded($this, $entityClass, $name, $r));
         }
 
         return $r;
@@ -220,9 +220,9 @@ class RelationManager implements RelationManagerInterface
             );
         }
 
-        $this->eventDispatcher->dispatch(new LazyLoading($entity, $relationName));
+        $this->eventDispatcher->dispatch(new LazyLoading($this, $entity, $relationName));
         $query = $relation->lazyLoad($entity);
-        $this->eventDispatcher->dispatch(new LazyLoaded($entity, $relationName));
+        $this->eventDispatcher->dispatch(new LazyLoaded($this, $entity, $relationName));
         return $query;
     }
 }

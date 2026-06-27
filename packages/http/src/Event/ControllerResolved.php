@@ -6,8 +6,10 @@ namespace Switon\Http\Event;
 
 use JsonSerializable;
 use ReflectionMethod;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
+use Switon\Http\RequestHandlerInterface;
 
 /**
  * Event emitted after a controller instance is resolved.
@@ -23,17 +25,23 @@ use Switon\Eventing\Severity;
  * @see \Switon\Invoking\InvokerInterface
  */
 #[EventLevel(Severity::DEBUG)]
-class ControllerResolved implements JsonSerializable
+class ControllerResolved implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param object $controller Resolved controller instance.
      * @param ReflectionMethod $method Action method that will be invoked next.
      */
     public function __construct(
+        public RequestHandlerInterface $sender,
         public object           $controller,
         public ReflectionMethod $method
     ) {
 
+    }
+
+    public function getSender(): RequestHandlerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

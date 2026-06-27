@@ -382,8 +382,9 @@ class HasManyThroughRelationTest extends TestCase
         // Event dispatcher should be called with orphaned record
         $this->mockEventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->with($this->callback(function ($event) {
+            ->with($this->callback(function ($event) use ($relation) {
                 return $event instanceof RelationDataInconsistency
+                    && $event->getSender() === $relation
                     && $event->relationName === 'comments'
                     && $event->parentEntityClass === TestUser::class
                     && $event->relatedEntityClass === TestComment::class

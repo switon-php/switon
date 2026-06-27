@@ -86,7 +86,7 @@ class UserRepository
 - **不支持**跨分片 join。
 - **不在**本包范围内：分布式事务。
 - 分片**只**解析名称；**不**创建数据库或表。
-- Join 校验可发出 `Switon\Sharding\Event\ShardValidationFailed`。
+- 不安全的分片 join 由 query 层校验 — 见 [Query 包](../query/README.md#sharding)。
 - 部分查询模式会抛出 `Switon\Sharding\Exception\ShardingNotSupportedException`。
 
 ---

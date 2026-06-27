@@ -66,7 +66,7 @@ class Queue implements QueueInterface
         } else {
             $this->redisQueue->lPush($this->key('ready', $queue), $payload);
         }
-        $this->eventDispatcher->dispatch(new QueuePushed($queue, $envelope, $delay));
+        $this->eventDispatcher->dispatch(new QueuePushed($this, $queue, $envelope, $delay));
 
         return $envelope->message_id;
     }
@@ -105,7 +105,7 @@ class Queue implements QueueInterface
         }
         $row = $this->redisQueue->brPop($keys, $timeout);
         if (!is_array($row) || $row === []) {
-            $this->eventDispatcher->dispatch(new QueuePulled($names, $timeout, null));
+            $this->eventDispatcher->dispatch(new QueuePulled($this, $names, $timeout, null));
             return null;
         }
 
@@ -116,7 +116,7 @@ class Queue implements QueueInterface
         foreach ($decoded as $field => $value) {
             $envelope->{$field} = $value;
         }
-        $this->eventDispatcher->dispatch(new QueuePulled($names, $timeout, $envelope));
+        $this->eventDispatcher->dispatch(new QueuePulled($this, $names, $timeout, $envelope));
 
         return $envelope;
     }

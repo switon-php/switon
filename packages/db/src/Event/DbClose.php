@@ -6,6 +6,7 @@ namespace Switon\Db\Event;
 
 use PDO;
 use Switon\Db\ConnectionInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -18,14 +19,21 @@ use Switon\Eventing\Severity;
  * @see \Switon\Db\Event\DbAbnormal Related failure path
  */
 #[EventLevel(Severity::DEBUG)]
-class DbClose
+class DbClose implements SenderAwareInterface
 {
-    public function __construct(
-        public ConnectionInterface $connection,
-        public string              $dsn,
-        public string              $uri,
-        public PDO                 $pdo,
-    ) {
+    public ConnectionInterface $sender;
 
+    public function __construct(
+        ConnectionInterface $sender,
+        public string $dsn,
+        public string $uri,
+        public PDO $pdo,
+    ) {
+        $this->sender = $sender;
+    }
+
+    public function getSender(): ConnectionInterface
+    {
+        return $this->sender;
     }
 }

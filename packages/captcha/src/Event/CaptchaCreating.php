@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Captcha\Event;
 
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -19,13 +20,19 @@ use Switon\Eventing\Severity;
  * @see \Switon\Captcha\AbstractCaptcha
  */
 #[EventLevel(Severity::DEBUG)]
-class CaptchaCreating
+class CaptchaCreating implements SenderAwareInterface
 {
     public function __construct(
+        public \Switon\Captcha\CaptchaInterface $sender,
         public int     $width,
         public int     $height,
         public int     $ttl,
         public ?string $tag
     ) {
+    }
+
+    public function getSender(): \Switon\Captcha\CaptchaInterface
+    {
+        return $this->sender;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Queue\Event;
 
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Queue\QueueEnvelope;
@@ -16,7 +17,7 @@ use Switon\Queue\QueueEnvelope;
  * @see \Switon\Queue\Queue::pull()
  */
 #[EventLevel(Severity::DEBUG)]
-class QueuePulled
+class QueuePulled implements SenderAwareInterface
 {
     /**
      * @param list<string> $queues Queues checked by the pull attempt
@@ -24,9 +25,15 @@ class QueuePulled
      * @param QueueEnvelope|null $envelope Pulled message, or null when nothing was available
      */
     public function __construct(
+        public \Switon\Queue\QueueInterface $sender,
         public array          $queues,
         public float          $timeout,
         public ?QueueEnvelope $envelope,
     ) {
+    }
+
+    public function getSender(): \Switon\Queue\QueueInterface
+    {
+        return $this->sender;
     }
 }

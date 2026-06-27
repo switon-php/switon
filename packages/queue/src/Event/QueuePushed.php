@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Queue\Event;
 
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Queue\QueueEnvelope;
@@ -16,7 +17,7 @@ use Switon\Queue\QueueEnvelope;
  * @see \Switon\Queue\Queue::push()
  */
 #[EventLevel(Severity::DEBUG)]
-class QueuePushed
+class QueuePushed implements SenderAwareInterface
 {
     /**
      * @param string $queue Logical queue name
@@ -24,9 +25,15 @@ class QueuePushed
      * @param int $delay Requested delay in seconds
      */
     public function __construct(
+        public \Switon\Queue\QueueInterface $sender,
         public string        $queue,
         public QueueEnvelope $envelope,
         public int           $delay,
     ) {
+    }
+
+    public function getSender(): \Switon\Queue\QueueInterface
+    {
+        return $this->sender;
     }
 }

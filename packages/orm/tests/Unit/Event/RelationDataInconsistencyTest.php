@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit\Event;
 
 use Switon\Orm\Event\RelationDataInconsistency;
+use Switon\Orm\RelationInterface;
 use Switon\Orm\Tests\TestCase;
 use ReflectionClass;
 use ReflectionProperty;
@@ -14,6 +15,7 @@ class RelationDataInconsistencyTest extends TestCase
     public function testEventCanBeCreated(): void
     {
         $event = new RelationDataInconsistency(
+            sender: $this->createStub(RelationInterface::class),
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',
@@ -35,6 +37,7 @@ class RelationDataInconsistencyTest extends TestCase
     public function testGetOrphanedPercentage(): void
     {
         $event = new RelationDataInconsistency(
+            sender: $this->createStub(RelationInterface::class),
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',
@@ -50,6 +53,7 @@ class RelationDataInconsistencyTest extends TestCase
     public function testGetOrphanedPercentageWithZeroTotal(): void
     {
         $event = new RelationDataInconsistency(
+            sender: $this->createStub(RelationInterface::class),
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',
@@ -66,6 +70,7 @@ class RelationDataInconsistencyTest extends TestCase
     {
         // 20% orphaned - should be severe (default threshold is 10%)
         $severeEvent = new RelationDataInconsistency(
+            sender: $this->createStub(RelationInterface::class),
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',
@@ -79,6 +84,7 @@ class RelationDataInconsistencyTest extends TestCase
 
         // 5% orphaned - should not be severe
         $minorEvent = new RelationDataInconsistency(
+            sender: $this->createStub(RelationInterface::class),
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',
@@ -94,6 +100,7 @@ class RelationDataInconsistencyTest extends TestCase
     public function testIsSevereWithCustomThreshold(): void
     {
         $event = new RelationDataInconsistency(
+            sender: $this->createStub(RelationInterface::class),
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',
@@ -111,6 +118,7 @@ class RelationDataInconsistencyTest extends TestCase
     public function testEventPropertiesAreReadonly(): void
     {
         $event = new RelationDataInconsistency(
+            sender: $this->createStub(RelationInterface::class),
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',

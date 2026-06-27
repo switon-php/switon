@@ -68,7 +68,7 @@
     "install": "switon/db",
     "namespace": "Switon\\Db",
     "keywords": "pool url-config cross-db rw-split transaction prepared table-scan pool-transient",
-    "classes": "AbstractConnection Client Command/DbCommand Connection Connection/Adapter/Mssql Connection/Adapter/Mysql Connection/Adapter/Pgsql Connection/Adapter/Sqlite Event/AbstractDbExecuted Event/AbstractDbExecuting Event/DbAbnormal Event/DbBegin Event/DbClose Event/DbCommit Event/DbConnected Event/DbConnecting Event/DbDeleted Event/DbDeleting Event/DbExecuted Event/DbExecuting Event/DbInserted Event/DbInserting Event/DbMetadata Event/DbQueried Event/DbQuerySkipped Event/DbQuerying Event/DbRollback Event/DbUpdated Event/DbUpdating Event/DbUpserted Event/DbUpserting Exception Exception/ConnectionException Exception/ConnectionNotReleasedException Exception/CrossDatabaseTransactionException Exception/NoActiveTransactionException Exception/ReadonlyException Exception/TransactionNotClosedException Exception/TransientClientException Exception/UnknownOperatorException Exception/UnsafeOperationException Exception/UnsupportedParameterTypeException Fragment/Increment Inspector/SqlCollector Inspector/SqlCollectorContext PoolConfiguration PoolConfigurator PreparedEmulator SqlFragment TableScanner TransactionManager TransactionManagerContext"
+    "classes": "AbstractConnection Client Command/DbCommand Connection Connection/Adapter/Mssql Connection/Adapter/Mysql Connection/Adapter/Pgsql Connection/Adapter/Sqlite Event/AbstractDbExecuted Event/AbstractDbExecuting Event/DbAbnormal Event/DbBegin Event/DbClose Event/DbCommit Event/DbConnected Event/DbConnecting Event/DbDeleted Event/DbDeleting Event/DbExecuted Event/DbExecuting Event/DbInserted Event/DbInserting Event/DbMetadata Event/DbQueried Event/DbQuerying Event/DbRollback Event/DbUpdated Event/DbUpdating Event/DbUpserted Event/DbUpserting Exception Exception/ConnectionException Exception/ConnectionNotReleasedException Exception/CrossDatabaseTransactionException Exception/NoActiveTransactionException Exception/ReadonlyException Exception/TransactionNotClosedException Exception/TransientClientException Exception/UnknownOperatorException Exception/UnsafeOperationException Exception/UnsupportedParameterTypeException Fragment/Increment Inspector/SqlCollector Inspector/SqlCollectorContext PoolConfiguration PoolConfigurator PreparedEmulator SqlFragment TableScanner TransactionManager TransactionManagerContext"
   },
   {
     "install": "switon/dict",
@@ -170,7 +170,7 @@
     "install": "switon/query",
     "namespace": "Switon\\Query",
     "keywords": "filter-specs symbolic-operators condition-builder sharding paginator eager-load",
-    "classes": "AbstractConditionBuilder AbstractQuery ConditionBuilder Exception Exception/EntityClassRequiredException Exception/InvalidFilterException Exception/InvalidSortDirectionException Exception/NotFoundException Exception/PaginationException Paginator Query ShardMerger ShardingContext ShardingJoinValidator Table"
+    "classes": "AbstractConditionBuilder AbstractQuery ConditionBuilder Event/QuerySkipped Event/ShardValidationFailed Exception Exception/EntityClassRequiredException Exception/InvalidFilterException Exception/InvalidSortDirectionException Exception/NotFoundException Exception/PaginationException Paginator Query ShardMerger ShardingContext ShardingJoinValidator Table"
   },
   {
     "install": "switon/redis",
@@ -200,7 +200,7 @@
     "install": "switon/sharding",
     "namespace": "Switon\\Sharding",
     "keywords": "db:user_id%4 base:field%n base:field:strategy:config modulo hash shard-validate",
-    "classes": "Event/ShardValidationFailed Exception Exception/InvalidShardingStrategyException Exception/ShardingNotSupportedException Exception/ShardingTooManyException ShardingManager Strategy Strategy/AbstractStrategy Strategy/Crc32Strategy Strategy/HashStrategy Strategy/ListStrategy Strategy/ModuloStrategy Strategy/RangeStrategy"
+    "classes": "Exception Exception/InvalidShardingStrategyException Exception/ShardingNotSupportedException Exception/ShardingTooManyException ShardingManager Strategy Strategy/AbstractStrategy Strategy/Crc32Strategy Strategy/HashStrategy Strategy/ListStrategy Strategy/ModuloStrategy Strategy/RangeStrategy"
   },
   {
     "install": "switon/sync",

@@ -6,10 +6,12 @@ namespace Switon\Http\Event;
 
 use JsonSerializable;
 use ReflectionMethod;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Http\RequestInterface;
 use Switon\Http\ResponseInterface;
+use Switon\Http\RequestHandlerInterface;
 
 /**
  * Event emitted before a server-side view is rendered.
@@ -33,7 +35,7 @@ use Switon\Http\ResponseInterface;
  * @see \Switon\Viewing\Event\VarsResolved
  */
 #[EventLevel(Severity::DEBUG)]
-class RequestRendering implements JsonSerializable
+class RequestRendering implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param ReflectionMethod $method Action method.
@@ -43,6 +45,7 @@ class RequestRendering implements JsonSerializable
      * @param string $prefix URL prefix used when fixing links in views.
      */
     public function __construct(
+        public RequestHandlerInterface $sender,
         public ReflectionMethod  $method,
         public mixed             $return,
         public RequestInterface  $request,
@@ -59,5 +62,10 @@ class RequestRendering implements JsonSerializable
             'action' => $this->method->name,
             'prefix' => $this->prefix,
         ];
+    }
+
+    public function getSender(): RequestHandlerInterface
+    {
+        return $this->sender;
     }
 }

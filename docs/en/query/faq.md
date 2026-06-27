@@ -46,7 +46,7 @@ Ordered and aggregated reads can be merged in memory. Some join or aggregate for
 
 ### Why did my sharded join fail? {#sharded-join-fail}
 
-The join likely crossed incompatible connections or shards. Check the sharding boundary first.
+The join likely crossed incompatible connections or shards. Check the sharding boundary first. Before the exception is rethrown, the query layer emits `Switon\Query\Event\ShardValidationFailed` for observability.
 
 ### Why did `get()` throw? {#get-throws}
 

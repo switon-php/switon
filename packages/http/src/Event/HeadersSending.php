@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Http\ResponseInterface;
+use Switon\Http\ResponseSenderInterface;
 
 /**
  * Event emitted before response headers are sent.
@@ -25,14 +27,19 @@ use Switon\Http\ResponseInterface;
  * @see \Switon\Http\Event\HeadersSent
  */
 #[EventLevel(Severity::DEBUG)]
-class HeadersSending implements JsonSerializable
+class HeadersSending implements JsonSerializable, SenderAwareInterface
 {
-    /**
-     * @param ResponseInterface $response Response object.
-     */
-    public function __construct(public ResponseInterface $response)
+    public function __construct(
+        public ResponseSenderInterface $sender,
+        public ResponseInterface $response
+    )
     {
 
+    }
+
+    public function getSender(): ResponseSenderInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Db\Event;
 
 use Switon\Db\ClientInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -19,10 +20,16 @@ use Switon\Eventing\Severity;
  * @see \Switon\Db\Inspector\SqlCollector Typical consumer
  */
 #[EventLevel(Severity::INFO)]
-class DbRollback
+class DbRollback implements SenderAwareInterface
 {
-    public function __construct(
-        public ClientInterface $client,
-    ) {
+    public ClientInterface $sender;
+
+    public function __construct(ClientInterface $sender) {
+        $this->sender = $sender;
+    }
+
+    public function getSender(): ClientInterface
+    {
+        return $this->sender;
     }
 }

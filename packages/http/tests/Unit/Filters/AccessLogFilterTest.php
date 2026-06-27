@@ -14,6 +14,7 @@ use Switon\Http\Event\RequestReceived;
 use Switon\Http\Filter\AccessLogFilter;
 use Switon\Http\Filter\Event\AccessLogWriteFailed;
 use Switon\Http\RequestInterface;
+use Switon\Http\RequestHandlerInterface;
 use Switon\Http\ResponseInterface;
 use Switon\Http\ServerInterface;
 use Switon\Http\Tests\TestCase;
@@ -32,6 +33,7 @@ class AccessLogFilterTest extends TestCase
     #[Autowired] protected RequestInterface $request;
     #[Autowired] protected ResponseInterface $response;
     #[Autowired] protected CookiesInterface $cookies;
+    #[Autowired] protected RequestHandlerInterface $requestHandler;
     protected FilesystemInterface $filesystem; // Not autowired - set manually in beforeSetUpHttpContainer
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
     protected string $logFile;
@@ -79,6 +81,7 @@ class AccessLogFilterTest extends TestCase
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,
@@ -124,7 +127,7 @@ class AccessLogFilterTest extends TestCase
             ->method('append')
             ->with($this->logFile, $this->stringContains('time='));
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 
@@ -146,7 +149,7 @@ class AccessLogFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $filter->onEnd($event);
     }
 
@@ -169,12 +172,13 @@ class AccessLogFilterTest extends TestCase
             ->method('dispatch')
             ->with($this->callback(function ($event) {
                 return $event instanceof AccessLogWriteFailed
+                    && $event->getSender() === $this->filter
                     && $event->file === $this->logFile
                     && $event->exceptionFile !== null
                     && $event->exceptionLine !== null;
             }));
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 
@@ -204,7 +208,7 @@ class AccessLogFilterTest extends TestCase
                     && str_contains($content, 'body_bytes_sent=16');
             }));
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 
@@ -229,7 +233,7 @@ class AccessLogFilterTest extends TestCase
                     && (str_contains($content, '192.168.1.1') || str_contains($content, 'http_x_forwarded_for'));
             }));
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 
@@ -248,7 +252,7 @@ class AccessLogFilterTest extends TestCase
             ->method('append')
             ->with($this->logFile, $this->anything());
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 
@@ -269,7 +273,7 @@ class AccessLogFilterTest extends TestCase
                 return str_contains($content, 'client_ip=192.168.1.100');
             }));
 
-        $event = new RequestEnd($this->request, $this->response);
+        $event = new RequestEnd($this->requestHandler, $this->request, $this->response);
         $this->filter->onEnd($event);
     }
 

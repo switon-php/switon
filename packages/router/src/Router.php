@@ -260,7 +260,7 @@ class Router implements RouterInterface
         // Success: Dispatch event with resolved parameters
         // Event allows parameter transformation, validation, or logging
         // Performance: Negligible overhead if no listeners registered
-        $this->eventDispatcher->dispatch(new RouteParamsResolved($uri, $verb, $matcher));
+        $this->eventDispatcher->dispatch(new RouteParamsResolved($this, $uri, $verb, $matcher));
 
         return $matcher;
     }

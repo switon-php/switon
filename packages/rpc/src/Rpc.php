@@ -83,7 +83,7 @@ class Rpc implements RpcInterface, RunnerInterface
         $request = QueueEnvelope::of(['method' => $method, 'params' => $params]);
         $request->correlation_id = $correlationId;
         $request->reply_to = $this->replyQueue;
-        $this->eventDispatcher->dispatch(new RpcCalling($method, $params, $correlationId, $timeout));
+        $this->eventDispatcher->dispatch(new RpcCalling($this, $method, $params, $correlationId, $timeout));
 
         try {
             $this->transport->push($this->queue, $request);
@@ -138,7 +138,7 @@ class Rpc implements RpcInterface, RunnerInterface
                 $params = $envelope->body['params'] ?? [];
                 $correlationId = $envelope->correlation_id ?? '';
                 $replyTo = $envelope->reply_to ?? '';
-                $this->eventDispatcher->dispatch(new RpcReceived($method, $params, $correlationId, $replyTo));
+                $this->eventDispatcher->dispatch(new RpcReceived($this, $method, $params, $correlationId, $replyTo));
                 $this->executor->submit(static::class, $envelope, $this->concurrency);
             } catch (Throwable $e) {
                 if ($replyTo !== '' && $correlationId !== '') {
@@ -149,7 +149,7 @@ class Rpc implements RpcInterface, RunnerInterface
                     }
                 }
 
-                $this->eventDispatcher->dispatch(new RpcDaemonFailed($method, $e));
+                $this->eventDispatcher->dispatch(new RpcDaemonFailed($this, $method, $e));
                 usleep(200000);
             }
         }

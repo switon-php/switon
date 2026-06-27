@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
+use Switon\Http\ServerInterface;
 
 /**
  * Event emitted when an HTTP request is received.
@@ -26,7 +28,7 @@ use Switon\Eventing\Severity;
  * @see \Switon\Http\Event\RequestAdjust
  */
 #[EventLevel(Severity::DEBUG)]
-class RequestReceived implements JsonSerializable
+class RequestReceived implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param array<string, mixed> $GET
@@ -36,13 +38,19 @@ class RequestReceived implements JsonSerializable
      * @param array<string, mixed> $FILES
      */
     public function __construct(
-        public array   $GET,
-        public array   $POST,
-        public array   $SERVER,
+        public ServerInterface $sender,
+        public array $GET,
+        public array $POST,
+        public array $SERVER,
         public ?string $RAW_BODY,
-        public array   $COOKIE,
-        public array   $FILES
+        public array $COOKIE,
+        public array $FILES
     ) {
+    }
+
+    public function getSender(): ServerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */
