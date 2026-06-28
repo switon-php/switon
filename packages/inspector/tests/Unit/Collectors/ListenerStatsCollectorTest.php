@@ -111,7 +111,7 @@ class ListenerStatsCollectorFakeProvider implements ListenerProviderInterface
     /** @var array<int, array<int, callable>> */
     public array $wildcards = [];
 
-    public function on(?object $sender, callable $handler, int $priority = 0): void
+    public function on(string|object|null $sender, callable $handler, int $priority = 0): void
     {
     }
 
