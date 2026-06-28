@@ -9,10 +9,15 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\ClockInterface;
 use Switon\Core\Json;
 use Switon\Core\RandomInterface;
+use Switon\Core\Runtime;
 use Switon\Executor\ExecutorInterface;
+use Switon\Queue\Event\QueueConsumed;
+use Switon\Queue\Event\QueueConsuming;
+use Switon\Queue\Event\QueueFailed;
 use Switon\Queue\Event\QueuePulled;
 use Switon\Queue\Event\QueuePushed;
 use Switon\Redis\ClientInterface;
+use Throwable;
 
 use function is_array;
 use function is_string;
@@ -152,12 +157,24 @@ class Queue implements QueueInterface
                 ['queue' => $queue]
             );
         }
-        if ($concurrency <= 1) {
-            $this->executor->invoke($jobClass, $envelope);
-            return;
+
+        $this->eventDispatcher->dispatch(new QueueConsuming($this, $queue, $envelope, $jobClass));
+
+        $startedAt = $this->clock->microtime();
+        try {
+            if ($concurrency <= 1) {
+                $this->executor->invoke($jobClass, $envelope);
+            } else {
+                $this->executor->submit($jobClass, $envelope, $concurrency);
+            }
+        } catch (Throwable $exception) {
+            $this->eventDispatcher->dispatch(QueueFailed::from($this, $queue, $envelope, $jobClass, $exception, $this->clock->elapsed($startedAt)));
+            throw $exception;
         }
 
-        $this->executor->submit($jobClass, $envelope, $concurrency);
+        if ($concurrency <= 1 || !Runtime::isCoroutineEnabled()) {
+            $this->eventDispatcher->dispatch(new QueueConsumed($this, $queue, $envelope, $jobClass, $this->clock->elapsed($startedAt)));
+        }
     }
 
     /**

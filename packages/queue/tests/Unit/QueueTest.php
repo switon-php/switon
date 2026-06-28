@@ -9,8 +9,12 @@ use Switon\Core\ClockInterface;
 use Switon\Core\ContainerInterface;
 use Switon\Core\RandomInterface;
 use Switon\Core\RunnerInterface;
+use Switon\Core\Runtime;
 use Switon\Executor\ExecutorInterface;
 use Switon\Executor\FutureInterface;
+use Switon\Queue\Event\QueueConsumed;
+use Switon\Queue\Event\QueueConsuming;
+use Switon\Queue\Event\QueueFailed;
 use Switon\Queue\Event\QueuePulled;
 use Switon\Queue\Event\QueuePushed;
 use Switon\Queue\Exception;
@@ -20,9 +24,11 @@ use Switon\Queue\QueueEnvelope;
 use Switon\Queue\Tests\Fixtures\DefaultDummyJob;
 use Switon\Queue\Tests\Fixtures\EmailsDummyJob;
 use Switon\Queue\Tests\Fixtures\EnvelopeAwareJob;
+use Switon\Queue\Tests\Fixtures\FailingJob;
 use Switon\Queue\Tests\Fixtures\MailJob;
 use Switon\Redis\ClientInterface;
 use Switon\Queue\Tests\TestCase;
+use RuntimeException;
 use Throwable;
 use stdClass;
 
@@ -87,15 +93,103 @@ class QueueTest extends TestCase
 
     public function testConsumeUnmappedQueueThrows(): void
     {
+        $events = new FakeEventDispatcher();
         $redis = new FakeRedisClient();
-        $queue = $this->makeQueue($redis);
+        $queue = $this->makeQueue($redis, [], $events);
 
         $queue->push('producer-only-queue', QueueEnvelope::of());
         $envelope = $queue->pull('producer-only-queue');
         $this->assertNotNull($envelope);
+        $events->clear();
 
         $this->expectException(Exception::class);
         $queue->consume($envelope);
+        $this->assertSame([], $events->eventClasses());
+    }
+
+    public function testConsumeDispatchesConsumingAndConsumedOnSuccess(): void
+    {
+        DefaultDummyJob::$handled = 0;
+        $events = new FakeEventDispatcher();
+        $queue = $this->makeQueue(new FakeRedisClient(), $this->defaultJobMap(), $events);
+
+        $queue->push('default', QueueEnvelope::of(['n' => 1]));
+        $envelope = $queue->pull('default', 1);
+        $this->assertNotNull($envelope);
+        $events->clear();
+
+        $queue->consume($envelope);
+
+        $this->assertSame([QueueConsuming::class, QueueConsumed::class], $events->eventClasses());
+        $consuming = $events->events[0];
+        $this->assertInstanceOf(QueueConsuming::class, $consuming);
+        $this->assertSame('default', $consuming->queue);
+        $this->assertSame(DefaultDummyJob::class, $consuming->jobClass);
+        $this->assertSame($envelope, $consuming->envelope);
+
+        $consumed = $events->events[1];
+        $this->assertInstanceOf(QueueConsumed::class, $consumed);
+        $this->assertSame('default', $consumed->queue);
+        $this->assertSame(DefaultDummyJob::class, $consumed->jobClass);
+        $this->assertSame(0.0, $consumed->elapsed);
+        $this->assertSame(1, DefaultDummyJob::$handled);
+    }
+
+    public function testConsumeDispatchesConsumingAndFailedOnJobFailure(): void
+    {
+        FailingJob::$handled = 0;
+        $events = new FakeEventDispatcher();
+        $queue = $this->makeQueue(
+            new FakeRedisClient(),
+            ['failing' => ['class' => FailingJob::class, 'concurrency' => 1]],
+            $events,
+        );
+
+        $queue->push('failing', QueueEnvelope::of());
+        $envelope = $queue->pull('failing', 1);
+        $this->assertNotNull($envelope);
+        $events->clear();
+
+        try {
+            $queue->consume($envelope);
+            $this->fail('Expected RuntimeException from failing job.');
+        } catch (Throwable) {
+        }
+
+        $this->assertSame([QueueConsuming::class, QueueFailed::class], $events->eventClasses());
+        $failed = $events->events[1];
+        $this->assertInstanceOf(QueueFailed::class, $failed);
+        $this->assertSame('failing', $failed->queue);
+        $this->assertSame(FailingJob::class, $failed->jobClass);
+        $this->assertSame('fail', $failed->exceptionMessage);
+        $this->assertSame(RuntimeException::class, $failed->exceptionClass);
+        $this->assertSame(1, FailingJob::$handled);
+    }
+
+    public function testConsumeWithAsyncHandoffDispatchesConsumingOnly(): void
+    {
+        EmailsDummyJob::$handled = 0;
+        $events = new FakeEventDispatcher();
+        Runtime::setCoroutineEnabled(true);
+        try {
+            $queue = $this->makeQueue(
+                new FakeRedisClient(),
+                ['emails' => ['class' => EmailsDummyJob::class, 'concurrency' => 2]],
+                $events,
+            );
+
+            $queue->push('emails', QueueEnvelope::of(['n' => 1]));
+            $envelope = $queue->pull('emails', 1);
+            $this->assertNotNull($envelope);
+            $events->clear();
+
+            $queue->consume($envelope);
+
+            $this->assertSame([QueueConsuming::class], $events->eventClasses());
+            $this->assertSame(1, EmailsDummyJob::$handled);
+        } finally {
+            Runtime::setCoroutineEnabled(false);
+        }
     }
 
     public function testPullReturnsEnvelopeWithBody(): void
