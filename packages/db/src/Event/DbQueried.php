@@ -6,6 +6,7 @@ namespace Switon\Db\Event;
 
 use JsonSerializable;
 use Switon\Db\ClientInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -19,13 +20,13 @@ use Switon\Eventing\Severity;
  * @see \Switon\Db\Inspector\SqlCollector Typical consumer
  */
 #[EventLevel(Severity::DEBUG)]
-class DbQueried implements JsonSerializable
+class DbQueried implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param array<string, mixed> $bind
      */
     public function __construct(
-        public ClientInterface $client,
+        public ClientInterface $sender,
         public string          $sql,
         public array           $bind,
         public int             $count,
@@ -33,6 +34,11 @@ class DbQueried implements JsonSerializable
         public float           $elapsed,
     ) {
 
+    }
+
+    public function getSender(): ClientInterface
+    {
+        return $this->sender;
     }
 
     /** Serializes event data and truncates large result sets for log safety. */

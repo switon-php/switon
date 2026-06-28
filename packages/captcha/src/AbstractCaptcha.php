@@ -116,7 +116,7 @@ abstract class AbstractCaptcha implements CaptchaInterface
      */
     public function create(int $width = 120, int $height = 40, int $ttl = 300, ?string $tag = null): array
     {
-        $this->eventDispatcher->dispatch(new CaptchaCreating($width, $height, $ttl, $tag));
+        $this->eventDispatcher->dispatch(new CaptchaCreating($this, $width, $height, $ttl, $tag));
 
         // 1. Generate UUID as Key
         $key = $this->random->uuid();
@@ -141,7 +141,7 @@ abstract class AbstractCaptcha implements CaptchaInterface
             'blob' => "data:image/jpeg;base64,$base64"
         ];
 
-        $this->eventDispatcher->dispatch(new CaptchaCreated($key, $ttl, $tag));
+        $this->eventDispatcher->dispatch(new CaptchaCreated($this, $key, $ttl, $tag));
 
         return $result;
     }
@@ -164,12 +164,12 @@ abstract class AbstractCaptcha implements CaptchaInterface
         $key = $proof->captcha_key;
         $code = $proof->captcha_code;
 
-        $this->eventDispatcher->dispatch(new CaptchaVerifying($key, $tag));
+        $this->eventDispatcher->dispatch(new CaptchaVerifying($this, $key, $tag));
 
         $data = $this->store->get($key);
 
         if ($data === null) {
-            $this->eventDispatcher->dispatch(new CaptchaFailed($key, $tag, CaptchaFailed::REASON_NOT_FOUND, null));
+            $this->eventDispatcher->dispatch(new CaptchaFailed($this, $key, $tag, CaptchaFailed::REASON_NOT_FOUND, null));
             CaptchaNotFoundException::raise(
                 'Captcha not found for key: {key}',
                 ['key' => $key]
@@ -178,7 +178,7 @@ abstract class AbstractCaptcha implements CaptchaInterface
 
         // Validate data integrity
         if (!isset($data['code'], $data['created_at'], $data['ttl'])) {
-            $this->eventDispatcher->dispatch(new CaptchaFailed($key, $tag, CaptchaFailed::REASON_DATA_INVALID, null));
+            $this->eventDispatcher->dispatch(new CaptchaFailed($this, $key, $tag, CaptchaFailed::REASON_DATA_INVALID, null));
             CaptchaDataInvalidException::raise('Captcha data is invalid or corrupted');
         }
 
@@ -186,7 +186,7 @@ abstract class AbstractCaptcha implements CaptchaInterface
         $createdAt = (float)$data['created_at'];
         $timeSinceCreation = round(microtime(true) - $createdAt, 3);
         if ($timeSinceCreation < $this->min_interval) {
-            $this->eventDispatcher->dispatch(new CaptchaFailed($key, $tag, CaptchaFailed::REASON_TOO_FREQUENT, null));
+            $this->eventDispatcher->dispatch(new CaptchaFailed($this, $key, $tag, CaptchaFailed::REASON_TOO_FREQUENT, null));
             CaptchaTooFrequentException::raise(
                 'Captcha verification too frequent: {time_since_creation}s < {min_interval}s.',
                 ['time_since_creation' => $timeSinceCreation, 'min_interval' => $this->min_interval]
@@ -195,7 +195,7 @@ abstract class AbstractCaptcha implements CaptchaInterface
 
         // 2. Verify expiration (does NOT consume attempt, as it's already invalid)
         if ($timeSinceCreation > (float)$data['ttl']) {
-            $this->eventDispatcher->dispatch(new CaptchaFailed($key, $tag, CaptchaFailed::REASON_EXPIRED, null));
+            $this->eventDispatcher->dispatch(new CaptchaFailed($this, $key, $tag, CaptchaFailed::REASON_EXPIRED, null));
             CaptchaExpiredException::raise(
                 'Captcha expired at {expired_at}, please refresh and try again',
                 ['expired_at' => date('Y-m-d H:i:s', (int)round($createdAt) + (int)$data['ttl'])]
@@ -206,7 +206,7 @@ abstract class AbstractCaptcha implements CaptchaInterface
         $attempts = (int)($data['attempts'] ?? 1);
         if ($attempts <= 0) {
             $this->eventDispatcher->dispatch(
-                new CaptchaFailed($key, $tag, CaptchaFailed::REASON_ATTEMPTS_EXHAUSTED, 0)
+                new CaptchaFailed($this, $key, $tag, CaptchaFailed::REASON_ATTEMPTS_EXHAUSTED, 0)
             );
             CaptchaAttemptsExhaustedException::raise('Captcha verification attempts exhausted for key: {key}', ['key' => $key]);
         }
@@ -223,14 +223,14 @@ abstract class AbstractCaptcha implements CaptchaInterface
 
         // 4. Verify code match
         if (strtolower((string)$data['code']) !== strtolower($code)) {
-            $this->eventDispatcher->dispatch(new CaptchaFailed($key, $tag, CaptchaFailed::REASON_MISMATCH, $attempts));
+            $this->eventDispatcher->dispatch(new CaptchaFailed($this, $key, $tag, CaptchaFailed::REASON_MISMATCH, $attempts));
             CaptchaMismatchException::raise(
                 'Captcha verification failed: incorrect code "{code}"',
                 ['code' => $code]
             );
         }
 
-        $this->eventDispatcher->dispatch(new CaptchaVerified($key, $tag, $attempts));
+        $this->eventDispatcher->dispatch(new CaptchaVerified($this, $key, $tag, $attempts));
     }
 
     /**

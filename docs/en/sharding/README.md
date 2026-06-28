@@ -81,7 +81,7 @@ class UserRepository
 - Cross-shard joins are not supported.
 - Distributed transactions are out of scope.
 - Sharding resolves names; it does not create databases or tables.
-- Join validation can emit `Switon\Sharding\Event\ShardValidationFailed`.
+- Unsafe sharded joins are validated in the query layer — see [Query package](../query/README.md#sharding).
 - Some query patterns raise `Switon\Sharding\Exception\ShardingNotSupportedException`.
 
 ---

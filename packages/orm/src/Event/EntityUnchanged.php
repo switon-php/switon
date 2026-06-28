@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Orm\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Orm\Entity;
+use Switon\Orm\EntityManagerInterface;
 
 /**
  * Dispatched when an update is skipped because no persistent fields changed.
@@ -17,12 +19,18 @@ use Switon\Orm\Entity;
  * @see \Switon\Orm\EntityManager::update() Typical emitter
  */
 #[EventLevel(Severity::DEBUG)]
-class EntityUnchanged implements JsonSerializable
+class EntityUnchanged implements JsonSerializable, SenderAwareInterface
 {
     public function __construct(
+        public EntityManagerInterface $sender,
         public Entity $entity,
         public Entity $original,
     ) {
+    }
+
+    public function getSender(): EntityManagerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

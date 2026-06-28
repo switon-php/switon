@@ -21,7 +21,8 @@ class TranslationKeyMissingTest extends TestCase
     public function testEventStoresKeyAndLocale(): void
     {
         // Act
-        $event = new TranslationKeyMissing(key: 'user.missing', locale: 'zh-cn');
+        $sender = $this->createStub(\Switon\Core\TranslatorInterface::class);
+        $event = new TranslationKeyMissing($sender, key: 'user.missing', locale: 'zh-cn');
 
         // Assert
         $this->assertSame('user.missing', $event->key);
@@ -34,7 +35,8 @@ class TranslationKeyMissingTest extends TestCase
     public function testJsonSerializeReturnsKeyAndLocale(): void
     {
         // Arrange
-        $event = new TranslationKeyMissing(key: 'user.missing', locale: 'en');
+        $sender = $this->createStub(\Switon\Core\TranslatorInterface::class);
+        $event = new TranslationKeyMissing($sender, key: 'user.missing', locale: 'en');
 
         // Act
         $payload = $event->jsonSerialize();

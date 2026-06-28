@@ -158,7 +158,7 @@ class Swoole extends AbstractServer implements ContextAware
         $cookies = $request->cookie ?? [];
         $files = $request->files ?? [];
 
-        $this->eventDispatcher->dispatch(new RequestReceived($_get, $_post, $_server, $raw_body, $cookies, $files));
+        $this->eventDispatcher->dispatch(new RequestReceived($this, $_get, $_post, $_server, $raw_body, $cookies, $files));
     }
 
     protected function dispatchEvent(object $object): void
@@ -168,7 +168,7 @@ class Swoole extends AbstractServer implements ContextAware
         } catch (Throwable $throwable) {
             // Dispatch error event directly (not through dispatchEvent) to avoid infinite loops
             try {
-                $this->eventDispatcher->dispatch(DispatchFailed::from($object, $throwable));
+                $this->eventDispatcher->dispatch(DispatchFailed::from($this, $object, $throwable));
             } catch (Throwable) {
                 // If event dispatch for error also fails, silently ignore to prevent infinite loops
             }
@@ -345,7 +345,7 @@ class Swoole extends AbstractServer implements ContextAware
         $this->prepareGlobals($request);
 
         if (!empty($this->settings['enable_static_handler']) && $this->staticHandler->isFile($uri)) {
-            $this->dispatchEvent(new AssetSending($uri));
+            $this->dispatchEvent(new AssetSending($this, $uri));
 
             $statusCode = 404;
             if (($file = $this->staticHandler->getFile($uri)) !== null) {
@@ -357,7 +357,7 @@ class Swoole extends AbstractServer implements ContextAware
                 $response->end('');
             }
 
-            $this->dispatchEvent(new AssetSent($uri, $statusCode));
+            $this->dispatchEvent(new AssetSent($this, $uri, $statusCode));
         } else {
             $context = $this->getContext();
 
@@ -375,7 +375,7 @@ class Swoole extends AbstractServer implements ContextAware
 
     public function sendHeaders(): void
     {
-        $this->eventDispatcher->dispatch(new HeadersSending($this->response));
+        $this->eventDispatcher->dispatch(new HeadersSending($this, $this->response));
 
         $context = $this->getContext();
 
@@ -403,7 +403,7 @@ class Swoole extends AbstractServer implements ContextAware
             );
         }
 
-        $this->eventDispatcher->dispatch(new HeadersSent($this->response));
+        $this->eventDispatcher->dispatch(new HeadersSent($this, $this->response));
     }
 
     public function sendBody(): void
@@ -421,7 +421,7 @@ class Swoole extends AbstractServer implements ContextAware
         } elseif ($file = $this->response->getFile()) {
             $response->sendfile($file);
         } else {
-            $event = new BodySending($this->response, $content);
+            $event = new BodySending($this, $this->response, $content);
             $this->eventDispatcher->dispatch($event);
 
             // Use potentially modified content from event
@@ -429,7 +429,7 @@ class Swoole extends AbstractServer implements ContextAware
 
             $result = $response->end($content);
 
-            $this->eventDispatcher->dispatch(new BodySent($this->response, $content, $result !== false));
+            $this->eventDispatcher->dispatch(new BodySent($this, $this->response, $content, $result !== false));
         }
     }
 
@@ -437,7 +437,7 @@ class Swoole extends AbstractServer implements ContextAware
     {
         $context = $this->getContext();
 
-        $event = new ChunkWriting($this->response, $chunk);
+        $event = new ChunkWriting($this, $this->response, $chunk);
         $this->eventDispatcher->dispatch($event);
 
         // Use potentially modified chunk from event
@@ -449,7 +449,7 @@ class Swoole extends AbstractServer implements ContextAware
             $result = $context->response->write($chunk);
         }
 
-        $this->eventDispatcher->dispatch(new ChunkWritten($this->response, $chunk, $result));
+        $this->eventDispatcher->dispatch(new ChunkWritten($this, $this->response, $chunk, $result));
 
         return $result;
     }

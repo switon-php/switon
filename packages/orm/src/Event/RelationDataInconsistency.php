@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Switon\Orm\Event;
 
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
+use Switon\Orm\RelationInterface;
 
 /**
  * Event emitted when relation loading detects inconsistent foreign-key data.
@@ -19,19 +21,20 @@ use Switon\Eventing\Severity;
  * @see \Switon\Orm\Exception\RelationFieldMissingException
  */
 #[EventLevel(Severity::WARNING)]
-readonly class RelationDataInconsistency
+readonly class RelationDataInconsistency implements SenderAwareInterface
 {
     /**
      * @param array<int, int|string|null> $orphanedForeignKeyValues
      */
     public function __construct(
+        public RelationInterface $sender,
         public string $relationName,
         public string $parentEntityClass,
         public string $relatedEntityClass,
         public string $foreignKeyField,
-        public array  $orphanedForeignKeyValues,
-        public int    $orphanedCount,
-        public int    $totalRelatedRecords,
+        public array $orphanedForeignKeyValues,
+        public int $orphanedCount,
+        public int $totalRelatedRecords,
     ) {
     }
 
@@ -46,5 +49,10 @@ readonly class RelationDataInconsistency
     public function isSevere(float $threshold = 10.0): bool
     {
         return $this->getOrphanedPercentage() > $threshold;
+    }
+
+    public function getSender(): RelationInterface
+    {
+        return $this->sender;
     }
 }

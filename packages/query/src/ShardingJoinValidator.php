@@ -6,7 +6,7 @@ namespace Switon\Query;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\Attribute\Autowired;
-use Switon\Sharding\Event\ShardValidationFailed;
+use Switon\Query\Event\ShardValidationFailed;
 use Switon\Sharding\Exception\ShardingNotSupportedException;
 use Switon\Sharding\ShardingManagerInterface;
 use Throwable;
@@ -18,7 +18,7 @@ use Throwable;
  * and reports validation failures through sharding events for logging.
  *
  * @see \Switon\Query\ShardingJoinValidatorInterface
- * @see \Switon\Sharding\Event\ShardValidationFailed
+ * @see \Switon\Query\Event\ShardValidationFailed
  */
 class ShardingJoinValidator implements ShardingJoinValidatorInterface
 {
@@ -74,7 +74,7 @@ class ShardingJoinValidator implements ShardingJoinValidatorInterface
                 }
             }
         } catch (Throwable $e) {
-            $this->eventDispatcher->dispatch(ShardValidationFailed::from($mainShards, $context, $joins, $e));
+            $this->eventDispatcher->dispatch(ShardValidationFailed::from($this, $mainShards, $context, $joins, $e));
             throw $e;
         }
     }

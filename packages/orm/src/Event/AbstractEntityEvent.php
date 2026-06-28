@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Switon\Orm\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Orm\Entity;
+use Switon\Orm\EntityManagerInterface;
 
 /**
  * Base class for ORM entity lifecycle events.
@@ -22,14 +24,16 @@ use Switon\Orm\Entity;
  * @see \Switon\Orm\Event\EntityDeleting
  * @see \Switon\Orm\Event\EntityDeleted
  */
-class AbstractEntityEvent implements EntityEventInterface, JsonSerializable
+class AbstractEntityEvent implements EntityEventInterface, JsonSerializable, SenderAwareInterface
 {
+    public EntityManagerInterface $sender;
     /**
      * @param Entity $entity Current entity state
      * @param Entity|null $original Original entity state (available for update/delete events)
      */
-    public function __construct(protected Entity $entity, protected ?Entity $original = null)
+    public function __construct(EntityManagerInterface $sender, protected Entity $entity, protected ?Entity $original = null)
     {
+        $this->sender = $sender;
     }
 
     /**
@@ -72,5 +76,10 @@ class AbstractEntityEvent implements EntityEventInterface, JsonSerializable
     public function jsonSerialize(): array
     {
         return ['entity' => $this->entity::class, 'fields' => $this->entity->toArray()];
+    }
+
+    public function getSender(): EntityManagerInterface
+    {
+        return $this->sender;
     }
 }

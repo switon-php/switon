@@ -166,7 +166,7 @@ class Translator implements TranslatorInterface
         }
 
         // If key not found in any locale, dispatch event and return key itself
-        $this->eventDispatcher->dispatch(new TranslationKeyMissing(key: $id, locale: $locale));
+        $this->eventDispatcher->dispatch(new TranslationKeyMissing($this, key: $id, locale: $locale));
         return $id;
     }
 

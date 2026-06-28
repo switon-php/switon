@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Http\RequestInterface;
+use Switon\Http\RequestHandlerInterface;
 
 /**
  * Event emitted after request authentication succeeds.
@@ -24,10 +26,18 @@ use Switon\Http\RequestInterface;
  * @see \Switon\Principal\IdentityInterface
  */
 #[EventLevel(Severity::DEBUG)]
-class RequestAuthenticated implements JsonSerializable
+class RequestAuthenticated implements JsonSerializable, SenderAwareInterface
 {
-    public function __construct(public RequestInterface $request)
+    public function __construct(
+        public RequestHandlerInterface $sender,
+        public RequestInterface $request
+    )
     {
+    }
+
+    public function getSender(): RequestHandlerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

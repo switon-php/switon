@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Switon\Executor\Event;
 
 use JsonSerializable;
+use Switon\Core\RunnerInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
+use Switon\Executor\ExecutorInterface;
 use Throwable;
 
 /**
@@ -18,15 +21,22 @@ use Throwable;
  * @see \Switon\Executor\Event\RunnerStarting
  */
 #[EventLevel(Severity::DEBUG)]
-class RunnerFinished implements JsonSerializable
+class RunnerFinished implements JsonSerializable, SenderAwareInterface
 {
     public function __construct(
-        public string     $task,
-        public mixed      $payload = null,
-        public mixed      $result = null,
+        public ExecutorInterface $sender,
+        public RunnerInterface $runner,
+        public string $task,
+        public mixed $payload = null,
+        public mixed $result = null,
         public ?Throwable $error = null,
-        public float      $elapsed = 0.0,
+        public float $elapsed = 0.0,
     ) {
+    }
+
+    public function getSender(): ExecutorInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

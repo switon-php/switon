@@ -39,6 +39,7 @@ class AiToolRawArgvLoggerTest extends TestCase
         $router->method('getAction')->willReturn('list');
 
         $event = new ToolInvoking(
+            sender: $this->createMock(\Switon\Cli\HandlerInterface::class),
             argv: [
                 'switon',
                 'tool:list',

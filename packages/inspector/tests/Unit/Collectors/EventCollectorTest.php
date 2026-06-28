@@ -38,8 +38,9 @@ final class EventCollectorTest extends BaseTestCase
         $context = new EventCollectorContext();
         $collector->setContextManager($this->createContextManager($collector, $context));
 
+        $logger = $this->createStub(LoggerInterface::class);
         $collector->onEvent(new LoggerLogged(
-            $this->createStub(LoggerInterface::class),
+            $logger,
             'info',
             'ignored',
             [],

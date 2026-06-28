@@ -10,6 +10,7 @@ use Switon\Http\Event\RequestReceived;
 use Switon\Http\Event\RequestValidating;
 use Switon\Http\Filter\MappingValidatorFilter;
 use Switon\Http\RequestInterface;
+use Switon\Http\RequestHandlerInterface;
 use Switon\Http\Tests\TestCase;
 use Switon\Routing\Attribute\GetMapping;
 use Switon\Routing\Attribute\PostMapping;
@@ -31,6 +32,7 @@ class MappingValidatorFilterTest extends TestCase
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(\Switon\Http\ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,
@@ -48,7 +50,7 @@ class MappingValidatorFilterTest extends TestCase
         $this->request->onRequestReceived($requestEvent);
 
         $reflectionMethod = new ReflectionMethod($this, 'testGetAction');
-        $event = new RequestValidating($reflectionMethod);
+        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
 
         $this->filter->onValidating($event);
         $this->assertTrue(true);
@@ -62,7 +64,7 @@ class MappingValidatorFilterTest extends TestCase
         $this->request->onRequestReceived($requestEvent);
 
         $reflectionMethod = new ReflectionMethod($this, 'testGetAction');
-        $event = new RequestValidating($reflectionMethod);
+        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
 
         $this->expectException(MethodNotAllowedException::class);
         $this->filter->onValidating($event);
@@ -76,7 +78,7 @@ class MappingValidatorFilterTest extends TestCase
         $this->request->onRequestReceived($requestEvent);
 
         $reflectionMethod = new ReflectionMethod($this, 'testActionWithoutMapping');
-        $event = new RequestValidating($reflectionMethod);
+        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
 
         $this->filter->onValidating($event);
         $this->assertTrue(true);
@@ -90,7 +92,7 @@ class MappingValidatorFilterTest extends TestCase
         $this->request->onRequestReceived($requestEvent);
 
         $reflectionMethod = new ReflectionMethod($this, 'testGetOrPostAction');
-        $event = new RequestValidating($reflectionMethod);
+        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
 
         $this->filter->onValidating($event);
         $this->assertTrue(true);

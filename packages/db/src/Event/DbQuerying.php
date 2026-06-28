@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Db\Event;
 
 use Switon\Db\ClientInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -18,15 +19,23 @@ use Switon\Eventing\Severity;
  * @see \Switon\Db\Inspector\SqlCollector Typical consumer
  */
 #[EventLevel(Severity::DEBUG)]
-class DbQuerying
+class DbQuerying implements SenderAwareInterface
 {
+    public ClientInterface $sender;
+
     /**
      * @param array<string, mixed> $bind
      */
     public function __construct(
-        public ClientInterface $client,
-        public string          $sql,
-        public array           $bind,
+        ClientInterface $sender,
+        public string $sql,
+        public array $bind,
     ) {
+        $this->sender = $sender;
+    }
+
+    public function getSender(): ClientInterface
+    {
+        return $this->sender;
     }
 }

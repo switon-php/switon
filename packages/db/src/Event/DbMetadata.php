@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Db\Event;
 
 use Switon\Db\ClientInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -17,15 +18,20 @@ use Switon\Eventing\Severity;
  * @see \Switon\Db\TableScannerInterface Typical consumer
  */
 #[EventLevel(Severity::DEBUG)]
-class DbMetadata
+class DbMetadata implements SenderAwareInterface
 {
     /** @param array<int, mixed> $meta */
     public function __construct(
-        public ClientInterface $client,
+        public ClientInterface $sender,
         public string          $table,
         public array           $meta,
         public float           $elapsed,
     ) {
 
+    }
+
+    public function getSender(): ClientInterface
+    {
+        return $this->sender;
     }
 }

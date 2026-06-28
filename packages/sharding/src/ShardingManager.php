@@ -26,7 +26,7 @@ use function substr_count;
  *
  * @see \Switon\Sharding\ShardingManagerInterface
  * @see \Switon\Sharding\StrategyInterface
- * @see \Switon\Sharding\Event\ShardValidationFailed
+ * @see \Switon\Query\Event\ShardValidationFailed
  * @see \Switon\Sharding\Exception
  * @see \Switon\Sharding\Exception\InvalidShardingStrategyException
  * @see \Switon\Sharding\Exception\ShardingTooManyException

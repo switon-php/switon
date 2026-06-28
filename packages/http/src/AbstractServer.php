@@ -51,7 +51,7 @@ abstract class AbstractServer implements ServerInterface
      */
     public function write(string $chunk): bool
     {
-        $event = new ChunkWriting($this->response, $chunk);
+        $event = new ChunkWriting($this, $this->response, $chunk);
         $this->eventDispatcher->dispatch($event);
 
         // Use potentially modified chunk from event
@@ -65,7 +65,7 @@ abstract class AbstractServer implements ServerInterface
 
         ob_flush();
 
-        $this->eventDispatcher->dispatch(new ChunkWritten($this->response, $chunk, true));
+        $this->eventDispatcher->dispatch(new ChunkWritten($this, $this->response, $chunk, true));
 
         return true;
     }

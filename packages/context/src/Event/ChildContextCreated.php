@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Switon\Context\Event;
 
 use JsonSerializable;
+use Switon\Context\ContextManagerInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -18,7 +20,7 @@ use Switon\Eventing\Severity;
  * @see \Switon\Context\Event\ChildContextInherited
  */
 #[EventLevel(Severity::DEBUG)]
-readonly class ChildContextCreated implements JsonSerializable
+readonly class ChildContextCreated implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param string $owner Context owner class
@@ -27,11 +29,17 @@ readonly class ChildContextCreated implements JsonSerializable
      * @param int $parentCid Parent coroutine ID
      */
     public function __construct(
+        public ContextManagerInterface $sender,
         public string $owner,
         public string $context,
         public int    $cid,
         public int    $parentCid,
     ) {
+    }
+
+    public function getSender(): ContextManagerInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

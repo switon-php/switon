@@ -109,12 +109,12 @@ class TaskRunner implements TaskRunnerInterface
         }
 
         try {
-            $this->eventDispatcher->dispatch(new TaskStarted($task->name, $immediate));
+            $this->eventDispatcher->dispatch(new TaskStarted($this, $task->name, $immediate));
             $this->executor->invoke($task->taskClass);
-            $this->eventDispatcher->dispatch(new TaskFinished($task->name, $immediate));
+            $this->eventDispatcher->dispatch(new TaskFinished($this, $task->name, $immediate));
         } catch (Throwable $e) {
             $this->lastRunHadFailures = true;
-            $this->eventDispatcher->dispatch(new TaskFailed($task->name, $e));
+            $this->eventDispatcher->dispatch(new TaskFailed($this, $task->name, $e));
         } finally {
             if ($task->lockTtl > 0) {
                 $this->lock->release($key);

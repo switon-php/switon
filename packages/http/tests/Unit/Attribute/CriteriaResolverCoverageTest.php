@@ -191,7 +191,6 @@ final class CriteriaResolverCoverageTest extends TestCase
     private function inject(object $object, string $property, mixed $value): void
     {
         $reflectionProperty = new ReflectionProperty($object, $property);
-        $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($object, $value);
     }
 }

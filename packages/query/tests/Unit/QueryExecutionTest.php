@@ -11,6 +11,7 @@ use Switon\Core\App;
 use Switon\Core\ContainerInterface;
 use Switon\Db\ClientInterface;
 use Switon\Di\NamedLookupInterface;
+use Switon\Query\Event\QuerySkipped;
 use Switon\Query\Query;
 use Switon\Query\Table;
 use Switon\Query\Tests\QueryTestHelper;
@@ -183,13 +184,15 @@ class QueryExecutionTest extends TestCase
 
         // Create mock event dispatcher for this test to verify event dispatch
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dbQuerySkippedFound = false;
+        $querySkippedFound = false;
+        $query = null;
         $eventDispatcher->expects($this->atLeastOnce())
             ->method('dispatch')
             ->with($this->anything())
-            ->willReturnCallback(function ($event) use (&$dbQuerySkippedFound) {
-                if ($event instanceof \Switon\Db\Event\DbQuerySkipped) {
-                    $dbQuerySkippedFound = true;
+            ->willReturnCallback(function ($event) use (&$querySkippedFound, &$query) {
+                if ($event instanceof QuerySkipped) {
+                    $querySkippedFound = true;
+                    $this->assertSame($query, $event->getSender());
                 }
                 return $event;
             });
@@ -215,7 +218,7 @@ class QueryExecutionTest extends TestCase
         $results = $query->execute();
 
         $this->assertEquals([], $results);
-        $this->assertTrue($dbQuerySkippedFound, 'DbQuerySkipped event should be dispatched');
+        $this->assertTrue($querySkippedFound, 'QuerySkipped event should be dispatched');
     }
 
     /**

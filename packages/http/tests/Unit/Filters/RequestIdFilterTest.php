@@ -43,6 +43,7 @@ class RequestIdFilterTest extends TestCase
     ): RequestReceived {
         $server['REQUEST_METHOD'] = $method;
         return new RequestReceived(
+            sender: $this->createStub(ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,
@@ -57,7 +58,7 @@ class RequestIdFilterTest extends TestCase
         $requestEvent = $this->createRequestEvent();
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->filter->onBegin($event);
 
         $requestId = $this->request->header('x-request-id');
@@ -74,7 +75,7 @@ class RequestIdFilterTest extends TestCase
         $existingId = 'existing-request-id';
         $this->request->getContext()->headers['x-request-id'] = $existingId;
 
-        $event = new RequestBegin($this->request);
+        $event = new RequestBegin($this->createMock(\Switon\Http\RequestHandlerInterface::class), $this->request);
         $this->filter->onBegin($event);
 
         $this->assertSame($existingId, $this->request->header('x-request-id'));
@@ -88,7 +89,7 @@ class RequestIdFilterTest extends TestCase
         $requestId = 'test-request-id';
         $this->request->getContext()->headers['x-request-id'] = $requestId;
 
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $this->response);
         $this->filter->onResponseHeadersSending($event);
 
         $this->assertSame($requestId, $this->response->getHeader('X-Request-Id'));
@@ -99,7 +100,7 @@ class RequestIdFilterTest extends TestCase
         $requestEvent = $this->createRequestEvent();
         $this->request->onRequestReceived($requestEvent);
 
-        $event = new HeadersSending($this->response);
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $this->response);
         $this->filter->onResponseHeadersSending($event);
 
         $this->assertSame(null, $this->response->getHeader('X-Request-Id'));

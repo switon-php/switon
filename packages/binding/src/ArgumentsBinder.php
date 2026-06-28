@@ -204,7 +204,7 @@ class ArgumentsBinder implements ArgumentsBinderInterface
         $arguments = array_fill(0, $numOfParameters, $unresolved);
         $resolved = [];
 
-        $event = new ActionArgumentsResolving($rMethod, $arguments);
+        $event = new ActionArgumentsResolving($this, $rMethod, $arguments);
         $this->eventDispatcher->dispatch($event);
 
         foreach ($rParameters as $i => $rParameter) {
@@ -268,7 +268,7 @@ class ArgumentsBinder implements ArgumentsBinderInterface
         );
 
         if (count($resolved) === $numOfParameters) {
-            $resolvedEvent = new ActionArgumentsResolved($rMethod, $arguments);
+            $resolvedEvent = new ActionArgumentsResolved($this, $rMethod, $arguments);
             $this->eventDispatcher->dispatch($resolvedEvent);
             return $resolvedEvent->arguments;
         }
@@ -309,7 +309,7 @@ class ArgumentsBinder implements ArgumentsBinderInterface
             static fn (mixed $argument): mixed => $argument === $unresolved ? null : $argument,
             $arguments
         );
-        $resolvedEvent = new ActionArgumentsResolved($rMethod, $arguments);
+        $resolvedEvent = new ActionArgumentsResolved($this, $rMethod, $arguments);
         $this->eventDispatcher->dispatch($resolvedEvent);
 
         return $resolvedEvent->arguments;

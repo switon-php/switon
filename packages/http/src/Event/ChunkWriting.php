@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Http\ResponseInterface;
+use Switon\Http\ResponseSenderInterface;
 
 use function strlen;
 
@@ -27,16 +29,18 @@ use function strlen;
  * @see \Switon\Http\Event\ChunkWritten
  */
 #[EventLevel(Severity::DEBUG)]
-class ChunkWriting implements JsonSerializable
+class ChunkWriting implements JsonSerializable, SenderAwareInterface
 {
-    /**
-     * @param ResponseInterface $response Response object.
-     * @param string $chunk Chunk text to be sent.
-     */
     public function __construct(
+        public ResponseSenderInterface $sender,
         public ResponseInterface $response,
-        public string            $chunk
+        public string $chunk
     ) {
+    }
+
+    public function getSender(): ResponseSenderInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

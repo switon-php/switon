@@ -84,7 +84,7 @@ time=$time_iso8601
 
                 $this->filesystem->append($this->file, $content . PHP_EOL);
             } catch (Throwable $throwable) {
-                $this->eventDispatcher->dispatch(AccessLogWriteFailed::from($this->file, $throwable));
+                $this->eventDispatcher->dispatch(AccessLogWriteFailed::from($this, $this->file, $throwable));
             }
         }
     }

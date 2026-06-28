@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Switon\Http\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Http\ResponseInterface;
+use Switon\Http\ResponseSenderInterface;
 
 use function strlen;
 
@@ -27,18 +29,19 @@ use function strlen;
  * @see \Switon\Http\Server\Adapter\Swoole::sendBody()
  */
 #[EventLevel(Severity::DEBUG)]
-class BodySent implements JsonSerializable
+class BodySent implements JsonSerializable, SenderAwareInterface
 {
-    /**
-     * @param ResponseInterface $response Response object.
-     * @param string $content Sent body text.
-     * @param bool $result Whether the send succeeded.
-     */
     public function __construct(
+        public ResponseSenderInterface $sender,
         public ResponseInterface $response,
-        public string            $content,
-        public bool              $result
+        public string $content,
+        public bool $result
     ) {
+    }
+
+    public function getSender(): ResponseSenderInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

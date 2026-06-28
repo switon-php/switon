@@ -9,6 +9,7 @@ use Switon\Http\CookiesContext;
 use Switon\Http\CookiesInterface;
 use Switon\Http\Event\RequestReceived;
 use Switon\Http\ResponseInterface;
+use Switon\Http\ServerInterface;
 use Switon\Http\Tests\TestCase;
 
 #[\PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations]
@@ -37,6 +38,7 @@ class CookiesTest extends TestCase
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,

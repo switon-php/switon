@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Switon\Http\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Switon\Core\LocaleInterface;
 use Switon\Core\TranslatorInterface;
 use Switon\Eventing\ListenerProviderInterface;
 use Switon\Http\CookiesInterface;
 use Switon\Http\Event\RequestBegin;
+use Switon\Http\RequestHandlerInterface;
 use Switon\Http\Filter\RequestLocaleFilter;
 use Switon\Http\RequestInterface;
 use Switon\Http\Tests\Fixtures\TestCookiesStub;
@@ -27,6 +29,7 @@ use function uniqid;
 use function unlink;
 use function var_export;
 
+#[AllowMockObjectsWithoutExpectations]
 class HttpLocaleIntegrationTest extends TestCase
 {
     protected string $i18nDir;
@@ -84,7 +87,7 @@ class HttpLocaleIntegrationTest extends TestCase
 
     protected function triggerRequestBegin(ListenerProviderInterface $listenerProvider, TestRequestStub $request): void
     {
-        $event = new RequestBegin($request);
+        $event = new RequestBegin($this->createMock(RequestHandlerInterface::class), $request);
         $listeners = iterator_to_array($listenerProvider->getListenersForEvent($event));
         $this->assertNotEmpty($listeners);
         foreach ($listeners as $listener) {

@@ -292,7 +292,7 @@ class ClientTest extends TestCase
 
         // Verify event was dispatched with correct type and client instance
         $this->assertInstanceOf(\Switon\Db\Event\DbBegin::class, $capturedEvent, 'DbBegin event must be dispatched');
-        $this->assertSame($transient, $capturedEvent->client, 'DbBegin event must contain correct client instance');
+        $this->assertSame($transient, $capturedEvent->sender, 'DbBegin event must contain correct sender instance');
 
         // Verify transaction state through public API
         $this->assertTrue($transient->inTransaction());
@@ -332,7 +332,7 @@ class ClientTest extends TestCase
             ->method('dispatch')
             ->willReturnCallback(function ($event) use (&$eventSequence, &$eventClients) {
                 $eventSequence[] = $event::class;
-                $eventClients[] = $event->client;
+                $eventClients[] = $event->sender;
                 return $event;
             });
 
@@ -383,7 +383,7 @@ class ClientTest extends TestCase
             ->method('dispatch')
             ->willReturnCallback(function ($event) use (&$eventSequence, &$eventClients) {
                 $eventSequence[] = $event::class;
-                $eventClients[] = $event->client;
+                $eventClients[] = $event->sender;
                 return $event;
             });
 

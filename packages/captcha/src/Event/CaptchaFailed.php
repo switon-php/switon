@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Captcha\Event;
 
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -20,7 +21,7 @@ use Switon\Eventing\Severity;
  * @see \Switon\Captcha\Exception\InvalidCaptchaException
  */
 #[EventLevel(Severity::INFO)]
-class CaptchaFailed
+class CaptchaFailed implements SenderAwareInterface
 {
     public const string REASON_NOT_FOUND = 'not_found';
     public const string REASON_DATA_INVALID = 'data_invalid';
@@ -34,10 +35,16 @@ class CaptchaFailed
      * @param string $reason One of the <code>REASON_*</code> constants
      */
     public function __construct(
+        public \Switon\Captcha\CaptchaInterface $sender,
         public string  $key,
         public ?string $tag,
         public string  $reason,
         public ?int    $attemptsRemaining
     ) {
+    }
+
+    public function getSender(): \Switon\Captcha\CaptchaInterface
+    {
+        return $this->sender;
     }
 }

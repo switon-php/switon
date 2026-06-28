@@ -24,11 +24,12 @@ class RequestTest extends TestCase
         array  $get = [],
         array  $post = [],
         array  $server = [],
-        string $rawBody = '',
+        ?string $rawBody = '',
         array  $cookie = [],
         array  $files = []
     ): RequestReceived {
         return new RequestReceived(
+            sender: $this->createStub(\Switon\Http\ServerInterface::class),
             GET: $get,
             POST: $post,
             SERVER: $server,
@@ -670,13 +671,13 @@ class RequestTest extends TestCase
 
     public function testFiltersReturnsFilteredDataWithEmptyFields(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: ['name' => '  ', 'email' => 'test@example.com', 'empty' => ''],
-            SERVER: ['REQUEST_METHOD' => 'POST'],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: ['name' => '  ', 'email' => 'test@example.com', 'empty' => ''],
+            server: ['REQUEST_METHOD' => 'POST'],
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1097,17 +1098,17 @@ class RequestTest extends TestCase
 
     public function testPortFallsBackToServerPortForBracketedIpv6HostWithoutExplicitPort(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'HTTP_HOST' => '[::1]',
                 'SERVER_PORT' => '9000',
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1438,16 +1439,16 @@ class RequestTest extends TestCase
 
     public function testOriginHandlesRefererWithoutQueryString(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'HTTP_REFERER' => 'https://example.com/page'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1459,16 +1460,16 @@ class RequestTest extends TestCase
 
     public function testOriginHandlesRefererWithoutPath(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'HTTP_REFERER' => 'https://example.com'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1480,13 +1481,13 @@ class RequestTest extends TestCase
 
     public function testOriginReturnsEmptyWhenNoOriginOrReferer(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: ['REQUEST_METHOD' => 'GET'],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: ['REQUEST_METHOD' => 'GET'],
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1498,16 +1499,16 @@ class RequestTest extends TestCase
 
     public function testPortExtractsPortFromHostHeader(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'HTTP_HOST' => 'example.com:8080'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1518,17 +1519,17 @@ class RequestTest extends TestCase
 
     public function testPortFallsBackToServerPortWhenHostHeaderHasNoPort(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'HTTP_HOST' => 'example.com',
                 'SERVER_PORT' => '443'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1539,17 +1540,17 @@ class RequestTest extends TestCase
 
     public function testPortHandlesInvalidPortInHostHeader(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'HTTP_HOST' => 'example.com:0',
                 'SERVER_PORT' => '80'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1559,17 +1560,17 @@ class RequestTest extends TestCase
 
     public function testPortExtractsPortFromBracketedIpv6HostHeader(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'HTTP_HOST' => '[::1]:8443',
                 'SERVER_PORT' => '80',
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1580,16 +1581,16 @@ class RequestTest extends TestCase
 
     public function testPathHandlesUriWithoutQueryString(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'REQUEST_URI' => '/api/users'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1601,17 +1602,17 @@ class RequestTest extends TestCase
 
     public function testUrlHandlesMissingHostHeader(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'REQUEST_URI' => '/api/users',
                 'REQUEST_SCHEME' => 'https'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1623,16 +1624,16 @@ class RequestTest extends TestCase
 
     public function testIpFallsBackToRemoteAddrWhenXRealIpIsNotSet(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'REMOTE_ADDR' => '192.168.1.100'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1643,17 +1644,17 @@ class RequestTest extends TestCase
 
     public function testIpPrefersXRealIpOverRemoteAddr(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'GET',
                 'REMOTE_ADDR' => '192.168.1.100',
                 'HTTP_X_REAL_IP' => '10.0.0.1'
             ],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1664,13 +1665,13 @@ class RequestTest extends TestCase
 
     public function testElapsedHandlesMissingRequestTimeFloat(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: ['REQUEST_METHOD' => 'GET'],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: ['REQUEST_METHOD' => 'GET'],
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1682,13 +1683,13 @@ class RequestTest extends TestCase
 
     public function testRawBodyReturnsRawBodyContent(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: ['REQUEST_METHOD' => 'POST'],
-            RAW_BODY: 'raw body content',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: ['REQUEST_METHOD' => 'POST'],
+            rawBody: 'raw body content',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1699,13 +1700,13 @@ class RequestTest extends TestCase
 
     public function testRawBodyReturnsNullWhenNoRawBody(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: ['REQUEST_METHOD' => 'GET'],
-            RAW_BODY: null,
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: ['REQUEST_METHOD' => 'GET'],
+            rawBody: null,
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1716,13 +1717,13 @@ class RequestTest extends TestCase
 
     public function testOnlyReturnsEmptyArrayWhenNoMatchingFields(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: ['name' => 'John'],
-            SERVER: ['REQUEST_METHOD' => 'POST'],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: ['name' => 'John'],
+            server: ['REQUEST_METHOD' => 'POST'],
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1736,13 +1737,13 @@ class RequestTest extends TestCase
 
     public function testExceptReturnsAllFieldsWhenNoFieldsToExclude(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: ['name' => 'John', 'email' => 'john@example.com'],
-            SERVER: ['REQUEST_METHOD' => 'POST'],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: ['name' => 'John', 'email' => 'john@example.com'],
+            server: ['REQUEST_METHOD' => 'POST'],
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1756,13 +1757,13 @@ class RequestTest extends TestCase
 
     public function testGetDoesNotIncludeAttributes(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: ['REQUEST_METHOD' => 'GET'],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: ['REQUEST_METHOD' => 'GET'],
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1777,13 +1778,13 @@ class RequestTest extends TestCase
 
     public function testGetDoesNotMixAttributesWithInput(): void
     {
-        $event = new RequestReceived(
-            GET: ['key' => 'request_value'],
-            POST: [],
-            SERVER: ['REQUEST_METHOD' => 'GET'],
-            RAW_BODY: '',
-            COOKIE: [],
-            FILES: []
+        $event = $this->createRequestEvent(
+            get: ['key' => 'request_value'],
+            post: [],
+            server: ['REQUEST_METHOD' => 'GET'],
+            rawBody: '',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1798,16 +1799,16 @@ class RequestTest extends TestCase
 
     public function testParseBodyThrowsOnInvalidJsonBody(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'POST',
                 'CONTENT_TYPE' => 'application/json'
             ],
-            RAW_BODY: 'invalid json{',
-            COOKIE: [],
-            FILES: []
+            rawBody: 'invalid json{',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1819,16 +1820,16 @@ class RequestTest extends TestCase
 
     public function testOnRequestReceivedHandlesFormDataBody(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'POST',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded'
             ],
-            RAW_BODY: 'name=John&email=john@example.com',
-            COOKIE: [],
-            FILES: []
+            rawBody: 'name=John&email=john@example.com',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);
@@ -1841,16 +1842,16 @@ class RequestTest extends TestCase
 
     public function testOnRequestReceivedHandlesNonArrayJsonBody(): void
     {
-        $event = new RequestReceived(
-            GET: [],
-            POST: [],
-            SERVER: [
+        $event = $this->createRequestEvent(
+            get: [],
+            post: [],
+            server: [
                 'REQUEST_METHOD' => 'POST',
                 'CONTENT_TYPE' => 'application/json'
             ],
-            RAW_BODY: '"string"',
-            COOKIE: [],
-            FILES: []
+            rawBody: '"string"',
+            cookie: [],
+            files: []
         );
 
         $this->request->onRequestReceived($event);

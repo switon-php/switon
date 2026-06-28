@@ -43,7 +43,7 @@ class Sender implements SenderInterface
             throw HeadersAlreadySentException::at($file, $line);
         }
 
-        $this->eventDispatcher->dispatch(new HeadersSending($this->response));
+        $this->eventDispatcher->dispatch(new HeadersSending($this, $this->response));
 
         $this->headers->header('HTTP/1.1 ' . $this->response->getStatus());
 
@@ -69,7 +69,7 @@ class Sender implements SenderInterface
             );
         }
 
-        $this->eventDispatcher->dispatch(new HeadersSent($this->response));
+        $this->eventDispatcher->dispatch(new HeadersSent($this, $this->response));
     }
 
     public function sendBody(): void
@@ -82,7 +82,7 @@ class Sender implements SenderInterface
         } elseif ($file = $this->response->getFile()) {
             readfile($file);
         } else {
-            $event = new BodySending($this->response, $content);
+            $event = new BodySending($this, $this->response, $content);
             $this->eventDispatcher->dispatch($event);
 
             // Use potentially modified content from event
@@ -90,7 +90,7 @@ class Sender implements SenderInterface
 
             echo $content;
 
-            $this->eventDispatcher->dispatch(new BodySent($this->response, $content, true));
+            $this->eventDispatcher->dispatch(new BodySent($this, $this->response, $content, true));
         }
     }
 }

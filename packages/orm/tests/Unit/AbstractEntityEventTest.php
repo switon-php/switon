@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit;
 
 use Switon\Orm\Event\EntityCreating;
+use Switon\Orm\EntityManagerInterface;
 use Switon\Orm\Tests\Fixtures\TestEntity;
 use Switon\Orm\Tests\TestCase;
 
@@ -17,8 +18,8 @@ class AbstractEntityEventTest extends TestCase
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
         $original = new TestEntity(['id' => 1, 'name' => 'Original']);
-
-        $event = new EntityCreating($entity, $original);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity, $original);
 
         $this->assertSame($entity, $event->getEntity());
         $this->assertSame($original, $event->getOriginal());
@@ -27,8 +28,8 @@ class AbstractEntityEventTest extends TestCase
     public function testConstructorHandlesNullOriginal(): void
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
-
-        $event = new EntityCreating($entity);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity);
 
         $this->assertSame($entity, $event->getEntity());
         $this->assertNull($event->getOriginal());
@@ -37,7 +38,8 @@ class AbstractEntityEventTest extends TestCase
     public function testGetEntityReturnsCurrentEntity(): void
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
-        $event = new EntityCreating($entity);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity);
 
         $result = $event->getEntity();
 
@@ -48,7 +50,8 @@ class AbstractEntityEventTest extends TestCase
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
         $original = new TestEntity(['id' => 1, 'name' => 'Original']);
-        $event = new EntityCreating($entity, $original);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity, $original);
 
         $result = $event->getOriginal();
 
@@ -59,7 +62,8 @@ class AbstractEntityEventTest extends TestCase
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'New Name', 'status' => 1]);
         $original = new TestEntity(['id' => 1, 'name' => 'Original Name', 'status' => 1]);
-        $event = new EntityCreating($entity, $original);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity, $original);
 
         $result = $event->hasChanged(['name']);
 
@@ -70,7 +74,8 @@ class AbstractEntityEventTest extends TestCase
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Same Name', 'status' => 1]);
         $original = new TestEntity(['id' => 1, 'name' => 'Same Name', 'status' => 1]);
-        $event = new EntityCreating($entity, $original);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity, $original);
 
         $result = $event->hasChanged(['name']);
 
@@ -80,7 +85,8 @@ class AbstractEntityEventTest extends TestCase
     public function testHasChangedReturnsFalseWhenOriginalIsNull(): void
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
-        $event = new EntityCreating($entity);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity);
 
         $result = $event->hasChanged(['name']);
 
@@ -91,7 +97,8 @@ class AbstractEntityEventTest extends TestCase
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'New']);
         $original = new TestEntity(['id' => 1, 'name' => 'Old']);
-        $event = new EntityCreating($entity, $original);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity, $original);
 
         $this->assertFalse($event->hasChanged([]));
     }
@@ -100,7 +107,8 @@ class AbstractEntityEventTest extends TestCase
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Same', 'status' => 1]);
         $original = new TestEntity(['id' => 1, 'name' => 'Same', 'status' => 0]);
-        $event = new EntityCreating($entity, $original);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity, $original);
 
         // price is absent on both via constructor defaults; isset is false — no positive match
         $this->assertFalse($event->hasChanged(['price']));
@@ -113,7 +121,8 @@ class AbstractEntityEventTest extends TestCase
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'New Name', 'status' => 1]);
         $original = new TestEntity(['id' => 1, 'name' => 'Original Name', 'status' => 0]);
-        $event = new EntityCreating($entity, $original);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity, $original);
 
         $result = $event->hasChanged(['name', 'status']);
 
@@ -123,7 +132,8 @@ class AbstractEntityEventTest extends TestCase
     public function testJsonSerializeReturnsArrayWithEntityClassAndFields(): void
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
-        $event = new EntityCreating($entity);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity);
 
         $result = $event->jsonSerialize();
 
@@ -139,7 +149,8 @@ class AbstractEntityEventTest extends TestCase
     public function testEventCanBeEncodedToJson(): void
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
-        $event = new EntityCreating($entity);
+        $sender = $this->createStub(EntityManagerInterface::class);
+        $event = new EntityCreating($sender, $entity);
 
         $json = json_encode($event);
         $decoded = json_decode($json, true);

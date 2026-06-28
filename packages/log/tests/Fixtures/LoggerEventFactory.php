@@ -18,8 +18,7 @@ class LoggerEventFactory
         string           $message = 'Test message',
         array            $context = [],
     ): LoggerLogged {
-        return new LoggerLogged(
-            $logger ?? new class () implements LoggerInterface {
+        $logger ??= new class () implements LoggerInterface {
                 public function emergency(string|Stringable $message, array $context = []): void
                 {
                 }
@@ -55,7 +54,10 @@ class LoggerEventFactory
                 public function log($level, string|Stringable $message, array $context = []): void
                 {
                 }
-            },
+            };
+
+        return new LoggerLogged(
+            $logger,
             $level,
             $message,
             $context,

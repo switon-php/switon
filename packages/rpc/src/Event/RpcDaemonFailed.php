@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Rpc\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Throwable;
@@ -17,16 +18,22 @@ use Throwable;
  * @see \Switon\Rpc\Rpc::daemon()
  */
 #[EventLevel(Severity::ERROR)]
-class RpcDaemonFailed implements JsonSerializable
+class RpcDaemonFailed implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param string $method RPC method being processed, when known
      * @param Throwable $error Failure that escaped one daemon loop iteration
      */
     public function __construct(
+        public \Switon\Rpc\RpcInterface $sender,
         public string    $method,
         public Throwable $error,
     ) {
+    }
+
+    public function getSender(): \Switon\Rpc\RpcInterface
+    {
+        return $this->sender;
     }
 
     /**

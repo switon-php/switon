@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Switon\Http\Filter\Event;
 
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
+use Switon\Http\Filter\AccessLogFilter;
 use Throwable;
 
 /**
@@ -17,20 +19,27 @@ use Throwable;
  * @see \Switon\Core\FilesystemInterface
  */
 #[EventLevel(Severity::ERROR)]
-class AccessLogWriteFailed
+class AccessLogWriteFailed implements SenderAwareInterface
 {
     public function __construct(
-        public string  $file,
-        public string  $exceptionMessage,
-        public string  $exceptionClass,
+        public AccessLogFilter $sender,
+        public string $file,
+        public string $exceptionMessage,
+        public string $exceptionClass,
         public ?string $exceptionFile = null,
-        public ?int    $exceptionLine = null,
+        public ?int $exceptionLine = null,
     ) {
     }
 
-    public static function from(string $file, Throwable $exception): self
+    public function getSender(): AccessLogFilter
+    {
+        return $this->sender;
+    }
+
+    public static function from(AccessLogFilter $sender, string $file, Throwable $exception): self
     {
         return new self(
+            $sender,
             $file,
             $exception->getMessage(),
             $exception::class,

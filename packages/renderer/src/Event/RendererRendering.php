@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Rendering\Event;
 
 use JsonSerializable;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 use Switon\Rendering\RendererInterface;
@@ -18,21 +19,20 @@ use Switon\Rendering\RendererInterface;
  * @see \Switon\Rendering\Event\RendererRendered
  */
 #[EventLevel(Severity::DEBUG)]
-class RendererRendering implements JsonSerializable
+class RendererRendering implements JsonSerializable, SenderAwareInterface
 {
-    /**
-     * @param RendererInterface $renderer Renderer instance
-     * @param string $template Requested template path
-     * @param string $file Resolved template file path
-     * @param array<string, mixed> $vars Template variables
-     */
     public function __construct(
-        public RendererInterface $renderer,
+        public RendererInterface $sender,
         public string            $template,
         public string            $file,
         public array             $vars,
     ) {
 
+    }
+
+    public function getSender(): RendererInterface
+    {
+        return $this->sender;
     }
 
     /**
@@ -43,7 +43,7 @@ class RendererRendering implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'renderer' => $this->renderer::class,
+            'renderer' => $this->sender::class,
             'template' => $this->template,
             'file' => $this->file,
             'vars' => [

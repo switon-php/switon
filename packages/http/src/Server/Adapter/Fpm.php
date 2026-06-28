@@ -38,7 +38,7 @@ class Fpm extends AbstractServer
     {
         $raw = file_get_contents('php://input');
         $rawBody = $raw === false ? null : $raw;
-        $this->eventDispatcher->dispatch(new RequestReceived($_GET, $_POST, $_SERVER, $rawBody, $_COOKIE, $_FILES));
+        $this->eventDispatcher->dispatch(new RequestReceived($this, $_GET, $_POST, $_SERVER, $rawBody, $_COOKIE, $_FILES));
     }
 
     public function start(): void

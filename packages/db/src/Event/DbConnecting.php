@@ -6,6 +6,7 @@ namespace Switon\Db\Event;
 
 use JsonSerializable;
 use Switon\Db\ConnectionInterface;
+use Switon\Core\SenderAwareInterface;
 use Switon\Eventing\Attribute\EventLevel;
 use Switon\Eventing\Severity;
 
@@ -18,14 +19,21 @@ use Switon\Eventing\Severity;
  * @see \Switon\Db\Event\DbConnected
  */
 #[EventLevel(Severity::DEBUG)]
-class DbConnecting implements JsonSerializable
+class DbConnecting implements JsonSerializable, SenderAwareInterface
 {
-    public function __construct(
-        public ConnectionInterface $connection,
-        public string              $dsn,
-        public string              $uri,
-    ) {
+    public ConnectionInterface $sender;
 
+    public function __construct(
+        ConnectionInterface $sender,
+        public string $dsn,
+        public string $uri,
+    ) {
+        $this->sender = $sender;
+    }
+
+    public function getSender(): ConnectionInterface
+    {
+        return $this->sender;
     }
 
     /** @return array<string, mixed> */

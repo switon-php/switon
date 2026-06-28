@@ -17,12 +17,12 @@ abstract class TestCase extends BaseTestCase
 {
     protected function setUpContainer(): void
     {
-        $locale = $this->createMock(LocaleInterface::class);
+        $locale = $this->createStub(LocaleInterface::class);
         $locale->method('get')->willReturn('en');
         $locale->method('set')->willReturnSelf();
         $this->container->set(LocaleInterface::class, $locale);
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = $this->createStub(Filesystem::class);
         /** @var PathAliasInterface $pathAlias */
         $pathAlias = $this->container->get(PathAliasInterface::class);
         $templateDir = (string)$pathAlias->get('@switon.validator.resources');

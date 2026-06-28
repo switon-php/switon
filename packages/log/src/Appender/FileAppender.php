@@ -16,7 +16,6 @@ use Switon\Logging\Event\AppenderWriteFailed;
 use Switon\Logging\FormatterInterface;
 use Switon\Logging\LogEntry;
 use Throwable;
-
 use function dirname;
 use function error_log;
 use function file_put_contents;
@@ -77,12 +76,7 @@ class FileAppender implements AppenderInterface
     protected function reportWriteFailure(string $operation, string $target, string $reason, ?Throwable $exception = null): void
     {
         try {
-            $this->eventDispatcher->dispatch(new AppenderWriteFailed(
-                appender: static::class,
-                operation: $operation,
-                target: $target,
-                reason: $reason,
-            ));
+            $this->eventDispatcher->dispatch(new AppenderWriteFailed($this, static::class, $operation, $target, $reason));
         } catch (Throwable) {
             // Ignore dispatch failure and continue with fallback output.
         }

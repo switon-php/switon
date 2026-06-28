@@ -6,6 +6,7 @@ namespace Switon\Orm\Tests\Unit\Event;
 
 use Switon\Orm\Entity;
 use Switon\Orm\Event\EarlyLoaded;
+use Switon\Orm\RelationManagerInterface;
 use Switon\Orm\Tests\TestCase;
 
 class EarlyLoadedTest extends TestCase
@@ -13,7 +14,7 @@ class EarlyLoadedTest extends TestCase
     public function testEventSetsExpectedProperties(): void
     {
         $entities = [new Entity(), new Entity()];
-        $event = new EarlyLoaded(Entity::class, 'posts', $entities);
+        $event = new EarlyLoaded($this->createStub(RelationManagerInterface::class), Entity::class, 'posts', $entities);
 
         $this->assertSame(Entity::class, $event->entityClass);
         $this->assertSame('posts', $event->relationName);
