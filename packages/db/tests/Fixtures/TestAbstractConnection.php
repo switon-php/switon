@@ -7,6 +7,7 @@ namespace Switon\Db\Tests\Fixtures;
 use PDO;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\MakerInterface;
+use Switon\Db\ClientInterface;
 use Switon\Db\AbstractConnection;
 
 class TestAbstractConnection extends AbstractConnection
@@ -25,12 +26,14 @@ class TestAbstractConnection extends AbstractConnection
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         MakerInterface           $maker,
-        string                   $uri = 'test://localhost/test'
+        string                   $uri = 'test://localhost/test',
+        ClientInterface          $owner = new StubDbClient(),
     ) {
         parent::__construct();
         $this->eventDispatcher = $eventDispatcher;
         $this->maker = $maker;
         $this->uri = $uri;
+        $this->owner = $owner;
     }
 
     public function convertQuotes(string $sql): string

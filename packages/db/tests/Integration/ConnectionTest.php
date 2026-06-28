@@ -6,6 +6,7 @@ namespace Switon\Db\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Switon\Core\InjectorInterface;
+use Switon\Db\Tests\Fixtures\StubDbClient;
 use Switon\Db\Connection;
 use Switon\Db\Connection\Adapter\Mysql;
 use Switon\Db\Tests\TestCase;
@@ -27,7 +28,7 @@ class ConnectionTest extends TestCase
     protected function createConnectionForTesting(): Connection
     {
         $connection = new Connection();
-        $this->container->get(InjectorInterface::class)->inject($connection);
+        $this->container->get(InjectorInterface::class)->inject($connection, ['owner' => new StubDbClient()]);
         return $connection;
     }
 

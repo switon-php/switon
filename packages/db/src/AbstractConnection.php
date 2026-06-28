@@ -60,6 +60,7 @@ abstract class AbstractConnection implements ConnectionInterface
     /** Maximum number of cached prepared statements per connection instance (small LRU cap). */
     protected const int MAX_PREPARED_STATEMENTS = 8;
 
+    #[Autowired] protected ClientInterface $owner;
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
     #[Autowired] protected MakerInterface $maker;
 
@@ -91,6 +92,11 @@ abstract class AbstractConnection implements ConnectionInterface
         $this->in_transaction = false;
         $this->last_heartbeat = null;
         $this->prepared = [];
+    }
+
+    public function getOwner(): ClientInterface
+    {
+        return $this->owner;
     }
 
     /** Detects the internal value object used for explicit raw upsert expressions. */

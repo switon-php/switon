@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Switon\Mail;
 
+use Switon\Core\OwnerAwareInterface;
+
 /**
  * Sends one RFC 5322 payload through one connection.
  *
@@ -20,8 +22,13 @@ namespace Switon\Mail;
  * @see \Switon\Mail\Connection
  * @see \Switon\Mail\Exception\DeliveryException
  */
-interface ConnectionInterface
+interface ConnectionInterface extends OwnerAwareInterface
 {
+    /**
+     * Return the mailer that owns this connection in the pool.
+     */
+    public function getOwner(): MailerInterface;
+
     /**
      * Sends one prepared SMTP payload.
      *

@@ -4,11 +4,24 @@ declare(strict_types=1);
 
 namespace Switon\Db\Tests\Fixtures;
 
+use Switon\Db\ClientInterface;
 use Switon\Db\ConnectionInterface;
 use PDOException;
 
 class MockConnection implements ConnectionInterface
 {
+    protected ClientInterface $owner;
+
+    public function __construct(ClientInterface $owner = new StubDbClient())
+    {
+        $this->owner = $owner;
+    }
+
+    public function getOwner(): ClientInterface
+    {
+        return $this->owner;
+    }
+
     public string $uri = 'mock://test';
     public array $executedSql = [];
     public array $executedBind = [];

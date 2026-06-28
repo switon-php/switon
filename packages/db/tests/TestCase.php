@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Switon\Db\Tests;
 
 use Switon\Core\App;
+use Switon\Db\ClientInterface;
+use Switon\Db\Tests\Fixtures\StubDbClient;
 use Switon\Di\Container as DiContainer;
 use Switon\Testing\TestCase as BaseTestCase;
 use Throwable;
@@ -14,9 +16,13 @@ use Throwable;
  */
 abstract class TestCase extends BaseTestCase
 {
+    protected ClientInterface $poolOwner;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->poolOwner = new StubDbClient();
 
         // Set container in App for make() function
         App::setContainer($this->container);

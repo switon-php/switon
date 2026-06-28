@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Mail;
 
+use Switon\Core\Attribute\Autowired;
 use Switon\Mail\Exception\AuthException;
 use Switon\Mail\Exception\ConnectionException;
 use Switon\Mail\Exception\ProtocolException;
@@ -45,7 +46,14 @@ use function trim;
  */
 class Connection implements ConnectionInterface
 {
+    #[Autowired] protected MailerInterface $owner;
+
     protected ?CurlHandle $handle = null;
+
+    public function getOwner(): MailerInterface
+    {
+        return $this->owner;
+    }
 
     /**
      * Sends one prepared SMTP delivery request through the configured curl-backed transport.

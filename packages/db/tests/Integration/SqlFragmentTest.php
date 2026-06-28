@@ -25,7 +25,7 @@ class SqlFragmentTest extends TestCase
     {
         parent::setUp();
 
-        $this->container->set(Sqlite::class, ['uri' => ':memory:']);
+        $this->container->set(Sqlite::class, ['uri' => ':memory:', 'owner' => $this->poolOwner]);
         $this->connection = $this->container->get(Sqlite::class);
 
         // Create test table

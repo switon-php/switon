@@ -120,7 +120,7 @@ class MysqlIntegrationTest extends TestCase
             $uri = "mysql://{$config['user']}:{$config['pass']}@{$config['host']}/switon_test";
         }
 
-        $this->container->set(Mysql::class, ['uri' => $uri]);
+        $this->container->set(Mysql::class, ['uri' => $uri, 'owner' => $this->poolOwner]);
         $this->connection = $this->container->get(Mysql::class);
 
         // Create test table

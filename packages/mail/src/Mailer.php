@@ -78,7 +78,7 @@ class Mailer implements MailerInterface
 
     public function __construct()
     {
-        $this->poolManager->add($this, [ConnectionInterface::class], $this->pool_size);
+        $this->poolManager->add($this, [ConnectionInterface::class, ['owner' => $this]], $this->pool_size);
     }
 
     /**
