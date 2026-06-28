@@ -67,7 +67,7 @@ final class EventCollectorTest extends BaseTestCase
         });
 
         $listenerProvider->method('getListenersForEvent')->willReturn($eventListeners);
-        $listenerProvider->method('getListenersForWildcard')->willReturn($wildcardListeners);
+        $listenerProvider->method('getListenersForWildcard')->willReturnCallback(static fn () => $wildcardListeners);
         $collector->setListenerProvider($listenerProvider);
 
         $event = new EventCollectorTestEvent();

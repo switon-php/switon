@@ -73,6 +73,11 @@ class EventCollector implements CollectorInterface, ObservabilityProbe, ContextA
         foreach ($this->listenerProvider->getListenersForEvent($event) as $listener) {
             $this->appendListener($listeners, $listener);
         }
+
+        foreach ($this->listenerProvider->getListenersForSender($event) as $listener) {
+            $this->appendListener($listeners, $listener);
+        }
+
         foreach ($this->listenerProvider->getListenersForWildcard() as $listener) {
             $this->appendListener($listeners, $listener);
         }

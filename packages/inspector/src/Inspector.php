@@ -83,7 +83,7 @@ class Inspector implements InspectorInterface, ContextAware, ObservabilityProbe
         $this->listenerProvider->register(RenderListener::class);
         $this->listenerProvider->register($this);
         $this->listenerProvider->register(RouteHeaderListener::class);
-        $this->listenerProvider->on(ServerReady::class, [$this, 'onServerReady']);
+        $this->listenerProvider->on(null, [$this, 'onServerReady']);
     }
 
     /**
@@ -91,7 +91,7 @@ class Inspector implements InspectorInterface, ContextAware, ObservabilityProbe
      *
      * Override in subclasses for startup probes or diagnostics.
      */
-    public function onServerReady(): void
+    public function onServerReady(ServerReady $event): void
     {
     }
 

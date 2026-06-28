@@ -111,7 +111,7 @@ class ListenerStatsCollectorFakeProvider implements ListenerProviderInterface
     /** @var array<int, array<int, callable>> */
     public array $wildcards = [];
 
-    public function on(string $event, callable $handler, int $priority = 0): void
+    public function on(?object $sender, callable $handler, int $priority = 0): void
     {
     }
 
@@ -134,6 +134,11 @@ class ListenerStatsCollectorFakeProvider implements ListenerProviderInterface
         }
 
         return $prioritized;
+    }
+
+    public function getListenersForSender(object $event): PrioritizedListeners
+    {
+        return new PrioritizedListeners();
     }
 
     public function getListeners(): array
