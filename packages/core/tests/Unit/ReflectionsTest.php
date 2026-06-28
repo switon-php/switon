@@ -73,6 +73,48 @@ final class ReflectionsTest extends TestCase
 
         Reflections::getTypeNames($type);
     }
+
+    public function testGetMethodReturnTypeReturnsFirstDeclaredType(): void
+    {
+        $this->assertSame(
+            'string',
+            Reflections::getMethodReturnType(ReflectionsTestReturnType::class, 'label')
+        );
+        $this->assertNull(Reflections::getMethodReturnType(self::class, 'missingMethod'));
+    }
+
+    public function testFindPropertyValueByTypeReturnsMatchingInitializedProperty(): void
+    {
+        $client = new ReflectionsTestClient();
+        $holder = new ReflectionsTestClientHolder($client);
+
+        $this->assertSame($client, Reflections::findPropertyValueByType($holder, ReflectionsTestClient::class));
+        $this->assertNull(Reflections::findPropertyValueByType(new ReflectionsTestEmptyHolder(), ReflectionsTestClient::class));
+    }
+}
+
+final class ReflectionsTestReturnType
+{
+    public function label(): string
+    {
+        return 'ok';
+    }
+}
+
+final class ReflectionsTestClient
+{
+}
+
+final class ReflectionsTestClientHolder
+{
+    public function __construct(protected ReflectionsTestClient $client)
+    {
+    }
+}
+
+final class ReflectionsTestEmptyHolder
+{
+    public string $name = 'empty';
 }
 
 final class ReflectionsTestEventA
