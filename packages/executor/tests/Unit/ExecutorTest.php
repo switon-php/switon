@@ -346,6 +346,9 @@ class ExecutorTest extends TestCase
 
             return $time;
         });
+        $clock->method('elapsed')->willReturnCallback(
+            static fn (float $startedAt, int $precision = 3): float => round($clock->microtime() - $startedAt, $precision)
+        );
 
         return $this->make(Executor::class, [
             'container' => $container,

@@ -109,11 +109,11 @@ class SlowlogFilterTest extends TestCase
     public function testOnEndDoesNotLogWhenElapsedTimeIsBelowThreshold(): void
     {
         $startTime = 1000.0;
-        $currentTime = 1000.5;
 
         $this->clock->expects($this->once())
-            ->method('microtime')
-            ->willReturn($currentTime);
+            ->method('elapsed')
+            ->with($startTime)
+            ->willReturn(0.5);
 
         $requestEvent = $this->createRequestEvent(
             server: [
@@ -133,11 +133,11 @@ class SlowlogFilterTest extends TestCase
     public function testOnEndLogsWhenElapsedTimeExceedsThreshold(): void
     {
         $startTime = 1000.0;
-        $currentTime = 1002.0;
 
         $this->clock->expects($this->once())
-            ->method('microtime')
-            ->willReturn($currentTime);
+            ->method('elapsed')
+            ->with($startTime)
+            ->willReturn(2.0);
 
         $requestEvent = $this->createRequestEvent(
             get: ['param' => 'value'],

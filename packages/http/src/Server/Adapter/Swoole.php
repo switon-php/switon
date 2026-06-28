@@ -8,6 +8,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use Switon\Core\AppInterface;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\ClockInterface;
 use Switon\Core\ContextAware;
 use Switon\Core\ContextManagerInterface;
 use Switon\Core\Lazy;
@@ -56,7 +57,6 @@ use Throwable;
 use function basename;
 use function dirname;
 use function in_array;
-use function round;
 use function strlen;
 use function strtoupper;
 use function substr;
@@ -88,6 +88,7 @@ use const SWOOLE_VERSION;
 class Swoole extends AbstractServer implements ContextAware
 {
     #[Autowired] protected ContextManagerInterface $contextManager;
+    #[Autowired] protected ClockInterface $clock;
     #[Autowired] protected StaticHandlerInterface|Lazy $staticHandler;
 
     /** @var array<string, mixed> Swoole server settings */
@@ -180,7 +181,10 @@ class Swoole extends AbstractServer implements ContextAware
     {
         $this->dispatchEvent(new ServerStart($server));
 
-        $elapsed = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
+        $requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? null;
+        $elapsed = is_numeric($requestTime)
+            ? $this->clock->elapsed((float)$requestTime)
+            : 0.0;
         $this->eventDispatcher->dispatch(new ServerStarted(
             '🌿 App started',
             $server,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Core;
 
 use function microtime;
+use function round;
 use function time;
 
 /**
@@ -29,5 +30,21 @@ class Clock implements ClockInterface
     public function microtime(): float
     {
         return microtime(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function now(int $precision = 3): float
+    {
+        return round($this->microtime(), $precision);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function elapsed(float $startedAt, int $precision = 3): float
+    {
+        return round($this->microtime() - $startedAt, $precision);
     }
 }

@@ -132,6 +132,29 @@ class ClockTest extends TestCase
     }
 
     /**
+     * Test that elapsed() returns rounded seconds since a microtime snapshot.
+     */
+    public function testElapsedReturnsRoundedDeltaSinceStartedAt(): void
+    {
+        $startedAt = $this->clock->now();
+
+        $this->assertGreaterThanOrEqual(0.0, $this->clock->elapsed($startedAt));
+        $this->assertLessThan(1.0, $this->clock->elapsed($startedAt));
+    }
+
+    /**
+     * Test that now() returns rounded current Unix timestamp.
+     */
+    public function testNowReturnsRoundedCurrentTimestamp(): void
+    {
+        $now = $this->clock->now();
+
+        $this->assertGreaterThan(1577836800.0, $now);
+        $this->assertLessThan(4102444800.0, $now);
+        $this->assertSame($now, round($now, 3));
+    }
+
+    /**
      * Test that consecutive time() calls return non-decreasing values.
      */
     public function testConsecutiveTimeCallsReturnNonDecreasingValues(): void

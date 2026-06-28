@@ -7,6 +7,7 @@ namespace Switon\Db\Tests\Unit;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Switon\Core\ClockInterface;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
@@ -38,6 +39,11 @@ class DbCommandTest extends TestCase
         $this->filesystem = $this->createMock(FilesystemInterface::class);
         $this->pathAlias = $this->createMock(PathAliasInterface::class);
 
+        $clock = $this->createStub(ClockInterface::class);
+        $clock->method('microtime')->willReturn(1_000.0);
+        $clock->method('elapsed')->willReturn(0.001);
+
+        $this->command->setClock($clock);
         $this->command->setConsole($this->console);
         $this->command->setNamedLookup($this->namedLookup);
         $this->command->setFilesystem($this->filesystem);
@@ -420,6 +426,11 @@ class DbCommandTest extends TestCase
 
 class DbCommandProbe extends DbCommand
 {
+    public function setClock(ClockInterface $clock): void
+    {
+        $this->clock = $clock;
+    }
+
     public function setConsole(ConsoleInterface $console): void
     {
         $this->console = $console;
