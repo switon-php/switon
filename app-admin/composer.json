@@ -30,6 +30,7 @@
     "psr/event-dispatcher": "1.0.*",
     "switon/authz": "^1.0",
     "switon/cache": "^1.0",
+    "switon/captcha": "^1.0",
     "switon/context": "^1.0",
     "switon/core": "^1.0",
     "switon/event": "^1.0",

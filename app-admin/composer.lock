@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f2a898e9ffb6e63e22f9bc43adda1c8b",
+    "content-hash": "0dabd220b6bf412976a5d6091cccdf42",
     "packages": [
         {
             "name": "psr/container",
@@ -436,6 +436,90 @@
                 "source": "https://github.com/switon-php/cache",
                 "issues": "https://github.com/switon-php/cache/issues",
                 "docs": "https://docs.switon.dev/latest/cache"
+            },
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "switon/captcha",
+            "version": "dev-dev",
+            "dist": {
+                "type": "path",
+                "url": "../packages/captcha",
+                "reference": "4799fc989fccd6036acb04e4ab8b40ea08817c70"
+            },
+            "require": {
+                "php": ">=8.3",
+                "psr/event-dispatcher": "^1.0",
+                "switon/binding": "^1.0",
+                "switon/core": "^1.0",
+                "switon/event": "^1.0",
+                "switon/http": "^1.0",
+                "switon/invocation": "^1.0",
+                "switon/redis": "^1.0"
+            },
+            "require-dev": {
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.0",
+                "switon/testing": "^1.0"
+            },
+            "suggest": {
+                "ext-gd": "Required for GD adapter (fallback)",
+                "ext-imagick": "Required for ImageMagick adapter (preferred)"
+            },
+            "type": "library",
+            "extra": {
+                "switon": {
+                    "providers": [
+                        "Switon\\Captcha\\ServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-dev": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Switon\\Captcha\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Switon\\Captcha\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "phpstan": [
+                    "@php vendor/bin/phpstan analyse"
+                ],
+                "test": [
+                    "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "switon",
+                    "email": "admin@switon.dev"
+                }
+            ],
+            "description": "Sessionless image CAPTCHA challenges with shared-store verification for Switon Framework",
+            "homepage": "https://github.com/switon-php/captcha",
+            "keywords": [
+                "captcha",
+                "image",
+                "security",
+                "switon",
+                "verification"
+            ],
+            "support": {
+                "source": "https://github.com/switon-php/captcha",
+                "issues": "https://github.com/switon-php/captcha/issues",
+                "docs": "https://docs.switon.dev/latest/captcha"
             },
             "transport-options": {
                 "symlink": true,
@@ -3347,16 +3431,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.29",
+            "version": "12.5.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "9aa66a47db3ea70f1a468e66dd969f67e594945a"
+                "reference": "900400a5b616d6fb306f9549f6da33ba615d3fbb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9aa66a47db3ea70f1a468e66dd969f67e594945a",
-                "reference": "9aa66a47db3ea70f1a468e66dd969f67e594945a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/900400a5b616d6fb306f9549f6da33ba615d3fbb",
+                "reference": "900400a5b616d6fb306f9549f6da33ba615d3fbb",
                 "shasum": ""
             },
             "require": {
@@ -3425,7 +3509,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.29"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.30"
             },
             "funding": [
                 {
@@ -3433,7 +3517,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-06-04T06:14:42+00:00"
+            "time": "2026-06-15T13:12:30+00:00"
         },
         {
             "name": "sebastian/cli-parser",
