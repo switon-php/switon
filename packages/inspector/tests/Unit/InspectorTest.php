@@ -16,6 +16,7 @@ use Switon\Http\Event\RequestEnd;
 use Switon\Http\Event\ResponseStringify;
 use Switon\Http\RequestInterface;
 use Switon\Http\ResponseInterface;
+use Switon\Http\Server\Event\ServerReady;
 use Switon\Http\UrlGeneratorInterface;
 use Switon\Inspector\CollectorDiscoveryInterface;
 use Switon\Inspector\Event\InspectorLinkGenerated;
@@ -412,7 +413,7 @@ class InspectorTest extends TestCase
         $inspector = $this->makeInspector('dev');
 
         // Act & Assert - should not throw
-        $inspector->onServerReady();
+        $inspector->onServerReady(new ServerReady(null, '127.0.0.1', 9501));
         $this->addToAssertionCount(1);
     }
 }
