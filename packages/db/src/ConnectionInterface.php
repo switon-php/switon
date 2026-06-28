@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Db;
 
 use PDOException;
+use Switon\Core\OwnerAwareInterface;
 
 /**
  * Low-level connection contract for DB adapters and client operations.
@@ -25,8 +26,13 @@ use PDOException;
  * @see \Switon\Db\Connection
  * @see \Switon\Db\AbstractConnection
  */
-interface ConnectionInterface
+interface ConnectionInterface extends OwnerAwareInterface
 {
+    /**
+     * Return the DB client that owns this connection in the pool.
+     */
+    public function getOwner(): ClientInterface;
+
     /**
      * Get the connection URI string.
      *

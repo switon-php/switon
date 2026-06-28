@@ -566,7 +566,7 @@ class PgsqlAdapterTest extends TestCase
      */
     protected function createAdapter(string $uri): Pgsql
     {
-        $this->container->set(Pgsql::class, ['uri' => $uri]);
+        $this->container->set(Pgsql::class, ['uri' => $uri, 'owner' => $this->poolOwner]);
         return $this->container->get(Pgsql::class);
     }
 }

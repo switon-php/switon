@@ -31,6 +31,7 @@ class AllocateIdsTest extends TestCase
             'uri' => ':memory:',
             'username' => '',
             'password' => '',
+            'owner' => $this->poolOwner,
         ]);
     }
 

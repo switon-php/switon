@@ -119,7 +119,7 @@ class PgsqlIntegrationTest extends TestCase
             $uri = "pgsql://{$config['user']}:{$config['pass']}@{$config['host']}/switon_test";
         }
 
-        $this->container->set(Pgsql::class, ['uri' => $uri]);
+        $this->container->set(Pgsql::class, ['uri' => $uri, 'owner' => $this->poolOwner]);
         $this->connection = $this->container->get(Pgsql::class);
 
         // Create test table

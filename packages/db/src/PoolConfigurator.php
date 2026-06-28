@@ -85,7 +85,7 @@ class PoolConfigurator implements PoolConfiguratorInterface
         $masterUri = '';
         if ($uris[0] !== '') {
             $masterUri = (string)$uris[0];
-            $this->poolManager->add($owner, [ConnectionInterface::class, ['uri' => $masterUri]], $masterPoolSize);
+            $this->poolManager->add($owner, [ConnectionInterface::class, ['uri' => $masterUri, 'owner' => $owner]], $masterPoolSize);
         }
 
         // Configure slave pools
@@ -271,13 +271,13 @@ class PoolConfigurator implements PoolConfiguratorInterface
             // Add each slave multiple times for balanced pooling
             for ($i = 0; $i < $slavePoolSize; $i++) {
                 foreach ($uris as $uri) {
-                    $this->poolManager->add($owner, [ConnectionInterface::class, ['uri' => $uri]], 1, 'slave');
+                    $this->poolManager->add($owner, [ConnectionInterface::class, ['uri' => $uri, 'owner' => $owner]], 1, 'slave');
                 }
             }
         } else {
             // Non-coroutine mode: Pick one slave randomly
             $uri = (string)$uris[random_int(0, count($uris) - 1)];
-            $this->poolManager->add($owner, [ConnectionInterface::class, ['uri' => $uri]], 1, 'slave');
+            $this->poolManager->add($owner, [ConnectionInterface::class, ['uri' => $uri, 'owner' => $owner]], 1, 'slave');
         }
     }
 }
