@@ -12,6 +12,7 @@ use Switon\Mail\Event\MailSent;
 use Switon\Mail\Exception\ConfigurationException;
 use Switon\Mail\Exception\InvalidMessageException;
 use Switon\Mail\Exception\ProtocolException;
+use Switon\Core\ClockInterface;
 use Switon\Mail\Mailer;
 use Switon\Mail\Message;
 use Switon\Mail\MessageInterface;
@@ -262,10 +263,15 @@ class MailerTest extends TestCase
     {
         $eventDispatcher = new SpyEventDispatcher();
 
-        $mailer = new class ($eventDispatcher) extends Mailer {
-            public function __construct(private SpyEventDispatcher $spy)
+        $clock = $this->createStub(ClockInterface::class);
+        $clock->method('microtime')->willReturn(1_000.0);
+        $clock->method('elapsed')->willReturn(0.001);
+
+        $mailer = new class ($eventDispatcher, $clock) extends Mailer {
+            public function __construct(private SpyEventDispatcher $spy, ClockInterface $clock)
             {
                 $this->eventDispatcher = $spy;
+                $this->clock = $clock;
             }
 
             protected function deliver(MessageInterface $message): void

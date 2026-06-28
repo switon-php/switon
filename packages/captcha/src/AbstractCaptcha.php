@@ -18,11 +18,10 @@ use Switon\Captcha\Exception\CaptchaNotFoundException;
 use Switon\Captcha\Exception\CaptchaTooFrequentException;
 use Switon\Captcha\Exception\InvalidCaptchaException;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\ClockInterface;
 use Switon\Core\RandomInterface;
 
 use function base64_encode;
-use function microtime;
-use function round;
 use function strlen;
 use function strtolower;
 
@@ -51,6 +50,8 @@ abstract class AbstractCaptcha implements CaptchaInterface
     #[Autowired] protected RandomInterface $random;
 
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
+
+    #[Autowired] protected ClockInterface $clock;
 
     /** Characters used for random code generation. */
     /** @noinspection SpellCheckingInspection */
@@ -124,10 +125,10 @@ abstract class AbstractCaptcha implements CaptchaInterface
         // 2. Generate random CAPTCHA code
         $code = $this->generateRandomCode();
 
-        // 3. Store in StoreInterface (created_at with microtime, 3 decimal places)
+        // 3. Store in StoreInterface (created_at via clock->now())
         $this->store->put($key, [
             'code' => $code,
-            'created_at' => round(microtime(true), 3),
+            'created_at' => $this->clock->now(),
             'ttl' => $ttl,
             'attempts' => $this->attempts
         ], $ttl);
@@ -184,7 +185,7 @@ abstract class AbstractCaptcha implements CaptchaInterface
 
         // 1. Verify frequency (does NOT consume attempt); 3 decimal places
         $createdAt = (float)$data['created_at'];
-        $timeSinceCreation = round(microtime(true) - $createdAt, 3);
+        $timeSinceCreation = $this->clock->elapsed($createdAt);
         if ($timeSinceCreation < $this->min_interval) {
             $this->eventDispatcher->dispatch(new CaptchaFailed($this, $key, $tag, CaptchaFailed::REASON_TOO_FREQUENT, null));
             CaptchaTooFrequentException::raise(

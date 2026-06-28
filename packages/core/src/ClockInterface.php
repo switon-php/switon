@@ -21,4 +21,10 @@ interface ClockInterface
 
     /** Return Unix timestamp with microsecond precision. */
     public function microtime(): float;
+
+    /** Return current Unix timestamp rounded to $precision decimal places. */
+    public function now(int $precision = 3): float;
+
+    /** Return elapsed seconds since $startedAt, rounded to $precision decimal places. */
+    public function elapsed(float $startedAt, int $precision = 3): float;
 }

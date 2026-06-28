@@ -610,7 +610,7 @@ class Request implements RequestInterface, JsonSerializable, ContextAware
     {
         $start = $this->server('REQUEST_TIME_FLOAT');
         $start = is_numeric($start) ? (float)$start : $this->clock->microtime();
-        return round($this->clock->microtime() - $start, $precision);
+        return $this->clock->elapsed($start, $precision);
     }
 
     public function path(bool $withQuery = false): string

@@ -6,6 +6,7 @@ namespace Switon\Mail;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\ClockInterface;
 use Switon\Mail\Event\MailFailed;
 use Switon\Mail\Event\MailSending;
 use Switon\Mail\Event\MailSent;
@@ -14,7 +15,6 @@ use Switon\Mail\Exception\InvalidMessageException;
 use Switon\Pooling\PoolManagerInterface;
 use Throwable;
 
-use function microtime;
 use function strtolower;
 use function trim;
 
@@ -49,6 +49,8 @@ use function trim;
 class Mailer implements MailerInterface
 {
     #[Autowired] protected EventDispatcherInterface $eventDispatcher; // @phpstan-ignore property.uninitialized
+
+    #[Autowired] protected ClockInterface $clock; // @phpstan-ignore property.uninitialized
 
     #[Autowired] protected Rfc822SerializerInterface $serializer; // @phpstan-ignore property.uninitialized
 
@@ -91,13 +93,13 @@ class Mailer implements MailerInterface
         }
 
         $this->eventDispatcher->dispatch(new MailSending($this, $message));
-        $start = microtime(true);
+        $startedAt = $this->clock->microtime();
 
         try {
             $this->deliver($message);
-            $this->eventDispatcher->dispatch(new MailSent($this, $message, microtime(true) - $start));
+            $this->eventDispatcher->dispatch(new MailSent($this, $message, $this->clock->elapsed($startedAt)));
         } catch (Throwable $exception) {
-            $this->eventDispatcher->dispatch(new MailFailed($this, $message, $exception, microtime(true) - $start));
+            $this->eventDispatcher->dispatch(new MailFailed($this, $message, $exception, $this->clock->elapsed($startedAt)));
             throw $exception;
         }
     }

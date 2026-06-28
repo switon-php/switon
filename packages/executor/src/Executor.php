@@ -97,7 +97,7 @@ class Executor implements ExecutorInterface
                     $payload,
                     $result,
                     $error,
-                    round($this->clock->microtime() - $startedAt, 3)
+                    $this->clock->elapsed($startedAt)
                 )
             );
         }

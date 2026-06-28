@@ -7,6 +7,7 @@ namespace Switon\Db\Command;
 use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\ClockInterface;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
@@ -16,7 +17,6 @@ use Switon\Di\NamedLookupInterface;
 use Throwable;
 
 use function fnmatch;
-use function microtime;
 use function sort;
 use function sprintf;
 
@@ -31,6 +31,7 @@ use function sprintf;
 class DbCommand
 {
     #[Autowired] protected ConsoleInterface $console;
+    #[Autowired] protected ClockInterface $clock;
     /** @var NamedLookupInterface<ClientInterface> */
     #[Autowired] protected NamedLookupInterface $namedLookup;
     #[Autowired] protected FilesystemInterface $filesystem;
@@ -117,9 +118,9 @@ class DbCommand
             $name = $connection !== '' ? $connection : 'default';
             $db = $this->namedLookup->by(ClientInterface::class, $name);
 
-            $start = microtime(true);
+            $startedAt = $this->clock->microtime();
             $rows = $db->fetchAll('SELECT 1');
-            $latency = microtime(true) - $start;
+            $latency = $this->clock->elapsed($startedAt);
 
             if ($rows === [] || array_first($rows) === null) {
                 return $this->console->error('Connection check failed: SELECT 1 returned no row');

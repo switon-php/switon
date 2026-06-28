@@ -8,6 +8,7 @@ use PDO;
 use PDOException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\ClockInterface;
 use Switon\Db\Event\DbBegin;
 use Switon\Db\Event\DbCommit;
 use Switon\Db\Event\DbDeleted;
@@ -37,9 +38,7 @@ use function implode;
 use function is_int;
 use function is_string;
 use function key;
-use function microtime;
 use function preg_match;
-use function round;
 use function str_starts_with;
 use function stripos;
 use function strlen;
@@ -82,6 +81,7 @@ class Client implements ClientInterface
     protected const string SQL_FALSE_KEYWORD = 'FALSE';
 
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
+    #[Autowired] protected ClockInterface $clock;
     /** @var PoolManagerInterface<Client, ConnectionInterface> */
     #[Autowired] protected PoolManagerInterface $poolManager;
     #[Autowired] protected PoolConfiguratorInterface $poolConfigurator;
@@ -217,9 +217,9 @@ class Client implements ClientInterface
 
         $connection = $this->getWriteConnection();
 
-        $startTime = microtime(true);
+        $startTime = $this->clock->microtime();
         $count = $connection->execute($sql, $bind);
-        $elapsed = round(microtime(true) - $startTime, 3);
+        $elapsed = $this->clock->elapsed($startTime);
 
         $this->eventDispatcher->dispatch(new $done($this, $sql, $bind, $count, $elapsed));
         $this->eventDispatcher->dispatch(new DbExecuted($this, $done, $sql, $bind, $count, $elapsed));
@@ -239,7 +239,7 @@ class Client implements ClientInterface
 
         $connection = $this->getWriteConnection();
 
-        $startTime = microtime(true);
+        $startTime = $this->clock->microtime();
         if ($fetchInsertId) {
             $result = $connection->execute($sql, $bind, true);
             $affectedRows = 1;
@@ -247,7 +247,7 @@ class Client implements ClientInterface
             $result = $connection->execute($sql, $bind);
             $affectedRows = $result;
         }
-        $elapsed = round(microtime(true) - $startTime, 3);
+        $elapsed = $this->clock->elapsed($startTime);
 
         $this->eventDispatcher->dispatch(new DbInserted($this, $sql, $bind, $affectedRows, $elapsed));
         $this->eventDispatcher->dispatch(new DbExecuted($this, DbInserted::class, $sql, $bind, $affectedRows, $elapsed));
@@ -278,9 +278,9 @@ class Client implements ClientInterface
 
         $this->eventDispatcher->dispatch(new DbQuerying($this, $sql, $bind));
 
-        $startTime = microtime(true);
+        $startTime = $this->clock->microtime();
         $result = $connection->query($sql, $bind, PDO::FETCH_ASSOC);
-        $elapsed = round(microtime(true) - $startTime, 3);
+        $elapsed = $this->clock->elapsed($startTime);
 
         $count = count($result);
         $this->eventDispatcher->dispatch(new DbQueried($this, $sql, $bind, $count, $result, $elapsed));
@@ -479,9 +479,9 @@ class Client implements ClientInterface
 
         $connection = $this->getWriteConnection();
 
-        $startTime = microtime(true);
+        $startTime = $this->clock->microtime();
         $count = $connection->upsert($table, $insertFieldValues, $processedUpdateValues, $primaryKey);
-        $elapsed = round(microtime(true) - $startTime, 3);
+        $elapsed = $this->clock->elapsed($startTime);
 
         $this->eventDispatcher->dispatch(new DbUpserted($this, $table, $insertFieldValues, $processedUpdateValues, $primaryKey, $count, $elapsed));
 
@@ -647,9 +647,9 @@ class Client implements ClientInterface
 
         $connection = $this->getReadConnection();
 
-        $startTime = microtime(true);
+        $startTime = $this->clock->microtime();
         $meta = $connection->getMetadata($table);
-        $elapsed = round(microtime(true) - $startTime, 3);
+        $elapsed = $this->clock->elapsed($startTime);
 
         $this->eventDispatcher->dispatch(new DbMetadata($this, $table, $meta, $elapsed));
 
