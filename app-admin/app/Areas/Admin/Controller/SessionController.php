@@ -11,7 +11,7 @@ use App\Repository\AdminLoginLogRepository;
 use App\Repository\AdminRepository;
 use Switon\Authorizing\Attribute\Authorize;
 use Switon\Captcha\CaptchaInterface;
-use Switon\Core\App;
+use Switon\Core\AppInterface;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\RandomInterface;
 use Switon\Http\ResponseInterface;
@@ -40,7 +40,7 @@ class SessionController extends Controller
     protected const ERROR_AUTH_ACCOUNT_LOCKED = 'AUTH_ACCOUNT_LOCKED';
     protected const ERROR_AUTH_IP_NOT_WHITELISTED = 'AUTH_IP_NOT_WHITELISTED';
 
-    #[Autowired] protected App $app;
+    #[Autowired] protected AppInterface $app;
     #[Autowired] protected CaptchaInterface $captcha;
     #[Autowired] protected AdminRepository $adminRepository;
     #[Autowired] protected RoleRepository $roleRepository;
