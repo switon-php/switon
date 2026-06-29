@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Switon\Routing;
 
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\ClassScannerInterface;
 use Switon\Routing\Attribute\MappingInterface;
 use Switon\Routing\Attribute\RequestMapping;
 use Switon\Routing\Attribute\Viewable;
-
-use function array_map;
 
 /**
  * Discovers routing attributes from controller classes and emits concrete route definitions.
@@ -58,12 +56,12 @@ class MappingDiscovery implements MappingDiscoveryInterface
         }
 
         $rClass = new ReflectionClass($className);
-        $requestMappings = $rClass->getAttributes(RequestMapping::class);
-        if ($requestMappings === []) {
+        $requestMapping = Attributes::first($rClass, RequestMapping::class);
+        if ($requestMapping === null) {
             return [];
         }
 
-        return $this->discoverController($rClass, $requestMappings[0]->newInstance());
+        return $this->discoverController($rClass, $requestMapping);
     }
 
     /**
@@ -96,15 +94,7 @@ class MappingDiscovery implements MappingDiscoveryInterface
      */
     protected function resolveMethodMappings(ReflectionMethod $rMethod): array
     {
-        $attributes = $rMethod->getAttributes(MappingInterface::class, ReflectionAttribute::IS_INSTANCEOF);
-        if ($attributes === []) {
-            return [];
-        }
-
-        return array_map(
-            static fn (ReflectionAttribute $attribute) => $attribute->newInstance(),
-            $attributes
-        );
+        return Attributes::all($rMethod, MappingInterface::class);
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Orm\Relation;
 
 use ReflectionClass;
+use Switon\Core\Attributes;
 use Switon\Core\Exception\MisuseException;
 use Switon\Orm\Attribute\BelongsTo;
 use Switon\Orm\Entity;
@@ -144,15 +145,11 @@ class HasManyToManyRelation extends AbstractRelation
                 continue;
             }
 
-            $belongsToAttributes = $property->getAttributes(BelongsTo::class);
-            if ($belongsToAttributes === []) {
+            if (($belongsToInstance = Attributes::first($property, BelongsTo::class)) === null) {
                 continue;
             }
 
-            $belongsToAttribute = $belongsToAttributes[0];
-
-            // Get foreign key from attribute instance
-            $belongsToInstance = $belongsToAttribute->newInstance();
+            /** @var BelongsTo $belongsToInstance */
             $foreignKey = $belongsToInstance->foreignKey;
 
             // Get related entity class from property type

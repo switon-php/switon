@@ -52,8 +52,8 @@ use Attribute;
  * @see \Switon\Routing\MappingPathInterface::resolveMethodPattern()
  * @see \Switon\Routing\MappingPathInterface::resolveControllerPrefixes()
  * @see \Switon\Http\ControllerMetadata
- * @see \Switon\Http\ControllerMetadata::hasRequestMapping()
- * @see \Switon\Http\ControllerMetadata::hasActionMapping()
+ * @see \Switon\Http\ControllerMetadata::getActions()
+ * @see \Switon\Http\ControllerMetadata::getPath()
  * @see \Switon\Routing\RouterInterface
  * @see \Switon\Routing\RouterInterface::add()
  * @see \Switon\Routing\RouterInterface::match()

@@ -8,6 +8,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
+use Switon\Core\Attributes;
 use Switon\Core\Naming;
 use ReflectionException;
 use ReflectionNamedType;
@@ -47,20 +48,7 @@ class CommandInspector implements CommandInspectorInterface
         }
 
         $reflection = new ReflectionClass($commandClassName);
-        return $this->hasHiddenAttribute($reflection);
-    }
-
-    protected function isMethodHidden(ReflectionMethod $rMethod): bool
-    {
-        return $rMethod->getAttributes(Hidden::class) !== [];
-    }
-
-    /**
-     * @param ReflectionClass<object> $rClass
-     */
-    protected function hasHiddenAttribute(ReflectionClass $rClass): bool
-    {
-        return $rClass->getAttributes(Hidden::class) !== [];
+        return Attributes::has($reflection, Hidden::class);
     }
 
     public function getCommandDescription(string $class): string
@@ -104,7 +92,7 @@ class CommandInspector implements CommandInspectorInterface
             }
 
             $rMethod = $rClass->getMethod($method);
-            if (!$includeHidden && $this->isMethodHidden($rMethod)) {
+            if (!$includeHidden && Attributes::has($rMethod, Hidden::class)) {
                 continue;
             }
 
@@ -209,13 +197,10 @@ class CommandInspector implements CommandInspectorInterface
             return null;
         }
 
-        $attrs = $rMethod->getAttributes(Tool::class);
-        if ($attrs === []) {
+        $instance = Attributes::first($rMethod, Tool::class);
+        if ($instance === null) {
             return null;
         }
-
-        /** @var Tool $instance */
-        $instance = $attrs[0]->newInstance();
         $s = trim($instance->doc);
         return $s !== '' ? $s : null;
     }

@@ -6,6 +6,7 @@ namespace Switon\Orm;
 
 use ReflectionProperty;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Db\ClientInterface;
 use Switon\Di\NamedLookupInterface;
 use Switon\Id\IdGeneratorInterface as IdPackageInterface;
@@ -65,9 +66,7 @@ class IdGenerator implements IdGeneratorInterface
 
             $rProperty = new ReflectionProperty($entityClass, $primaryKey);
 
-            $attributes = $rProperty->getAttributes(Id::class);
-            /** @var Id $id */
-            $id = !empty($attributes) ? $attributes[0]->newInstance() : null;
+            $id = Attributes::first($rProperty, Id::class);
 
             if ($id === null || $id->strategy === 'auto') {
                 $this->generatorsCache[$entityClass] = null; // Use database auto-increment

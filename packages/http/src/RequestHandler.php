@@ -6,10 +6,10 @@ namespace Switon\Http;
 
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use ReflectionAttribute;
 use ReflectionMethod;
 use Switon\Binding\ArgumentsBinderInterface;
 use Switon\Core\AppInterface;
+use Switon\Core\Attributes;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Json;
 use Switon\Core\StopFlow;
@@ -309,18 +309,18 @@ class RequestHandler implements RequestHandlerInterface
     /** Whether the method has a Viewable attribute (ViewMapping, ViewGetMapping, etc.). */
     protected function hasViewable(ReflectionMethod $rMethod): bool
     {
-        return $rMethod->getAttributes(Viewable::class, ReflectionAttribute::IS_INSTANCEOF) !== [];
+        return Attributes::has($rMethod, Viewable::class);
     }
 
     /** Whether the method has #[ViewMapping] (always render view for GET). */
     protected function hasViewMapping(ReflectionMethod $rMethod): bool
     {
-        return $rMethod->getAttributes(ViewMapping::class, ReflectionAttribute::IS_INSTANCEOF) !== [];
+        return Attributes::has($rMethod, ViewMapping::class);
     }
 
     /** Whether the method has #[ViewGetMapping] (HTML GET when {@see RequestInterface::wantsJson()} is false). */
     protected function hasViewGetMapping(ReflectionMethod $rMethod): bool
     {
-        return $rMethod->getAttributes(ViewGetMapping::class, ReflectionAttribute::IS_INSTANCEOF) !== [];
+        return Attributes::has($rMethod, ViewGetMapping::class);
     }
 }

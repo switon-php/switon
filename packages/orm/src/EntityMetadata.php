@@ -11,6 +11,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\Exception\MisuseException;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\MakerInterface;
@@ -134,46 +135,6 @@ class EntityMetadata implements EntityMetadataInterface
     }
 
     /**
-     * Returns one class-level attribute instance when present.
-     *
-     * @template T of object
-     *
-     * @param class-string<Entity> $entityClass Entity class name
-     * @param class-string<T> $name Attribute class name
-     *
-     * @return T|null Attribute instance or null if not found
-     */
-    protected function getClassAttribute(string $entityClass, string $name): ?object
-    {
-        $rClass = $this->getClassReflection($entityClass);
-        $attributes = $rClass->getAttributes($name, ReflectionAttribute::IS_INSTANCEOF);
-        if (($attribute = $attributes[0] ?? null) !== null) {
-            return $attribute->newInstance();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns one property-level attribute instance when present.
-     *
-     * @template T of object
-     *
-     * @param ReflectionProperty $property
-     * @param class-string<T> $name
-     *
-     * @return T|null
-     */
-    protected function getPropertyAttribute(ReflectionProperty $property, string $name): ?object
-    {
-        if (($attribute = $property->getAttributes($name, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null) !== null) {
-            return $attribute->newInstance();
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * @param class-string<Entity> $entityClass
      *
      * @inheritDoc
@@ -181,8 +142,7 @@ class EntityMetadata implements EntityMetadataInterface
     public function getTable(string $entityClass, bool $base = false): string
     {
         if (($table = $this->table[$entityClass] ?? null) === null) {
-            if (($attribute = $this->getClassAttribute($entityClass, Table::class)) !== null) {
-                /** @var Table $attribute */
+            if (($attribute = Attributes::first($this->getClassReflection($entityClass), Table::class)) !== null) {
                 $table = $attribute->name;
             } else {
                 $namingStrategy = $this->getNamingStrategy($entityClass);
@@ -219,8 +179,7 @@ class EntityMetadata implements EntityMetadataInterface
      */
     protected function getConnectionInternal(string $entityClass): string
     {
-        if (($attribute = $this->getClassAttribute($entityClass, Connection::class)) !== null) {
-            /** @var Connection $attribute */
+        if (($attribute = Attributes::first($this->getClassReflection($entityClass), Connection::class)) !== null) {
             return $attribute->name;
         } else {
             return 'default';
@@ -314,8 +273,7 @@ class EntityMetadata implements EntityMetadataInterface
             return;
         }
 
-        if (($attribute = $this->getClassAttribute($entityClass, ReferencedKey::class)) !== null) {
-            /** @var ReferencedKey $attribute */
+        if (($attribute = Attributes::first($this->getClassReflection($entityClass), ReferencedKey::class)) !== null) {
             $this->referencedKey[$entityClass] = $attribute->name;
             return;
         }
@@ -420,7 +378,7 @@ class EntityMetadata implements EntityMetadataInterface
     public function getRepository(string $entityClass): RepositoryInterface
     {
         if (($repository = $this->repository[$entityClass] ?? null) === null) {
-            if (($attribute = $this->getClassAttribute($entityClass, Repository::class)) !== null) {
+            if (($attribute = Attributes::first($this->getClassReflection($entityClass), Repository::class)) !== null) {
                 $repository = $attribute->name;
             } elseif (preg_match('#^(.*)\\\\Entity\\\\(\\w+)$#', $entityClass, $match) === 1) {
                 $repository = $match[1] . '\\Repository\\' . $match[2] . 'Repository';
@@ -464,7 +422,7 @@ class EntityMetadata implements EntityMetadataInterface
     public function getNamingStrategy(string $entityClass): NamingStrategyInterface
     {
         if (($namingStrategy = $this->namingStrategy[$entityClass] ?? null) === null) {
-            if (($attribute = $this->getClassAttribute($entityClass, NamingStrategy::class)) !== null) {
+            if (($attribute = Attributes::first($this->getClassReflection($entityClass), NamingStrategy::class)) !== null) {
                 $strategyClass = $attribute->strategy;
                 $this->namingStrategy[$entityClass] = $strategyClass;
                 return $this->container->get($strategyClass);
@@ -553,8 +511,7 @@ class EntityMetadata implements EntityMetadataInterface
         }
 
         $default = 'U';
-        if (($attribute = $this->getClassAttribute($entityClass, DateFormat::class)) !== null) {
-            /** @var DateFormat $attribute */
+        if (($attribute = Attributes::first($this->getClassReflection($entityClass), DateFormat::class)) !== null) {
             $default = $attribute->get();
         }
 
@@ -562,8 +519,7 @@ class EntityMetadata implements EntityMetadataInterface
 
         $fieldFormats = [];
         foreach ($properties as $property) {
-            if (($attribute = $this->getPropertyAttribute($property, DateFormat::class)) !== null) {
-                /** @var DateFormat $attribute */
+            if (($attribute = Attributes::first($property, DateFormat::class)) !== null) {
                 $fieldFormats[$property->getName()] = $attribute->get();
             }
         }
@@ -589,7 +545,7 @@ class EntityMetadata implements EntityMetadataInterface
                 continue;
             }
 
-            if ($property->getAttributes(Id::class) !== []) {
+            if (Attributes::has($property, Id::class)) {
                 $this->primaryKey[$entityClass] = $property->getName();
                 return;
             }
@@ -632,7 +588,7 @@ class EntityMetadata implements EntityMetadataInterface
                 continue;
             }
 
-            if ($property->getAttributes(Transiently::class, ReflectionAttribute::IS_INSTANCEOF) !== []) {
+            if (Attributes::has($property, Transiently::class)) {
                 continue;
             }
 
@@ -666,8 +622,7 @@ class EntityMetadata implements EntityMetadataInterface
             $fields = $this->fields[$entityClass];
         }
 
-        if (($attribute = $this->getClassAttribute($entityClass, Owner::class)) !== null) {
-            /** @var Owner $attribute */
+        if (($attribute = Attributes::first($this->getClassReflection($entityClass), Owner::class)) !== null) {
             if ($attribute->field === null) {
                 $this->ownerField[$entityClass] = null;
                 return;
@@ -708,13 +663,13 @@ class EntityMetadata implements EntityMetadataInterface
                 continue;
             }
 
-            if ($property->getAttributes(Transiently::class, ReflectionAttribute::IS_INSTANCEOF) !== []) {
+            if (Attributes::has($property, Transiently::class)) {
                 continue;
             }
 
             $propertyName = $property->getName();
 
-            if (($attribute = $this->getPropertyAttribute($property, Column::class)) !== null) {
+            if (($attribute = Attributes::first($property, Column::class)) !== null) {
                 $columnName = $attribute->name;
                 if ($columnName === null) {
                     $columnName = $namingStrategy->propertyToColumnName($propertyName);
@@ -750,7 +705,7 @@ class EntityMetadata implements EntityMetadataInterface
                 continue;
             }
 
-            if ($property->getAttributes(Transiently::class, ReflectionAttribute::IS_INSTANCEOF) !== []) {
+            if (Attributes::has($property, Transiently::class)) {
                 continue;
             }
 
@@ -763,9 +718,9 @@ class EntityMetadata implements EntityMetadataInterface
                 $type = 'mixed';
             }
 
-            if ($property->getAttributes(Id::class) !== []) {
+            if (Attributes::has($property, Id::class)) {
                 $fillable[$name] = $type;
-            } elseif (($fillableAttr = $this->getPropertyAttribute($property, Fillable::class)) !== null
+            } elseif (($fillableAttr = Attributes::first($property, Fillable::class)) !== null
                 && $fillableAttr->fillable
             ) {
                 $fillable[$name] = $type;
@@ -794,7 +749,7 @@ class EntityMetadata implements EntityMetadataInterface
                 continue;
             }
 
-            if ($property->getAttributes(Transiently::class, ReflectionAttribute::IS_INSTANCEOF) !== []) {
+            if (Attributes::has($property, Transiently::class)) {
                 continue;
             }
 
@@ -875,7 +830,7 @@ class EntityMetadata implements EntityMetadataInterface
                 continue;
             }
 
-            if ($property->getAttributes(BelongsTo::class) === []) {
+            if (!Attributes::has($property, BelongsTo::class)) {
                 continue;
             }
 

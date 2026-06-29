@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Switon\Binding;
 
 use Psr\Container\ContainerInterface;
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionParameter;
 use Switon\Binding\Attribute\ResolvedBy as ResolvedByAttribute;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\Exception\RuntimeException;
 
 /**
@@ -64,13 +64,9 @@ class ObjectResolver implements ObjectResolverInterface
         $rClass = new ReflectionClass($type);
 
         while ($rClass !== false) {
-            $attribute = $rClass->getAttributes(
-                ResolvedByAttribute::class,
-                ReflectionAttribute::IS_INSTANCEOF
-            )[0] ?? null;
+            $instance = Attributes::first($rClass, ResolvedByAttribute::class);
 
-            if ($attribute !== null) {
-                $instance = $attribute->newInstance();
+            if ($instance !== null) {
                 if (!$instance instanceof ResolvedByAttribute) {
                     RuntimeException::raise('Invalid #[ResolvedBy] on "{type}".', ['type' => $type]);
                 }

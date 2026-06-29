@@ -6,7 +6,6 @@ namespace Switon\Core;
 
 use ReflectionClass;
 use Switon\Core\Attribute\ResourceAlias;
-use ReflectionAttribute;
 
 use function basename;
 use function dirname;
@@ -37,8 +36,8 @@ class ResourceAliasRegistrar implements ResourceAliasRegistrarInterface
     public function register(PathAliasInterface|Lazy $pathAlias, string $providerClass): void
     {
         $reflection = new ReflectionClass($providerClass);
-        $attributes = $reflection->getAttributes(ResourceAlias::class, ReflectionAttribute::IS_INSTANCEOF);
-        if ($attributes === []) {
+        $resources = Attributes::all($reflection, ResourceAlias::class);
+        if ($resources === []) {
             return;
         }
 
@@ -47,9 +46,7 @@ class ResourceAliasRegistrar implements ResourceAliasRegistrarInterface
             return;
         }
 
-        foreach ($attributes as $attribute) {
-            /** @var ResourceAlias $resource */
-            $resource = $attribute->newInstance();
+        foreach ($resources as $resource) {
             $packageResource = $this->detectResource($file, $resource->path, $resource->alias);
             if ($packageResource === null) {
                 continue;

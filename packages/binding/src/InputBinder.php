@@ -9,6 +9,7 @@ use ReflectionAttribute;
 use ReflectionProperty;
 use Switon\Binding\Exception\InputBindingNestingDepthExceededException;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\MakerInterface;
 use Switon\Validating\Attribute\ArrayOf;
 use Switon\Validating\Attribute\Date;
@@ -54,10 +55,10 @@ class InputBinder implements InputBinderInterface
      */
     protected function validateRequired(Validation $validation, ReflectionProperty $rProperty): void
     {
-        $requiredAttr = $rProperty->getAttributes(Required::class)[0] ?? null;
+        $required = Attributes::first($rProperty, Required::class);
 
-        if ($requiredAttr !== null) {
-            $validation->validate($requiredAttr->newInstance());
+        if ($required !== null) {
+            $validation->validate($required);
             return;
         }
 
@@ -112,7 +113,7 @@ class InputBinder implements InputBinderInterface
             $field = $rProperty->getName();
             $fullPath = $path ? "$path.$field" : $field;
 
-            if ($rProperty->getAttributes(Autowired::class) !== []) {
+            if (Attributes::has($rProperty, Autowired::class)) {
                 continue;
             }
 
@@ -124,12 +125,12 @@ class InputBinder implements InputBinderInterface
             $validation->targetType = $rType?->getName();
             $hasDefaultValue = $rProperty->hasDefaultValue();
             $isNullable = $rType === null || $rType->allowsNull();
-            $hasExplicitRequired = $rProperty->getAttributes(Required::class) !== [];
+            $hasExplicitRequired = Attributes::has($rProperty, Required::class);
 
             $fieldExists = array_key_exists($field, $data);
             $shouldUseDefault = $fieldExists && $hasDefaultValue && ($validation->value === null || $validation->value === '');
 
-            if ($this->isArrayOf($rProperty)) {
+            if (Attributes::has($rProperty, ArrayOf::class)) {
                 $arrayData = $data[$field] ?? null;
 
                 if ($fieldExists) {
@@ -200,7 +201,7 @@ class InputBinder implements InputBinderInterface
                 if ($validation->value === null) {
                     if ($isNullable) {
                         if ($hasExplicitRequired) {
-                            $validation->validate($rProperty->getAttributes(Required::class)[0]->newInstance());
+                            $validation->validate(Attributes::first($rProperty, Required::class));
                         }
                         $input->$field = null;
                         continue;
@@ -210,7 +211,7 @@ class InputBinder implements InputBinderInterface
                     continue;
                 }
 
-                if ($this->isDateProperty($rProperty)) {
+                if (Attributes::has($rProperty, Date::class)) {
                     $dateAttribute = $rProperty->getAttributes(Date::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
                     $validation->validate(
                         $dateAttribute ? $this->maker->make($dateAttribute->getName(), $dateAttribute->getArguments()) : new Date()
@@ -244,11 +245,6 @@ class InputBinder implements InputBinderInterface
         return $input;
     }
 
-    protected function isDateProperty(ReflectionProperty $property): bool
-    {
-        return $property->getAttributes(Date::class, ReflectionAttribute::IS_INSTANCEOF) !== [];
-    }
-
     protected function shouldPopulateNested(string $type): bool
     {
         if (!class_exists($type)) {
@@ -256,11 +252,6 @@ class InputBinder implements InputBinderInterface
         }
 
         return !(new ReflectionClass($type))->isInternal();
-    }
-
-    protected function isArrayOf(ReflectionProperty $property): bool
-    {
-        return $property->getAttributes(ArrayOf::class, ReflectionAttribute::IS_INSTANCEOF) !== [];
     }
 
     protected function getArrayOfAttribute(ReflectionProperty $property): ?ArrayOf

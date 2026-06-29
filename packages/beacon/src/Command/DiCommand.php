@@ -7,6 +7,7 @@ namespace Switon\Beacon\Command;
 use Psr\Container\ContainerInterface;
 use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
+use Switon\Core\Attributes;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ClassName;
 use Switon\Core\ConsoleInterface;
@@ -129,7 +130,7 @@ class DiCommand
                 if (isset($seen[$p->getName()])) {
                     continue;
                 }
-                if ($p->getAttributes(Autowired::class) === []) {
+                if (!Attributes::has($p, Autowired::class)) {
                     continue;
                 }
                 $seen[$p->getName()] = true;

@@ -6,8 +6,8 @@ namespace Switon\Orm\PhpStan;
 
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
-use ReflectionAttribute;
 use ReflectionClass;
+use Switon\Core\Attributes;
 use Switon\Orm\Attribute\Repository as RepositoryAttribute;
 
 use function class_exists;
@@ -47,11 +47,8 @@ trait ClassNameResolverTrait
         }
 
         $reflection = new ReflectionClass($entityClass);
-        $attributes = $reflection->getAttributes(RepositoryAttribute::class, ReflectionAttribute::IS_INSTANCEOF);
-        if (($attribute = $attributes[0] ?? null) !== null) {
-            /** @var RepositoryAttribute $instance */
-            $instance = $attribute->newInstance();
-
+        $instance = Attributes::first($reflection, RepositoryAttribute::class);
+        if ($instance !== null) {
             return $instance->name;
         }
 

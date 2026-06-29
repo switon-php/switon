@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Schedule;
 
 use ReflectionClass;
+use Switon\Core\Attributes;
 use Switon\Core\Exception\MisuseException;
 use Switon\Core\Naming;
 use Switon\Core\RunnerInterface;
@@ -54,15 +55,12 @@ class Schedule implements ScheduleInterface
         }
 
         $reflection = new ReflectionClass($class);
-        $attrs = $reflection->getAttributes(Scheduled::class);
-        if ($attrs === []) {
+        $scheduled = Attributes::first($reflection, Scheduled::class);
+        if ($scheduled === null) {
             MisuseException::raise('Missing #[Scheduled] on {class}', ['class' => $class]);
         }
 
         $this->assertImplementsRunnerInterface($reflection);
-
-        /** @var Scheduled $scheduled */
-        $scheduled = $attrs[0]->newInstance();
 
         $parts = $this->splitExpression($scheduled->expression);
         $count = count($parts);
