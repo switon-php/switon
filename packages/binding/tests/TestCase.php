@@ -4,32 +4,73 @@ declare(strict_types=1);
 
 namespace Switon\Binding\Tests;
 
+use PHPUnit\Framework\TestCase as BaseTestCase;
+use Switon\Core\App;
 use Switon\Core\Filesystem;
 use Switon\Core\FilesystemInterface;
+use Switon\Core\InjectorInterface;
 use Switon\Core\LocaleInterface;
+use Switon\Core\PathAlias;
 use Switon\Core\PathAliasInterface;
-use Switon\Testing\TestCase as BaseTestCase;
+use Switon\Core\TranslatorInterface;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
+use Switon\Testing\Mock\StubTranslator;
+use Switon\Validating\Validator;
+use Switon\Validating\ValidatorInterface;
 
-/**
- * Base test case for Binding tests.
- */
 abstract class TestCase extends BaseTestCase
 {
-    protected function setUpContainer(): void
+    protected DiContainer $container;
+    protected InjectorInterface $injector;
+
+    protected function setUp(): void
     {
+        parent::setUp();
+
+        $validatorTemplateDir = dirname(__DIR__) . '/../validation/src/Templates';
+
+        $pathAlias = new PathAlias();
+        $pathAlias->set('@switon.validator.resources', $validatorTemplateDir);
+
         $locale = $this->createStub(LocaleInterface::class);
         $locale->method('get')->willReturn('en');
         $locale->method('set')->willReturnSelf();
-        $this->container->set(LocaleInterface::class, $locale);
 
-        $filesystem = $this->createStub(Filesystem::class);
-        /** @var PathAliasInterface $pathAlias */
-        $pathAlias = $this->container->get(PathAliasInterface::class);
-        $templateDir = (string)$pathAlias->get('@switon.validator.resources');
-        $filesystem->method('glob')->willReturn([
-            $templateDir . '/en.php',
-            $templateDir . '/zh-cn.php',
-        ]);
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('glob')
+            ->willReturn([
+                $validatorTemplateDir . '/en.php',
+                $validatorTemplateDir . '/zh-cn.php',
+            ]);
+
+        $this->container = new DiContainer();
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
+
+        App::setContainer($this->container);
+
+        $this->container->set(PathAliasInterface::class, $pathAlias);
+        $this->container->set(PathAlias::class, $pathAlias);
+        $this->container->set(LocaleInterface::class, $locale);
         $this->container->set(FilesystemInterface::class, $filesystem);
+        $this->container->set(TranslatorInterface::class, new StubTranslator());
+
+        $validator = $this->container->make(Validator::class, ['dirs' => [$validatorTemplateDir]]);
+        $this->container->set(ValidatorInterface::class, $validator);
+
+        $this->injector = $this->container->get(InjectorInterface::class);
+        $this->setUpContainer();
+        $this->injector->inject($this);
+    }
+
+    protected function setUpContainer(): void
+    {
+    }
+
+    protected function make(string $name, array $parameters = []): mixed
+    {
+        return $this->container->make($name, $parameters);
     }
 }

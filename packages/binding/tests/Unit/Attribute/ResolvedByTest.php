@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Switon\Binding\Tests\Unit\Attribute;
 
 use Switon\Binding\Attribute\ResolvedBy;
-use Switon\Binding\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
-final class ResolvedByTest extends TestCase
+class ResolvedByTest extends TestCase
 {
     public function testAttributeStoresResolverFqcn(): void
     {
