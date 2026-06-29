@@ -6,8 +6,8 @@ namespace Switon\Binding\Tests\Unit;
 
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use ReflectionMethod;
 use Switon\Binding\ArgumentsBinder;
+use ReflectionMethod;
 use Switon\Binding\Event\ActionArgumentsResolving;
 use Switon\Binding\Exception\TooManyPositionalArgumentsException;
 use Switon\Binding\Exception\UnsupportedParameterTypeException;
@@ -29,7 +29,7 @@ use Switon\Validating\Validation;
 use Switon\Validating\ValidatorInterface;
 use ReflectionParameter;
 
-final class ArgumentsBinderTest extends TestCase
+class ArgumentsBinderTest extends TestCase
 {
     protected function createBinder(
         ?ScalarResolverInterface  $scalarResolver = null,
@@ -183,7 +183,7 @@ final class ArgumentsBinderTest extends TestCase
     public function testResolveThrowsForTooManyPositionalArguments(): void
     {
         $input = new class (['a', 'b']) implements InputInterface, PositionalInputInterface {
-            public function __construct(private array $positional)
+            public function __construct(protected array $positional)
             {
             }
 

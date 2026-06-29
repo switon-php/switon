@@ -59,7 +59,6 @@ class ArgumentsBinder implements ArgumentsBinderInterface
     #[Autowired] protected ValidatorInterface $validator;
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
     #[Autowired] protected MakerInterface $maker;
-
     #[Autowired] protected ScalarResolverInterface $scalarResolver;
     #[Autowired] protected ObjectResolverInterface $objectResolver;
 
