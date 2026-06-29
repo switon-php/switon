@@ -6,7 +6,10 @@ namespace Switon\Binding;
 
 use ReflectionClass;
 use ReflectionAttribute;
+use ReflectionNamedType;
 use ReflectionProperty;
+use ReflectionType;
+use ReflectionUnionType;
 use Switon\Binding\Exception\InputBindingNestingDepthExceededException;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Attributes;
@@ -105,6 +108,10 @@ class InputBinder implements InputBinderInterface
             );
         }
 
+        if ($this->acceptsArrayConstructor($type)) {
+            return new $type($data);
+        }
+
         $rClass = new ReflectionClass($type);
         $input = $this->maker->make($type);
         $validation->sourceClass = $type;
@@ -164,11 +171,10 @@ class InputBinder implements InputBinderInterface
             }
 
             if ($rType && !$rType->isBuiltin() && $this->shouldPopulateNested($rType->getName())) {
+                $nestedType = $rType->getName();
                 $nestedData = $data[$field] ?? null;
 
-                if (is_array($nestedData) && $nestedData !== []) {
-                    $input->$field = $this->populate($rType->getName(), $nestedData, $validation, $fullPath, $depth + 1);
-                } elseif ($nestedData === null && $isNullable) {
+                if ($nestedData === null && $isNullable) {
                     $input->$field = null;
                 } elseif (!$fieldExists) {
                     if ($hasDefaultValue) {
@@ -178,18 +184,18 @@ class InputBinder implements InputBinderInterface
                     } else {
                         $this->validateRequired($validation, $rProperty);
                     }
-                } elseif ($nestedData === []) {
-                    if ($hasDefaultValue) {
-                        $input->$field = $rProperty->getDefaultValue();
-                    } elseif ($isNullable) {
-                        $input->$field = null;
-                    } else {
-                        $this->validateRequired($validation, $rProperty);
-                    }
-                } else {
+                } elseif (!is_array($nestedData)) {
                     $validation->field = $fullPath;
                     $validation->value = $nestedData;
                     $validation->validate(new Type('array'));
+                } elseif ($this->acceptsArrayConstructor($nestedType) || $nestedData !== []) {
+                    $input->$field = $this->populate($nestedType, $nestedData, $validation, $fullPath, $depth + 1);
+                } elseif ($hasDefaultValue) {
+                    $input->$field = $rProperty->getDefaultValue();
+                } elseif ($isNullable) {
+                    $input->$field = null;
+                } else {
+                    $this->validateRequired($validation, $rProperty);
                 }
 
                 continue;
@@ -243,6 +249,56 @@ class InputBinder implements InputBinderInterface
         }
 
         return $input;
+    }
+
+    /**
+     * Whether `$type` is a value object constructable in one shot from a single array argument
+     * (`new $type($data)`): its constructor's first parameter accepts an array and any further parameters
+     * are optional. Such types are built directly instead of populated property-by-property.
+     *
+     * @param class-string $type
+     */
+    protected function acceptsArrayConstructor(string $type): bool
+    {
+        if (!class_exists($type)) {
+            return false;
+        }
+
+        $constructor = (new ReflectionClass($type))->getConstructor();
+        if ($constructor === null) {
+            return false;
+        }
+
+        $parameters = $constructor->getParameters();
+        if ($parameters === []) {
+            return false;
+        }
+
+        foreach (array_slice($parameters, 1) as $parameter) {
+            if (!$parameter->isOptional()) {
+                return false;
+            }
+        }
+
+        return $this->typeAcceptsArray($parameters[0]->getType());
+    }
+
+    /** Whether a parameter type accepts an array value (`array`/`iterable`, directly or within a union). */
+    protected function typeAcceptsArray(?ReflectionType $type): bool
+    {
+        if ($type instanceof ReflectionNamedType) {
+            return in_array($type->getName(), ['array', 'iterable'], true);
+        }
+
+        if ($type instanceof ReflectionUnionType) {
+            foreach ($type->getTypes() as $inner) {
+                if ($inner instanceof ReflectionNamedType && in_array($inner->getName(), ['array', 'iterable'], true)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected function shouldPopulateNested(string $type): bool
