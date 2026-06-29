@@ -14,6 +14,7 @@ use UnitEnum;
 use function is_array;
 use function is_object;
 use function is_scalar;
+use function is_string;
 
 /**
  * Safe JSON helper with exception-based error handling and JSON-safe normalization.
@@ -77,24 +78,33 @@ class Json
     /**
      * Convert PHP value to JSON string.
      *
+     * Defaults: unescaped Unicode/slashes, throw on error. No HTML HEX escaping
+     * (`JSON_HEX_TAG` etc.) — callers that embed JSON in HTML must escape separately.
+     *
      * @param mixed $json PHP value to encode
      * @param int $options Additional JSON encoding options
      *
      * @return string JSON string
      *
-     * Uses `JSON_THROW_ON_ERROR` with framework defaults and throws `JsonException` on failure.
-     *
      * @throws JsonException If encoding fails
      */
     public static function stringify(mixed $json, int $options = 0): string
     {
-        $options |= JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP;
+        $options |= JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR;
 
         try {
             return json_encode($json, $options, 64);
         } catch (\JsonException $e) {
             JsonException::raise('JSON encode failed: "{error}".', ['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * String as-is; otherwise `stringify()` (mixed tool bodies, transcripts, estimates).
+     */
+    public static function text(mixed $value): string
+    {
+        return is_string($value) ? $value : static::stringify($value);
     }
 
     /**

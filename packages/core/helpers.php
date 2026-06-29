@@ -70,7 +70,7 @@ if (!function_exists('console_log')) {
             if (is_string($message) && $context !== [] && str_contains($message, '{')) {
                 $replaces = [];
                 foreach ($context as $key => $value) {
-                    $replaces["{{$key}}"] = is_string($value) ? $value : Json::stringify($value);
+                    $replaces["{{$key}}"] = Json::text($value);
                 }
                 $message = strtr($message, $replaces);
             }
@@ -92,6 +92,30 @@ if (!function_exists('json')) {
     function json(mixed $value, int $options = 0): string
     {
         return Json::stringify($value, $options);
+    }
+}
+
+if (!function_exists('array_find')) {
+    /**
+     * PHP 8.4 `array_find()` polyfill: first value for which `$callback` returns true.
+     *
+     * @template TValue
+     * @template TKey of array-key
+     *
+     * @param array<TKey, TValue> $array
+     * @param callable(TValue, TKey): bool $callback
+     *
+     * @return TValue|null
+     */
+    function array_find(array $array, callable $callback): mixed
+    {
+        foreach ($array as $key => $value) {
+            if ($callback($value, $key)) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 }
 
