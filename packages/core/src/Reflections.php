@@ -15,6 +15,8 @@ use ReflectionProperty;
 use ReflectionType;
 use ReflectionUnionType;
 use Switon\Core\Exception\InvalidArgumentException;
+use ReflectionException;
+
 use function is_array;
 use function is_object;
 use function is_string;
@@ -30,7 +32,7 @@ class Reflections
 {
     public static function getCallable(callable $handler): ReflectionFunctionAbstract
     {
-        if (is_array($handler) && isset($handler[0], $handler[1])) {
+        if (is_array($handler)) {
             return new ReflectionMethod($handler[0], $handler[1]);
         }
 
@@ -60,7 +62,7 @@ class Reflections
 
     public static function describeCallable(callable $handler): string
     {
-        if (is_array($handler) && isset($handler[0], $handler[1])) {
+        if (is_array($handler)) {
             $target = $handler[0];
 
             return (is_object($target) ? $target::class : (string)$target) . '::' . $handler[1];
@@ -111,7 +113,7 @@ class Reflections
     {
         try {
             $rType = (new ReflectionMethod($class, $method))->getReturnType();
-        } catch (\ReflectionException) {
+        } catch (ReflectionException) {
             return null;
         }
 
@@ -129,7 +131,7 @@ class Reflections
     }
 
     /**
-     * Find the first initialized property whose declared type matches {@see $typeName} and whose value is an instance of it.
+     * Find the first initialized property whose declared type matches `$typeName` and whose value is an instance of it.
      */
     public static function findPropertyValueByType(object $object, string $typeName): ?object
     {

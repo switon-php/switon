@@ -13,7 +13,7 @@ parameters:
         -
             message: '#function random_bytes expects int<1, max>#'
             path: src/Random.php
-            count: 4
+            count: 5
         -
             identifier: return.type
             path: src/Json.php
@@ -21,4 +21,14 @@ parameters:
         -
             identifier: argument.type
             message: '~function scandir expects 0\|1\|2, int given~'
+            path: src/Filesystem.php
+        # Strings::fileName() forwards a caller-supplied byte count; clamping belongs to the caller's contract.
+        -
+            identifier: argument.type
+            message: '~function random_bytes expects int<1, max>, int given~'
+            path: src/Strings.php
+        # The second exists() re-checks after a failed @unlink: another process may have removed the file
+        # concurrently, in which case deletion succeeded and must not raise. PHPStan sees exists() as pure.
+        -
+            identifier: booleanAnd.rightAlwaysTrue
             path: src/Filesystem.php

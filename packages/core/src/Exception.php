@@ -6,7 +6,6 @@ namespace Switon\Core;
 
 use Throwable;
 
-use function is_string;
 use function str_contains;
 use function strtr;
 
@@ -40,7 +39,7 @@ class Exception extends \Exception
      * @param int $code Exception code (not HTTP status code)
      * @param \Exception|null $previous Previous exception for chaining
      */
-    final protected function __construct(string|Throwable $message = '', array $context = [], int $code = 0, ?\Exception $previous = null)
+    protected function __construct(string|Throwable $message = '', array $context = [], int $code = 0, ?\Exception $previous = null)
     {
         if ($message instanceof Throwable) {
             $this->context = $context;
@@ -51,7 +50,7 @@ class Exception extends \Exception
                 $extra = [];
                 foreach ($context as $k => $v) {
                     if (str_contains($message, "{{$k}}")) {
-                        $tr["{{$k}}"] = is_string($v) ? $v : Json::stringify($v);
+                        $tr["{{$k}}"] = Json::text($v);
                     } else {
                         $extra[$k] = $v;
                     }

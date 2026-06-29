@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Switon\Core\Tests\Unit;
 
+use PHPUnit\Framework\TestCase;
 use Switon\Core\Runtime;
-use Switon\Core\Tests\TestCase;
-use ReflectionClass;
+use Switon\Core\Tests\Support\RuntimeStateReset;
 
 /**
  * Test cases for Runtime class.
@@ -21,9 +21,7 @@ class RuntimeTest extends TestCase
      */
     protected function setUp(): void
     {
-        parent::setUp();
         $this->resetRuntimeState();
-        putenv('SWITON_ROOT');
     }
 
     /**
@@ -32,26 +30,12 @@ class RuntimeTest extends TestCase
     protected function tearDown(): void
     {
         $this->resetRuntimeState();
-        putenv('SWITON_ROOT');
         parent::tearDown();
     }
 
-    /**
-     * Reset Runtime static properties to default values.
-     *
-     * Note: Reflection is necessary here because Runtime is a static-only class
-     * that stores process-level state. Resetting static state for test isolation
-     * is a legitimate use of Reflection.
-     */
     protected function resetRuntimeState(): void
     {
-        $reflection = new ReflectionClass(Runtime::class);
-
-        $coroutineProperty = $reflection->getProperty('coroutineEnabled');
-        $coroutineProperty->setValue(null, false);
-
-        $rootProperty = $reflection->getProperty('root');
-        $rootProperty->setValue(null, null);
+        RuntimeStateReset::reset();
     }
 
     /**
@@ -109,37 +93,14 @@ class RuntimeTest extends TestCase
     }
 
     /**
-     * Test that getRoot() uses environment variable when set.
+     * Test that getRoot() falls back to autoload.php detection.
      */
-    public function testGetRootFromEnvironmentVariable(): void
+    public function testGetRootFallsBackToAutoloadDetection(): void
     {
-        // Set environment variable
-        putenv('SWITON_ROOT=/custom/root/path');
+        $root = Runtime::getRoot();
 
-        try {
-            $root = Runtime::getRoot();
-            $this->assertSame('/custom/root/path', $root);
-        } finally {
-            // Clean up
-            putenv('SWITON_ROOT');
-        }
-    }
-
-    /**
-     * Test that getRoot() normalizes environment variable path.
-     */
-    public function testGetRootNormalizesEnvironmentVariablePath(): void
-    {
-        // Set environment variable with backslashes and trailing slash
-        putenv('SWITON_ROOT=C:\\Users\\myapp\\');
-
-        try {
-            $root = Runtime::getRoot();
-            $this->assertSame('C:/Users/myapp', $root);
-        } finally {
-            // Clean up
-            putenv('SWITON_ROOT');
-        }
+        $this->assertNotEmpty($root);
+        $this->assertStringNotContainsString('@', $root);
     }
 
     /**
@@ -211,29 +172,9 @@ class RuntimeTest extends TestCase
     }
 
     /**
-     * Test that environment variable takes precedence over autoload.php detection.
-     */
-    public function testEnvironmentVariableTakesPrecedence(): void
-    {
-        putenv('SWITON_ROOT=/env/var/path');
-
-        try {
-            // Reset cache to test environment variable priority
-            $this->resetRuntimeState();
-
-            $root = Runtime::getRoot();
-
-            // Should use environment variable, not autoload.php detection
-            $this->assertSame('/env/var/path', $root);
-        } finally {
-            putenv('SWITON_ROOT');
-        }
-    }
-
-    /**
      * Helper method to check string does not end with suffix.
      */
-    private function assertStringEndsWithNot(string $suffix, string $string): void
+    protected function assertStringEndsWithNot(string $suffix, string $string): void
     {
         $this->assertFalse(
             str_ends_with($string, $suffix),

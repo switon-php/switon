@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Switon\Core\Tests\Unit;
 
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 use const PHP_BINARY;
 
 /**
  * Covers {@see \Switon\Core\Runtime::getRoot()} when Composer autoload is not among included files (subprocess).
  */
-final class RuntimeRootDetectionTest extends TestCase
+class RuntimeRootDetectionTest extends TestCase
 {
     public function testGetRootThrowsWhenAutoloadPhpNotLoadedInProcess(): void
     {

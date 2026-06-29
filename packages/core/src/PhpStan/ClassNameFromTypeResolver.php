@@ -23,7 +23,7 @@ use function is_string;
  */
 trait ClassNameFromTypeResolver
 {
-    private function resolveMakeReturnTypeFromMethodCall(MethodCall $methodCall, Scope $scope): ?Type
+    protected function resolveMakeReturnTypeFromMethodCall(MethodCall $methodCall, Scope $scope): ?Type
     {
         $args = $methodCall->getArgs();
         if (!isset($args[0])) {
@@ -33,7 +33,7 @@ trait ClassNameFromTypeResolver
         return $this->resolveMakeReturnTypeFromArgument($args[0]->value, $scope);
     }
 
-    private function resolveMakeReturnTypeFromStaticCall(StaticCall $methodCall, Scope $scope): ?Type
+    protected function resolveMakeReturnTypeFromStaticCall(StaticCall $methodCall, Scope $scope): ?Type
     {
         $args = $methodCall->getArgs();
         if (!isset($args[0])) {
@@ -43,13 +43,13 @@ trait ClassNameFromTypeResolver
         return $this->resolveMakeReturnTypeFromArgument($args[0]->value, $scope);
     }
 
-    private function resolveMakeReturnTypeFromArgument(Expr $argument, Scope $scope): ?Type
+    protected function resolveMakeReturnTypeFromArgument(Expr $argument, Scope $scope): ?Type
     {
         $resolved = $this->resolveClassNameType($scope->getType($argument));
         return $resolved ?? $this->resolveTemplateTypeFromCallingScope($argument, $scope);
     }
 
-    private function resolveClassNameType(Type $type): ?Type
+    protected function resolveClassNameType(Type $type): ?Type
     {
         if ($type instanceof UnionType) {
             foreach ($type->getTypes() as $inner) {
@@ -96,7 +96,7 @@ trait ClassNameFromTypeResolver
         return new ObjectType($className);
     }
 
-    private function normalizeResolvableObjectType(Type $type): ?Type
+    protected function normalizeResolvableObjectType(Type $type): ?Type
     {
         if (!$type->isObject()->yes()) {
             return null;
@@ -120,7 +120,7 @@ trait ClassNameFromTypeResolver
         return $type;
     }
 
-    private function resolveTemplateTypeFromCallingScope(Expr $argument, Scope $scope): ?Type
+    protected function resolveTemplateTypeFromCallingScope(Expr $argument, Scope $scope): ?Type
     {
         if (!$argument instanceof Variable || !is_string($argument->name)) {
             return null;

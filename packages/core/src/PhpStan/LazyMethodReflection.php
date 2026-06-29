@@ -13,11 +13,11 @@ use PHPStan\Type\Generic\TemplateTypeMap;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\Type;
 
-final class LazyMethodReflection implements MethodReflection
+class LazyMethodReflection implements MethodReflection
 {
     public function __construct(
-        private ClassReflection $declaringClass,
-        private string          $name,
+        protected ClassReflection $declaringClass,
+        protected string          $name,
     ) {
     }
 

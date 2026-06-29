@@ -18,7 +18,7 @@ class ResourceAlias
 {
     /**
      * @param string|null $alias Explicit alias override; null = auto-generate
-     * @param string $path Relative path from package root; defaults to sibling `resources/`
+     * @param string $path Relative path from package root, or another alias (e.g. `@runtime/threads`)
      */
     public function __construct(
         public ?string $alias = null,
