@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Switon\Core\Tests\Unit;
 
 use JsonSerializable;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Switon\Core\Strings;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -16,6 +18,7 @@ use RuntimeException;
  * Tests general string manipulation utilities.
  * For handler IDs and FQCN id(), see ClassNameTest.
  */
+#[CoversClass(Strings::class)]
 class StringsTest extends TestCase
 {
     /**
@@ -261,6 +264,135 @@ class StringsTest extends TestCase
         $this->assertSame('Hello John', $result);
     }
 
+    // ========== uuid() tests ==========
+
+    public function testUuidMatchesFormat(): void
+    {
+        $uuid = Strings::uuid();
+
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i',
+            $uuid,
+        );
+    }
+
+    // ========== isSlug() tests ==========
+
+    public function testIsSlugAcceptsValidSlugs(): void
+    {
+        $this->assertTrue(Strings::isSlug('demo'));
+        $this->assertTrue(Strings::isSlug('api-v2'));
+        $this->assertTrue(Strings::isSlug('550e8400-e29b-41d4-a716-446655440000.png'));
+    }
+
+    public function testIsSlugRejectsInvalidSlugs(): void
+    {
+        $this->assertFalse(Strings::isSlug(''));
+        $this->assertFalse(Strings::isSlug('.'));
+        $this->assertFalse(Strings::isSlug('..'));
+        $this->assertFalse(Strings::isSlug('a..b'));
+        $this->assertFalse(Strings::isSlug('foo..md'));
+        $this->assertFalse(Strings::isSlug('has space'));
+        $this->assertFalse(Strings::isSlug('a/b'));
+        $this->assertFalse(Strings::isSlug(str_repeat('a', 129)));
+    }
+
+    // ========== lines() / lf() / eol() ==========
+
+    public function testLinesEmptyAndSingleLine(): void
+    {
+        $this->assertSame([], Strings::lines(''));
+        $this->assertSame(['only'], Strings::lines('only'));
+        $this->assertSame(['only'], Strings::lines("only\n"));
+        $this->assertSame([''], Strings::lines("\n"));
+        $this->assertSame(['', ''], Strings::lines("\n\n"));
+    }
+
+    public function testRawLinesKeepsTrailingEmptySegment(): void
+    {
+        $this->assertSame([''], Strings::rawLines(''));
+        $this->assertSame(['only'], Strings::rawLines('only'));
+        $this->assertSame(['only', ''], Strings::rawLines("only\n"));
+        $this->assertSame(['a', 'b', ''], Strings::rawLines("a\r\nb\r\n"));
+        $this->assertSame(['a', '', 'b'], Strings::rawLines("a\n\nb"));
+        $this->assertSame(['', ''], Strings::rawLines("\n"));
+    }
+
+    /** @return array<string, array{0: string, 1: list<string>}> */
+    public static function linesProvider(): array
+    {
+        return [
+            'lf with trailing' => ["a\nb\n", ['a', 'b']],
+            'lf without trailing' => ["a\nb", ['a', 'b']],
+            'crlf with trailing' => ["a\r\nb\r\n", ['a', 'b']],
+            'crlf without trailing' => ["a\r\nb", ['a', 'b']],
+            'cr with trailing' => ["a\rb\r", ['a', 'b']],
+            'cr without trailing' => ["a\rb", ['a', 'b']],
+            'blank lf lines' => ["a\n\nb\n", ['a', '', 'b']],
+            'blank crlf lines' => ["a\r\n\r\nb\r\n", ['a', '', 'b']],
+            'mixed crlf then lf' => ["a\r\nb\nc", ['a', 'b', 'c']],
+            'mixed lf then crlf' => ["a\nb\r\nc", ['a', 'b', 'c']],
+            'cr then lf' => ["a\rb\nc", ['a', 'b', 'c']],
+            'only crlfs' => ["\r\n\r\n", ['', '']],
+        ];
+    }
+
+    #[DataProvider('linesProvider')]
+    public function testLinesSplitsNewlines(string $text, array $expected): void
+    {
+        $this->assertSame($expected, Strings::lines($text));
+    }
+
+    /** @return array<string, array{0: string, 1: string}> */
+    public static function lfProvider(): array
+    {
+        return [
+            'already lf' => ["a\nb\n", "a\nb\n"],
+            'crlf' => ["a\r\nb\r\n", "a\nb\n"],
+            'cr' => ["a\rb", "a\nb"],
+            'mixed' => ["a\r\nb\rc\n", "a\nb\nc\n"],
+            'empty' => ['', ''],
+            'no newline' => ['plain', 'plain'],
+        ];
+    }
+
+    #[DataProvider('lfProvider')]
+    public function testLfNormalizesToUnix(string $text, string $expected): void
+    {
+        $this->assertSame($expected, Strings::lf($text));
+    }
+
+    /** @return array<string, array{0: string, 1: string}> */
+    public static function eolProvider(): array
+    {
+        return [
+            'crlf wins over lf' => ["a\r\nb\n", "\r\n"],
+            'crlf only' => ["a\r\nb\r\n", "\r\n"],
+            'cr only' => ["a\rb", "\r"],
+            'lf only' => ["a\nb", "\n"],
+            'no newline defaults lf' => ['plain', "\n"],
+            'empty defaults lf' => ['', "\n"],
+            'lone cr before later content without crlf' => ["x\ry", "\r"],
+        ];
+    }
+
+    #[DataProvider('eolProvider')]
+    public function testEolDetectsPrimaryNewline(string $text, string $expected): void
+    {
+        $this->assertSame($expected, Strings::eol($text));
+    }
+
+    public function testLinesLfEolRoundTripForHomogeneousFiles(): void
+    {
+        foreach (["\n", "\r\n", "\r"] as $eol) {
+            $raw = 'one' . $eol . 'two' . $eol . 'three' . $eol;
+            $this->assertSame(['one', 'two', 'three'], Strings::lines($raw));
+            $this->assertSame($eol, Strings::eol($raw));
+            $rejoined = implode($eol, Strings::lines($raw)) . $eol;
+            $this->assertSame($raw, $rejoined);
+        }
+    }
+
     // ========== renderException() tests ==========
 
     public function testRenderExceptionFormatsException(): void
@@ -315,7 +447,7 @@ class StringsTest extends TestCase
     }
 
     /** Previous created in another stack frame so trace strings differ from the wrapping exception. */
-    private static function newInvalidArgumentForRenderChain(string $message): InvalidArgumentException
+    protected static function newInvalidArgumentForRenderChain(string $message): InvalidArgumentException
     {
         return new InvalidArgumentException($message);
     }
@@ -342,4 +474,30 @@ class StringsTest extends TestCase
         // Path prefix should be stripped
         $this->assertStringNotContainsString(__DIR__, $result);
     }
+
+    public function testCutByCodePoints(): void
+    {
+        $this->assertSame('你好', Strings::cut('你好世界', 2));
+        $this->assertSame('你好…', Strings::cut('你好世界', 3, '…'));
+        $this->assertSame('abc', Strings::cut('abc', 10));
+        $this->assertSame('', Strings::cut('abc', 0));
+    }
+
+    public function testCutBytesUtf8Safe(): void
+    {
+        // "你" is 3 bytes; budget 4 must not split the next code point.
+        $this->assertSame('你', Strings::cutBytes('你好', 4));
+        $this->assertSame('你…', Strings::cutBytes('你好世界', 6, '…'));
+        $this->assertSame('abc', Strings::cutBytes('abc', 10));
+        $this->assertSame('', Strings::cutBytes('abc', 0));
+    }
+
+    public function testSquishCollapsesWhitespaceAndTrims(): void
+    {
+        $this->assertSame('hello world', Strings::squish("  hello   \n\t  world  "));
+        $this->assertSame('a b', Strings::squish("a\u{00A0}\u{00A0}b"));
+        $this->assertSame('', Strings::squish(" \n\t "));
+        $this->assertSame('ok', Strings::squish('ok'));
+    }
+
 }
