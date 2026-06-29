@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Switon\Core\Tests\Unit;
 
+use Switon\Core\App;
 use Switon\Core\Tests\Fixtures\TestClass;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 use function fclose;
 use function proc_close;
@@ -15,7 +16,7 @@ use function stream_get_contents;
 class HelpersTest extends TestCase
 {
     /** @var list<string> */
-    private array $envKeysToUnset = [];
+    protected array $envKeysToUnset = [];
 
     protected function tearDown(): void
     {
@@ -25,6 +26,22 @@ class HelpersTest extends TestCase
         $this->envKeysToUnset = [];
 
         parent::tearDown();
+    }
+
+    public function testArrayFindReturnsFirstMatch(): void
+    {
+        $found = array_find(
+            ['a' => 'skip', 'b' => 'hit', 'c' => 'later'],
+            static fn (string $value, string $key): bool => $key !== 'a',
+        );
+
+        $this->assertSame('hit', $found);
+    }
+
+    public function testArrayFindReturnsNullWhenNothingMatches(): void
+    {
+        $this->assertNull(array_find([1, 2], static fn (int $value): bool => $value === 3));
+        $this->assertNull(array_find([], static fn (): bool => true));
     }
 
     public function testArrayFirstReturnsNullForEmptyArray(): void
@@ -81,7 +98,14 @@ class HelpersTest extends TestCase
 
     public function testMakeDelegatesToAppContainer(): void
     {
-        $instance = make(TestClass::class, ['name' => 'helper', 'value' => 7]);
+        $container = new \Switon\Core\Tests\Support\SimpleContainer();
+        App::setContainer($container);
+
+        try {
+            $instance = make(TestClass::class, ['name' => 'helper', 'value' => 7]);
+        } finally {
+            App::setContainer(null);
+        }
 
         $this->assertInstanceOf(TestClass::class, $instance);
         $this->assertSame('helper', $instance->name);
@@ -104,7 +128,7 @@ class HelpersTest extends TestCase
         $this->assertStringContainsString('[info]: hello world', $stderr);
     }
 
-    private function resolveAutoloadPath(): string
+    protected function resolveAutoloadPath(): string
     {
         $packageVendor = dirname(__DIR__, 2) . '/vendor/autoload.php';
         if (is_file($packageVendor)) {
@@ -114,7 +138,7 @@ class HelpersTest extends TestCase
         return dirname(__DIR__, 4) . '/vendor/autoload.php';
     }
 
-    private function runPhpSnippet(string $code): string
+    protected function runPhpSnippet(string $code): string
     {
         $descriptorSpec = [
             0 => ['pipe', 'r'],
@@ -133,13 +157,13 @@ class HelpersTest extends TestCase
         return $stderr;
     }
 
-    private function setEnv(string $key, string $value): void
+    protected function setEnv(string $key, string $value): void
     {
         putenv("$key=$value");
         $this->envKeysToUnset[] = $key;
     }
 
-    private function unsetEnv(string $key): void
+    protected function unsetEnv(string $key): void
     {
         putenv($key);
         $this->envKeysToUnset[] = $key;

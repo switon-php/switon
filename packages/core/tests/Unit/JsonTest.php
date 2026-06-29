@@ -7,7 +7,7 @@ namespace Switon\Core\Tests\Unit;
 use Switon\Core\ArrayableInterface;
 use Switon\Core\Exception\JsonException;
 use Switon\Core\Json;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use DateTimeImmutable;
 use JsonSerializable;
 use Stringable;
@@ -148,13 +148,16 @@ class JsonTest extends TestCase
      */
     public function testStringifyAppliesDefaultOptions(): void
     {
-        $data = ['path' => '/test/path', 'unicode' => '测试'];
+        $data = ['path' => '/test/path', 'unicode' => '测试', 'quote' => '"'];
         $result = Json::stringify($data);
 
         // Should not escape slashes
         $this->assertStringContainsString('/test/path', $result);
         // Should not escape unicode
         $this->assertStringContainsString('测试', $result);
+        // Quotes stay JSON-escaped, not HTML HEX (\u0022)
+        $this->assertSame('{"path":"/test/path","unicode":"测试","quote":"\\""}', $result);
+        $this->assertStringNotContainsString('\\u0022', $result);
     }
 
     /**
@@ -318,7 +321,7 @@ class JsonTest extends TestCase
 
         try {
             $payload = new class ($handle) implements ArrayableInterface {
-                public function __construct(private mixed $h)
+                public function __construct(protected mixed $h)
                 {
                 }
 
