@@ -11,13 +11,15 @@ use Switon\Core\Exception\CircularAliasException;
  * Path-alias contract.
  *
  * Aliases are named with an `@` prefix (for example `@app`) and resolve to normalized file-system paths.
- * Names passed without `@` are normalized automatically.
+ * Names passed without `@` are normalized automatically. Paths starting with `~/` (or bare `~`) expand to the current-user home.
  *
  * Guidance: Register stable roots here; higher-level code should consume resolved paths instead of rebuilding path logic.
+ * Built-ins include <code>@root</code>, <code>@vendor</code>, <code>@switon</code> (<code>vendor/switon</code>),
+ * <code>@runtime</code>, <code>@app</code>, <code>@resources</code>.
  *
  * Road-signs:
  * - `set()` registers aliases and nested alias paths
- * - `resolve()` expands aliases and placeholder context
+ * - `resolve()` expands aliases and placeholder context (e.g. `@switon/core`)
  * - `FilesystemInterface` consumes resolved paths
  * - renderer and asset helpers read aliases directly
  *
@@ -74,6 +76,8 @@ interface PathAliasInterface
      * Resolve a path string (alias path or plain path).
      *
      * Supports placeholder replacement with <code>{key}</code> from context.
+     * Expands a leading <code>~</code> / <code>~/</code> / <code>~\</code> to the current-user home
+     * (<code>HOME</code>, else <code>USERPROFILE</code>); when home is empty the tilde prefix is left unchanged.
      *
      * @param string $path
      * @param array<string, mixed> $context

@@ -8,14 +8,21 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\Exception\AliasNotFoundException;
 use Switon\Core\Exception\CreateDirectoryFailedException;
 use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\Exception\JsonException;
+use Switon\Core\Exception\NotSupportedException;
 use Switon\Core\Exception\RuntimeException;
 
+use function array_slice;
 use function basename;
+use function bin2hex;
 use function chmod;
 use function closedir;
 use function copy;
+use function count;
 use function dirname;
 use function error_get_last;
+use function explode;
+use function file;
 use function file_exists;
 use function file_get_contents;
 use function file_put_contents;
@@ -23,18 +30,28 @@ use function filemtime;
 use function filesize;
 use function fnmatch;
 use function glob;
+use function implode;
 use function is_dir;
 use function is_file;
+use function is_link;
+use function is_readable;
 use function mkdir;
 use function opendir;
+use function random_bytes;
 use function readdir;
+use function realpath;
 use function rename;
 use function rmdir;
 use function rtrim;
 use function scandir;
+use function sort;
 use function str_contains;
+use function str_replace;
 use function str_starts_with;
+use function strpbrk;
 use function strtr;
+use function substr;
+use function trim;
 use function unlink;
 
 /**
@@ -49,6 +66,11 @@ use function unlink;
 class Filesystem implements FilesystemInterface
 {
     #[Autowired] protected PathAliasInterface $pathAlias;
+
+    public function resolve(string $path): string
+    {
+        return $this->pathAlias->resolve($path);
+    }
 
     /**
      * Check if file or directory exists.
@@ -93,17 +115,21 @@ class Filesystem implements FilesystemInterface
     public function delete(string $path): void
     {
         $resolved = $this->pathAlias->resolve($path);
+        $this->rejectPharMutation($resolved);
         if (str_contains($resolved, '*')) {
             foreach ($this->files($resolved) as $f) {
-                if (!unlink($f) && $this->exists($f)) {
+                if (!@unlink($f) && $this->exists($f)) {
                     $error = error_get_last()['message'] ?? '';
                     RuntimeException::raise('Failed to delete file "{f}": "{error}".', ['f' => $f, 'error' => $error]);
                 }
             }
         } else {
             $file = $resolved;
+            if (!$this->exists($file)) {
+                return;
+            }
 
-            if (!unlink($file) && $this->exists($file)) {
+            if (!@unlink($file) && $this->exists($file)) {
                 $error = error_get_last()['message'] ?? '';
                 RuntimeException::raise('Failed to delete file "{file}": "{error}".', ['file' => $file, 'error' => $error]);
             }
@@ -136,37 +162,129 @@ class Filesystem implements FilesystemInterface
         return $r;
     }
 
-    /** @throws RuntimeException */
+    /**
+     * @return list<string>
+     */
+    public function lines(string $file): array
+    {
+        $resolved = $this->pathAlias->resolve($file);
+        $raw = @file($resolved, FILE_IGNORE_NEW_LINES);
+        if ($raw === false) {
+            FileNotFoundException::raise('File "{file}" not found or unreadable.', ['file' => $file]);
+        }
+
+        $lines = [];
+        foreach ($raw as $line) {
+            $line = trim($line);
+            if ($line !== '') {
+                $lines[] = $line;
+            }
+        }
+
+        return $lines;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Guidance: readers never observe a truncated file — the body lands in a sibling
+     * temp file and is renamed into place, so a crash mid-write leaves the previous
+     * content intact.
+     */
     public function write(string $file, string $data): void
     {
         $file = $this->pathAlias->resolve($file);
+        $this->rejectPharMutation($file);
 
         $this->mkdirInternal(dirname($file));
-        if (file_put_contents($file, $data, LOCK_EX) === false) {
+        $temp = $file . '.' . bin2hex(random_bytes(6)) . '.tmp';
+        if (file_put_contents($temp, $data) === false) {
+            $error = error_get_last()['message'] ?? '';
+            RuntimeException::raise('Failed to write to file "{file}": "{error}".', ['file' => $file, 'error' => $error]);
+        }
+
+        if (!rename($temp, $file)) {
+            $error = error_get_last()['message'] ?? '';
+            @unlink($temp);
+            RuntimeException::raise('Failed to replace "{file}": "{error}".', ['file' => $file, 'error' => $error]);
+        }
+    }
+
+    /** {@inheritDoc} */
+    public function append(string $file, string $data): void
+    {
+        $file = $this->pathAlias->resolve($file);
+        $this->rejectPharMutation($file);
+        $this->mkdirInternal(dirname($file));
+
+        if (file_put_contents($file, $data, FILE_APPEND) === false) {
             $error = error_get_last()['message'] ?? '';
             RuntimeException::raise('Failed to write to file "{file}": "{error}".', ['file' => $file, 'error' => $error]);
         }
     }
 
     /**
-     * Append data to file.
-     *
-     * Creates parent directories automatically. Uses file locking for safe concurrent writes.
-     *
-     * @param string $file File path (supports aliases)
-     * @param string $data Data to append
-     *
-     * @throws RuntimeException If append operation fails
+     * {@inheritDoc}
      */
-    public function append(string $file, string $data): void
+    public function appendJsonl(string $file, mixed $value): void
     {
-        $file = $this->pathAlias->resolve($file);
-        $this->mkdirInternal(dirname($file));
+        $this->append($file, Json::stringify($value) . "\n");
+    }
 
-        if (file_put_contents($file, $data, LOCK_EX | FILE_APPEND) === false) {
-            $error = error_get_last()['message'] ?? '';
-            RuntimeException::raise('Failed to write to file "{file}": "{error}".', ['file' => $file, 'error' => $error]);
+    /** {@inheritDoc} */
+    public function writeJsonl(string $file, array $values): void
+    {
+        $lines = [];
+        foreach ($values as $value) {
+            $lines[] = Json::stringify($value);
         }
+        $this->write($file, $lines === [] ? '' : implode("\n", $lines) . "\n");
+    }
+
+    /** {@inheritDoc} */
+    public function readJsonl(string $file): array
+    {
+        if (!is_file($this->pathAlias->resolve($file))) {
+            return [];
+        }
+
+        $lines = $this->lines($file);
+        $last = count($lines) - 1;
+
+        $values = [];
+        foreach ($lines as $index => $line) {
+            try {
+                $values[] = Json::parse($line);
+            } catch (JsonException $e) {
+                if ($index === $last) {
+                    break;
+                }
+
+                throw $e;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function readJson(string $file): mixed
+    {
+        if (!is_file($this->pathAlias->resolve($file))) {
+            return null;
+        }
+
+        return Json::parse($this->read($file));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function writeJson(string $file, mixed $value, int $options = JSON_PRETTY_PRINT): void
+    {
+        $this->write($file, Json::stringify($value, $options) . "\n");
     }
 
     /**
@@ -175,16 +293,21 @@ class Filesystem implements FilesystemInterface
      * Creates parent directories automatically. If destination ends with slash,
      * source basename is appended to destination path.
      *
+     * An archive entry cannot be renamed, so a `phar://` source raises
+     * {@see NotSupportedException}; use `copy()` to extract it instead.
+     *
      * @param string $src Source path (supports aliases)
      * @param string $dst Destination path (supports aliases)
      * @param bool $overwrite Whether to overwrite existing destination
      *
      * @throws RuntimeException If move operation fails or destination exists without overwrite
+     * @throws NotSupportedException If the source lives in a phar archive
      */
     public function move(string $src, string $dst, bool $overwrite = false): void
     {
         $src = $this->pathAlias->resolve($src);
         $dst = $this->pathAlias->resolve($dst);
+        $this->rejectPharMutation($src, $dst);
 
         if (rtrim($dst, '\\/') !== $dst) {
             $dst .= basename($src);
@@ -214,6 +337,41 @@ class Filesystem implements FilesystemInterface
     public function isDir(string $dir): bool
     {
         return is_dir($this->pathAlias->resolve($dir));
+    }
+
+    public function isFile(string $file): bool
+    {
+        return is_file($this->pathAlias->resolve($file));
+    }
+
+    public function realpath(string $path): ?string
+    {
+        $path = $this->pathAlias->resolve($path);
+        if (Path::isPhar($path)) {
+            $canonical = Path::pharCanonical($path);
+            if ($canonical === null || !file_exists($canonical)) {
+                return null;
+            }
+
+            return $canonical;
+        }
+
+        $resolved = realpath($path);
+        if ($resolved === false) {
+            return null;
+        }
+
+        return DIRECTORY_SEPARATOR === '\\' ? strtr($resolved, '\\', '/') : $resolved;
+    }
+
+    public function isReadable(string $path): bool
+    {
+        return is_readable($this->pathAlias->resolve($path));
+    }
+
+    public function isLink(string $path): bool
+    {
+        return is_link($this->pathAlias->resolve($path));
     }
 
     /**
@@ -264,6 +422,7 @@ class Filesystem implements FilesystemInterface
     public function rmdir(string $dir): void
     {
         $dir = $this->pathAlias->resolve($dir);
+        $this->rejectPharMutation($dir);
 
         if (!is_dir($dir)) {
             return;
@@ -284,7 +443,9 @@ class Filesystem implements FilesystemInterface
      */
     public function mkdir(string $dir, int $mode = 0755): void
     {
-        $this->mkdirInternal($this->pathAlias->resolve($dir), $mode);
+        $dir = $this->pathAlias->resolve($dir);
+        $this->rejectPharMutation($dir);
+        $this->mkdirInternal($dir, $mode);
     }
 
     /**
@@ -343,6 +504,7 @@ class Filesystem implements FilesystemInterface
     {
         $src = $this->pathAlias->resolve($src);
         $dst = $this->pathAlias->resolve($dst);
+        $this->rejectPharMutation($dst);
 
         if (is_file($src)) {
             if (!$overwrite && file_exists($dst)) {
@@ -364,54 +526,22 @@ class Filesystem implements FilesystemInterface
     /**
      * Find files matching glob pattern.
      *
-     * Supports standard glob patterns with wildcards. Handles phar:// URLs specially.
+     * Supports standard glob patterns with wildcards.
+     * A <code>phar://</code> pattern expands one path segment at a time, so a wildcard may sit in the middle.
+     * A segment that does not start with <code>.</code> does not match dotfiles.
      * Normalizes path separators to forward slashes on Windows.
      *
      * @param string $pattern Glob pattern (supports aliases and wildcards)
      * @param int $flags Glob flags (e.g., GLOB_ONLYDIR)
      *
      * @return list<string> Array of matching file paths
-     *
-     * @codeCoverageIgnore phar:// path handling requires phar environment which is not
-     *                     available in standard unit test environment.
      */
     public function glob(string $pattern, int $flags = 0): array
     {
         $pattern = $this->pathAlias->resolve($pattern);
 
         if (str_starts_with($pattern, 'phar://')) {
-            $dir = dirname($pattern);
-
-            if (!is_dir($dir)) {
-                return [];
-            }
-
-            $r = [];
-            $p = basename($pattern);
-            $h = @opendir($dir);
-            if ($h === false) {
-                return [];
-            }
-
-            try {
-                while (($file = readdir($h)) !== false) {
-                    if ($file === '.' || $file === '..') {
-                        continue;
-                    }
-
-                    if (!fnmatch($p, $file)) {
-                        continue;
-                    }
-
-                    if (($flags & GLOB_ONLYDIR) && !is_dir($dir . '/' . $file)) {
-                        continue;
-                    }
-
-                    $r[] = $dir . '/' . $file;
-                }
-            } finally {
-                closedir($h);
-            }
+            $r = $this->globPhar($pattern, $flags);
         } else {
             $r = glob($pattern, $flags);
             $r = $r !== false ? $r : [];
@@ -424,6 +554,108 @@ class Filesystem implements FilesystemInterface
         }
 
         return $r;
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function globPhar(string $pattern, int $flags): array
+    {
+        $pattern = str_replace('\\', '/', $pattern);
+        $parts = explode('/', substr($pattern, strlen('phar://')));
+        $archive = [];
+        $internal = null;
+        foreach ($parts as $index => $part) {
+            $archive[] = $part;
+            $candidate = implode('/', $archive);
+            if ($candidate !== '' && is_file($candidate)) {
+                $internal = array_slice($parts, $index + 1);
+                break;
+            }
+        }
+        if ($internal === null) {
+            return [];
+        }
+
+        $matches = $this->globPharWalk('phar://' . implode('/', $archive), $internal, $flags);
+        sort($matches);
+
+        return $matches;
+    }
+
+    /**
+     * @param list<string> $segments
+     *
+     * @return list<string>
+     */
+    protected function globPharWalk(string $dir, array $segments, int $flags): array
+    {
+        if ($segments === []) {
+            if (($flags & GLOB_ONLYDIR) && !is_dir($dir)) {
+                return [];
+            }
+            if (!file_exists($dir)) {
+                return [];
+            }
+
+            return [$dir];
+        }
+
+        $segment = $segments[0];
+        $segments = array_slice($segments, 1);
+        if ($segment === '') {
+            return $this->globPharWalk($dir, $segments, $flags);
+        }
+
+        if (strpbrk($segment, '*?[') === false) {
+            $next = $dir . '/' . $segment;
+            if (!file_exists($next)) {
+                return [];
+            }
+
+            return $this->globPharWalk($next, $segments, $flags);
+        }
+
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $handle = @opendir($dir);
+        if ($handle === false) {
+            return [];
+        }
+
+        $matches = [];
+        try {
+            while (($name = readdir($handle)) !== false) {
+                if ($name === '.' || $name === '..') {
+                    continue;
+                }
+                if ($segment[0] !== '.' && $name[0] === '.') {
+                    continue;
+                }
+                if (!fnmatch($segment, $name)) {
+                    continue;
+                }
+
+                foreach ($this->globPharWalk($dir . '/' . $name, $segments, $flags) as $match) {
+                    $matches[] = $match;
+                }
+            }
+        } finally {
+            closedir($handle);
+        }
+
+        return $matches;
+    }
+
+    protected function rejectPharMutation(string ...$paths): void
+    {
+        foreach ($paths as $path) {
+            if (str_starts_with($path, 'phar://')) {
+                NotSupportedException::raise('Cannot modify phar path "{path}".', ['path' => $path]);
+            }
+        }
     }
 
     /**
@@ -523,9 +755,22 @@ class Filesystem implements FilesystemInterface
      */
     public function chmod(string $file, int $mode): void
     {
-        if (!@chmod($this->pathAlias->resolve($file), $mode)) {
+        $file = $this->pathAlias->resolve($file);
+        $this->rejectPharMutation($file);
+        if (!@chmod($file, $mode)) {
             $error = error_get_last()['message'] ?? '';
             RuntimeException::raise('Failed to chmod "{file}" to mode "{mode}": "{error}".', ['file' => $file, 'mode' => $mode, 'error' => $error]);
+        }
+    }
+
+    public function touch(string $file, ?int $time = null): void
+    {
+        $file = $this->pathAlias->resolve($file);
+        $this->rejectPharMutation($file);
+        $time = $time ?? time();
+        if (!@touch($file, $time, $time)) {
+            $error = error_get_last()['message'] ?? '';
+            RuntimeException::raise('Failed to touch "{file}": "{error}".', ['file' => $file, 'error' => $error]);
         }
     }
 }
