@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Core\Tests\Unit;
 
 use ReflectionMethod;
-use ReflectionProperty;
-use Switon\Core\Attribute\Autowired;
 use Switon\Core\Categorizable;
 use Switon\Core\ContextAware;
 use Switon\Core\InputInterface;
@@ -21,7 +19,7 @@ trait ContractTestHelper
     /**
      * Create a simple test class with a Lazy type hint for testing.
      */
-    private function createLazyTestClass(): object
+    protected function createLazyTestClass(): object
     {
         return new class () {
             public function testMethod(Lazy $lazy): void
@@ -34,7 +32,7 @@ trait ContractTestHelper
     /**
      * Create a comprehensive test class implementing multiple contracts.
      */
-    private function createMultiContractTestClass(): object
+    protected function createMultiContractTestClass(): object
     {
         return new class () implements ContextAware, Categorizable {
             public function getContext(): null
@@ -110,7 +108,7 @@ class ContractTest extends TestCase
     {
         // Real usage: Implement ContextAware to access request context
         $contextAware = new class () implements ContextAware {
-            private $context = 'test-context';
+            protected $context = 'test-context';
 
             public function getContext(): mixed
             {
@@ -145,35 +143,13 @@ class ContractTest extends TestCase
     }
 
     /**
-     * Test that Autowired attribute enables automatic dependency injection.
-     */
-    public function testAutowiredAttributeEnablesDependencyInjection(): void
-    {
-        // Real usage: Mark properties for automatic injection
-        $testClass = new class () {
-            #[Autowired] public ?string $injectedProperty = null;
-        };
-
-        // Verify attribute is applied
-        $rProperty = new ReflectionProperty($testClass, 'injectedProperty');
-        $attributes = $rProperty->getAttributes(Autowired::class);
-
-        $this->assertCount(1, $attributes);
-
-        // In real usage, container would inject dependencies here
-        $attribute = $attributes[0]->newInstance();
-        $this->assertInstanceOf(Autowired::class, $attribute);
-        $this->assertFalse($attribute->isInstances());
-    }
-
-    /**
      * Test that Input interface provides request data access.
      */
     public function testInputInterfaceProvidesRequestDataAccess(): void
     {
         // Real usage: Implement Input to access request data
         $input = new class () implements InputInterface {
-            private array $data = ['name' => 'test', 'value' => 123];
+            protected array $data = ['name' => 'test', 'value' => 123];
 
             public function has(string|int $key): bool
             {

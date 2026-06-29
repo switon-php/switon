@@ -6,11 +6,11 @@ namespace Switon\Core\Tests\Unit;
 
 use ReflectionMethod;
 use Switon\Core\Reflections;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Countable;
 use Traversable;
 
-final class ReflectionsTest extends TestCase
+class ReflectionsTest extends TestCase
 {
     public function testGetCallableReflectsObjectMethodPair(): void
     {
@@ -89,7 +89,7 @@ final class ReflectionsTest extends TestCase
     }
 }
 
-final class ReflectionsTestReturnType
+class ReflectionsTestReturnType
 {
     public function label(): string
     {
@@ -97,52 +97,52 @@ final class ReflectionsTestReturnType
     }
 }
 
-final class ReflectionsTestClient
+class ReflectionsTestClient
 {
 }
 
-final class ReflectionsTestClientHolder
+class ReflectionsTestClientHolder
 {
     public function __construct(protected ReflectionsTestClient $client)
     {
     }
 }
 
-final class ReflectionsTestEmptyHolder
+class ReflectionsTestEmptyHolder
 {
     public string $name = 'empty';
 }
 
-final class ReflectionsTestEventA
+class ReflectionsTestEventA
 {
 }
 
-final class ReflectionsTestEventB
+class ReflectionsTestEventB
 {
 }
 
-final class ReflectionsTestUnionHandler
+class ReflectionsTestUnionHandler
 {
     public function onEvent(ReflectionsTestEventA|ReflectionsTestEventB $event): void
     {
     }
 }
 
-final class ReflectionsTestIntersectionHandler
+class ReflectionsTestIntersectionHandler
 {
     public function onEvent(Traversable&Countable $event): void
     {
     }
 }
 
-final class ReflectionsTestHandler
+class ReflectionsTestHandler
 {
     public function onEvent(object $event): void
     {
     }
 }
 
-final class ReflectionsTestInvokable
+class ReflectionsTestInvokable
 {
     public function __invoke(object $event): void
     {

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Switon\Core\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
+use PHPUnit\Framework\TestCase;
 use Switon\Core\Backtrace;
 use Switon\Core\Runtime;
-use Switon\Core\Tests\TestCase;
 
 /**
  * Test cases for Backtrace class.
@@ -169,6 +170,22 @@ class BacktraceTest extends TestCase
     /**
      * Test nested function calls produce correct backtrace.
      */
+    #[RequiresPhpExtension('swoole')]
+    public function testCoroutineModeUsesSwooleBacktrace(): void
+    {
+        $original = Runtime::isCoroutineEnabled();
+        Runtime::setCoroutineEnabled(true);
+        try {
+            \Swoole\Coroutine\run(function (): void {
+                $backtrace = Backtrace::get(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+                $this->assertIsArray($backtrace);
+                $this->assertLessThanOrEqual(2, count($backtrace));
+            });
+        } finally {
+            Runtime::setCoroutineEnabled($original);
+        }
+    }
+
     public function testNestedCallsProduceCorrectBacktrace(): void
     {
         // Arrange & Act

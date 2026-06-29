@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Core\Tests\Unit;
 
 use Switon\Core\StopFlow;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for StopFlow class.

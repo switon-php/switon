@@ -7,7 +7,7 @@ namespace Switon\Core\Tests\Unit;
 use RuntimeException;
 use Switon\Core\Exception;
 use Switon\Core\Tests\Fixtures\TestException;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for Exception base class.

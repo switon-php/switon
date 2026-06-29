@@ -8,9 +8,9 @@ use Attribute;
 use ReflectionClass;
 use ReflectionMethod;
 use Switon\Core\Attributes;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
-final class AttributesTest extends TestCase
+class AttributesTest extends TestCase
 {
     public function testHasFindsExactAndSubclassAttributes(): void
     {

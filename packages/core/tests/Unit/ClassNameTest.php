@@ -6,7 +6,7 @@ namespace Switon\Core\Tests\Unit;
 
 use Switon\Core\ClassName;
 use Switon\Core\Naming;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 use function basename;
 
@@ -35,6 +35,8 @@ class ClassNameTest extends TestCase
     {
         $this->assertSame('User', ClassName::short('App\Entity\User'));
         $this->assertSame('User', ClassName::short('User'));
+        $this->assertSame('Order', ClassName::short('App\\Entity\\OrderEntity', 'Entity'));
+        $this->assertSame('OrderEntity', ClassName::short('App\\Entity\\OrderEntity', 'entity'));
     }
 
     public function testSplit(): void
@@ -148,7 +150,7 @@ class ClassNameTest extends TestCase
     }
 
     /** Same rule as {@see \Switon\Http\HandlerId::getId()} (core tests avoid a dependency on package http). */
-    private static function composeHttpHandlerId(string $controller, string $action): string
+    protected static function composeHttpHandlerId(string $controller, string $action): string
     {
         return ClassName::dotId($controller, compact: true) . '::' . Naming::kebab(basename($action, 'Action'));
     }
