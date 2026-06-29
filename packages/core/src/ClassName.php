@@ -75,14 +75,13 @@ class ClassName
         return substr($fullClassName, 0, $pos);
     }
 
-    /** Return short class name without namespace. */
-    public static function short(string $fullClassName): string
+    /** Return short class name without namespace; optional <code>$suffix</code> strips a trailing segment (like <code>basename()</code>). */
+    public static function short(string $fullClassName, string $suffix = ''): string
     {
         $pos = strrpos($fullClassName, '\\');
-        if ($pos === false) {
-            return $fullClassName;
-        }
-        return substr($fullClassName, $pos + 1);
+        $short = $pos === false ? $fullClassName : substr($fullClassName, $pos + 1);
+
+        return $suffix === '' ? $short : basename($short, $suffix);
     }
 
     /**
@@ -136,7 +135,7 @@ class ClassName
             if (count($parts) >= 2) {
                 array_shift($parts);
             }
-            if (isset($parts[0]) && $parts[0] === 'Areas') {
+            if ($parts[0] === 'Areas') {
                 array_shift($parts);
             }
 

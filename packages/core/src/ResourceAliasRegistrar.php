@@ -17,6 +17,7 @@ use function is_string;
 use function json_decode;
 use function rtrim;
 use function str_replace;
+use function str_starts_with;
 use function trim;
 
 /**
@@ -63,6 +64,17 @@ class ResourceAliasRegistrar implements ResourceAliasRegistrarInterface
      */
     protected function detectResource(string $file, string $path, ?string $alias): ?array
     {
+        if (str_starts_with($path, '@')) {
+            if ($alias === null || $alias === '') {
+                return null;
+            }
+
+            return [
+                'alias' => $alias,
+                'path' => $path,
+            ];
+        }
+
         $file = str_replace('\\', '/', $file);
         $packageRoot = $this->detectPackageRoot($file);
         if ($packageRoot === null) {
@@ -85,7 +97,9 @@ class ResourceAliasRegistrar implements ResourceAliasRegistrarInterface
      */
     protected function detectPackageName(string $packageRoot): ?array
     {
-        $composerJson = file_get_contents($packageRoot . '/composer.json');
+        // Missing or unreadable composer.json is an expected skip, not an error: suppress the
+        // E_WARNING so callers only see the null return.
+        $composerJson = @file_get_contents($packageRoot . '/composer.json');
         if ($composerJson === false) {
             return null;
         }

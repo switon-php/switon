@@ -31,7 +31,6 @@ use function substr_count;
  *
  * @see \Switon\Core\ClassScannerInterface
  * @see \Switon\Core\FilesystemInterface
- * @see \Switon\Core\PathAliasInterface
  */
 class ClassScanner implements ClassScannerInterface
 {

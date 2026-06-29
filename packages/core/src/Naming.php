@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Switon\Core;
 
+use function array_is_list;
+use function array_key_exists;
 use function ctype_upper;
 use function in_array;
+use function is_array;
+use function is_string;
 use function str_ends_with;
 use function strlen;
 use function strtolower;
@@ -26,6 +30,42 @@ class Naming
     {
         $value = ucwords(str_replace(['-', '_'], ' ', $value));
         return lcfirst(str_replace(' ', '', $value));
+    }
+
+    /**
+     * Rename map keys to camelCase. First key wins when several spellings collide.
+     *
+     * @param array<mixed> $map
+     *
+     * @return array<mixed>
+     */
+    public static function camelKeys(array $map, bool $recursive = false): array
+    {
+        if ($map === [] || array_is_list($map)) {
+            if (!$recursive) {
+                return $map;
+            }
+            $items = [];
+            foreach ($map as $item) {
+                $items[] = is_array($item) ? self::camelKeys($item, true) : $item;
+            }
+
+            return $items;
+        }
+
+        $out = [];
+        foreach ($map as $key => $value) {
+            $dest = is_string($key) ? self::camel((string) $key) : $key;
+            if (array_key_exists($dest, $out)) {
+                continue;
+            }
+            if ($recursive && is_array($value)) {
+                $value = self::camelKeys($value, true);
+            }
+            $out[$dest] = $value;
+        }
+
+        return $out;
     }
 
     /** Convert value to snake_case. */

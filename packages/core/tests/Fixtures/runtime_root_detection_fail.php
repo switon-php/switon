@@ -21,8 +21,6 @@ spl_autoload_register(static function (string $class): bool {
     return true;
 });
 
-putenv('SWITON_ROOT');
-
 try {
     \Switon\Core\Runtime::getRoot();
     fwrite(STDERR, "Runtime::getRoot() was expected to throw ProjectRootDetectionException\n");

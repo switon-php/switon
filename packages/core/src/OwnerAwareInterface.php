@@ -14,7 +14,7 @@ namespace Switon\Core;
  * - implement getOwner() to return the owning instance
  * - pool seeding passes owner through maker factory parameters
  * - owner chains may span multiple levels via repeated getOwner()
- * - concrete contracts narrow {@see getOwner()} to the real owner type
+ * - concrete contracts narrow `getOwner()` to the real owner type
  *
  * @template-covariant TOwner of object
  *

@@ -11,7 +11,7 @@ use Switon\Core\Lazy;
 /**
  * Strips the Lazy marker from union types used by #[Autowired] Type|Lazy properties.
  */
-final class LazyUnionTypeHelper
+class LazyUnionTypeHelper
 {
     public static function withoutLazy(Type $type): Type
     {
@@ -53,7 +53,7 @@ final class LazyUnionTypeHelper
         return false;
     }
 
-    private static function isLazyType(Type $type): bool
+    protected static function isLazyType(Type $type): bool
     {
         return $type->getObjectClassNames() === [Lazy::class];
     }

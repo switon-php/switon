@@ -36,9 +36,8 @@ class Runtime
     /**
      * Get project root path.
      *
-     * Resolution order:
-     * 1. `SWITON_ROOT` env var
-     * 2. Composer `autoload.php` location
+     * Derived from the Composer <code>autoload.php</code> location, which resolves to the
+     * directory holding <code>vendor/</code>. Call `setRoot()` when the layout is not standard.
      *
      * @throws Exception\ProjectRootDetectionException
      */
@@ -48,20 +47,21 @@ class Runtime
             return self::$root;
         }
 
-        if ($root = getenv('SWITON_ROOT')) {
-            return self::$root = rtrim(strtr($root, '\\', '/'), '/');
-        }
-
         $includedFiles = get_included_files();
         foreach ($includedFiles as $file) {
-            if (str_ends_with($file, 'autoload.php')) {
+            // Match Composer's own entry point only: `<root>/vendor/autoload.php`.
+            if (DIRECTORY_SEPARATOR === '\\') {
+                $file = strtr($file, '\\', '/');
+            }
+
+            if (str_ends_with($file, '/vendor/autoload.php')) {
                 return self::$root = rtrim(strtr(dirname($file, 2), '\\', '/'), '/');
             }
         }
 
         Exception\ProjectRootDetectionException::raise(
             'Cannot automatically detect project root directory: autoload.php not found in included files. ' .
-            'Please set SWITON_ROOT environment variable.'
+            'Call Runtime::setRoot() during bootstrap.'
         );
     }
 

@@ -15,7 +15,7 @@ use Stringable;
  *
  * @phpstan-consistent-constructor
  */
-readonly class Categorized implements Stringable, Categorizable
+class Categorized implements Stringable, Categorizable
 {
     /**
      * @param string $category
