@@ -7,6 +7,7 @@ namespace Switon\Inspector\Collector;
 use JsonSerializable;
 use ReflectionClass;
 use Switon\Core\{CollectorInterface, ContextManagerInterface, Lazy};
+use Switon\Core\Attributes;
 use Switon\Core\Attribute\Autowired;
 use Switon\Di\ContainerInterface;
 use Switon\Inspector\DumperInterface;
@@ -48,7 +49,7 @@ class DependencyCollector implements CollectorInterface, JsonSerializable
 
             // Skip classes with RequestMapping attribute (controllers)
             $reflection = new ReflectionClass($instance);
-            if ($reflection->getAttributes(RequestMapping::class) !== []) {
+            if (Attributes::has($reflection, RequestMapping::class)) {
                 continue;
             }
 
@@ -96,9 +97,7 @@ class DependencyCollector implements CollectorInterface, JsonSerializable
             }
 
             $name = $property->getName();
-            $hasAutowired = $property->getAttributes(Autowired::class) !== [];
-
-            if ($hasAutowired) {
+            if (Attributes::has($property, Autowired::class)) {
                 if (isset($allProperties[$name])) {
                     $filtered[$name] = $allProperties[$name];
                 }

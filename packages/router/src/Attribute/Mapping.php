@@ -28,7 +28,7 @@ namespace Switon\Routing\Attribute;
  * @see \Switon\Routing\MappingPathInterface::resolveMethodPattern()
  * @see \Switon\Routing\MappingPathInterface::resolveControllerPrefixes()
  * @see \Switon\Routing\RouteRegistrarInterface::register()
- * @see \Switon\Http\ControllerMetadata::hasActionMapping()
+ * @see \Switon\Http\ControllerMetadata::getActions()
  * @see \Switon\Core\Naming
  */
 abstract class Mapping implements MappingInterface

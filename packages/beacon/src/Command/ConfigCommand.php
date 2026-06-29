@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\ClassName;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\Json;
@@ -280,8 +281,7 @@ class ConfigCommand
         $ref = new ReflectionClass($class);
         while ($ref !== false) {
             foreach ($ref->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED) as $p) {
-                $attrs = $p->getAttributes(Autowired::class);
-                if ($attrs === []) {
+                if (!Attributes::has($p, Autowired::class)) {
                     continue;
                 }
                 $keys[$p->getName()] = true;
@@ -411,14 +411,14 @@ class ConfigCommand
                 if (isset($seen[$p->getName()])) {
                     continue;
                 }
-                $attrs = $p->getAttributes(Autowired::class);
-                if ($attrs === []) {
+                $autowired = Attributes::first($p, Autowired::class);
+                if ($autowired === null) {
                     continue;
                 }
                 $seen[$p->getName()] = true;
                 $type = $p->getType();
                 $typeStr = $type !== null ? $this->typeToString($type) : 'mixed';
-                $instances = $attrs[0]->newInstance()->isInstances();
+                $instances = $autowired->isInstances();
                 $default = $p->hasDefaultValue() ? $p->getDefaultValue() : null;
                 if ($instances) {
                     $typeStr = $this->describeInstancesType($p, $default, $configIds);

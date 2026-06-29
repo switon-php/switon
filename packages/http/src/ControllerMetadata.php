@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Switon\Http;
 
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
+use Switon\Core\Attributes;
 use ReflectionMethod;
 use Switon\Core\Naming;
 use Switon\Http\Exception\ActionNotFoundException;
@@ -48,13 +48,13 @@ class ControllerMetadata implements ControllerMetadataInterface
             ControllerNotFoundException::raise('Controller class "{controller}" not found', ['controller' => $controller], 0, $e);
         }
 
-        if (!$this->hasRequestMapping($rClass)) {
+        if (!Attributes::has($rClass, RequestMapping::class)) {
             InvalidControllerException::raise('Controller "{controller}" is missing #[RequestMapping] attribute', ['controller' => $controller]);
         }
 
         $actions = [];
         foreach ($rClass->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
-            if (!$this->hasActionMapping($rMethod)) {
+            if (!Attributes::has($rMethod, MappingInterface::class)) {
                 continue;
             }
             $actions[] = $rMethod->getName();
@@ -71,11 +71,11 @@ class ControllerMetadata implements ControllerMetadataInterface
             ControllerNotFoundException::raise('Controller class "{controller}" not found', ['controller' => $controller], 0, $e);
         }
 
-        if (!$this->hasRequestMapping($rClass)) {
+        if (!Attributes::has($rClass, RequestMapping::class)) {
             InvalidControllerException::raise('Controller "{controller}" is missing #[RequestMapping] attribute', ['controller' => $controller]);
         }
 
-        $requestMapping = $rClass->getAttributes(RequestMapping::class)[0]->newInstance();
+        $requestMapping = Attributes::first($rClass, RequestMapping::class);
         $actionName = basename($action, 'Action');
         $fullMethodName = str_ends_with($action, 'Action') ? $action : ($action . 'Action');
 
@@ -135,16 +135,5 @@ class ControllerMetadata implements ControllerMetadataInterface
         }
 
         return $prefix === '' ? '/' . $action : $prefix . '/' . $action;
-    }
-
-    /** @param ReflectionClass<object> $rClass */
-    protected function hasRequestMapping(ReflectionClass $rClass): bool
-    {
-        return $rClass->getAttributes(RequestMapping::class) !== [];
-    }
-
-    protected function hasActionMapping(ReflectionMethod $rMethod): bool
-    {
-        return $rMethod->getAttributes(MappingInterface::class, ReflectionAttribute::IS_INSTANCEOF) !== [];
     }
 }

@@ -7,6 +7,7 @@ namespace Switon\Http\Server\Adapter;
 use ReflectionClass;
 use ReflectionMethod;
 use Switon\Core\AppInterface;
+use Switon\Core\Attributes;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ClockInterface;
 use Switon\Core\ContextAware;
@@ -315,7 +316,7 @@ class Swoole extends AbstractServer implements ContextAware
         $rClass = new ReflectionClass($this);
 
         foreach ($rClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            if ($method->getAttributes(ServerCallback::class) !== []) {
+            if (Attributes::has($method, ServerCallback::class)) {
                 $name = $method->getName();
                 $server->on(substr($name, 2), [$this, $name]);
             }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Switon\Orm;
 
-use ReflectionAttribute;
 use ReflectionParameter;
 use Switon\Binding\ValueResolverInterface;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\Exception\InvalidArgumentException;
 use Switon\Core\InputInterface;
 use Switon\Orm\Attribute\PageLimit;
@@ -65,9 +65,9 @@ class PageResolver implements ValueResolverInterface
     {
         $rMethod = $parameter->getDeclaringFunction();
 
-        $methodLimit = $rMethod->getAttributes(PageLimit::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
-        if ($methodLimit !== null) {
-            return $methodLimit->newInstance()->max;
+        $pageLimit = Attributes::first($rMethod, PageLimit::class);
+        if ($pageLimit !== null) {
+            return $pageLimit->max;
         }
 
         return $this->max;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Http\Command;
 
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionIntersectionType;
 use ReflectionMethod;
@@ -12,6 +11,7 @@ use ReflectionNamedType;
 use ReflectionUnionType;
 use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
+use Switon\Core\Attributes;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\FilterMatcherInterface;
@@ -133,8 +133,7 @@ class FilterCommand
 
         $events = [];
         foreach ($rClass->getMethods(ReflectionMethod::IS_PUBLIC) as $rMethod) {
-            $attributes = $rMethod->getAttributes(EventListener::class, ReflectionAttribute::IS_INSTANCEOF);
-            if ($attributes === []) {
+            if (!Attributes::has($rMethod, EventListener::class)) {
                 continue;
             }
 

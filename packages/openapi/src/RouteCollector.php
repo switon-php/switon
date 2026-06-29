@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Switon\OpenApi;
 
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Routing\Attribute\MappingInterface;
 use Switon\Routing\Attribute\RequestMapping;
 use Switon\Routing\Attribute\ViewMapping;
@@ -15,7 +15,6 @@ use Switon\Routing\ControllerScannerInterface;
 use Switon\Routing\MappingPathInterface;
 use Switon\Routing\RouterInterface;
 
-use function array_map;
 use function str_starts_with;
 
 /**
@@ -50,11 +49,11 @@ class RouteCollector implements RouteCollectorInterface
                 continue;
             }
             $rClass = new ReflectionClass($className);
-            $requestMappings = $rClass->getAttributes(RequestMapping::class);
-            if ($requestMappings === []) {
+            $requestMapping = Attributes::first($rClass, RequestMapping::class);
+            if ($requestMapping === null) {
                 continue;
             }
-            $this->scanController($rClass, $requestMappings[0]->newInstance(), $out);
+            $this->scanController($rClass, $requestMapping, $out);
         }
 
         return $out;
@@ -86,15 +85,7 @@ class RouteCollector implements RouteCollectorInterface
      */
     protected function resolveMethodMappings(ReflectionMethod $rMethod): array
     {
-        $attributes = $rMethod->getAttributes(MappingInterface::class, ReflectionAttribute::IS_INSTANCEOF);
-        if ($attributes === []) {
-            return [];
-        }
-
-        return array_map(
-            static fn (ReflectionAttribute $attribute) => $attribute->newInstance(),
-            $attributes,
-        );
+        return Attributes::all($rMethod, MappingInterface::class);
     }
 
     /**

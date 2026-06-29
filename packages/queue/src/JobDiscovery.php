@@ -7,6 +7,7 @@ namespace Switon\Queue;
 use ReflectionClass;
 use Switon\ComposerExtra\ComposerExtraInterface;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\ClassScannerInterface;
 use Switon\Core\Exception\MisuseException;
 use Switon\Core\RunnerInterface;
@@ -66,13 +67,10 @@ class JobDiscovery implements JobDiscoveryInterface
             /** @var class-string<RunnerInterface> $class */
             $reflection = new ReflectionClass($class);
 
-            $attrs = $reflection->getAttributes(Queued::class);
-            if ($attrs === []) {
+            $queued = Attributes::first($reflection, Queued::class);
+            if ($queued === null) {
                 continue;
             }
-
-            /** @var Queued $queued */
-            $queued = $attrs[0]->newInstance();
             $queue = trim($queued->queue);
             if ($queue === '') {
                 continue;

@@ -65,7 +65,7 @@ class ClassScanner implements ClassScannerInterface
                 continue;
             }
 
-            if ($attributeClass !== null && $rClass->getAttributes($attributeClass) === []) {
+            if ($attributeClass !== null && !Attributes::has($rClass, $attributeClass)) {
                 continue;
             }
 

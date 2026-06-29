@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Orm;
 
 use ReflectionClass;
+use Switon\Core\Attributes;
 use Switon\Orm\Attribute\BelongsTo;
 use Switon\Orm\Exception\JunctionFieldsInferenceException;
 use Switon\Orm\Relation\BelongsToRelation;
@@ -226,7 +227,7 @@ trait JunctionRepositoryTrait
         // Get related entity classes from BelongsTo relationships via reflection
         $rClass = new ReflectionClass($junctionClass);
         foreach ($rClass->getProperties() as $property) {
-            if ($property->getAttributes(BelongsTo::class) !== []) {
+            if (Attributes::has($property, BelongsTo::class)) {
                 $relationName = $property->getName();
                 $relation = $relations[$relationName] ?? null;
                 if ($relation instanceof BelongsToRelation) {

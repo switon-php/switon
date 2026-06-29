@@ -16,6 +16,7 @@ use Switon\Binding\Event\ActionArgumentsResolved;
 use Switon\Binding\Event\ActionArgumentsResolving;
 use Switon\Binding\Exception\UnsupportedParameterTypeException;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\MakerInterface;
 use Switon\Validating\Attribute\Required;
@@ -172,9 +173,9 @@ class ArgumentsBinder implements ArgumentsBinderInterface
         $validation->value = null;
         $validation->targetType = $rParameter->getType()?->getName();
 
-        $requiredAttribute = $rParameter->getAttributes(Required::class, ReflectionAttribute::IS_INSTANCEOF)[0] ?? null;
-        if ($requiredAttribute !== null) {
-            $validation->validate($requiredAttribute->newInstance());
+        $required = Attributes::first($rParameter, Required::class);
+        if ($required !== null) {
+            $validation->validate($required);
             return;
         }
 

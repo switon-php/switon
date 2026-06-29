@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Switon\Http\Filter;
 
-use ReflectionAttribute;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Eventing\Attribute\EventListener;
 use Switon\Http\Event\RequestValidating;
 use Switon\Http\RequestInterface;
@@ -32,23 +32,22 @@ class MappingValidatorFilter
 
     #[EventListener] public function onValidating(RequestValidating $event): void
     {
-        if (($attributes = $event->method->getAttributes(MappingInterface::class, ReflectionAttribute::IS_INSTANCEOF))
-            !== []
-        ) {
-            $allowed = false;
+        $mappings = Attributes::all($event->method, MappingInterface::class);
+        if ($mappings === []) {
+            return;
+        }
 
-            $verb = $this->request->verb();
-            foreach ($attributes as $attribute) {
-                /** @var MappingInterface $mapping */
-                $mapping = $attribute->newInstance();
-                if ($mapping->getVerb() === $verb) {
-                    $allowed = true;
-                }
-            }
+        $allowed = false;
 
-            if (!$allowed) {
-                MethodNotAllowedException::raise('Method "{method}" not allowed.', ['method' => $verb]);
+        $verb = $this->request->verb();
+        foreach ($mappings as $mapping) {
+            if ($mapping->getVerb() === $verb) {
+                $allowed = true;
             }
+        }
+
+        if (!$allowed) {
+            MethodNotAllowedException::raise('Method "{method}" not allowed.', ['method' => $verb]);
         }
     }
 }

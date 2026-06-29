@@ -7,6 +7,7 @@ namespace Switon\Inspector;
 use JsonSerializable;
 use ReflectionClass;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Attributes;
 use Switon\Core\ContextAware;
 use Switon\Core\ContextManagerInterface;
 use WeakMap;
@@ -42,9 +43,7 @@ class Dumper implements DumperInterface
 
             $name = $property->getName();
             $hasInstances = false;
-            $autowiredAttributes = $property->getAttributes(Autowired::class);
-            if ($autowiredAttributes !== []) {
-                $autowiredAttribute = $autowiredAttributes[0]->newInstance();
+            if (($autowiredAttribute = Attributes::first($property, Autowired::class)) !== null) {
                 $hasInstances = $autowiredAttribute->isInstances();
             }
 

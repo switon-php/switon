@@ -16,6 +16,7 @@ use Switon\Core\InjectorInterface;
 use Switon\Core\Lazy;
 use Switon\Core\MakerInterface;
 use ReflectionProperty;
+use Switon\Core\Attributes;
 use ReflectionUnionType;
 use RuntimeException;
 
@@ -232,7 +233,7 @@ final class SimpleInjector implements InjectorInterface
         $rClass ??= new ReflectionClass($object);
 
         foreach ($rClass->getProperties() as $property) {
-            if ($property->getAttributes(Autowired::class) === []) {
+            if (!Attributes::has($property, Autowired::class)) {
                 continue;
             }
 
