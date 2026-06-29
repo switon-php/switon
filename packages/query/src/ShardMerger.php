@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Switon\Query;
 
-use Switon\Core\Exception\MisuseException;
-
 use function array_column;
-use function array_keys;
 use function array_sum;
 use function current;
-use function implode;
 use function is_array;
 use function is_int;
 use function is_scalar;
@@ -25,6 +21,8 @@ use function usort;
  * Default implementation of <code>ShardMergerInterface</code>.
  *
  * Use when query results must be merged across shards in application memory.
+ *
+ * Guidance: AVG expects companion <code>{field}_sum</code> and <code>{field}_count</code> columns; missing fields yield null.
  *
  * @see \Switon\Query\ShardMergerInterface
  * @see \Switon\Query\Query
@@ -133,18 +131,13 @@ class ShardMerger implements ShardMergerInterface
                     $row[$field] = array_sum($values);
                 } elseif ($agg === 'AVG') {
                     $sum_field = $field . '_sum';
-                    if (!isset($v[0][$sum_field])) {
-                        MisuseException::raise('Field "{sum_field}" does not exist, available: {fields}.', ['sum_field' => $sum_field, 'fields' => implode(', ', array_keys($v[0]))]);
-                    }
-                    $sum = array_sum(array_column($v, $sum_field));
-
                     $count_field = $field . '_count';
-                    if (!isset($v[0][$count_field])) {
-                        MisuseException::raise(
-                            '"{count_field}" not in "{fields}"',
-                            ['count_field' => $count_field, 'fields' => implode(',', array_keys($v[0]))]
-                        );
+                    if (!isset($v[0][$sum_field], $v[0][$count_field])) {
+                        $row[$field] = null;
+                        continue;
                     }
+
+                    $sum = array_sum(array_column($v, $sum_field));
                     $count = array_sum(array_column($v, $count_field));
 
                     $row[$field] = $count ? $sum / $count : null;

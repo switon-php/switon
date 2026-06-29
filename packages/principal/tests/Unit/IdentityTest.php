@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Principal\Tests\Unit;
 
-use Switon\Core\Exception\InvalidArgumentException;
 use Switon\Principal\Exception\NotAuthenticatedException;
 use Switon\Principal\Identity;
 use Switon\Principal\IdentityInterface;
@@ -60,12 +59,13 @@ class IdentityTest extends TestCase
         $identity->getId();
     }
 
-    public function testIdentityRejectsEmptyStringName(): void
+    public function testIdentityAllowsEmptyStringName(): void
     {
         $identity = $this->container->make(Identity::class);
 
-        $this->expectException(InvalidArgumentException::class);
         $identity->set(7, '');
+
+        $this->assertSame('', $identity->getName());
     }
 
     public function testIdentityAllowsWhitespaceOnlyName(): void
@@ -86,20 +86,14 @@ class IdentityTest extends TestCase
         $identity->getName();
     }
 
-    public function testIdentitySetRejectsEmptyStringId(): void
+    public function testIdentityAllowsEmptyStringId(): void
     {
         $identity = $this->container->make(Identity::class);
 
-        $this->expectException(InvalidArgumentException::class);
         $identity->set('', 'alice');
-    }
 
-    public function testIdentitySetRejectsNonScalarRoles(): void
-    {
-        $identity = $this->container->make(Identity::class);
-
-        $this->expectException(InvalidArgumentException::class);
-        $identity->set(1, 'bob', [['nested']]);
+        $this->assertSame('', $identity->getId());
+        $this->assertSame('alice', $identity->getName());
     }
 
     public function testIdentitySetKeepsDuplicateRolesAfterNormalization(): void

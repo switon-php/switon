@@ -8,7 +8,6 @@ use ArrayIterator;
 use IteratorAggregate;
 use JsonSerializable;
 use Switon\Core\Attribute\Autowired;
-use Switon\Core\Exception\InvalidValueException;
 use Switon\Core\Exception\MisuseException;
 use Switon\Core\MakerInterface;
 use Switon\Query\Exception\InvalidSortDirectionException;
@@ -311,12 +310,10 @@ abstract class AbstractQuery implements QueryInterface, IteratorAggregate, JsonS
         if (is_string($groupBy)) {
             $this->clauses->group = preg_split('#[\s,]+#', $groupBy, -1, PREG_SPLIT_NO_EMPTY);
         } else {
-            foreach ($groupBy as $item) {
-                if (!is_string($item)) {
-                    InvalidValueException::raise('groupBy() field must be string, got {type}', ['type' => gettype($item)]);
-                }
-            }
-            $this->clauses->group = $groupBy;
+            $this->clauses->group = array_map(
+                static fn (mixed $item): string => (string)$item,
+                $groupBy
+            );
         }
 
         return $this;
@@ -334,22 +331,17 @@ abstract class AbstractQuery implements QueryInterface, IteratorAggregate, JsonS
         }
         foreach ($orderBy as $k => $v) {
             if (is_int($k)) {
-                if (!is_string($v)) {
-                    InvalidValueException::raise('orderBy() field at index {index} must be string, got {type}', ['index' => $k, 'type' => gettype($v)]);
-                }
-                $this->clauses->order[$v] = SORT_ASC;
+                $this->clauses->order[(string)$v] = SORT_ASC;
             } else {
-                if (!is_string($k)) {
-                    InvalidValueException::raise('orderBy() field key must be string, got {type}', ['type' => gettype($k)]);
-                }
+                $field = (string)$k;
                 if ($v === SORT_ASC || $v === SORT_DESC) {
-                    $this->clauses->order[$k] = $v;
+                    $this->clauses->order[$field] = $v;
                 } elseif ($v === 'ASC' || $v === 'asc') {
-                    $this->clauses->order[$k] = SORT_ASC;
+                    $this->clauses->order[$field] = SORT_ASC;
                 } elseif ($v === 'DESC' || $v === 'desc') {
-                    $this->clauses->order[$k] = SORT_DESC;
+                    $this->clauses->order[$field] = SORT_DESC;
                 } else {
-                    InvalidSortDirectionException::raise('orderBy() invalid direction for "{field}": expected SORT_ASC, SORT_DESC, "asc" or "desc", got {dir}', ['field' => $k, 'dir' => is_string($v) ? $v : gettype($v)]);
+                    InvalidSortDirectionException::raise('orderBy() invalid direction for "{field}": expected SORT_ASC, SORT_DESC, "asc" or "desc", got {dir}', ['field' => $field, 'dir' => is_string($v) ? $v : gettype($v)]);
                 }
             }
         }

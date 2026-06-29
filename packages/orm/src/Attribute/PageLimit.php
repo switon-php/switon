@@ -15,7 +15,7 @@ use Attribute;
  * - max depth cap
  * - Page paginate
  *
- * Guidance: Keep max aligned with query cost tolerance and enforce it in PageResolver.
+ * Guidance: Keep max >= 1 and aligned with query cost tolerance; depth is enforced as page * size <= max.
  *
  * @see \Switon\Orm\PageResolver
  * @see \Switon\Orm\Page

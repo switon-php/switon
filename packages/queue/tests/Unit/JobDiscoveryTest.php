@@ -146,7 +146,7 @@ class JobDiscoveryTest extends TestCase
         );
     }
 
-    public function testRaisesWhenQueuedConcurrencyIsBelowOne(): void
+    public function testRegistersJobWithZeroConcurrency(): void
     {
         $classScanner = $this->createMock(ClassScannerInterface::class);
         $classScanner->expects($this->once())->method('scan')->willReturn([InvalidConcurrencyJob::class]);
@@ -159,7 +159,9 @@ class JobDiscoveryTest extends TestCase
             'composerExtra' => $composerExtra,
         ]);
 
-        $this->expectException(MisuseException::class);
-        $discovery->all();
+        $this->assertSame(
+            ['invalid-concurrency' => ['class' => InvalidConcurrencyJob::class, 'concurrency' => 0]],
+            $discovery->all()
+        );
     }
 }

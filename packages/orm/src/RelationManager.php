@@ -11,7 +11,6 @@ use Switon\Orm\Event\EarlyLoading;
 use Switon\Orm\Event\LazyLoaded;
 use Switon\Orm\Event\LazyLoading;
 use Switon\Orm\Exception\RelationNotFoundException;
-use Switon\Orm\Exception\RelationPayloadInvalidException;
 use Switon\Query\QueryInterface;
 
 use function is_array;
@@ -27,14 +26,13 @@ use function is_int;
  * - earlyLoad attaches batches
  * - lazyLoad builds one relation query
  *
- * Guidance: Keep eager payloads strict and let relation implementations own relation-specific query logic.
+ * Guidance: Keep eager payloads in supported shapes; unsupported payloads are skipped and numeric list keys with string values load that relation with default payload.
  *
  * @see \Switon\Orm\RelationManagerInterface
  * @see \Switon\Orm\EntityMetadataInterface::getRelations()
  * @see \Switon\Orm\RelationInterface
  * @see \Switon\Orm\RepositoryInterface
  * @see \Switon\Orm\Exception\RelationNotFoundException
- * @see \Switon\Orm\Exception\RelationPayloadInvalidException
  */
 class RelationManager implements RelationManagerInterface
 {
@@ -86,10 +84,7 @@ class RelationManager implements RelationManagerInterface
         } elseif (is_callable($data)) {
             $data($query);
         } else {
-            RelationPayloadInvalidException::raise(
-                'Invalid eager-load payload for relation "{name}".',
-                ['name' => $name]
-            );
+            // Unsupported payload shapes are ignored; see RelationManagerInterface Guidance.
         }
 
         return $query;
@@ -146,21 +141,22 @@ class RelationManager implements RelationManagerInterface
         $grouped = [];
 
         foreach ($withs as $k => $v) {
-            if (!is_string($k)) {
-                RelationPayloadInvalidException::raise(
-                    'Invalid eager-load relation key "{name}".',
-                    ['name' => (string)$k]
-                );
+            if (is_int($k) && is_string($v)) {
+                $name = $v;
+                $payload = null;
+            } elseif (is_string($k)) {
+                $name = $k;
+                $payload = $v;
+            } else {
+                $name = (string) $k;
+                $payload = $v;
             }
 
-            if (!$this->isSupportedWithValue($v)) {
-                RelationPayloadInvalidException::raise(
-                    'Invalid eager-load payload for relation "{name}".',
-                    ['name' => $k]
-                );
+            if (!$this->isSupportedWithValue($payload)) {
+                continue;
             }
 
-            $grouped[$k] = $this->normalizeRelationWithPayload($v);
+            $grouped[$name] = $this->normalizeRelationWithPayload($payload);
         }
 
         return $grouped;
@@ -171,7 +167,8 @@ class RelationManager implements RelationManagerInterface
      */
     protected function isSupportedWithValue(mixed $value): bool
     {
-        return is_array($value)
+        return $value === null
+            || is_array($value)
             || $value instanceof QueryInterface
             || is_callable($value);
     }

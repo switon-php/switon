@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Switon\Validating\Tests\Unit\Constraint\Attribute;
 
 use Switon\Validating\Attribute\ConstantValue;
-use Switon\Validating\Exception\InvalidConstraintSourceException;
-use Switon\Validating\Exception\InvalidConstraintTargetException;
 use Switon\Validating\Exception\ValidateFailedException;
 use Switon\Validating\Tests\TestCase;
-use ReflectionException;
 
 #[\PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations]
 class ConstantValueTest extends TestCase
@@ -94,29 +91,27 @@ class ConstantValueTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testConstantValueThrowsServerErrorWhenArraySourceHasNoClass(): void
+    public function testConstantValueReturnsFalseWhenArraySourceHasNoClass(): void
     {
         $constraint = new ConstantValue();
         $validation = $this->validator->beginValidate(['status' => 1]);
         $validation->field = 'status';
         $validation->value = 1;
 
-        $this->expectException(InvalidConstraintSourceException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
-    public function testConstantValueThrowsServerErrorWhenConstantClassIsInvalid(): void
+    public function testConstantValueReturnsFalseWhenConstantClassIsInvalid(): void
     {
         $constraint = new ConstantValue(class: 'App\\Missing\\StatusConstants');
         $validation = $this->validator->beginValidate(['status' => 1]);
         $validation->field = 'status';
         $validation->value = 1;
 
-        $this->expectException(ReflectionException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
-    public function testConstantValueThrowsServerErrorWhenConstantPrefixDoesNotExist(): void
+    public function testConstantValueReturnsFalseWhenConstantPrefixDoesNotExist(): void
     {
         $source = new class () {
             public const STATUS_ACTIVE = 1;
@@ -127,8 +122,7 @@ class ConstantValueTest extends TestCase
         $validation->field = 'status';
         $validation->value = 'admin';
 
-        $this->expectException(InvalidConstraintTargetException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
     public function testConstantValueThrowsExceptionWhenValidationFails(): void

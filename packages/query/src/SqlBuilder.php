@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Switon\Query;
 
-use Switon\Core\Exception\InvalidValueException;
 use Switon\Db\ClientInterface;
 
 use function array_keys;
 use function count;
-use function gettype;
 use function implode;
-use function is_string;
 use function preg_replace;
 use function preg_replace_callback;
 use function str_replace;
@@ -130,9 +127,7 @@ class SqlBuilder implements SqlBuilderInterface
     {
         $r = '';
         foreach ($group as $item) {
-            if (!is_string($item)) {
-                InvalidValueException::raise('groupBy() field must be string, got {type}', ['type' => gettype($item)]);
-            }
+            $item = (string)$item;
             if (strpbrk($item, '[(') === false) {
                 $r .= preg_replace('#\\w+#', '[\\0]', $item) . ', ';
             } else {
@@ -151,9 +146,7 @@ class SqlBuilder implements SqlBuilderInterface
         $r = '';
 
         foreach ($order as $field => $v) {
-            if (!is_string($field)) {
-                InvalidValueException::raise('Order field key must be string, got "{type}".', ['type' => gettype($field)]);
-            }
+            $field = (string)$field;
             $type = $v === SORT_ASC ? 'ASC' : 'DESC';
 
             if (strpbrk($field, '[(') === false) {

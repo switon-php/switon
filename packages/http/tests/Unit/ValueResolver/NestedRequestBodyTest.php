@@ -334,12 +334,11 @@ class NestedRequestBodyTest extends TestCase
     }
 
     /**
-     * Test current DateTimeImmutable behavior: unsupported Type validator target.
+     * Unsupported Type targets still fail binding for typed properties.
      */
-    public function testDateTimeImmutableTypeValidationIsUnsupported(): void
+    public function testDateTimeImmutableTypeValidationFails(): void
     {
-        $this->expectException(\Switon\Validating\Exception\UnsupportedValidationTypeException::class);
-        $this->expectExceptionMessage('Unsupported validation type "DateTimeImmutable"');
+        $this->expectException(\TypeError::class);
 
         $inputData = [
             'eventName' => 'launch',

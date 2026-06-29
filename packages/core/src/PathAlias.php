@@ -8,7 +8,6 @@ use JsonSerializable;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Exception\AliasNotFoundException;
 use Switon\Core\Exception\CircularAliasException;
-use Switon\Core\Exception\InvalidAliasNameException;
 use Switon\Core\Exception\ProjectRootDetectionException;
 
 use function implode;
@@ -23,7 +22,8 @@ use function substr;
  * Resolves path aliases to concrete filesystem paths.
  *
  * Guidance: Register base aliases before dependents; <code>set()</code> does not cascade
- * updates to aliases that were already resolved from an earlier value.
+ * updates to aliases that were already resolved from an earlier value. Alias names without
+ * a leading <code>@</code> are normalized automatically.
  *
  * @see \Switon\Core\PathAliasInterface
  * @see \Switon\Core\Runtime::getRoot()
@@ -68,12 +68,9 @@ class PathAlias implements PathAliasInterface, JsonSerializable
         return $this->aliases;
     }
 
-    /** @throws InvalidAliasNameException */
-    protected function validate(string $name): void
+    protected function normalizeName(string $name): string
     {
-        if (!str_starts_with($name, '@')) {
-            InvalidAliasNameException::raise('Alias name "{name}" must start with "@".', ['name' => $name]);
-        }
+        return str_starts_with($name, '@') ? $name : '@' . $name;
     }
 
     /**
@@ -81,7 +78,7 @@ class PathAlias implements PathAliasInterface, JsonSerializable
      */
     public function set(string $name, string $path): string
     {
-        $this->validate($name);
+        $name = $this->normalizeName($name);
 
         if ($path === '') {
             return $this->aliases[$name] = $path;
@@ -143,7 +140,7 @@ class PathAlias implements PathAliasInterface, JsonSerializable
      */
     public function get(string $name): ?string
     {
-        $this->validate($name);
+        $name = $this->normalizeName($name);
 
         return $this->aliases[$name] ?? null;
     }
@@ -153,7 +150,7 @@ class PathAlias implements PathAliasInterface, JsonSerializable
      */
     public function has(string $name): bool
     {
-        $this->validate($name);
+        $name = $this->normalizeName($name);
 
         return isset($this->aliases[$name]);
     }
@@ -197,7 +194,7 @@ class PathAlias implements PathAliasInterface, JsonSerializable
      */
     public function remove(string $name): void
     {
-        $this->validate($name);
+        $name = $this->normalizeName($name);
 
         unset($this->aliases[$name]);
     }

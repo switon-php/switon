@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Core\Tests\Unit;
 
 use Switon\Core\Attribute\Autowired;
-use Switon\Core\Exception\MisuseException;
-use Switon\Core\Exception\NotSupportedException;
 use Switon\Core\Random;
 use Switon\Core\RandomInterface;
 use Switon\Core\Tests\TestCase;
@@ -147,11 +145,11 @@ class RandomTest extends TestCase
         $this->assertSame('', $random->chars(0, 62));
     }
 
-    public function testCharsNegativeLengthRaisesMisuseException(): void
+    public function testCharsNegativeLengthThrowsValueError(): void
     {
         $random = new Random();
 
-        $this->expectException(MisuseException::class);
+        $this->expectException(ValueError::class);
         $random->chars(-1);
     }
 
@@ -209,19 +207,17 @@ class RandomTest extends TestCase
         $this->assertTrue($hadUpper, 'Alphabet branch for r >= 36 should surface uppercase letters');
     }
 
-    public function testCharsUnsupportedBaseRaisesNotSupportedException(): void
+    public function testCharsUnsupportedBaseReturnsEmptyString(): void
     {
         $random = new Random();
 
-        $this->expectException(NotSupportedException::class);
-        $random->chars(4, 99);
+        $this->assertSame('', $random->chars(4, 99));
     }
 
-    public function testCharsBaseOneRaisesNotSupportedException(): void
+    public function testCharsBaseOneReturnsEmptyString(): void
     {
         $random = new Random();
 
-        $this->expectException(NotSupportedException::class);
-        $random->chars(4, 1);
+        $this->assertSame('', $random->chars(4, 1));
     }
 }

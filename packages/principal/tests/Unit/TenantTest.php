@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Principal\Tests\Unit;
 
-use Switon\Core\Exception\InvalidArgumentException;
 use Switon\Principal\Exception\TenantNotAvailableException;
 use Switon\Principal\Tenant;
 use Switon\Principal\TenantInterface;
@@ -75,19 +74,22 @@ class TenantTest extends TestCase
         $tenant->getCode();
     }
 
-    public function testTenantRejectsEmptyCode(): void
+    public function testTenantAllowsEmptyCodeAfterTrim(): void
     {
         $tenant = $this->container->make(Tenant::class);
 
-        $this->expectException(InvalidArgumentException::class);
         $tenant->set(7, '   ');
+
+        $this->assertSame('', $tenant->getCode());
     }
 
-    public function testTenantRejectsEmptyStringId(): void
+    public function testTenantAllowsWhitespaceOnlyStringId(): void
     {
         $tenant = $this->container->make(Tenant::class);
 
-        $this->expectException(InvalidArgumentException::class);
         $tenant->set('   ', 'acme');
+
+        $this->assertSame('   ', $tenant->getId());
+        $this->assertSame('acme', $tenant->getCode());
     }
 }

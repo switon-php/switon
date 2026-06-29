@@ -6,12 +6,12 @@ namespace Switon\Core;
 
 use Switon\Core\Exception\AliasNotFoundException;
 use Switon\Core\Exception\CircularAliasException;
-use Switon\Core\Exception\InvalidAliasNameException;
 
 /**
  * Path-alias contract.
  *
  * Aliases are named with an `@` prefix (for example `@app`) and resolve to normalized file-system paths.
+ * Names passed without `@` are normalized automatically.
  *
  * Guidance: Register stable roots here; higher-level code should consume resolved paths instead of rebuilding path logic.
  *
@@ -44,12 +44,11 @@ interface PathAliasInterface
      * (for example <code>@root</code>), call <code>set()</code> again on dependents
      * (for example <code>@vendor</code>) or register roots before derived aliases.
      *
-     * @param string $name Alias name (must start with <code>@</code>)
+     * @param string $name Alias name (with or without leading <code>@</code>)
      * @param string $path Raw path or alias-based path
      *
      * @return string Resolved stored path
      *
-     * @throws InvalidAliasNameException
      * @throws AliasNotFoundException
      * @throws CircularAliasException
      */
@@ -58,20 +57,16 @@ interface PathAliasInterface
     /**
      * Get resolved path for one alias.
      *
-     * @param string $name Alias name
+     * @param string $name Alias name (with or without leading <code>@</code>)
      *
      * @return string|null Null when alias is missing
-     *
-     * @throws InvalidAliasNameException
      */
     public function get(string $name): ?string;
 
     /**
      * Check whether alias exists.
      *
-     * @param string $name Alias name
-     *
-     * @throws InvalidAliasNameException
+     * @param string $name Alias name (with or without leading <code>@</code>)
      */
     public function has(string $name): bool;
 
@@ -90,9 +85,7 @@ interface PathAliasInterface
     /**
      * Remove one alias.
      *
-     * @param string $name Alias name
-     *
-     * @throws InvalidAliasNameException
+     * @param string $name Alias name (with or without leading <code>@</code>)
      */
     public function remove(string $name): void;
 }

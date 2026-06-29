@@ -24,7 +24,6 @@ use function swoole_cpu_num;
  * - auto mode delegates to Detector
  * - factory binds ServerInterface
  * - swoole defaults merge here
- * - invalid type exits with InvalidArgumentException
  *
  * @see \Switon\Http\ServerInterface
  * @see \Switon\Http\ServerOptions
@@ -32,7 +31,6 @@ use function swoole_cpu_num;
  * @see \Switon\Http\Server\Adapter\Fpm
  * @see \Switon\Http\Server\Adapter\Php
  * @see \Switon\Http\Server\Adapter\Swoole
- * @see \Switon\Core\Exception\InvalidArgumentException
  */
 class Server
 {

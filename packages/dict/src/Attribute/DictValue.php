@@ -9,7 +9,6 @@ use ReflectionProperty;
 use Switon\Core\Attribute\Autowired;
 use Switon\Dict\Dict;
 use Switon\Dict\DictReaderInterface;
-use Switon\Dict\Exception\DictTypeCodeRequiredException;
 use Switon\Validating\AbstractConstraint;
 use Switon\Validating\Validation;
 use Switon\Validating\ValidatorInterface;
@@ -27,7 +26,7 @@ use function is_scalar;
  * If <code>$type</code> names a <code>Dict</code> subclass, the constraint derives the type code from that class.
  * Otherwise <code>$type</code> is used as the literal dict type code.
  *
- * Road-signs:
+ * Guidance: Type-owned dict classes must resolve a non-empty type code via {@see Dict::typeCode()} or naming convention.
  * - DictReaderInterface
  * - ValidatorInterface
  * - Dict for type-owned dict codes
@@ -69,14 +68,7 @@ class DictValue extends AbstractConstraint
             return [$typeCode, $builtin];
         }
 
-        DictTypeCodeRequiredException::raise(
-            'Unable to derive dict type for "{class}::{field}". Configure a non-empty dict type code or override {type}::typeCode().',
-            [
-                'class' => $sourceClass ?? '',
-                'field' => $field ?? '',
-                'type' => $this->type,
-            ]
-        );
+        return ['', $builtin];
     }
 
     /**

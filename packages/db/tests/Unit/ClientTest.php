@@ -431,9 +431,8 @@ class ClientTest extends TestCase
         $this->assertFalse($transient->inTransaction());
     }
 
-    public function testUpsertThrowsWhenSqlFragmentHasNumericKey(): void
+    public function testUpsertStringifiesSqlFragmentNumericKey(): void
     {
-        // Arrange
         $client = $this->createClientWithConfig(new PoolConfiguration(timeout: 1.0, prefix: '', hasSlave: false));
 
         $connection = $this->createMock(ConnectionInterface::class);
@@ -443,7 +442,7 @@ class ClientTest extends TestCase
         $transient = $client->getTransient();
 
         $fragment = new class () implements \Switon\Db\SqlFragmentInterface {
-            protected string $field = '';
+            public string $field = '';
 
             public function setField(string $field): static
             {
@@ -461,10 +460,21 @@ class ClientTest extends TestCase
                 return [$this->field => 1];
             }
         };
-        // Act & Assert
 
-        $this->expectException(\Switon\Db\Exception::class);
-        $transient->upsert('users', ['id' => 1, 'hits' => 1], [0 => $fragment]);
+        $connection->expects($this->once())
+            ->method('upsert')
+            ->with(
+                '[users]',
+                $this->callback(static fn (array $insert): bool => $insert['id'] === 1 && $insert['hits'] === 1),
+                $this->callback(static function (array $update): bool {
+                    return isset($update['0']) && $update['0'] instanceof \Switon\Db\UpsertExpression;
+                }),
+                'id'
+            )
+            ->willReturn(1);
+
+        $this->assertSame(1, $transient->upsert('users', ['id' => 1, 'hits' => 1], [0 => $fragment]));
+        $this->assertSame('0', $fragment->field);
     }
 
     public function testUpsertThrowsWhenFragmentBindConflictsWithInsertValues(): void

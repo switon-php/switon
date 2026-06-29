@@ -176,7 +176,7 @@ interface ClientInterface
      * Uses adapter-native upsert when available, otherwise fallback logic.
      * Associative entries use <code>column => value</code> semantics and bind regular values,
      * including strings. Integer keys mean "reuse the INSERT value of this field". To pass a
-     * raw SQL update expression, use <code>SqlFragmentInterface</code> with a string field name.
+     * raw SQL update expression, use <code>SqlFragmentInterface</code>; field names are stringified from keys.
      *
      * @param string $table Table name (prefix will be automatically applied)
      * @param array<string, mixed> $insertFieldValues Values to use for INSERT operation
@@ -188,7 +188,7 @@ interface ClientInterface
      *
      * @return int Number of affected rows (1 for insert, 0-1 for update)
      *
-     * @throws \Switon\Db\Exception When SqlFragmentInterface has numeric key, or on database errors
+     * @throws \Switon\Db\Exception On database errors
      */
     public function upsert(string $table, array $insertFieldValues, array $updateFieldValues = [], ?string $primaryKey = null): int;
 

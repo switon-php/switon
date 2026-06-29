@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Switon\Query\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Switon\Core\Exception\MisuseException;
 use Switon\Query\ShardMerger;
 
 class ShardMergerTest extends TestCase
@@ -77,13 +76,14 @@ class ShardMergerTest extends TestCase
         );
     }
 
-    public function testAggregateAvgRaisesWhenRequiredSumOrCountFieldMissing(): void
+    public function testAggregateAvgReturnsNullWhenRequiredSumOrCountFieldMissing(): void
     {
         $rows = [
             ['team' => 'A', 'avg_count' => 2],
         ];
 
-        $this->expectException(MisuseException::class);
-        (new ShardMerger())->aggregate($rows, ['avg' => 'AVG'], ['team']);
+        $aggregated = (new ShardMerger())->aggregate($rows, ['avg' => 'AVG'], ['team']);
+
+        $this->assertSame([['team' => 'A', 'avg' => null]], $aggregated);
     }
 }

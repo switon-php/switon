@@ -201,30 +201,28 @@ class RangeStrategyTest extends TestCase
         $this->assertSame(['user_0', 'user_1'], $result);
     }
 
-    public function testCalculateWithInValuesThrowsForNonNumeric(): void
+    public function testCalculateWithInValuesSkipsNonNumeric(): void
     {
         $context = ['user_id' => [500, 'not-a-number']];
         $base = 'user';
         $field = 'user_id';
         $config = '0-1000,1001-2000';
 
-        $this->expectException(MisuseException::class);
-        $this->expectExceptionMessage('requires numeric value, got');
+        $result = $this->strategy->calculate($context, $base, $field, $config);
 
-        $this->strategy->calculate($context, $base, $field, $config);
+        $this->assertSame(['user_0'], $result);
     }
 
-    public function testCalculateThrowsExceptionForNonNumericValue(): void
+    public function testCalculateSkipsNonNumericValue(): void
     {
         $context = ['user_id' => 'not-a-number'];
         $base = 'user';
         $field = 'user_id';
         $config = '0-1000,1001-2000';
 
-        $this->expectException(MisuseException::class);
-        $this->expectExceptionMessage('requires numeric value, got');
+        $result = $this->strategy->calculate($context, $base, $field, $config);
 
-        $this->strategy->calculate($context, $base, $field, $config);
+        $this->assertSame([], $result);
     }
 
     public function testCalculateThrowsExceptionForEmptyField(): void

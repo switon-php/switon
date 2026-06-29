@@ -9,7 +9,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Switon\Core\Attribute\Autowired;
 use Switon\Orm\EntityMetadataInterface;
 use Switon\Orm\Exception\RelationNotFoundException;
-use Switon\Orm\Exception\RelationPayloadInvalidException;
 use Switon\Orm\RelationInterface;
 use Switon\Orm\RelationManager;
 use Switon\Orm\RelationManagerInterface;
@@ -137,8 +136,8 @@ class RelationManagerIntegrationTest extends TestCase
             ->with($entityClass)
             ->willReturn([]);
 
-        $this->expectException(RelationPayloadInvalidException::class);
-        $this->expectExceptionMessage('Invalid eager-load relation key "0".');
+        $this->expectException(RelationNotFoundException::class);
+        $this->expectExceptionMessage('Relation "nonexistent" is not defined for entity');
         $this->relationManager->earlyLoad(TestEntity::class, $entities, $relations);
     }
 
@@ -360,16 +359,19 @@ class RelationManagerIntegrationTest extends TestCase
         $this->assertSame($entities, $result);
     }
 
-    public function testEarlyLoadThrowsWhenRelationValueTypeIsUnsupported(): void
+    public function testEarlyLoadSkipsUnsupportedRelationPayload(): void
     {
         $entity = new TestEntity(['id' => 1, 'name' => 'Test']);
         $entities = [$entity];
         $relationName = 'someRelation';
 
-        $this->expectException(RelationPayloadInvalidException::class);
-        $this->expectExceptionMessage('Invalid eager-load payload for relation "someRelation".');
+        $result = $this->relationManager->earlyLoad(
+            TestEntity::class,
+            $entities,
+            [$relationName => new stdClass()]
+        );
 
-        $this->relationManager->earlyLoad(TestEntity::class, $entities, [$relationName => new stdClass()]);
+        $this->assertSame($entities, $result);
     }
 
     public function testLazyLoadThrowsExceptionWhenRelationDoesNotExist(): void
@@ -425,7 +427,7 @@ class RelationManagerIntegrationTest extends TestCase
         $this->assertSame($mockQuery, $result);
     }
 
-    public function testGetRelatedQueryThrowsWhenDataUsesWildcardString(): void
+    public function testGetRelatedQueryIgnoresUnsupportedWildcardString(): void
     {
         $entityClass = TestEntity::class;
         $relationName = 'someRelation';
@@ -439,13 +441,14 @@ class RelationManagerIntegrationTest extends TestCase
         $mockRelation->method('getRelatedQuery')
             ->willReturn($mockQuery);
 
-        $this->expectException(RelationPayloadInvalidException::class);
-        $this->expectExceptionMessage('Invalid eager-load payload for relation "someRelation".');
+        $mockQuery->expects($this->never())->method('select');
 
-        $this->relationManager->getQuery($entityClass, $relationName, '*');
+        $result = $this->relationManager->getQuery($entityClass, $relationName, '*');
+
+        $this->assertSame($mockQuery, $result);
     }
 
-    public function testGetRelatedQueryThrowsWhenDataUsesStringFieldList(): void
+    public function testGetRelatedQueryIgnoresUnsupportedStringFieldList(): void
     {
         $entityClass = TestEntity::class;
         $relationName = 'someRelation';
@@ -459,10 +462,11 @@ class RelationManagerIntegrationTest extends TestCase
         $mockRelation->method('getRelatedQuery')
             ->willReturn($mockQuery);
 
-        $this->expectException(RelationPayloadInvalidException::class);
-        $this->expectExceptionMessage('Invalid eager-load payload for relation "someRelation".');
+        $mockQuery->expects($this->never())->method('select');
 
-        $this->relationManager->getQuery($entityClass, $relationName, 'id, name');
+        $result = $this->relationManager->getQuery($entityClass, $relationName, 'id, name');
+
+        $this->assertSame($mockQuery, $result);
     }
 
     public function testGetRelatedQueryWithArrayData(): void
@@ -524,7 +528,7 @@ class RelationManagerIntegrationTest extends TestCase
         $this->assertSame($mockQuery, $result);
     }
 
-    public function testGetRelatedQueryThrowsExceptionWithInvalidData(): void
+    public function testGetRelatedQueryIgnoresUnsupportedScalarData(): void
     {
         if (!interface_exists(QueryInterface::class, true)) {
             $this->markTestSkipped('Query package dependency not available');
@@ -542,9 +546,11 @@ class RelationManagerIntegrationTest extends TestCase
         $mockRelation->method('getRelatedQuery')
             ->willReturn($mockQuery);
 
-        $this->expectException(RelationPayloadInvalidException::class);
-        $this->expectExceptionMessage('Invalid eager-load payload for relation "someRelation".');
-        $this->relationManager->getQuery($entityClass, $relationName, 123);
+        $mockQuery->expects($this->never())->method('select');
+
+        $result = $this->relationManager->getQuery($entityClass, $relationName, 123);
+
+        $this->assertSame($mockQuery, $result);
     }
 
     public function testLazyLoadReturnsQueryWhenRelationExists(): void

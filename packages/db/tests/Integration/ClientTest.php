@@ -2101,14 +2101,24 @@ class ClientTest extends TestCase
     }
 
     /**
-     * Test that upsert() throws exception when SqlFragmentInterface has numeric key.
+     * Test that upsert() stringifies numeric keys for SqlFragmentInterface field names.
      */
-    public function testUpsertWithSqlFragmentAndNumericKeyThrowsException(): void
+    public function testUpsertWithSqlFragmentAndNumericKeyStringifiesFieldName(): void
     {
         $client = $this->createClientForTesting('mysql://host/db');
+        $connection = new MockConnection();
+        $connection->executeResult = 1;
+
+        $this->poolManager->expects($this->once())
+            ->method('acquire')
+            ->willReturn($connection);
+
+        $this->poolManager->expects($this->once())
+            ->method('release')
+            ->with($this->identicalTo($client), $this->identicalTo($connection), 'default');
 
         $fragment = new class () implements \Switon\Db\SqlFragmentInterface {
-            protected ?string $field = null;
+            public ?string $field = null;
 
             public function setField(string $field): static
             {
@@ -2127,11 +2137,10 @@ class ClientTest extends TestCase
             }
         };
 
-        $this->expectException(\Switon\Db\Exception::class);
-        $this->expectExceptionMessageMatches('/Upsert with SqlFragment requires string field name/');
+        $result = $client->upsert('users', ['id' => 1, 'name' => 'John'], [0 => $fragment]);
 
-        // Numeric key with SqlFragmentInterface should throw exception
-        $client->upsert('users', ['id' => 1, 'name' => 'John'], [0 => $fragment]);
+        $this->assertSame(1, $result);
+        $this->assertSame('0', $fragment->field);
     }
 
     /**

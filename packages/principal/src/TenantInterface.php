@@ -48,8 +48,8 @@ interface TenantInterface
      * If the application uses only one tenant identifier, <code>$id</code> and <code>$code</code>
      * may carry the same value.
      *
-     * @param int|string $id Stable internal tenant identifier
-     * @param string $code Stable public tenant key
+     * @param int|string $id Stable internal tenant identifier (non-empty string when string-typed)
+     * @param string $code Stable public tenant key (non-empty after trim)
      *
      * Implementations trim the tenant code during set().
      */

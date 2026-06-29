@@ -46,7 +46,8 @@ interface ShardMergerInterface
      * Aggregate rows with grouping support.
      *
      * Simulates SQL GROUP BY with aggregate functions (MAX, MIN, COUNT, SUM, AVG)
-     * for merging results from multiple shards.
+     * for merging results from multiple shards. AVG requires <code>{field}_sum</code>
+     * and <code>{field}_count</code> companion columns; missing fields yield null.
      *
      * @param array<int, array<string, mixed>> $rows Rows to aggregate
      * @param array<int|string, string> $aggs Aggregation specification: ['field' => 'MAX'|'MIN'|'COUNT'|'SUM'|'AVG']

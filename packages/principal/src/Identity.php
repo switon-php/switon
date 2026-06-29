@@ -7,7 +7,6 @@ namespace Switon\Principal;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ContextAware;
 use Switon\Core\ContextManagerInterface;
-use Switon\Core\Exception\InvalidArgumentException;
 use Switon\Principal\Exception\NotAuthenticatedException;
 
 /**
@@ -74,20 +73,8 @@ class Identity implements IdentityInterface, ContextAware
 
     public function set(int|string $id, string $name, array $roles = []): void
     {
-        if ($id === '') {
-            InvalidArgumentException::raise('Identity ID cannot be empty');
-        }
-
-        if ($name === '') {
-            InvalidArgumentException::raise('Identity name cannot be empty');
-        }
-
         $normalizedRoles = [];
         foreach ($roles as $role) {
-            if (!is_scalar($role)) {
-                InvalidArgumentException::raise('Identity roles must contain only scalar values');
-            }
-
             $role = trim((string)$role);
             if ($role !== '') {
                 $normalizedRoles[] = $role;

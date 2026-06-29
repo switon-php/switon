@@ -11,7 +11,6 @@ use Switon\Routing\RouterInterface;
 use function array_key_exists;
 use function array_pop;
 use function explode;
-use function get_debug_type;
 use function http_build_query;
 use function implode;
 use function is_string;
@@ -126,18 +125,13 @@ class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * Validate helper path input before URL composition.
+     * Normalize helper path input before URL composition.
+     *
+     * Guidance: scalar paths are stringified; prefer `string` path arguments.
      */
     protected function assertHelperPath(mixed $path, string $helper): string
     {
-        if (!is_string($path)) {
-            InvalidUrlPathException::raise(
-                '{helper}() path must be a string, got {type}.',
-                ['helper' => $helper, 'type' => get_debug_type($path)]
-            );
-        }
-
-        return $path;
+        return (string) $path;
     }
 
     /**

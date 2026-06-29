@@ -85,6 +85,8 @@ interface QueryInterface
      *
      * Relation configs (array values) are automatically converted to `with()` calls.
      *
+     * Guidance: scalar field values are stringified; prefer `string` field names and aliases.
+     *
      * @param array<int|string, string|array<string, mixed>> $fields Fields to select. Format: `['field1', 'field2']`, `['alias' => 'field']`, or `['relation_name' => ['field1', 'field2']]`
      *                      Empty array: selects all fields
      *
@@ -106,6 +108,8 @@ interface QueryInterface
      *
      * Accepts array filter syntax handled by {@see PredicatePipelineInterface}
      * (comparison, range, IN/NOT IN, pattern matching, and raw expression forms).
+     *
+     * Guidance: associative array values require an operator suffix on the field key; unsupported shapes are skipped.
      *
      * @param array<int|string, mixed> $filters =entity_var(new Model) Compact filter array parsed by the predicate pipeline
      *
@@ -140,11 +144,12 @@ interface QueryInterface
      *
      * Scalar list items default to ascending order.
      *
+     * Guidance: Field names should be strings; scalar values are stringified.
+     *
      * @param array<int|string, int|string> $orderBy =entity_var(new Model) ?: entity_field(new Model) ?: [$k=>SORT_ASC, $k=>SORT_DESC] Order specifications
      *
      * @return static
      *
-     * @throws \Switon\Core\Exception\InvalidValueException When order fields are invalid
      * @throws \Switon\Query\Exception\InvalidSortDirectionException When sort direction is unsupported
      */
     public function orderBy(array $orderBy): static;
@@ -161,11 +166,11 @@ interface QueryInterface
     /**
      * Sets GROUP BY clauses for result grouping.
      *
+     * Guidance: Group fields should be strings; array items are stringified.
+     *
      * @param list<string>|string $groupBy =entity_var(new Entity) ?: entity_field(new Entity) Group by fields
      *
      * @return static
-     *
-     * @throws \Switon\Core\Exception\InvalidValueException When group field items are invalid
      */
     public function groupBy(string|array $groupBy): static;
 

@@ -14,12 +14,11 @@ use Switon\Core\LocaleInterface;
 use Switon\Core\TranslatorInterface;
 use Switon\I18n\Event\TranslationKeyMissing;
 use Switon\I18n\Exception\IntlExtensionRequiredException;
-use Switon\I18n\Exception\InvalidLocaleFileException;
 use Switon\I18n\Exception\LocaleFileNotFoundException;
 
 use function explode;
-use function get_debug_type;
 use function is_array;
+use function is_string;
 use function pathinfo;
 use function str_contains;
 use function str_replace;
@@ -38,10 +37,10 @@ use function trim;
  * - locale-specific override chain: <code>fallbacks</code>
  *
  * Guidance: Missing keys dispatch <code>TranslationKeyMissing</code> and then fall back to the key itself.
+ * Locale files should return flat <code>array<string, string></code>; malformed files or entries are skipped.
  *
  * @see \Switon\Core\TranslatorInterface
  * @see \Switon\I18n\Exception
- * @see \Switon\I18n\Exception\InvalidLocaleFileException
  * @see \Switon\Core\LocaleInterface
  * @see \Switon\I18n\Event\TranslationKeyMissing
  * @see \Switon\I18n\Exception\LocaleFileNotFoundException
@@ -86,7 +85,6 @@ class Translator implements TranslatorInterface
      * @param array<string, mixed> $bind Placeholder values to replace in the message
      * @param bool $useICU Whether to use ICU MessageFormat
      *
-     * @throws \Switon\I18n\Exception\InvalidLocaleFileException When a locale file does not return flat string translations
      * @throws \Switon\I18n\Exception\LocaleFileNotFoundException When no candidate locale file exists
      * @throws \Switon\I18n\Exception\IntlExtensionRequiredException When ICU mode is enabled without intl extension
      */
@@ -123,7 +121,6 @@ class Translator implements TranslatorInterface
      *
      * @return string Message template or the key itself when not found
      *
-     * @throws \Switon\I18n\Exception\InvalidLocaleFileException When a locale file does not return flat string translations
      * @throws \Switon\I18n\Exception\LocaleFileNotFoundException When no candidate locale file exists
      */
     protected function getTemplate(string $id): string
@@ -211,31 +208,19 @@ class Translator implements TranslatorInterface
         $translations = require $file;
 
         if (!is_array($translations)) {
-            InvalidLocaleFileException::raise(
-                'Locale file {file} for {locale} must return array<string, string>, got {type}',
-                [
-                    'file' => $file,
-                    'locale' => $locale,
-                    'type' => get_debug_type($translations),
-                ]
-            );
+            return [];
         }
 
+        $normalized = [];
         foreach ($translations as $key => $message) {
             if (!is_string($key) || !is_string($message)) {
-                InvalidLocaleFileException::raise(
-                    'Locale file {file} for {locale} must contain string keys and string messages; invalid entry {key}',
-                    [
-                        'file' => $file,
-                        'locale' => $locale,
-                        'key' => (string)$key,
-                    ]
-                );
+                continue;
             }
+
+            $normalized[$key] = $message;
         }
 
-        /** @var array<string, string> $translations */
-        return $translations;
+        return $normalized;
     }
 
     /**

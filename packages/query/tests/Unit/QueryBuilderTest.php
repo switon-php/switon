@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Query\Tests\Unit;
 
-use Switon\Core\Exception\InvalidValueException;
 use Switon\Query\Exception\InvalidSortDirectionException;
 use Switon\Query\Query;
 use Switon\Query\Table;
@@ -44,16 +43,16 @@ class QueryBuilderTest extends TestCase
     }
 
     /**
-     * Test that select() validates field values are strings.
+     * Test that select() stringifies non-string scalar field values.
      */
-    public function testSelectValidatesFieldValuesAreStrings(): void
+    public function testSelectStringifiesNonStringFieldValues(): void
     {
-        $this->expectException(InvalidValueException::class);
-
         $this->query->select([
             'id',
-            'name' => 123, // Invalid: should be string
+            'name' => 123,
         ]);
+
+        $this->assertSame('[id], [123] AS [name]', $this->query->getClauses()->fields);
     }
 
     /**
@@ -81,14 +80,11 @@ class QueryBuilderTest extends TestCase
     /**
      * Test that orderBy() validates field values.
      */
-    public function testOrderByValidatesFieldValues(): void
+    public function testOrderByStringifiesIntegerKeyedFieldNames(): void
     {
-        $this->expectException(InvalidValueException::class);
+        $this->query->orderBy([123 => 456]);
 
-        // Integer key means field name, value should be string, but we pass non-string
-        // Actually, when key is integer, the value IS the field name, so it should be string
-        // This test should check when value is not string with integer key
-        $this->query->orderBy([123 => 456]); // Integer key with integer value (invalid)
+        $this->assertInstanceOf(Query::class, $this->query);
     }
 
     /**
@@ -150,11 +146,11 @@ class QueryBuilderTest extends TestCase
     /**
      * Test that groupBy() validates array items are strings.
      */
-    public function testGroupByValidatesArrayItemsAreStrings(): void
+    public function testGroupByStringifiesArrayItems(): void
     {
-        $this->expectException(InvalidValueException::class);
+        $this->query->groupBy(['status', 123]);
 
-        $this->query->groupBy(['status', 123]); // Invalid: 123 is not string
+        $this->assertInstanceOf(Query::class, $this->query);
     }
 
     /**

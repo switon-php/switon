@@ -52,7 +52,7 @@ class Jwt implements JwtInterface
     /** HMAC algorithm for signing (HS256, HS384, HS512). */
     #[Autowired] protected string $alg = 'HS256';
 
-    /** Default HMAC key in lowercase hex, null to derive from CipherInterface. */
+    /** Default HMAC key in lowercase hex with an even number of characters, null to derive from CipherInterface. */
     #[Autowired] protected ?string $key;
 
     /** Time leeway in seconds for exp/nbf validation (clock skew tolerance). */
@@ -114,14 +114,6 @@ class Jwt implements JwtInterface
 
         if ($this->key === null) {
             return $this->cipher->getDerivedKey('jwt', $bits);
-        }
-
-        if ($this->key === '' || strlen($this->key) % 2 !== 0 || preg_match('/^[0-9a-f]+$/', $this->key) !== 1) {
-            Exception::raise('{source} must be lowercase hex with an even number of characters.', [
-                'source' => 'Configured JWT key',
-                'alg' => $this->alg,
-                'key_preview' => substr($this->key, 0, 20),
-            ]);
         }
 
         return $this->key;

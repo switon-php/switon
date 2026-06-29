@@ -9,7 +9,6 @@ use Switon\Dict\Attribute\DictValue;
 use Switon\Dict\Dict;
 use Switon\Dict\DictEntry;
 use Switon\Dict\DictReaderInterface;
-use Switon\Dict\Exception\DictTypeCodeRequiredException;
 use Switon\Dict\Tests\Fixtures\OrderStatus;
 use Switon\Dict\Tests\TestCase;
 use Switon\Validating\Validation;
@@ -119,21 +118,27 @@ class DictValueTest extends TestCase
         $this->assertNull($attribute->normalizeInput($property, ''));
     }
 
-    public function testValidateRaisesWhenTypeOwnedCodeIsMissing(): void
+    public function testValidateReturnsFalseWhenTypeOwnedCodeIsMissing(): void
     {
         $dictReader = $this->createMock(DictReaderInterface::class);
-        $dictReader->expects($this->never())->method('getItem');
+        $dictReader->expects($this->once())
+            ->method('getItem')
+            ->with('', 'paid', true)
+            ->willReturn(null);
 
         $validation = new Validation($this->createStub(ValidatorInterface::class), []);
         $validation->field = 'status';
         $validation->sourceClass = DictValueBrokenFixture::class;
         $validation->value = 'paid';
 
-        $attribute = new DictValue(BrokenOrderStatus::class);
+        $this->container->set(DictReaderInterface::class, $dictReader);
 
-        $this->expectException(DictTypeCodeRequiredException::class);
+        /** @var DictValue $attribute */
+        $attribute = $this->container->make(DictValue::class, [
+            'type' => BrokenOrderStatus::class,
+        ]);
 
-        $attribute->validate($validation);
+        $this->assertFalse($attribute->validate($validation));
     }
 }
 

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Core;
 
-use Switon\Core\Exception\MisuseException;
-use Switon\Core\Exception\NotSupportedException;
-
 use function base64_encode;
 use function bin2hex;
 use function ceil;
@@ -22,6 +19,8 @@ use function substr;
  * Cryptographically secure random generator.
  *
  * Uses PHP secure primitives (`random_bytes`, `random_int`) and implements `RandomInterface` for testable substitution.
+ *
+ * Guidance: <code>chars()</code> accepts <code>length >= 0</code> and <code>base</code> in 2…62 (16 and 62 have fast paths).
  *
  * @see \Switon\Core\RandomInterface
  */
@@ -66,11 +65,11 @@ class Random implements RandomInterface
      */
     public function chars(int $length, int $base = 62): string
     {
-        if ($length < 0) {
-            MisuseException::raise('Length cannot be negative, got {length}.', ['length' => $length]);
-        } elseif ($length === 0) {
+        if ($length === 0) {
             return '';
-        } elseif ($base === 16) {
+        }
+
+        if ($base === 16) {
             if ($length % 2 === 0) {
                 return bin2hex(random_bytes($length / 2));
             } else {
@@ -94,8 +93,8 @@ class Random implements RandomInterface
                 }
             }
             return $str;
-        } else {
-            NotSupportedException::raise('Base {base} not supported, valid range: 2-62', ['base' => $base]);
         }
+
+        return '';
     }
 }

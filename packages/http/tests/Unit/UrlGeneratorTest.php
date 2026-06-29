@@ -453,26 +453,24 @@ class UrlGeneratorTest extends TestCase
         $this->assertSame('/api/users/list', $urlGenerator->action(''));
     }
 
-    public function testUrlThrowsWhenArrayPathElementIsNotString(): void
+    public function testUrlStringifiesNonStringArrayPathElement(): void
     {
         $this->router->method('getPrefix')->willReturn('');
         $urlGenerator = $this->createUrlGenerator();
 
         $this->expectException(InvalidUrlPathException::class);
-        $this->expectExceptionMessage('url() path must be a string');
+        $this->expectExceptionMessage('url() path must start with "/"');
 
         $urlGenerator->url([99, 'tab' => 'x']);
     }
 
-    public function testActionThrowsWhenArrayPathElementIsNotString(): void
+    public function testActionStringifiesNonStringArrayPathElement(): void
     {
+        $this->request->method('path')->willReturn('/items/list');
         $this->router->method('getPrefix')->willReturn('');
         $urlGenerator = $this->createUrlGenerator();
 
-        $this->expectException(InvalidUrlPathException::class);
-        $this->expectExceptionMessage('action() path must be a string, got int.');
-
-        $urlGenerator->action([404, 'x' => 1]);
+        $this->assertSame('/items/404?x=1', $urlGenerator->action([404, 'x' => 1]));
     }
 
     public function testActionPreservesQueryStringOnResolvedRelativePath(): void

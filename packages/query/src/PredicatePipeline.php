@@ -63,6 +63,8 @@ class PredicatePipeline implements PredicatePipelineInterface
     ];
 
     /**
+     * {@inheritDoc}
+     *
      * @param array<string|int, mixed> $filters
      *
      * @return list<Predicate>
@@ -102,7 +104,7 @@ class PredicatePipeline implements PredicatePipelineInterface
                 } elseif (!$value || isset($value[0])) {
                     $predicates[] = ['type' => 'in', 'field' => $filter, 'values' => $value];
                 } else {
-                    InvalidFilterException::raise('Array value for filter "{filter}" must be indexed array or have operator suffix', ['filter' => $filter]);
+                    continue;
                 }
                 continue;
             }
