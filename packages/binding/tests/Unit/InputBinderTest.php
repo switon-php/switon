@@ -10,6 +10,8 @@ use Switon\Binding\InputBinder;
 use Switon\Binding\Tests\TestCase;
 use Switon\Binding\Tests\Unit\Fixtures\BindingDateInputFixture;
 use Switon\Binding\Tests\Unit\Fixtures\BindingDateIntInputFixture;
+use Switon\Binding\Tests\Unit\Fixtures\BindingArrayConstructedBag;
+use Switon\Binding\Tests\Unit\Fixtures\BindingArrayConstructedInputFixture;
 use Switon\Binding\Tests\Unit\Fixtures\BindingInputFixtures;
 use Switon\Binding\Tests\Unit\Fixtures\BindingNestedInput;
 use Switon\Binding\Tests\Unit\Fixtures\BindingAutowiredInputFixture;
@@ -27,7 +29,7 @@ use DateTime;
 
 require_once __DIR__ . '/Fixtures/BindingInputFixtures.php';
 
-final class InputBinderTest extends TestCase
+class InputBinderTest extends TestCase
 {
     protected function createBinder(ValidatorInterface $validator): InputBinder
     {
@@ -432,9 +434,52 @@ final class InputBinderTest extends TestCase
 
         self::assertSame('2024-01-01 00:00:00', $input->createdAt);
     }
+
+    public function testBindUsesArrayConstructorForRootValueObject(): void
+    {
+        $validator = $this->container->get(ValidatorInterface::class);
+        $binder = $this->createBinder($validator);
+
+        $input = $binder->bind(BindingArrayConstructedBag::class, [
+            'cwd' => '/tmp',
+            'timeout' => 30,
+        ]);
+
+        self::assertSame(['cwd' => '/tmp', 'timeout' => 30], $input->all());
+    }
+
+    public function testBindUsesArrayConstructorForNestedProperty(): void
+    {
+        $validator = $this->container->get(ValidatorInterface::class);
+        $binder = $this->createBinder($validator);
+
+        $input = $binder->bind(BindingArrayConstructedInputFixture::class, [
+            'name' => 'grep',
+            'extra' => ['cwd' => '/tmp', 'timeout' => 30],
+        ]);
+
+        self::assertSame('grep', $input->name);
+        self::assertNotNull($input->extra);
+        self::assertSame(['cwd' => '/tmp', 'timeout' => 30], $input->extra->all());
+    }
+
+    public function testBindUsesArrayConstructorForEmptyNestedObject(): void
+    {
+        $validator = $this->container->get(ValidatorInterface::class);
+        $binder = $this->createBinder($validator);
+
+        $input = $binder->bind(BindingArrayConstructedInputFixture::class, [
+            'name' => 'grep',
+            'extra' => [],
+        ]);
+
+        self::assertSame('grep', $input->name);
+        self::assertNotNull($input->extra);
+        self::assertSame([], $input->extra->all());
+    }
 }
 
-final class BindingRecursiveInputFixture
+class BindingRecursiveInputFixture
 {
     public ?BindingRecursiveInputFixture $child = null;
 }
