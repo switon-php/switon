@@ -27,4 +27,7 @@ interface ClockInterface
 
     /** Return elapsed seconds since $startedAt, rounded to $precision decimal places. */
     public function elapsed(float $startedAt, int $precision = 3): float;
+
+    /** Block for $seconds (real wait in production; mock implementations advance virtual time). Supports fractional seconds (millisecond precision). */
+    public function sleep(float $seconds): void;
 }

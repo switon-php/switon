@@ -180,4 +180,15 @@ class ClockTest extends TestCase
         // Both should return similar timestamps
         $this->assertEqualsWithDelta($time1, $time2, 1);
     }
+
+    public function testSleepWaitsOnlyForPositiveDurations(): void
+    {
+        $clock = new Clock();
+        $started = microtime(true);
+        $clock->sleep(0.002);
+        $this->assertGreaterThanOrEqual(0.001, microtime(true) - $started);
+
+        $clock->sleep(0);
+        $clock->sleep(-1);
+    }
 }
