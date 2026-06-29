@@ -10,10 +10,7 @@ use Switon\Core\Exception as CoreException;
 use Switon\Orm\Entity;
 use Switon\Orm\EntityMetadataInterface;
 use Switon\Validating\AbstractConstraint;
-use Switon\Validating\Exception\InvalidConstraintSourceException;
 use Switon\Validating\Validation;
-
-use function get_debug_type;
 
 /**
  * Validation constraint that ensures a value exists in one explicit target entity.
@@ -23,7 +20,7 @@ use function get_debug_type;
  * - null values pass
  * - repository lookup confirms existence
  *
- * Guidance: Pass the target entity class explicitly; field names do not participate in lookup.
+ * Guidance: Entity-backed constraints require an {@see Entity} validation source; other sources fail validation.
  *
  * @see \Switon\Orm\EntityMetadataInterface::getConstraints()
  * @see \Switon\Orm\Attribute\Unique
@@ -50,17 +47,12 @@ class Exists extends AbstractConstraint
      *
      * @param Validation $validation The validation context containing value and source entity
      *
-     * @return bool True if validation passes, false if validation fails
-     *
-     * @throws InvalidConstraintSourceException If source is not an Entity instance
+     * @return bool True if validation passes, false if validation fails or source is not an Entity
      */
     public function validate(Validation $validation): bool
     {
         if (!$validation->source instanceof Entity) {
-            InvalidConstraintSourceException::raise(
-                'Constraint #{constraint} requires an Entity source, got {type}',
-                ['constraint' => 'Exists', 'type' => get_debug_type($validation->source)]
-            );
+            return false;
         }
 
         $value = $validation->value;

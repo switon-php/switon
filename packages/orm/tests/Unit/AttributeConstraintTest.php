@@ -14,7 +14,6 @@ use Switon\Orm\Attribute\Unique;
 use Switon\Orm\Entity;
 use Switon\Orm\EntityMetadataInterface;
 use Switon\Orm\RepositoryInterface;
-use Switon\Validating\Exception\InvalidConstraintSourceException;
 use Switon\Validating\Validation;
 use Switon\Validating\ValidatorInterface;
 use ReflectionClass;
@@ -33,7 +32,7 @@ class AttributeConstraintTest extends TestCase
         $this->entityMetadata = $this->createMock(EntityMetadataInterface::class);
     }
 
-    public function testExistsValidateThrowsWhenSourceIsNotEntity(): void
+    public function testExistsValidateReturnsFalseWhenSourceIsNotEntity(): void
     {
         $constraint = new Exists(User::class);
         $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
@@ -41,8 +40,7 @@ class AttributeConstraintTest extends TestCase
         $validation->field = 'user_id';
         $validation->value = 1;
 
-        $this->expectException(InvalidConstraintSourceException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
     public function testExistsValidateReturnsTrueForNullValue(): void
@@ -144,7 +142,7 @@ class AttributeConstraintTest extends TestCase
         $this->assertTrue($constraint->validate($validation));
     }
 
-    public function testImmutableValidateThrowsWhenSourceIsNotEntity(): void
+    public function testImmutableValidateReturnsFalseWhenSourceIsNotEntity(): void
     {
         $constraint = new Immutable();
         $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
@@ -153,11 +151,10 @@ class AttributeConstraintTest extends TestCase
         $validation->field = 'name';
         $validation->value = 'changed';
 
-        $this->expectException(InvalidConstraintSourceException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
-    public function testImmutableValidateThrowsWhenSourceIsArray(): void
+    public function testImmutableValidateReturnsFalseWhenSourceIsArray(): void
     {
         $constraint = new Immutable();
         $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
@@ -166,8 +163,7 @@ class AttributeConstraintTest extends TestCase
         $validation->field = 'name';
         $validation->value = 'changed';
 
-        $this->expectException(InvalidConstraintSourceException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
     public function testImmutableValidateReturnsTrueWhenPrimaryKeyNotSet(): void
@@ -236,7 +232,7 @@ class AttributeConstraintTest extends TestCase
         $this->assertFalse($constraint->validate($validation));
     }
 
-    public function testUniqueValidateThrowsWhenSourceIsArray(): void
+    public function testUniqueValidateReturnsFalseWhenSourceIsArray(): void
     {
         $constraint = new Unique();
         $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
@@ -245,8 +241,7 @@ class AttributeConstraintTest extends TestCase
         $validation->field = 'name';
         $validation->value = 'Test';
 
-        $this->expectException(InvalidConstraintSourceException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
     public function testUniqueValidateReturnsFalseWhenRepositoryFindsDuplicateWithFiltersAndPrimaryKeyExclusion(): void

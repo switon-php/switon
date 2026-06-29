@@ -15,8 +15,6 @@ use Switon\Core\MakerInterface;
 use Switon\Eventing\Attribute\EventListener;
 use Switon\Http\Event\RequestReceived;
 use Switon\Http\Exception\BadRequestException;
-use Switon\Http\Exception\InvalidAssociativeArrayException;
-use Switon\Http\Exception\InvalidIndexedArrayException;
 use Switon\Http\Request\File;
 use Switon\Http\Request\FileInterface;
 
@@ -222,8 +220,8 @@ class Request implements RequestInterface, JsonSerializable, ContextAware
      * This method preserves operator suffixes in keys (e.g. <code>age>=</code>, <code>name*=</code>)
      * and filters out empty strings/nulls. Operator parsing happens in Query/ORM.
      *
-     * @param list<string> $fields
-     * @param array<string, mixed> $custom
+     * @param list<string> $fields Indexed field names; must not be an associative array
+     * @param array<string, mixed> $custom Associative overrides; must not be a list array
      *
      * @see \Switon\Orm\AbstractRepository::where() ORM pre-processing (e.g. field@= → field~= / >= / <=)
      * @see \Switon\Query\QueryInterface::where() Query entry
@@ -232,14 +230,6 @@ class Request implements RequestInterface, JsonSerializable, ContextAware
      */
     public function filters(array $fields = [], array $custom = []): array
     {
-        if (!empty($fields) && !array_is_list($fields)) {
-            InvalidIndexedArrayException::raise('Parameter $fields must be an indexed array, got associative array');
-        }
-
-        if (!empty($custom) && array_is_list($custom)) {
-            InvalidAssociativeArrayException::raise('Parameter $custom must be an associative array, got indexed array');
-        }
-
         $data = $this->all();
         $result = [];
 

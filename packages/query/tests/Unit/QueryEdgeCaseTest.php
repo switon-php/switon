@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Query\Tests\Unit;
 
-use Switon\Core\Exception\InvalidValueException;
 use Switon\Query\Exception\InvalidSortDirectionException;
 use Switon\Query\Query;
 use Switon\Query\Table;
@@ -30,16 +29,16 @@ class QueryEdgeCaseTest extends TestCase
     }
 
     /**
-     * Test that select() with non-string field values throws exception.
+     * Test that select() stringifies non-string scalar field values.
      */
-    public function testSelectWithNonStringFieldValuesThrowsException(): void
+    public function testSelectStringifiesNonStringFieldValues(): void
     {
-        $this->expectException(InvalidValueException::class);
-
         $this->query->select([
             'id',
-            'name' => 123, // Invalid: should be string
+            'name' => 123,
         ]);
+
+        $this->assertSame('[id], [123] AS [name]', $this->query->getClauses()->fields);
     }
 
     /**
@@ -55,31 +54,25 @@ class QueryEdgeCaseTest extends TestCase
     /**
      * Test that groupBy() with non-string array items throws exception.
      */
-    public function testGroupByWithNonStringArrayItemsThrowsException(): void
+    public function testGroupByStringifiesNonStringArrayItems(): void
     {
-        $this->expectException(InvalidValueException::class);
+        $this->query->groupBy(['status', 123]);
 
-        $this->query->groupBy(['status', 123]); // Invalid: 123 is not string
+        $this->assertInstanceOf(Query::class, $this->query);
     }
 
-    /**
-     * Test that orderBy() with non-string field value for integer key throws exception.
-     */
-    public function testOrderByWithNonStringFieldForIntegerKeyThrowsException(): void
+    public function testOrderByStringifiesNonStringFieldForIntegerKey(): void
     {
-        $this->expectException(InvalidValueException::class);
+        $this->query->orderBy([123]);
 
-        $this->query->orderBy([123]); // Invalid: value should be string when key is integer
+        $this->assertInstanceOf(Query::class, $this->query);
     }
 
-    /**
-     * Test that groupBy() with non-string item throws exception.
-     */
-    public function testGroupByWithNonStringItemThrowsException(): void
+    public function testGroupByStringifiesNonStringItem(): void
     {
-        $this->expectException(InvalidValueException::class);
+        $this->query->groupBy([123]);
 
-        $this->query->groupBy([123]); // Invalid: should be string
+        $this->assertInstanceOf(Query::class, $this->query);
     }
 
     /**

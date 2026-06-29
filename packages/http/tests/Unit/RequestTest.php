@@ -722,32 +722,34 @@ class RequestTest extends TestCase
         $this->assertSame('value', $filters['custom']);
     }
 
-    public function testFiltersThrowsExceptionForNonIndexedFieldsArray(): void
+    public function testFiltersAcceptsAssociativeFieldsArray(): void
     {
         $event = $this->createRequestEvent(
-            post: ['name' => 'John'],
+            post: ['name' => 'John', 'value' => 'ignored-key'],
             server: ['REQUEST_METHOD' => 'POST']
         );
 
         $this->request->onRequestReceived($event);
 
-        $this->expectException(\Switon\Http\Exception\InvalidIndexedArrayException::class);
+        $filters = $this->request->filters(['name' => 'value']);
 
-        $this->request->filters(['name' => 'value']);
+        $this->assertArrayHasKey('value', $filters);
+        $this->assertSame('ignored-key', $filters['value']);
     }
 
-    public function testFiltersThrowsExceptionForIndexedCustomArray(): void
+    public function testFiltersAcceptsIndexedCustomArray(): void
     {
         $event = $this->createRequestEvent(
-            post: ['name' => 'John'],
+            post: ['name' => 'John', 'custom' => 'from-request'],
             server: ['REQUEST_METHOD' => 'POST']
         );
 
         $this->request->onRequestReceived($event);
 
-        $this->expectException(\Switon\Http\Exception\InvalidAssociativeArrayException::class);
+        $filters = $this->request->filters([], ['custom']);
 
-        $this->request->filters([], ['value']);
+        $this->assertArrayHasKey('custom', $filters);
+        $this->assertSame('from-request', $filters['custom']);
     }
 
     public function testFilesReturnsArrayOfFileInterfaceInstances(): void

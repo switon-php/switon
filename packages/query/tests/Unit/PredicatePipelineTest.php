@@ -53,14 +53,13 @@ class PredicatePipelineTest extends TestCase
         ]);
     }
 
-    public function testParseAssociativeArrayValueWithoutOperatorSuffixRaisesInvalidFilterException(): void
+    public function testParseAssociativeArrayValueWithoutOperatorSuffixIsSkipped(): void
     {
-        $this->expectException(InvalidFilterException::class);
-        $this->expectExceptionMessage('indexed array or have operator suffix');
-
-        (new PredicatePipeline())->parse([
+        $result = (new PredicatePipeline())->parse([
             'roles' => ['admin' => true, 'editor' => false],
         ]);
+
+        $this->assertSame([], $result);
     }
 
     public function testCompileFallsBackToLegacyCompilerWhenMappedMethodIsMissing(): void

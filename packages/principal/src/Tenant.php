@@ -7,7 +7,6 @@ namespace Switon\Principal;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ContextAware;
 use Switon\Core\ContextManagerInterface;
-use Switon\Core\Exception\InvalidArgumentException;
 use Switon\Principal\Exception\TenantNotAvailableException;
 
 /**
@@ -69,18 +68,9 @@ class Tenant implements TenantInterface, ContextAware
 
     public function set(int|string $id, string $code): void
     {
-        if (is_string($id) && trim($id) === '') {
-            InvalidArgumentException::raise('Tenant ID cannot be empty');
-        }
-
-        $normalizedCode = trim($code);
-        if ($normalizedCode === '') {
-            InvalidArgumentException::raise('Tenant code cannot be empty');
-        }
-
         $context = $this->getContext();
         $context->id = $id;
-        $context->code = $normalizedCode;
+        $context->code = trim($code);
     }
 
     public function clear(): void

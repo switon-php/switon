@@ -8,7 +8,6 @@ use ReflectionMethod;
 use ReflectionProperty;
 use Switon\Core\Exception\AliasNotFoundException;
 use Switon\Core\Exception\CircularAliasException;
-use Switon\Core\Exception\InvalidAliasNameException;
 use Switon\Core\PathAlias;
 use Switon\Core\Tests\TestCase;
 
@@ -53,12 +52,14 @@ class PathAliasTest extends TestCase
     }
 
     /**
-     * Test that set() throws InvalidAliasNameException for invalid alias names.
+     * Test that set() auto-prefixes alias names without @.
      */
-    public function testSetThrowsExceptionForInvalidAliasName(): void
+    public function testSetAutoPrefixesAliasNameWithoutAt(): void
     {
-        $this->expectException(InvalidAliasNameException::class);
         $this->pathAlias->set('root', '/var/www/myapp');
+
+        $this->assertSame('/var/www/myapp', $this->pathAlias->get('@root'));
+        $this->assertSame('/var/www/myapp', $this->pathAlias->get('root'));
     }
 
     /**
@@ -312,30 +313,30 @@ class PathAliasTest extends TestCase
     }
 
     /**
-     * Test that get() throws InvalidAliasNameException for invalid alias name.
+     * Test that get() normalizes alias names without @.
      */
-    public function testGetThrowsExceptionForInvalidAliasName(): void
+    public function testGetNormalizesAliasNameWithoutAt(): void
     {
-        $this->expectException(InvalidAliasNameException::class);
-        $this->pathAlias->get('invalid');
+        $this->assertNull($this->pathAlias->get('invalid'));
     }
 
     /**
-     * Test that has() throws InvalidAliasNameException for invalid alias name.
+     * Test that has() normalizes alias names without @.
      */
-    public function testHasThrowsExceptionForInvalidAliasName(): void
+    public function testHasNormalizesAliasNameWithoutAt(): void
     {
-        $this->expectException(InvalidAliasNameException::class);
-        $this->pathAlias->has('invalid');
+        $this->assertFalse($this->pathAlias->has('invalid'));
     }
 
     /**
-     * Test that remove() throws InvalidAliasNameException for invalid alias name.
+     * Test that remove() normalizes alias names without @.
      */
-    public function testRemoveThrowsExceptionForInvalidAliasName(): void
+    public function testRemoveNormalizesAliasNameWithoutAt(): void
     {
-        $this->expectException(InvalidAliasNameException::class);
-        $this->pathAlias->remove('invalid');
+        $this->pathAlias->set('@temp', '/tmp/test');
+        $this->pathAlias->remove('temp');
+
+        $this->assertFalse($this->pathAlias->has('@temp'));
     }
 
     /**

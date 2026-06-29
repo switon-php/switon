@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Switon\Core\Tests\Unit;
 
 use ReflectionMethod;
-use Switon\Core\Exception\InvalidArgumentException;
 use Switon\Core\Reflections;
 use Switon\Core\Tests\TestCase;
 use Countable;
@@ -64,14 +63,11 @@ final class ReflectionsTest extends TestCase
         );
     }
 
-    public function testGetTypeNamesThrowsOnIntersectionType(): void
+    public function testGetTypeNamesReturnsEmptyListForIntersectionType(): void
     {
         $type = (new ReflectionMethod(ReflectionsTestIntersectionHandler::class, 'onEvent'))->getParameters()[0]->getType();
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Intersection types are not supported');
-
-        Reflections::getTypeNames($type);
+        $this->assertSame([], Reflections::getTypeNames($type));
     }
 
     public function testGetMethodReturnTypeReturnsFirstDeclaredType(): void

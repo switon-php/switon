@@ -26,6 +26,7 @@ use function trim;
  * Road-signs:
  * - `~=` between
  * - `?` optional suffix
+ * - associative array values without operator suffix on the field key are skipped
  * - InvalidFilterException
  *
  * @see \Switon\Query\ConditionBuilderInterface
@@ -66,7 +67,7 @@ abstract class AbstractConditionBuilder implements ConditionBuilderInterface
                 } elseif (!$value || isset($value[0])) {
                     $this->whereIn($filter, $value);
                 } else {
-                    InvalidFilterException::raise('Array value for filter "{filter}" must be indexed array or have operator suffix', ['filter' => $filter]);
+                    continue;
                 }
             } elseif (str_contains($filter, ',') && preg_match('#^([\w,.]+)([<>=!^$*~,@?]*)$#', $filter, $matches) === 1) {
                 // Comma-separated fields with optional operator (e.g., 'field1,field2*=')

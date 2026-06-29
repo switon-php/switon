@@ -7,7 +7,6 @@ namespace Switon\Validating\Attribute;
 use Attribute;
 use BackedEnum;
 use Switon\Validating\AbstractConstraint;
-use Switon\Validating\Exception\InvalidConstraintTargetException;
 use Switon\Validating\Validation;
 use UnitEnum;
 
@@ -16,6 +15,8 @@ use UnitEnum;
  *
  * Use when a field value must match one of the cases of the target enum (same family as
  * {@see \Switon\Validating\Attribute\ConstantValue} and dict-backed <code>DictValue</code>).
+ *
+ * Guidance: <code>$class</code> must name a valid enum; invalid targets fail validation.
  *
  * @see \Switon\Validating\AbstractConstraint
  * @see \Switon\Validating\Validation
@@ -46,13 +47,14 @@ class EnumValue extends AbstractConstraint
      * @param Validation $validation Validation context
      *
      * @return bool True if value matches an enum case, false otherwise
-     *
-     * @throws InvalidConstraintTargetException When the configured class is not a valid enum
      */
     public function validate(Validation $validation): bool
     {
-        /** @var class-string<UnitEnum> $enumClass */
         $enumClass = $this->resolveEnumClass();
+        if ($enumClass === null) {
+            return false;
+        }
+
         $value = $validation->value;
 
         if ($value instanceof $enumClass) {
@@ -79,19 +81,12 @@ class EnumValue extends AbstractConstraint
     }
 
     /**
-     * Resolve and validate the configured enum class.
-     *
-     * @return class-string<UnitEnum>
-     *
-     * @throws InvalidConstraintTargetException When the configured class is not a valid enum
+     * @return class-string<UnitEnum>|null
      */
-    protected function resolveEnumClass(): string
+    protected function resolveEnumClass(): ?string
     {
         if (!enum_exists($this->class)) {
-            InvalidConstraintTargetException::raise(
-                'Constraint #{constraint} references invalid enum class {class}',
-                ['constraint' => static::class, 'class' => $this->class]
-            );
+            return null;
         }
 
         return $this->class;

@@ -348,14 +348,13 @@ class BlobStoreTest extends TestCase
     }
 
     #[Test]
-    public function writeStreamThrowsMisuseExceptionWhenArgumentIsNotStreamResource(): void
+    public function writeStreamRequiresStreamResource(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
         $pathAlias = $this->createStub(PathAliasInterface::class);
         $store = $this->makeStore($filesystem, $pathAlias);
 
-        $this->expectException(MisuseException::class);
-        $this->expectExceptionMessage('stream resource');
+        $this->expectException(\ValueError::class);
 
         $store->writeStream('key.txt', 'not-a-stream');
     }

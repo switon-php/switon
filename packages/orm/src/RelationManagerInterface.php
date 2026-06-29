@@ -15,7 +15,7 @@ use Switon\Query\QueryInterface;
  * - earlyLoad attaches batches
  * - lazyLoad loads one relation
  *
- * Guidance: Keep eager payloads in <code>relation =&gt; (array|QueryInterface|callable)</code> shape and express child relations with nested arrays.
+ * Guidance: Keep eager payloads in <code>relation =&gt; (array|QueryInterface|callable|null)</code> shape; numeric list keys with string values load that relation with default payload; unsupported payloads are skipped.
  *
  * @see \Switon\Orm\RelationManager
  * @see \Switon\Orm\EntityMetadataInterface::getRelations()

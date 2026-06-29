@@ -21,6 +21,8 @@ interface PredicatePipelineInterface
     /**
      * Parses array filters into predicate IR.
      *
+     * Guidance: associative array values require an operator suffix on the field key; unsupported shapes are skipped.
+     *
      * @param array<string|int, mixed> $filters Query filter array (same syntax as {@see QueryInterface::where()}).
      *
      * @return list<array<string, mixed>> Predicates list.

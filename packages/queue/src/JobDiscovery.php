@@ -75,12 +75,6 @@ class JobDiscovery implements JobDiscoveryInterface
             if ($queue === '') {
                 continue;
             }
-            if ($queued->concurrency < 1) {
-                MisuseException::raise(
-                    'Queued concurrency for "{class}" must be >= 1, got {concurrency}',
-                    ['class' => $class, 'concurrency' => $queued->concurrency]
-                );
-            }
 
             $definition = ['class' => $class, 'concurrency' => $queued->concurrency];
 

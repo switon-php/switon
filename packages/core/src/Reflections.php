@@ -82,21 +82,16 @@ class Reflections
     }
 
     /**
-     * @return list<string> Declared type names (union members flattened).
+     * @return list<string> Declared type names (union members flattened; unsupported reflection types yield an empty list).
      */
     public static function getTypeNames(ReflectionType $type): array
     {
-        if ($type instanceof ReflectionIntersectionType) {
-            InvalidArgumentException::raise('Intersection types are not supported.');
-        }
-
         if ($type instanceof ReflectionUnionType) {
             $names = [];
             foreach ($type->getTypes() as $member) {
-                if (!$member instanceof ReflectionNamedType) {
-                    InvalidArgumentException::raise('Unsupported reflection type.');
+                if ($member instanceof ReflectionNamedType) {
+                    $names[] = $member->getName();
                 }
-                $names[] = $member->getName();
             }
 
             return $names;
@@ -106,7 +101,7 @@ class Reflections
             return [$type->getName()];
         }
 
-        InvalidArgumentException::raise('Unsupported reflection type.');
+        return [];
     }
 
     /**

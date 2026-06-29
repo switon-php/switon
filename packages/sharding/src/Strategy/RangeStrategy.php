@@ -6,7 +6,6 @@ namespace Switon\Sharding\Strategy;
 
 use Switon\Core\Exception\MisuseException;
 
-use function gettype;
 use function in_array;
 use function is_array;
 use function is_numeric;
@@ -18,6 +17,8 @@ use function trim;
  * Routes numeric values by configured inclusive ranges.
  *
  * Use when shard boundaries are explicit intervals such as ID or time ranges.
+ *
+ * Guidance: Non-numeric context values are skipped when resolving range shards.
  *
  * @see \Switon\Sharding\Strategy\AbstractStrategy
  * @see \Switon\Sharding\StrategyInterface
@@ -74,10 +75,10 @@ class RangeStrategy extends AbstractStrategy
 
         foreach ($values as $val) {
             if (!is_numeric($val)) {
-                MisuseException::raise('Field {field} requires numeric value, got {type}', ['field' => $field, 'type' => gettype($val)]);
+                continue;
             }
 
-            $val = (int)$val;
+            $val = (int) $val;
             foreach ($parsedRanges as $index => [$min, $max]) {
                 if ($val >= $min && $val <= $max) {
                     $shardName = $this->formatShardName($base, $index);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Switon\Validating\Tests\Unit\Constraint\Attribute;
 
 use Switon\Validating\Attribute\Type;
-use Switon\Validating\Exception\UnsupportedValidationTypeException;
 use Switon\Validating\Exception\ValidateFailedException;
 use Switon\Validating\Tests\TestCase;
 use stdClass;
@@ -386,18 +385,14 @@ class TypeTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /**
-     * Test Type with unsupported type throws exception.
-     */
-    public function testTypeUnsupportedTypeThrowsException(): void
+    public function testTypeUnsupportedTypeReturnsFalse(): void
     {
         $constraint = new Type('unsupported');
         $validation = $this->validator->beginValidate([]);
         $validation->field = 'testField';
         $validation->value = 'test';
 
-        $this->expectException(UnsupportedValidationTypeException::class);
-        $constraint->validate($validation);
+        $this->assertFalse($constraint->validate($validation));
     }
 
     /**

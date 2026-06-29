@@ -20,7 +20,6 @@ use function dirname;
 use function explode;
 use function fclose;
 use function in_array;
-use function is_resource;
 use function pathinfo;
 use function rtrim;
 use function str_contains;
@@ -126,9 +125,6 @@ class BlobStore implements BlobStoreInterface
     /** {@inheritDoc} */
     public function writeStream(string $key, mixed $stream): void
     {
-        if (!is_resource($stream)) {
-            MisuseException::raise('writeStream() expects a stream resource.');
-        }
         $path = $this->path($key);
         $dir = $this->parentDir($path);
         try {

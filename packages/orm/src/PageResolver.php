@@ -46,10 +46,6 @@ class PageResolver implements ValueResolverInterface
         $page = Page::of($rawPage, $rawSize);
 
         $max = $this->resolveLimit($parameter);
-        if ($max < 1) {
-            InvalidArgumentException::raise('Pagination max must be >= 1, got {max}.', ['max' => $max]);
-        }
-
         $depth = $page->getPage() * $page->getLimit();
         if ($depth > $max) {
             InvalidArgumentException::raise(

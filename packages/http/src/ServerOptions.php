@@ -9,10 +9,7 @@ use Switon\Core\Attribute\Autowired;
 /**
  * HTTP server runtime options.
  *
- * Road-signs:
- * - host + port define the listen address
- * - type selects the server adapter
- * - settings pass adapter-specific options through
+ * Guidance: Set <code>type</code> to <code>auto</code>, <code>fpm</code>, <code>php</code>, or <code>swoole</code>.
  *
  * @see \Switon\Http\Server
  * @see \Switon\Http\Kernel::start()
@@ -32,7 +29,7 @@ class ServerOptions
     #[Autowired] public int $port = 9501;
 
     /**
-     * Server adapter type.
+     * Server adapter type: auto, fpm, php, or swoole.
      */
     #[Autowired] public string $type = 'auto';
 

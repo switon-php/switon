@@ -9,7 +9,6 @@ use Switon\Core\LocaleInterface;
 use Switon\Core\TranslatorInterface;
 use Switon\I18n\Event\TranslationKeyMissing;
 use Switon\I18n\Exception\IntlExtensionRequiredException;
-use Switon\I18n\Exception\InvalidLocaleFileException;
 use Switon\I18n\Exception\LocaleFileNotFoundException;
 use Switon\I18n\Locale;
 use Switon\I18n\Tests\TestCase;
@@ -366,37 +365,32 @@ class TranslatorTest extends TestCase
     }
 
     /**
-     * Test that translate() rejects locale files that do not return arrays.
+     * Test that translate() skips locale files that do not return arrays.
      */
-    public function testTranslateThrowsExceptionWhenLocaleFileDoesNotReturnArray(): void
+    public function testTranslateSkipsLocaleFileWhenItDoesNotReturnArray(): void
     {
-        // Arrange
         $this->createRawTranslationFile('en', "return 'invalid';");
 
         $locale = $this->container->get(LocaleInterface::class);
         $locale->set('en');
         $translator = $this->getTranslator();
 
-        // Act & Assert
-        $this->expectException(InvalidLocaleFileException::class);
-        $translator->translate('welcome');
+        $this->assertSame('welcome', $translator->translate('welcome'));
     }
 
     /**
-     * Test that translate() rejects locale files with non-string messages.
+     * Test that translate() skips locale file entries with non-string messages.
      */
-    public function testTranslateThrowsExceptionWhenLocaleFileContainsNonStringMessage(): void
+    public function testTranslateSkipsLocaleFileEntriesWithNonStringMessage(): void
     {
-        // Arrange
-        $this->createRawTranslationFile('en', "return ['welcome' => ['nested' => true]];");
+        $this->createRawTranslationFile('en', "return ['welcome' => ['nested' => true], 'ok' => 'OK'];");
 
         $locale = $this->container->get(LocaleInterface::class);
         $locale->set('en');
         $translator = $this->getTranslator();
 
-        // Act & Assert
-        $this->expectException(InvalidLocaleFileException::class);
-        $translator->translate('welcome');
+        $this->assertSame('welcome', $translator->translate('welcome'));
+        $this->assertSame('OK', $translator->translate('ok'));
     }
 
     /**

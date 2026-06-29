@@ -276,11 +276,8 @@ class DocumentBuilder implements DocumentBuilderInterface
     protected function dereference(array $document): array
     {
         $resolved = $this->resolveNode($document, $document, [], 0);
-        if (!is_array($resolved)) {
-            RuntimeException::raise('Dereferenced document must be an object-like array.');
-        }
 
-        return $resolved;
+        return is_array($resolved) ? $resolved : [];
     }
 
     /**

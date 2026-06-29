@@ -166,6 +166,8 @@ interface ConditionBuilderInterface
     /**
      * Parses compact filter syntax and appends corresponding predicates.
      *
+     * Guidance: associative array values require an operator suffix on the field key; unsupported shapes are skipped.
+     *
      * @param array<string|int, mixed> $filters
      *
      * @throws \Switon\Query\Exception\InvalidFilterException When filter key/value/operator is invalid

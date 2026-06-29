@@ -105,11 +105,9 @@ class Query extends AbstractQuery
                     $this->with([$k => $v]);
                 }
             } else {
-                if (!is_string($v)) {
-                    InvalidValueException::raise('select() field at index {key} must be string, got {type}', ['type' => gettype($v), 'key' => $k]);
-                }
-                if (strpbrk($v, '[(') === false) {
-                    $r .= is_int($k) ? preg_replace('#\w+#', '[\\0]', $v) . ', ' : preg_replace('#\w+#', '[\\0]', $v) . ' AS [' . $k . '], ';
+                if (strpbrk((string) $v, '[(') === false) {
+                    $field = preg_replace('#\w+#', '[\\0]', (string) $v);
+                    $r .= is_int($k) ? $field . ', ' : $field . ' AS [' . $k . '], ';
                 } else {
                     $r .= is_int($k) ? $v . ', ' : $v . ' AS [' . $k . '], ';
                 }

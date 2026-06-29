@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Switon\Query\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Switon\Core\Exception\InvalidValueException;
 use Switon\Db\ClientInterface;
 use Switon\Query\Clauses;
 use Switon\Query\SqlBuilder;
@@ -57,29 +56,45 @@ class SqlBuilderTest extends TestCase
         $this->assertSame('SELECT [user_id], [full_name] FROM [x] WHERE [user_id] = :id AND [full_name] = :name', $sql);
     }
 
-    public function testBuildSqlRaisesForInvalidGroupItemType(): void
+    public function testBuildSqlStringifiesInvalidGroupItemType(): void
     {
         $client = $this->createMock(ClientInterface::class);
         $client->method('getPrefix')->willReturn('');
-        $client->expects($this->never())->method('buildSql');
+
+        $capturedParams = null;
+        $client->expects($this->once())
+            ->method('buildSql')
+            ->willReturnCallback(static function (array $params) use (&$capturedParams): string {
+                $capturedParams = $params;
+                return 'SELECT 1';
+            });
 
         $clauses = new Clauses();
         $clauses->group = [123];
 
-        $this->expectException(InvalidValueException::class);
         (new SqlBuilder())->buildSql($client, 'users', $clauses);
+
+        $this->assertSame('[123]', $capturedParams['group']);
     }
 
-    public function testBuildSqlRaisesForInvalidOrderFieldKeyType(): void
+    public function testBuildSqlStringifiesInvalidOrderFieldKeyType(): void
     {
         $client = $this->createMock(ClientInterface::class);
         $client->method('getPrefix')->willReturn('');
-        $client->expects($this->never())->method('buildSql');
+
+        $capturedParams = null;
+        $client->expects($this->once())
+            ->method('buildSql')
+            ->willReturnCallback(static function (array $params) use (&$capturedParams): string {
+                $capturedParams = $params;
+                return 'SELECT 1';
+            });
 
         $clauses = new Clauses();
         $clauses->order = [0 => SORT_ASC];
 
-        $this->expectException(InvalidValueException::class);
         (new SqlBuilder())->buildSql($client, 'users', $clauses);
+
+        $this->assertSame('[0] ASC', $capturedParams['order']);
     }
 }

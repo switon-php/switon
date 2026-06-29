@@ -9,10 +9,7 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Orm\Entity;
 use Switon\Orm\EntityMetadataInterface;
 use Switon\Validating\AbstractConstraint;
-use Switon\Validating\Exception\InvalidConstraintSourceException;
 use Switon\Validating\Validation;
-
-use function get_debug_type;
 
 /**
  * Validation constraint that rejects changes to an already-persisted field.
@@ -38,9 +35,7 @@ class Immutable extends AbstractConstraint
      *
      * @param Validation $validation The validation context containing value and source entity
      *
-     * @return bool True if validation passes (value unchanged), false if validation fails (value changed)
-     *
-     * @throws InvalidConstraintSourceException If source is not an Entity instance
+     * @return bool True if validation passes (value unchanged), false if validation fails or source is not an Entity
      */
     public function validate(Validation $validation): bool
     {
@@ -50,10 +45,7 @@ class Immutable extends AbstractConstraint
 
         $entity = $validation->source;
         if (!$entity instanceof Entity) {
-            InvalidConstraintSourceException::raise(
-                'Constraint #{constraint} requires an Entity source, got {type}',
-                ['constraint' => 'Immutable', 'type' => get_debug_type($entity)]
-            );
+            return false;
         }
         $entityClass = $entity::class;
 

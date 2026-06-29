@@ -8,7 +8,6 @@ use Attribute;
 use BackedEnum;
 use Switon\Validating\AbstractConstraint;
 use UnitEnum;
-use Switon\Validating\Exception\UnsupportedValidationTypeException;
 use Switon\Validating\Validation;
 
 use function in_array;
@@ -39,6 +38,8 @@ class Type extends AbstractConstraint
     /**
      * Create a new Type constraint.
      *
+     * Guidance: Use a supported scalar target type (string, int, float, bool, bit, array, object, mixed, iterable) or an enum class name.
+     *
      * @param string $type Target type (string, int, float, bool, bit, array, object, mixed, iterable)
      * @param list<int|string> $true Values considered as boolean true (for bool/bit conversion)
      * @param list<int|string> $false Values considered as boolean false (for bool/bit conversion)
@@ -61,8 +62,6 @@ class Type extends AbstractConstraint
      * @param Validation $validation Validation context
      *
      * @return bool True if validation/conversion succeeded, false otherwise
-     *
-     * @throws UnsupportedValidationTypeException If type is not supported
      */
     public function validate(Validation $validation): bool
     {
@@ -77,7 +76,7 @@ class Type extends AbstractConstraint
             return $this->$method($validation);
         }
 
-        UnsupportedValidationTypeException::raise('Unsupported validation type "{type}"', ['type' => $this->type]);
+        return false;
     }
 
     /**

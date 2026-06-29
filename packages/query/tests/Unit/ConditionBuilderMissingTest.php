@@ -315,14 +315,16 @@ class ConditionBuilderMissingTest extends TestCase
     }
 
     /**
-     * Test where() with an associative array without an operator suffix throws an exception.
+     * Test where() with an associative array without an operator suffix is skipped.
      */
-    public function testWhereThrowsExceptionForAssociativeArrayWithoutOperatorSuffix(): void
+    public function testWhereSkipsAssociativeArrayWithoutOperatorSuffix(): void
     {
-        $this->expectException(InvalidFilterException::class);
-
         $this->builder->where([
             'meta' => ['type' => 'user'],
         ]);
+        $result = $this->builder->build();
+
+        $this->assertSame([], $result['conditions']);
+        $this->assertSame([], $result['bind']);
     }
 }

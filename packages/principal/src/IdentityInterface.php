@@ -53,9 +53,9 @@ interface IdentityInterface
     /**
      * Replace the current authenticated identity.
      *
-     * @param int|string $id Stable subject identifier
+     * @param int|string $id Stable subject identifier (non-empty string when string-typed)
      * @param string $name Display name or principal name
-     * @param list<string> $roles Normalized role list
+     * @param list<string> $roles Normalized role list; scalar entries are stringified
      *
      * Implementations trim empty role entries during set().
      */

@@ -451,14 +451,9 @@ class Client implements ClientInterface
         $processedUpdateValues = [];
         foreach ($updateFieldValues as $key => $value) {
             if ($value instanceof SqlFragmentInterface) {
-                // For SqlFragmentInterface, key MUST be string (field name)
-                // Index keys (int) with fragment values are not supported
-                if (!is_string($key)) {
-                    DbException::raise('Upsert with SqlFragment requires string field name as key, got integer index {key}', ['key' => $key]);
-                }
-
-                $value->setField($key);
-                $processedUpdateValues[$key] = new UpsertExpression($value->getExpression());
+                $field = (string) $key;
+                $value->setField($field);
+                $processedUpdateValues[$field] = new UpsertExpression($value->getExpression());
                 $fragmentBind = $value->getBind();
                 if (!empty($fragmentBind)) {
                     foreach ($fragmentBind as $bindKey => $bindValue) {

@@ -83,6 +83,7 @@ class PageResolverTest extends TestCase
         $parameter = (new ReflectionMethod(PageResolverInvalidLimitFixture::class, 'invalidLimitAction'))->getParameters()[0];
 
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Pagination depth exceeded');
         $resolver->resolve($parameter, Page::class);
     }
 

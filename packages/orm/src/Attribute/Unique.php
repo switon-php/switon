@@ -10,10 +10,8 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Orm\Entity;
 use Switon\Orm\EntityMetadataInterface;
 use Switon\Validating\AbstractConstraint;
-use Switon\Validating\Exception\InvalidConstraintSourceException;
 use Switon\Validating\Validation;
 
-use function get_debug_type;
 use function is_int;
 
 /**
@@ -59,19 +57,14 @@ class Unique extends AbstractConstraint
      *
      * @param Validation $validation The validation context containing value and source entity
      *
-     * @return bool True if validation passes (value is unique), false if validation fails (value exists)
-     *
-     * @throws InvalidConstraintSourceException If source is not an Entity instance
+     * @return bool True if validation passes (value is unique), false if validation fails or source is not an Entity
      */
     public function validate(Validation $validation): bool
     {
         $source = $validation->source;
 
         if (!$source instanceof Entity) {
-            InvalidConstraintSourceException::raise(
-                'Constraint #{constraint} requires an Entity source, got {type}',
-                ['constraint' => 'Unique', 'type' => get_debug_type($source)]
-            );
+            return false;
         }
 
         $filters = [$validation->field => $validation->value];

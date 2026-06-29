@@ -23,7 +23,7 @@ class Queued
 {
     /**
      * @param string $queue Logical queue name discovered by {@see \Switon\Queue\JobDiscovery}
-     * @param int $concurrency Values greater than 1 dispatch through executor submit()
+     * @param int $concurrency Values >= 1; values greater than 1 dispatch through executor submit()
      */
     public function __construct(
         public string $queue,

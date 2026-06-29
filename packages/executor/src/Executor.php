@@ -156,13 +156,12 @@ class Executor implements ExecutorInterface
         }
 
         foreach ($tasks as $taskDefinition) {
+            $task = $taskDefinition[0] ?? null;
+            if (!is_string($task) || $task === '') {
+                continue;
+            }
+
             try {
-                $task = $taskDefinition[0] ?? null;
-
-                if (!is_string($task) || $task === '') {
-                    InvalidTaskException::raise('Task definition must start with a non-empty task id.');
-                }
-
                 return $this->invoke($task, $taskDefinition[1] ?? null);
             } catch (Throwable) {
             }
