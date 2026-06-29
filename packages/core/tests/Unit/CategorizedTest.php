@@ -7,7 +7,7 @@ namespace Switon\Core\Tests\Unit;
 use Stringable;
 use Switon\Core\Categorizable;
 use Switon\Core\Categorized;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for Categorized class.

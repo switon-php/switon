@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Core\Tests\Unit;
 
 use Switon\Core\Naming;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for Naming class.
@@ -27,6 +27,42 @@ class NamingTest extends TestCase
         $this->assertSame('fooBar', Naming::camel('FooBar'));
         $this->assertSame('xMLParser', Naming::camel('XMLParser'));
         $this->assertSame('getUserId', Naming::camel('get-user-id'));
+    }
+
+    public function testCamelKeysShallowAndRecursive(): void
+    {
+        $this->assertSame(
+            ['fooBar' => 1, 'alreadyCamel' => 2],
+            Naming::camelKeys(['foo_bar' => 1, 'alreadyCamel' => 2]),
+        );
+        $this->assertSame(
+            ['fooBar' => ['bazQux' => 1]],
+            Naming::camelKeys(['foo_bar' => ['baz_qux' => 1]], true),
+        );
+        $this->assertSame(
+            ['fooBar' => ['baz_qux' => 1]],
+            Naming::camelKeys(['foo_bar' => ['baz_qux' => 1]], false),
+        );
+    }
+
+    public function testCamelKeysSkipsDuplicateDestination(): void
+    {
+        $this->assertSame(
+            ['apiKey' => 'from-camel'],
+            Naming::camelKeys(['apiKey' => 'from-camel', 'api_key' => 'from-snake']),
+        );
+        $this->assertSame(
+            ['apiKey' => 'from-snake'],
+            Naming::camelKeys(['api_key' => 'from-snake', 'apiKey' => 'from-camel']),
+        );
+    }
+
+    public function testCamelKeysRecursesListItems(): void
+    {
+        $this->assertSame(
+            [['fooBar' => 1], 'keep'],
+            Naming::camelKeys([['foo_bar' => 1], 'keep'], true),
+        );
     }
 
     /**

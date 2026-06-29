@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Core\Tests\Unit;
 
 use Switon\Core\FilterMatcher;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class FilterMatcherTest extends TestCase
 {

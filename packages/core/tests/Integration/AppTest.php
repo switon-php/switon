@@ -16,7 +16,7 @@ use RuntimeException;
  */
 class TestContainer implements \Psr\Container\ContainerInterface, ContainerInterface
 {
-    private array $services = [];
+    protected array $services = [];
 
     public function get(string $id): mixed
     {

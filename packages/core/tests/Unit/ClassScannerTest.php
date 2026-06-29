@@ -20,7 +20,8 @@ class ClassScannerTest extends TestCase
     protected function setUpContainer(): void
     {
         parent::setUpContainer();
-        $this->container->get(\Switon\Core\PathAliasInterface::class)->set('@app', '/app');
+        $pathAlias = $this->container->get(\Switon\Core\PathAliasInterface::class);
+        $pathAlias->set('@app', '/app');
         $this->filesystem = $this->createMock(FilesystemInterface::class);
         $this->container->replace(FilesystemInterface::class, $this->filesystem);
     }
