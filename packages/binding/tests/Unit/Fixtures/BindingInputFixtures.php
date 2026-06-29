@@ -13,7 +13,7 @@ use Switon\Validating\Attribute\NotEmpty;
 use Switon\Validating\Attribute\Required;
 use Switon\Validating\Attribute\Type;
 
-final class BindingInputFixtures
+class BindingInputFixtures
 {
     public string $child = 'default-child';
 
@@ -45,12 +45,12 @@ final class BindingInputFixtures
     }
 }
 
-final class BindingNestedInput
+class BindingNestedInput
 {
     public string $value = 'default-nested';
 }
 
-final class BindingTagsInputFixture
+class BindingTagsInputFixture
 {
     /**
      * @var list<string>
@@ -59,19 +59,19 @@ final class BindingTagsInputFixture
     public array $tags = [];
 }
 
-final class BindingDateInputFixture
+class BindingDateInputFixture
 {
     #[Date]
     public string $createdAt = '';
 }
 
-final class BindingDateIntInputFixture
+class BindingDateIntInputFixture
 {
     #[Date]
     public int $createdAt = 0;
 }
 
-final class BindingNotEmptyCodeFixture
+class BindingNotEmptyCodeFixture
 {
     #[Type('string'), NotEmpty]
     public string $code;
@@ -83,7 +83,7 @@ final class BindingNotEmptyCodeFixture
 }
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-final class UpperInputFixtureNormalizer
+class UpperInputFixtureNormalizer
 {
     public function normalizeInput(ReflectionProperty $property, mixed $value): mixed
     {
@@ -91,7 +91,7 @@ final class UpperInputFixtureNormalizer
     }
 }
 
-final class BindingUpperTitleFixture
+class BindingUpperTitleFixture
 {
     public BindingNestedInput $nested;
 
@@ -104,13 +104,13 @@ final class BindingUpperTitleFixture
     }
 }
 
-final class BindingRequiredListFixture
+class BindingRequiredListFixture
 {
     #[ArrayOf(type: 'string')]
     public array $items;
 }
 
-final class BindingSlugRequiredFixture
+class BindingSlugRequiredFixture
 {
     public BindingNestedInput $nested;
 
@@ -124,7 +124,7 @@ final class BindingSlugRequiredFixture
 }
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-final class NullToNormalizer
+class NullToNormalizer
 {
     public function normalizeInput(ReflectionProperty $property, mixed $value): mixed
     {
@@ -132,7 +132,7 @@ final class NullToNormalizer
     }
 }
 
-final class BindingNullNormalizedFixture
+class BindingNullNormalizedFixture
 {
     public BindingNestedInput $nested;
 
@@ -145,9 +145,30 @@ final class BindingNullNormalizedFixture
     }
 }
 
-final class BindingAutowiredInputFixture
+class BindingAutowiredInputFixture
 {
     #[Autowired] public \Switon\Validating\ValidatorInterface $validator;
 
     public string $value = '';
+}
+
+class BindingArrayConstructedBag
+{
+    /** @param array<string, mixed> $values */
+    public function __construct(protected array $values = [])
+    {
+    }
+
+    /** @return array<string, mixed> */
+    public function all(): array
+    {
+        return $this->values;
+    }
+}
+
+class BindingArrayConstructedInputFixture
+{
+    public string $name = '';
+
+    public ?BindingArrayConstructedBag $extra = null;
 }
