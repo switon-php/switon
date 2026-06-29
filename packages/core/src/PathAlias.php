@@ -10,10 +10,12 @@ use Switon\Core\Exception\AliasNotFoundException;
 use Switon\Core\Exception\CircularAliasException;
 use Switon\Core\Exception\ProjectRootDetectionException;
 
+use function dirname;
 use function implode;
 use function in_array;
 use function rtrim;
 use function str_starts_with;
+use function strlen;
 use function strpos;
 use function strtr;
 use function substr;
@@ -47,8 +49,11 @@ class PathAlias implements PathAliasInterface, JsonSerializable
 
         $root = $this->aliases['@root'];
         $this->aliases += [
+            // Writable projection of @root: the root itself, or the archive directory for a phar root.
+            '@root.rw' => str_starts_with($root, 'phar://') ? dirname(substr($root, strlen('phar://'))) : $root,
             '@vendor' => "$root/vendor",
-            '@runtime' => "$root/runtime",
+            '@switon' => "$root/vendor/switon",
+            '@runtime' => '@root.rw/runtime',
             '@app' => "$root/app",
             '@resources' => "$root/resources",
         ];
@@ -83,10 +88,16 @@ class PathAlias implements PathAliasInterface, JsonSerializable
         if ($path === '') {
             return $this->aliases[$name] = $path;
         } elseif (!str_starts_with($path, '@')) {
-            return $this->aliases[$name] = rtrim(strtr($path, '\\', '/'), '/');
+            return $this->aliases[$name] = rtrim(strtr($this->expandHome($path), '\\', '/'), '/');
         } else {
             return $this->aliases[$name] = $this->resolveRecursive($path, [$name]);
         }
+    }
+
+    /** Expand a leading <code>~</code> via {@see Path::tilde()}. */
+    protected function expandHome(string $path): string
+    {
+        return Path::tilde($path);
     }
 
     /**
@@ -168,6 +179,8 @@ class PathAlias implements PathAliasInterface, JsonSerializable
 
             $path = strtr($path, $replacements);
         }
+
+        $path = $this->expandHome($path);
 
         if (!str_starts_with($path, '@')) {
             return $path;

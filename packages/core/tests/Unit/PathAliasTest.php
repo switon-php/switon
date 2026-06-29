@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Switon\Core\Tests\Unit;
 
-use ReflectionMethod;
-use ReflectionProperty;
 use Switon\Core\Exception\AliasNotFoundException;
 use Switon\Core\Exception\CircularAliasException;
 use Switon\Core\PathAlias;
-use Switon\Core\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 use function count;
 
@@ -24,7 +22,6 @@ class PathAliasTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->pathAlias = new PathAlias();
     }
 
@@ -208,14 +205,16 @@ class PathAliasTest extends TestCase
     }
 
     /**
-     * Test that constructor automatically sets built-in aliases (@root, @vendor, @runtime, @app, @resources).
+     * Test that constructor automatically sets built-in aliases (@root, @root.rw, @vendor, @switon, @runtime, @app, @resources).
      */
     public function testConstructorSetsBuiltInAliases(): void
     {
         $pathAlias = new PathAlias();
 
         $this->assertTrue($pathAlias->has('@root'));
+        $this->assertTrue($pathAlias->has('@root.rw'));
         $this->assertTrue($pathAlias->has('@vendor'));
+        $this->assertTrue($pathAlias->has('@switon'));
         $this->assertTrue($pathAlias->has('@runtime'));
         $this->assertTrue($pathAlias->has('@app'));
         $this->assertTrue($pathAlias->has('@resources'));
@@ -225,10 +224,18 @@ class PathAliasTest extends TestCase
         $this->assertNotEmpty($root);
         $this->assertStringNotContainsString('@', $root); // Should be resolved, not contain @
 
+        // Outside a phar, the writable projection is the root itself.
+        $this->assertSame($root, $pathAlias->get('@root.rw'));
+
         $vendor = $pathAlias->get('@vendor');
         $this->assertIsString($vendor);
         $this->assertStringEndsWith('/vendor', $vendor);
         $this->assertStringStartsWith($root, $vendor);
+
+        $switon = $pathAlias->get('@switon');
+        $this->assertIsString($switon);
+        $this->assertSame($vendor . '/switon', $switon);
+        $this->assertSame($switon . '/core', $pathAlias->resolve('@switon/core'));
 
         $runtime = $pathAlias->get('@runtime');
         $this->assertIsString($runtime);
@@ -567,27 +574,14 @@ class PathAliasTest extends TestCase
         $this->assertSame('/tmp/multi-hop/var/cache/pools', $pathAlias->resolve('@hop2/pools'));
     }
 
-    /**
-     * Constructor eagerly resolves alias targets; use reflection to keep intermediate "@..." values
-     * and assert {@see PathAlias::resolveRecursive()} walks alias-to-alias indirection.
-     */
-    public function testResolveRecursiveChainsWhenAliasTargetStillStartsWithAt(): void
+    public function testResolveChainsAliasTargetsThatStillStartWithAt(): void
     {
         $pathAlias = new PathAlias();
+        $pathAlias->set('@rt_base', '/tmp/ref-chain');
+        $pathAlias->set('@rt_mid', '@rt_base/nested');
+        $pathAlias->set('@rt_tip', '@rt_mid');
 
-        $prop = new ReflectionProperty(PathAlias::class, 'aliases');
-        /** @var array<string, string> $aliases */
-        $aliases = $pathAlias->all();
-        $aliases['@rt_base'] = '/tmp/ref-chain';
-        $aliases['@rt_mid'] = '@rt_base/nested';
-        $aliases['@rt_tip'] = '@rt_mid';
-        $prop->setValue($pathAlias, $aliases);
-
-        $method = new ReflectionMethod(PathAlias::class, 'resolveRecursive');
-
-        $resolved = $method->invoke($pathAlias, '@rt_tip/readme.md', []);
-
-        $this->assertSame('/tmp/ref-chain/nested/readme.md', $resolved);
+        $this->assertSame('/tmp/ref-chain/nested/readme.md', $pathAlias->resolve('@rt_tip/readme.md'));
     }
 
     /**
@@ -609,5 +603,151 @@ class PathAliasTest extends TestCase
         // @root should remain as configured
         $this->assertSame('/custom/root', $instance->get('@root'));
         $this->assertSame('/custom/root/vendor', $instance->get('@vendor'));
+    }
+
+    /**
+     * resolve() expands ~ / ~/ / ~\ to HOME (forward-slash normalized).
+     */
+    public function testResolveExpandsTildeToHome(): void
+    {
+        $prevHome = getenv('HOME');
+        $prevProfile = getenv('USERPROFILE');
+        putenv('HOME=/tmp/switon-home');
+        putenv('USERPROFILE');
+
+        try {
+            $this->assertSame('/tmp/switon-home', $this->pathAlias->resolve('~'));
+            $this->assertSame('/tmp/switon-home/docs/a.md', $this->pathAlias->resolve('~/docs/a.md'));
+            $this->assertSame('/tmp/switon-home/docs/a.md', $this->pathAlias->resolve('~\\docs\\a.md'));
+        } finally {
+            $prevHome === false ? putenv('HOME') : putenv('HOME=' . $prevHome);
+            $prevProfile === false ? putenv('USERPROFILE') : putenv('USERPROFILE=' . $prevProfile);
+        }
+    }
+
+    /**
+     * resolve() falls back to USERPROFILE when HOME is empty.
+     */
+    public function testResolveExpandsTildeViaUserProfileFallback(): void
+    {
+        $prevHome = getenv('HOME');
+        $prevProfile = getenv('USERPROFILE');
+        putenv('HOME');
+        putenv('USERPROFILE=C:\\Users\\mark');
+
+        try {
+            $this->assertSame('C:/Users/mark/notes', $this->pathAlias->resolve('~/notes'));
+        } finally {
+            $prevHome === false ? putenv('HOME') : putenv('HOME=' . $prevHome);
+            $prevProfile === false ? putenv('USERPROFILE') : putenv('USERPROFILE=' . $prevProfile);
+        }
+    }
+
+    /**
+     * When home env is empty, tilde paths stay unchanged.
+     */
+    public function testResolveLeavesTildeWhenHomeEmpty(): void
+    {
+        $prevHome = getenv('HOME');
+        $prevProfile = getenv('USERPROFILE');
+        putenv('HOME');
+        putenv('USERPROFILE');
+
+        try {
+            $this->assertSame('~/x', $this->pathAlias->resolve('~/x'));
+            $this->assertSame('~', $this->pathAlias->resolve('~'));
+        } finally {
+            $prevHome === false ? putenv('HOME') : putenv('HOME=' . $prevHome);
+            $prevProfile === false ? putenv('USERPROFILE') : putenv('USERPROFILE=' . $prevProfile);
+        }
+    }
+
+    /**
+     * set() expands tilde for non-@ absolute alias values before storing.
+     */
+    public function testSetExpandsTildeForNonAliasPath(): void
+    {
+        $prevHome = getenv('HOME');
+        $prevProfile = getenv('USERPROFILE');
+        putenv('HOME=/home/mark');
+        putenv('USERPROFILE');
+
+        try {
+            $result = $this->pathAlias->set('@cache', '~/cache');
+            $this->assertSame('/home/mark/cache', $result);
+            $this->assertSame('/home/mark/cache', $this->pathAlias->get('@cache'));
+        } finally {
+            $prevHome === false ? putenv('HOME') : putenv('HOME=' . $prevHome);
+            $prevProfile === false ? putenv('USERPROFILE') : putenv('USERPROFILE=' . $prevProfile);
+        }
+    }
+
+    /**
+     * Mid-path ~ is not treated as home (only leading tilde).
+     */
+    public function testResolveDoesNotExpandMidPathTilde(): void
+    {
+        $this->assertSame('/var/~backup', $this->pathAlias->resolve('/var/~backup'));
+        $this->assertSame('~foo', $this->pathAlias->resolve('~foo'));
+    }
+
+    /**
+     * A phar root is read-only, so `@root.rw` points beside the archive and `@runtime` derives from it.
+     */
+    public function testWritableRootMovesOutsidePharArchive(): void
+    {
+        $pathAlias = new class () extends PathAlias {
+            public function __construct()
+            {
+                $this->aliases = ['@root' => 'phar:///opt/app/app.phar'];
+                parent::__construct();
+            }
+        };
+
+        $this->assertSame('phar:///opt/app/app.phar', $pathAlias->get('@root'));
+        $this->assertSame('/opt/app', $pathAlias->get('@root.rw'));
+        $this->assertSame('/opt/app/runtime', $pathAlias->get('@runtime'));
+        $this->assertSame('/opt/app/upload/a.txt', $pathAlias->resolve('@root.rw/upload/a.txt'));
+        // Code aliases stay inside the archive.
+        $this->assertSame('phar:///opt/app/app.phar/app', $pathAlias->get('@app'));
+    }
+
+    /**
+     * A configured `@runtime` wins over the derived `@root.rw/runtime` default.
+     */
+    public function testConfiguredRuntimeDirIsKept(): void
+    {
+        $pathAlias = new class () extends PathAlias {
+            public function __construct()
+            {
+                $this->aliases = [
+                    '@root' => 'phar:///opt/app/app.phar',
+                    '@runtime' => '/data/rt',
+                ];
+                parent::__construct();
+            }
+        };
+
+        $this->assertSame('/data/rt', $pathAlias->get('@runtime'));
+        $this->assertSame('/opt/app', $pathAlias->get('@root.rw'));
+    }
+
+    /**
+     * A pre-registered `@root.rw` from configuration wins over the derived default.
+     */
+    public function testConfiguredWritableRootIsKept(): void
+    {
+        $pathAlias = new class () extends PathAlias {
+            public function __construct()
+            {
+                $this->aliases = [
+                    '@root' => 'phar:///opt/app/app.phar',
+                    '@root.rw' => '/srv/data',
+                ];
+                parent::__construct();
+            }
+        };
+
+        $this->assertSame('/srv/data', $pathAlias->get('@root.rw'));
     }
 }
