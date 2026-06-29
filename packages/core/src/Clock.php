@@ -7,6 +7,7 @@ namespace Switon\Core;
 use function microtime;
 use function round;
 use function time;
+use function usleep;
 
 /**
  * System-time implementation of `ClockInterface`.
@@ -46,5 +47,15 @@ class Clock implements ClockInterface
     public function elapsed(float $startedAt, int $precision = 3): float
     {
         return round($this->microtime() - $startedAt, $precision);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function sleep(float $seconds): void
+    {
+        if ($seconds > 0) {
+            usleep((int) round($seconds * 1_000_000));
+        }
     }
 }
