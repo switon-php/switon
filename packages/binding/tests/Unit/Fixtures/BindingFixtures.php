@@ -13,7 +13,7 @@ use Switon\Validating\Attribute\Required;
 use Switon\Validating\Attribute\Type;
 use ReflectionParameter;
 
-final class BindingFixtures
+class BindingFixtures
 {
     public function withString(string $name): void
     {
@@ -84,19 +84,19 @@ final class BindingFixtures
     }
 }
 
-final class ContainerFallbackService
+class ContainerFallbackService
 {
 }
 
 #[ResolvedBy(BindingDependencyResolver::class)]
-final class BindingDependency
+class BindingDependency
 {
     public function __construct(public string $value = 'default-dependency')
     {
     }
 }
 
-final class BindingDependencyResolver implements ValueResolverInterface
+class BindingDependencyResolver implements ValueResolverInterface
 {
     public function resolve(ReflectionParameter $parameter, string $type): mixed
     {
@@ -104,11 +104,11 @@ final class BindingDependencyResolver implements ValueResolverInterface
     }
 }
 
-final class PlainBindObject
+class PlainBindObject
 {
 }
 
-final class BindingResolvedArgument implements ArgumentResolvable
+class BindingResolvedArgument implements ArgumentResolvable
 {
     public static function argumentResolve(ContainerInterface $container): mixed
     {

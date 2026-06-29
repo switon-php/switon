@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Switon\Binding\Tests\Unit;
 
 use Psr\Container\ContainerInterface;
-use ReflectionMethod;
 use Switon\Binding\Attribute\ResolvedBy;
 use Switon\Binding\ObjectResolver;
+use ReflectionMethod;
 use Switon\Binding\Tests\TestCase;
 use Switon\Binding\ValueResolverInterface;
 use Switon\Core\Exception\RuntimeException;
 use ReflectionParameter;
 use stdClass;
 
-final class ObjectResolverTest extends TestCase
+class ObjectResolverTest extends TestCase
 {
     public function testHasResolverSkipsInterfaces(): void
     {
@@ -86,7 +86,7 @@ final class ObjectResolverTest extends TestCase
         $resolver->resolve($parameter, ObjectResolverFixtureChildValue::class);
     }
 
-    private function createObjectResolver(ContainerInterface $container): ObjectResolver
+    protected function createObjectResolver(ContainerInterface $container): ObjectResolver
     {
         return new class ($container) extends ObjectResolver {
             public function __construct(ContainerInterface $container)

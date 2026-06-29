@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Switon\Binding\Tests\Unit;
 
-use ReflectionMethod;
 use ReflectionParameter;
+use ReflectionMethod;
 use Switon\Binding\Exception\TooManyPositionalArgumentsException;
 use Switon\Binding\ScalarResolver;
-use Switon\Binding\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Core\InputInterface;
 use Switon\Core\PositionalInputInterface;
 
-final class ScalarResolverTest extends TestCase
+class ScalarResolverTest extends TestCase
 {
     public function testResolveUsesExactNameLookupBeforePositional(): void
     {
@@ -259,7 +259,7 @@ final class ScalarResolverTest extends TestCase
     public function testResolveReturnsNullWhenPositionalAccessIsUnavailable(): void
     {
         $input = new class ([]) implements InputInterface {
-            public function __construct(private array $named)
+            public function __construct(protected array $named)
             {
             }
 
@@ -344,13 +344,13 @@ final class ScalarResolverTest extends TestCase
         $resolver->resolve($parameter, 'string');
     }
 
-    private function createScalarResolver(array $named = [], array $positional = []): ScalarResolver
+    protected function createScalarResolver(array $named = [], array $positional = []): ScalarResolver
     {
         return $this->createInspectableScalarResolver(
             new class ($named, $positional) implements
                 InputInterface,
                 PositionalInputInterface {
-                public function __construct(private array $named, private array $positional)
+                public function __construct(protected array $named, protected array $positional)
                 {
                 }
 
@@ -377,7 +377,7 @@ final class ScalarResolverTest extends TestCase
         );
     }
 
-    private function createInspectableScalarResolver(?InputInterface $input = null): ScalarResolver
+    protected function createInspectableScalarResolver(?InputInterface $input = null): ScalarResolver
     {
         $resolver = new class () extends ScalarResolver {
             public function setInput(InputInterface $input): void
@@ -402,11 +402,11 @@ final class ScalarResolverTest extends TestCase
     }
 }
 
-final class ScalarPlainObject
+class ScalarPlainObject
 {
 }
 
-final class ScalarResolverFixture
+class ScalarResolverFixture
 {
     public function handle(string $name): void
     {

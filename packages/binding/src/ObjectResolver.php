@@ -24,6 +24,7 @@ use Switon\Core\Exception\RuntimeException;
 class ObjectResolver implements ObjectResolverInterface
 {
     #[Autowired] protected ContainerInterface $container;
+
     /** @var array<class-string, class-string|false> */
     protected array $resolvers = [];
 
