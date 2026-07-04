@@ -8,22 +8,23 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 use Switon\Core\Filesystem;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\LocaleInterface;
+use Switon\Core\PathAlias;
 use Switon\Core\PathAliasInterface;
-use Switon\Testing\Container;
+use Switon\Core\TranslatorInterface;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
+use Switon\Testing\Mock\StubTranslator;
 use Switon\Validating\Validator;
 use Switon\Validating\ValidatorInterface;
 
 /**
  * Base test case for Validation tests.
  *
- * Provides common functionality for all Validation tests using Container (as in real applications).
- * No reflection is used - all dependencies are injected through Container's autowiring.
- *
- * @see \Switon\Testing\Container
+ * Builds a minimal DI container for {@see Validator} only — no full app provider scan.
  */
 abstract class TestCase extends BaseTestCase
 {
-    protected Container $container;
+    protected DiContainer $container;
     protected ValidatorInterface $validator;
     protected LocaleInterface $locale;
     protected FilesystemInterface $filesystem;
@@ -33,18 +34,15 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // Use pre-configured test container (FilesystemInterface is already registered but will be replaced with mock)
-        $this->container = new Container();
+        $pathAlias = new PathAlias();
+        $this->templateDir = dirname(__DIR__) . '/src/Templates';
+        $pathAlias->set('@switon.validator.resources', $this->templateDir);
 
-        // Create mocks for dependencies with method configurations
         $this->locale = $this->createMock(LocaleInterface::class);
         $this->locale->expects($this->any())->method('get')->willReturn('en');
         $this->locale->expects($this->any())->method('set')->willReturnSelf();
 
         $this->filesystem = $this->createMock(Filesystem::class);
-        /** @var PathAliasInterface $pathAlias */
-        $pathAlias = $this->container->get(PathAliasInterface::class);
-        $this->templateDir = (string)$pathAlias->get('@switon.validator.resources');
         $this->filesystem->expects($this->any())
             ->method('glob')
             ->willReturn([
@@ -52,12 +50,17 @@ abstract class TestCase extends BaseTestCase
                 $this->templateDir . '/zh-cn.php',
             ]);
 
-        // Register dependencies in container (replace default Filesystem with mock)
+        $this->container = new DiContainer();
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
+
+        $this->container->set(PathAliasInterface::class, $pathAlias);
+        $this->container->set(PathAlias::class, $pathAlias);
         $this->container->set(LocaleInterface::class, $this->locale);
         $this->container->set(FilesystemInterface::class, $this->filesystem);
+        $this->container->set(TranslatorInterface::class, new StubTranslator());
 
-        // Create Validator instance using container with parameters for template directories
-        // Container automatically handles #[Autowired] property injection
         $this->validator = $this->container->make(Validator::class, [
             'dirs' => [$this->templateDir],
         ]);
