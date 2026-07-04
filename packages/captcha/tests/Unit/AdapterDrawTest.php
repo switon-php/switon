@@ -13,7 +13,7 @@ use function file_exists;
 use function function_exists;
 use function strlen;
 
-final class AdapterDrawTest extends TestCase
+class AdapterDrawTest extends TestCase
 {
     public function testGdDefaultPresetReturnsJpegBinary(): void
     {
