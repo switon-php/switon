@@ -8,7 +8,7 @@ use Switon\Core\Exception\RuntimeException;
 use Switon\Rpc\Event\RpcCalling;
 use Switon\Rpc\Event\RpcDaemonFailed;
 use Switon\Rpc\Event\RpcReceived;
-use Switon\Rpc\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class RpcEventsTest extends TestCase
 {
