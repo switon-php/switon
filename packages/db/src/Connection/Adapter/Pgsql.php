@@ -261,24 +261,14 @@ class Pgsql extends AbstractConnection
         $table = $this->convertQuotes($table);
         $fields = array_keys($insertFieldValues);
 
-        $bind = $insertFieldValues;
-        $updates = [];
-        foreach ($updateFieldValues as $k => $v) {
-            $field = is_string($k) ? $k : $v;
-            if ($primaryKey === $field) {
-                continue;
-            }
-
-            if (is_int($k)) {
-                $updates[] = "\"$field\"=:{$field}_dku";
-                $bind["{$field}_dku"] = $insertFieldValues[$field];
-            } elseif ($this->isUpsertExpression($v)) {
-                $updates[] = $this->convertQuotes($this->getUpsertExpression($v));
-            } else {
-                $updates[] = "\"$k\"=:{$k}_dku";
-                $bind["{$k}_dku"] = $v;
-            }
-        }
+        [$updates, $bind] = $this->prepareUpsertAssignments(
+            $updateFieldValues,
+            $insertFieldValues,
+            $primaryKey,
+            '_dku',
+            $insertFieldValues,
+            fn (string $field): string => "\"$field\"",
+        );
 
         $insertFieldsSql = '"' . implode('","', $fields) . '"';
         $insertValuesSql = ':' . implode(',:', $fields);

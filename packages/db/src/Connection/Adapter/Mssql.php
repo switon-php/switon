@@ -17,6 +17,7 @@ use function array_keys;
 use function count;
 use function explode;
 use function implode;
+use function in_array;
 use function is_int;
 use function is_string;
 use function parse_url;
@@ -50,7 +51,10 @@ class Mssql extends AbstractConnection
         $this->password = $parts['pass'] ?? '';
 
         $dsn = [];
-        $use_dblib = DIRECTORY_SEPARATOR === '/';
+        // `dblib` and `sqlsrv` build different DSN shapes; pick the driver that is actually installed
+        // rather than inferring it from the platform, which misfires on e.g. cygwin PHP.
+        $drivers = PDO::getAvailableDrivers();
+        $use_dblib = in_array('dblib', $drivers, true) || !in_array('sqlsrv', $drivers, true);
 
         $host = $parts['host'] ?? '127.0.0.1';
         $port = $parts['port'] ?? '1433';
@@ -260,24 +264,15 @@ class Mssql extends AbstractConnection
     {
         $fields = array_keys($insertFieldValues);
 
-        $bind = $insertFieldValues;
-        $updates = [];
-        foreach ($updateFieldValues as $k => $v) {
-            $field = is_string($k) ? $k : $v;
-            if ($primaryKey === $field) {
-                continue;
-            }
-
-            if (is_int($k)) {
-                $updates[] = "target.[$field]=:{$field}_dku";
-                $bind["{$field}_dku"] = $insertFieldValues[$field];
-            } elseif ($this->isUpsertExpression($v)) {
-                $updates[] = preg_replace('/\[([a-z_]\w*)\]/i', 'target.[$1]', $this->getUpsertExpression($v));
-            } else {
-                $updates[] = "target.[$k]=:{$k}_dku";
-                $bind["{$k}_dku"] = $v;
-            }
-        }
+        [$updates, $bind] = $this->prepareUpsertAssignments(
+            $updateFieldValues,
+            $insertFieldValues,
+            $primaryKey,
+            '_dku',
+            $insertFieldValues,
+            fn (string $field): string => "target.[$field]",
+            fn (string $expression): string => preg_replace('/\[([a-z_]\w*)\]/i', 'target.[$1]', $expression),
+        );
 
         $insertFieldsSql = '[' . implode('],[', $fields) . ']';
         $insertValuesSql = ':' . implode(',:', $fields);
