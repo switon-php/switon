@@ -6,15 +6,13 @@ namespace Switon\Db\Tests\Unit;
 
 use PDO;
 use Switon\Db\Connection\Adapter\Mssql;
-use Switon\Db\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Db\UpsertExpression;
 
 /**
  * Unit tests for MSSQL adapter.
  *
  * Tests SQL string generation and query parameter handling.
- *
- * @group mssql
  */
 class MssqlAdapterTest extends TestCase
 {

@@ -7,6 +7,7 @@ namespace Switon\Db\Tests\Integration;
 use PDO;
 use Switon\Db\Client;
 use Switon\Db\Connection\Adapter\Pgsql;
+use Switon\Db\Tests\Fixtures\StubDbClient;
 use Switon\Db\Tests\TestCase;
 use Exception;
 
@@ -15,9 +16,6 @@ use Exception;
  *
  * Requires a running PostgreSQL server with switon_test database.
  * Skip these tests if PostgreSQL is not available.
- *
- * @group pgsql
- * @group integration
  */
 class PgsqlIntegrationTest extends TestCase
 {
@@ -26,6 +24,8 @@ class PgsqlIntegrationTest extends TestCase
     protected static string $skipReason = '';
     protected static array $pgsqlConfig = ['host' => 'localhost', 'user' => 'postgres', 'pass' => ''];
     protected static ?string $pgsqlUri = null;
+    protected static ?StubDbClient $sharedPoolOwner = null;
+    protected static ?Pgsql $sharedConnection = null;
 
     public static function setUpBeforeClass(): void
     {
@@ -105,6 +105,17 @@ class PgsqlIntegrationTest extends TestCase
         }
     }
 
+    protected static function resolveUri(): string
+    {
+        if (self::$pgsqlUri !== null) {
+            return self::$pgsqlUri;
+        }
+
+        $config = self::$pgsqlConfig;
+
+        return "pgsql://{$config['user']}:{$config['pass']}@{$config['host']}/switon_test";
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -113,32 +124,41 @@ class PgsqlIntegrationTest extends TestCase
             $this->markTestSkipped(self::$skipReason);
         }
 
-        $uri = self::$pgsqlUri;
-        if ($uri === null) {
-            $config = self::$pgsqlConfig;
-            $uri = "pgsql://{$config['user']}:{$config['pass']}@{$config['host']}/switon_test";
+        if (self::$sharedConnection === null) {
+            self::$sharedPoolOwner = new StubDbClient();
+            $this->container->set(Pgsql::class, ['uri' => self::resolveUri(), 'owner' => self::$sharedPoolOwner]);
+            self::$sharedConnection = $this->container->get(Pgsql::class);
+            self::$sharedConnection->execute('DROP TABLE IF EXISTS test_pgsql');
+            self::$sharedConnection->execute(
+                'CREATE TABLE test_pgsql (id SERIAL PRIMARY KEY, name VARCHAR(100), status INT DEFAULT 0)'
+            );
+        } else {
+            self::$sharedConnection->execute('TRUNCATE TABLE test_pgsql RESTART IDENTITY');
         }
 
-        $this->container->set(Pgsql::class, ['uri' => $uri, 'owner' => $this->poolOwner]);
-        $this->connection = $this->container->get(Pgsql::class);
-
-        // Create test table
-        $this->connection->execute('DROP TABLE IF EXISTS test_pgsql');
-        $this->connection->execute('CREATE TABLE test_pgsql (id SERIAL PRIMARY KEY, name VARCHAR(100), status INT DEFAULT 0)');
+        $this->connection = self::$sharedConnection;
     }
 
     protected function tearDown(): void
     {
-        if ($this->connection) {
+        parent::tearDown();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$sharedConnection !== null) {
             try {
-                $this->connection->execute('DROP TABLE IF EXISTS test_pgsql');
-            } catch (Exception $e) {
+                self::$sharedConnection->execute('DROP TABLE IF EXISTS test_pgsql');
+                self::$sharedConnection->close();
+            } catch (Exception) {
                 // Ignore cleanup errors
             }
-            $this->connection->close();
+
+            self::$sharedConnection = null;
+            self::$sharedPoolOwner = null;
         }
 
-        parent::tearDown();
+        parent::tearDownAfterClass();
     }
 
     /**

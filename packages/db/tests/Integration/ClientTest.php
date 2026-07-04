@@ -9,13 +9,13 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\ContainerInterface;
 use Switon\Db\Client;
+use Switon\Db\Tests\Fixtures\ClientProbe;
 use Switon\Db\ConnectionInterface;
 use Switon\Db\Tests\Fixtures\MockConnection;
 use Switon\Db\Tests\TestCase;
 use Switon\Db\UpsertExpression;
 use Switon\Pooling\PoolManagerInterface;
 use PDO;
-use ReflectionProperty;
 
 /**
  * Test cases for Client class.
@@ -2150,7 +2150,7 @@ class ClientTest extends TestCase
      *
      * @return Client Client instance with mocked dependencies
      */
-    protected function createClientForTesting(string $uri): Client
+    protected function createClientForTesting(string $uri): ClientProbe
     {
         // Use pre-configured test container (EventDispatcherInterface is already registered)
         $container = new \Switon\Testing\Container();
@@ -2183,36 +2183,35 @@ class ClientTest extends TestCase
             });
 
         // Create client with URI parameter
-        $client = $container->make(Client::class, ['uri' => $uri]);
+        $client = $container->make(ClientProbe::class, ['uri' => $uri]);
 
         return $client;
     }
 
     protected function getTransactionLevel(Client $client): int
     {
-        $property = new ReflectionProperty(Client::class, 'transaction_level');
+        $this->assertInstanceOf(ClientProbe::class, $client);
 
-        return (int)$property->getValue($client);
+        return $client->transactionLevelForTest();
     }
 
     protected function setTransactionLevel(Client $client, int $level): void
     {
-        $property = new ReflectionProperty(Client::class, 'transaction_level');
-        $property->setValue($client, $level);
+        $this->assertInstanceOf(ClientProbe::class, $client);
+        $client->setTransactionLevelForTest($level);
     }
 
     protected function getPinnedConnection(Client $client): ?ConnectionInterface
     {
-        $property = new ReflectionProperty(Client::class, 'connection');
-        $value = $property->getValue($client);
+        $this->assertInstanceOf(ClientProbe::class, $client);
 
-        return $value instanceof ConnectionInterface ? $value : null;
+        return $client->pinnedConnectionForTest();
     }
 
     protected function setPinnedConnection(Client $client, ?ConnectionInterface $connection): void
     {
-        $property = new ReflectionProperty(Client::class, 'connection');
-        $property->setValue($client, $connection);
+        $this->assertInstanceOf(ClientProbe::class, $client);
+        $client->setPinnedConnectionForTest($connection);
     }
 
     /**
