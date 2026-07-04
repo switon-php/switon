@@ -5,34 +5,46 @@ declare(strict_types=1);
 namespace Switon\Context\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
 use Switon\Context\ContextManager;
 use Switon\Context\ContextManagerInterface;
-use Switon\Core\Attribute\Autowired;
-use Switon\Testing\Container;
+use Switon\Context\ServiceProvider as ContextServiceProvider;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
+use Switon\Eventing\EventDispatcher as RealEventDispatcher;
+use Switon\Eventing\EventDispatcherInterface;
+use Switon\Testing\EventDispatcher as TestEventDispatcher;
 
+/**
+ * Base test case for Context tests.
+ *
+ * Builds a minimal DI container for {@see ContextManager} with a recording event dispatcher.
+ */
 abstract class TestCase extends BaseTestCase
 {
-    protected Container $container;
+    protected DiContainer $container;
 
-    #[Autowired] protected ContextManager $contextManager;
-    #[Autowired] protected EventDispatcherInterface $eventDispatcher;
+    protected ContextManager $contextManager;
+    protected EventDispatcherInterface $eventDispatcher;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Use pre-configured test container (ContextManager and EventDispatcher are already registered)
-        $this->container = new Container();
+        $this->container = new DiContainer();
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
 
-        // Disable event dispatching (Context tests don't need real event handling)
-        // This is equivalent to NoOp behavior - events are collected but not dispatched
-        $this->container->disableEventDispatching();
+        (new ContextServiceProvider())->register($this->container);
 
-        // Get EventDispatcher from container (TestEventDispatcher wrapper with dispatching disabled)
-        $this->eventDispatcher = $this->container->get(EventDispatcherInterface::class);
+        $realDispatcher = $this->container->make(RealEventDispatcher::class);
+        $this->eventDispatcher = new TestEventDispatcher($realDispatcher);
+        $this->eventDispatcher->setDispatchEvents(false);
 
-        // Get ContextManager from container (already registered)
-        $this->contextManager = $this->container->get(ContextManagerInterface::class);
+        $this->container->set(EventDispatcherInterface::class, $this->eventDispatcher);
+        $this->container->set(PsrEventDispatcherInterface::class, $this->eventDispatcher);
+
+        $this->contextManager = $this->container->make(ContextManager::class);
     }
 }
