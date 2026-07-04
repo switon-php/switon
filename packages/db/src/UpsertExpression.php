@@ -9,7 +9,7 @@ namespace Switon\Db;
  *
  * @internal
  */
-final readonly class UpsertExpression
+class UpsertExpression
 {
     public function __construct(public string $sql)
     {
