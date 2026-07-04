@@ -12,7 +12,7 @@ namespace Switon\Db;
  * @see \Switon\Db\PoolConfigurator
  * @see \Switon\Db\Client
  */
-readonly class PoolConfiguration
+class PoolConfiguration
 {
     public function __construct(
         public float  $timeout,

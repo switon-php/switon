@@ -24,7 +24,8 @@ class DbBegin implements SenderAwareInterface
 {
     public ClientInterface $sender;
 
-    public function __construct(ClientInterface $sender) {
+    public function __construct(ClientInterface $sender)
+    {
         $this->sender = $sender;
     }
 

@@ -99,7 +99,6 @@ class Client implements ClientInterface
     protected bool $has_slave = false;
     protected ?ConnectionInterface $connection = null;
     protected int $transaction_level = 0;
-
     /** @var PoolGuard<Client, ConnectionInterface>|null Pool guard for transient clients; non-null means this instance pins a dedicated connection. */
     protected ?PoolGuard $guard = null;
 
