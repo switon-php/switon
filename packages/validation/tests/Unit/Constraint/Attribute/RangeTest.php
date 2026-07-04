@@ -76,6 +76,6 @@ class RangeTest extends TestCase
         $constraint = new Range(10, 20);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('value', 5, [$constraint]);
+        $this->validator->validate(['value' => 5], ['value' => [$constraint]]);
     }
 }

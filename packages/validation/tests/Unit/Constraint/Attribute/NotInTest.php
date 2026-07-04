@@ -69,6 +69,6 @@ class NotInTest extends TestCase
         $constraint = new NotIn(['forbidden1', 'forbidden2']);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'forbidden1', [$constraint]);
+        $this->validator->validate(['testField' => 'forbidden1'], ['testField' => [$constraint]]);
     }
 }

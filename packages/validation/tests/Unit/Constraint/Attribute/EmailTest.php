@@ -78,6 +78,6 @@ class EmailTest extends TestCase
         $constraint = new Email();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('email', 'invalid-email', [$constraint]);
+        $this->validator->validate(['email' => 'invalid-email'], ['email' => [$constraint]]);
     }
 }

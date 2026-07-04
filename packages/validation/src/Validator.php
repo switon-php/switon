@@ -439,94 +439,80 @@ class Validator implements ValidatorInterface
     }
 
     /**
-     * Validates multiple values against their constraints.
+     * Validate selected fields on `$source` (progressive).
      *
-     * Validates each field in the source data against its constraints.
-     * Stops validation for a field on first error. Returns only valid values.
+     * Unconstrained fields pass through. Constrained fields are checked and may be
+     * normalized in place on the returned value. Arrays are copied then overlaid;
+     * objects are mutated and returned as the same instance.
      *
-     * **Validation Flow:**
-     * 1. Create validation context
-     * 2. For each field:
-     *    - Set field and value in context
-     *    - Apply constraints in order
-     *    - Stop on first error
-     *    - Collect valid value if no errors
-     * 3. Throw exception if any errors
+     * Missing constrained fields are not injected unless a constraint sets a value
+     * (e.g. {@see \Switon\Validating\Attribute\Defaults}).
      *
-     * **Data Integrity:**
-     * Missing fields (not present in source) are NOT included in the return value
-     * unless a constraint explicitly sets a value (e.g., Defaults). This preserves
-     * the distinction between "field is null" and "field is absent", preventing
-     * downstream logic (e.g., ORM) from overwriting database values with NULL.
-     *
-     * **Performance:** O(n*m) where n=fields, m=constraints per field
-     *
-     * @param array<string, mixed> $source Source data to validate
+     * @param array<string, mixed>|object $source Source data
      * @param array<string, ConstraintInterface|ConstraintInterface[]> $constraints Field constraints
      *
-     * @return array<string, mixed> Validated and possibly transformed values
+     * @return ($source is array ? array<string, mixed> : object)
      *
      * @throws ValidateFailedException When validation fails for any field
      */
-    public function validateValues(array $source, array $constraints): array
+    public function validate(array|object $source, array $constraints): array|object
     {
-        // Create validation context
         $validation = $this->beginValidate($source);
+        $result = is_array($source) ? $source : $source;
 
-        // Collect validated values
-        $values = [];
-
-        // Validate each field
         foreach ($constraints as $field => $fieldConstraints) {
-            // Set current field and value in validation context
             $validation->field = $field;
-            $validation->value = $source[$field] ?? null;
-            $exists = array_key_exists($field, $source);
+            $exists = $this->sourceHas($source, $field);
+            $validation->value = $this->sourceGet($source, $field);
 
-            // Apply constraints (single constraint or array of constraints)
-            // Performance: O(m) where m is number of constraints for this field
             foreach (is_array($fieldConstraints) ? $fieldConstraints : [$fieldConstraints] as $constraint) {
-                // Validate with constraint
-                // Stops on first error (short-circuit evaluation)
                 if (!$validation->validate($constraint)) {
-                    break; // Skip remaining constraints for this field
+                    break;
                 }
             }
 
-            // Collect value if validation passed
-            // Only include if: field existed in source, or constraint modified the value (e.g., Defaults)
-            // This prevents injecting null for missing fields into the output
             if (!$validation->hasError($field) && ($exists || $validation->value !== null)) {
-                $values[$field] = $validation->value;
+                $this->sourceSet($result, $field, $validation->value);
             }
         }
 
-        // Throw exception if any validation errors occurred
-        // This ensures all-or-nothing validation semantics
         $this->endValidate($validation);
 
-        return $values;
+        return $result;
     }
 
     /**
-     * Validates a single value against constraints.
-     *
-     * Convenience method for validating a single field. Internally uses
-     * validateValues() with a single-field array.
-     *
-     * **Performance:** Same as validateValues() for single field
-     *
-     * @param string $field Field name (used in error messages)
-     * @param mixed $value Value to validate
-     * @param list<ConstraintInterface> $constraints Constraint instances to apply
-     *
-     * @return mixed Validated and possibly transformed value, or null if validation failed
-     *
-     * @throws ValidateFailedException When validation fails
+     * @param array<string, mixed>|object $source
      */
-    public function validateValue(string $field, mixed $value, array $constraints): mixed
+    protected function sourceHas(array|object $source, string $field): bool
     {
-        return $this->validateValues([$field => $value], [$field => $constraints])[$field] ?? null;
+        return is_array($source) ? array_key_exists($field, $source) : property_exists($source, $field);
+    }
+
+    /**
+     * @param array<string, mixed>|object $source
+     */
+    protected function sourceGet(array|object $source, string $field): mixed
+    {
+        if (is_array($source)) {
+            return $source[$field] ?? null;
+        }
+
+        return $source->$field ?? null;
+    }
+
+    /**
+     * @param array<string, mixed>|object $source
+     */
+    protected function sourceSet(array|object &$source, string $field, mixed $value): void
+    {
+        if (is_array($source)) {
+            $source[$field] = $value;
+
+            return;
+        }
+
+        $source->$field = $value;
     }
 
     /**
@@ -635,7 +621,7 @@ class Validator implements ValidatorInterface
 
             // Convert non-string values to JSON for display
             // This handles arrays, objects, numbers, etc.
-            $replaces['{' . $key . '}'] = is_string($value) ? $value : Json::stringify($value);
+            $replaces['{' . $key . '}'] = Json::text($value);
         }
 
         // Replace all placeholders in template

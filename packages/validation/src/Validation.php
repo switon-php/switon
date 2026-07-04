@@ -14,7 +14,7 @@ use function is_object;
  *
  * Road-signs:
  * - validate(): run one constraint against the current field/value
- * - addError(): record one formatted field error
+ * - addError(): record one formatted field error (always returns false)
  * - getErrors(): finalize aggregated failures
  *
  * @see \Switon\Validating\ValidatorInterface
@@ -130,11 +130,16 @@ class Validation
      * The error message can contain placeholders that will be replaced with values
      * from the $placeholders array. The 'field' placeholder is automatically added.
      *
+     * Always returns false so constraint validate() can fail in one expression:
+     * `return $validation->addError(...)`.
+     *
      * @param string $message Error message template (e.g., "{field} must be between {min} and {max}")
      * @param array<string, mixed> $placeholders Placeholder values for message formatting
      * @param array<string, string> $labels Display labels keyed by field name
+     *
+     * @return false
      */
-    public function addError(string $message, array $placeholders = [], array $labels = []): void
+    public function addError(string $message, array $placeholders = [], array $labels = []): false
     {
         // Automatically add field name to placeholders
         $placeholders['field'] = $this->field;
@@ -143,6 +148,8 @@ class Validation
 
         // Format message and store error
         $this->errors[$this->field] = $this->validator->formatMessage($message, $placeholders);
+
+        return false;
     }
 
     /**

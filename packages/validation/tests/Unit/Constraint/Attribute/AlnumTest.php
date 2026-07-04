@@ -114,6 +114,6 @@ class AlnumTest extends TestCase
         $constraint = new Alnum();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'abc-123', [$constraint]);
+        $this->validator->validate(['testField' => 'abc-123'], ['testField' => [$constraint]]);
     }
 }

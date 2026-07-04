@@ -84,6 +84,6 @@ class UrlTest extends TestCase
         $constraint = new Url();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'invalid-url', [$constraint]);
+        $this->validator->validate(['testField' => 'invalid-url'], ['testField' => [$constraint]]);
     }
 }

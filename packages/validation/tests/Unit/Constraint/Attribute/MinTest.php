@@ -64,6 +64,6 @@ class MinTest extends TestCase
         $constraint = new Min(10);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('value', 5, [$constraint]);
+        $this->validator->validate(['value' => 5], ['value' => [$constraint]]);
     }
 }

@@ -99,6 +99,6 @@ class NotEmptyTest extends TestCase
         $constraint = new NotEmpty();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', '', [$constraint]);
+        $this->validator->validate(['testField' => ''], ['testField' => [$constraint]]);
     }
 }

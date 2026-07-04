@@ -84,6 +84,6 @@ class MaxLengthTest extends TestCase
         $constraint = new MaxLength(3);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', '1234', [$constraint]);
+        $this->validator->validate(['testField' => '1234'], ['testField' => [$constraint]]);
     }
 }

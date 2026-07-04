@@ -34,7 +34,7 @@ final class UserService
 
     public function register(array $input): array
     {
-        return $this->validator->validateValues($input, [
+        return $this->validator->validate($input, [
             'email' => [new Required(), new Email()],
             'name' => [new Required(), new Length(2, 32)],
             'age' => [new Defaults(18), new Type('int')],

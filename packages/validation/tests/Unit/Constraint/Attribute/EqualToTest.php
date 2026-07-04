@@ -110,8 +110,8 @@ class EqualToTest extends TestCase
         $constraint = new EqualTo('password');
 
         $this->expectException(ValidateFailedException::class);
-        // Use validateValues which automatically calls endValidate
-        $this->validator->validateValues(
+        // Use validate which automatically calls endValidate
+        $this->validator->validate(
             ['password' => 'secret123', 'password_confirm' => 'wrong'],
             ['password_confirm' => [$constraint]]
         );
