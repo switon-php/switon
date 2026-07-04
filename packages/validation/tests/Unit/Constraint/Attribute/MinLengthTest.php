@@ -84,6 +84,6 @@ class MinLengthTest extends TestCase
         $constraint = new MinLength(5);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', '1234', [$constraint]);
+        $this->validator->validate(['testField' => '1234'], ['testField' => [$constraint]]);
     }
 }

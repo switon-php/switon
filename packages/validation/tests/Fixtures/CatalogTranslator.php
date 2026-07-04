@@ -14,14 +14,14 @@ use Switon\Core\TranslatorInterface;
  *
  * @see \Switon\Core\TranslatorInterface
  */
-final class CatalogTranslator implements TranslatorInterface
+class CatalogTranslator implements TranslatorInterface
 {
     /**
      * @param array<string, array<string, string>> $messagesByLocale
      */
     public function __construct(
-        private LocaleInterface $locale,
-        private array           $messagesByLocale,
+        protected LocaleInterface $locale,
+        protected array           $messagesByLocale,
     ) {
     }
 
@@ -44,12 +44,12 @@ final class CatalogTranslator implements TranslatorInterface
         return $this->lookupRaw($id) !== null;
     }
 
-    private function lookup(string $id): string
+    protected function lookup(string $id): string
     {
         return $this->lookupRaw($id) ?? $id;
     }
 
-    private function lookupRaw(string $id): ?string
+    protected function lookupRaw(string $id): ?string
     {
         foreach ($this->localeCandidates() as $localeKey) {
             if (isset($this->messagesByLocale[$localeKey][$id])) {
@@ -61,7 +61,7 @@ final class CatalogTranslator implements TranslatorInterface
     }
 
     /** @return list<string> */
-    private function localeCandidates(): array
+    protected function localeCandidates(): array
     {
         $raw = strtolower(str_replace('_', '-', $this->locale->get()));
         $candidates = [$raw];

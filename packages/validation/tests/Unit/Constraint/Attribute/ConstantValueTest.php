@@ -142,7 +142,7 @@ class ConstantValueTest extends TestCase
     }
 }
 
-final class ExternalStatusConstants
+class ExternalStatusConstants
 {
     public const STATUS_ACTIVE = 1;
     public const STATUS_LOCKED = 2;

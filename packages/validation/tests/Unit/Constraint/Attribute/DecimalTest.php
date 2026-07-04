@@ -153,6 +153,6 @@ class DecimalTest extends TestCase
         $constraint = new Decimal(5, 2);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', '123456.78', [$constraint]);
+        $this->validator->validate(['testField' => '123456.78'], ['testField' => [$constraint]]);
     }
 }

@@ -84,6 +84,6 @@ class StartsWithTest extends TestCase
         $constraint = new StartsWith('https');
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'http://example.com', [$constraint]);
+        $this->validator->validate(['testField' => 'http://example.com'], ['testField' => [$constraint]]);
     }
 }

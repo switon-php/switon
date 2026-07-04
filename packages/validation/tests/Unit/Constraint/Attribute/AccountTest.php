@@ -114,6 +114,6 @@ class AccountTest extends TestCase
         $constraint = new Account();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'User123', [$constraint]);
+        $this->validator->validate(['testField' => 'User123'], ['testField' => [$constraint]]);
     }
 }

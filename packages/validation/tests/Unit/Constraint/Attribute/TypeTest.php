@@ -403,7 +403,7 @@ class TypeTest extends TestCase
         $constraint = new Type('int');
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'invalid', [$constraint]);
+        $this->validator->validate(['testField' => 'invalid'], ['testField' => [$constraint]]);
     }
 
     /**

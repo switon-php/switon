@@ -137,9 +137,10 @@ class ValidationTest extends TestCase
         $validation->value = '';
 
         // Act
-        $validation->addError('{field} is required');
+        $result = $validation->addError('{field} is required');
 
         // Assert
+        $this->assertFalse($result, 'addError() should return false for constraint fail-return sugar');
         $this->assertSame(
             'username is required',
             $validation->getErrors()['username'],

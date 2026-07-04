@@ -41,16 +41,16 @@ class ValidatorTest extends TestCase
     {
         $constraint = new AlwaysPassConstraint();
 
-        $result = $this->validator->validateValue('testField', 'testValue', [$constraint]);
+        $result = $this->validator->validate(['testField' => 'testValue'], ['testField' => [$constraint]]);
 
-        $this->assertSame('testValue', $result);
+        $this->assertSame(['testField' => 'testValue'], $result);
     }
 
     public function testValidateValueWithoutConstraintsReturnsOriginalValue(): void
     {
-        $result = $this->validator->validateValue('plainField', 'raw-value', []);
+        $result = $this->validator->validate(['plainField' => 'raw-value'], ['plainField' => []]);
 
-        $this->assertSame('raw-value', $result);
+        $this->assertSame(['plainField' => 'raw-value'], $result);
     }
 
     public function testValidateValueWithInvalidValue(): void
@@ -58,7 +58,7 @@ class ValidatorTest extends TestCase
         $constraint = new AlwaysFailConstraint();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'testValue', [$constraint]);
+        $this->validator->validate(['testField' => 'testValue'], ['testField' => [$constraint]]);
     }
 
     public function testValidateValuesWithValidValues(): void
@@ -72,7 +72,7 @@ class ValidatorTest extends TestCase
             'field2' => [new AlwaysPassConstraint()],
         ];
 
-        $result = $this->validator->validateValues($source, $constraints);
+        $result = $this->validator->validate($source, $constraints);
 
         $this->assertSame($source, $result);
     }
@@ -89,7 +89,7 @@ class ValidatorTest extends TestCase
         ];
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValues($source, $constraints);
+        $this->validator->validate($source, $constraints);
     }
 
     public function testValidateValuesWithMultipleConstraints(): void
@@ -104,7 +104,7 @@ class ValidatorTest extends TestCase
         ];
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValues($source, $constraints);
+        $this->validator->validate($source, $constraints);
     }
 
     public function testValidateValuesWithSingleConstraint(): void
@@ -114,7 +114,7 @@ class ValidatorTest extends TestCase
             'field1' => new AlwaysPassConstraint(),
         ];
 
-        $result = $this->validator->validateValues($source, $constraints);
+        $result = $this->validator->validate($source, $constraints);
 
         $this->assertArrayHasKey('field1', $result);
         $this->assertSame('value1', $result['field1']);
@@ -344,7 +344,7 @@ class ValidatorTest extends TestCase
     public function testConstraintLabelsResolveOtherFieldPlaceholder(): void
     {
         try {
-            $this->validator->validateValues(
+            $this->validator->validate(
                 ['password' => 'secret', 'password_confirm' => 'mismatch'],
                 [
                     'password_confirm' => [
@@ -368,7 +368,7 @@ class ValidatorTest extends TestCase
     public function testEqualToUsesLabelArgumentsBeforeCustomMessage(): void
     {
         try {
-            $this->validator->validateValues(
+            $this->validator->validate(
                 ['password' => 'secret', 'password_confirm' => 'mismatch'],
                 [
                     'password_confirm' => [
@@ -427,7 +427,7 @@ class ValidatorTest extends TestCase
     /**
      * Test that constraint's own addError() is not overwritten by default error.
      *
-     * When a constraint calls $validation->addError() itself and returns false,
+     * When a constraint calls return $validation->addError() itself,
      * Validation::validate() should preserve the custom error.
      */
     public function testConstraintCustomErrorIsNotOverwritten(): void
@@ -447,7 +447,7 @@ class ValidatorTest extends TestCase
     }
 
     // ========================================================================
-    // validateValues() - edge cases
+    // validate() - edge cases
     // ========================================================================
 
     public function testValidateValuesReturnsTransformedValues(): void
@@ -457,13 +457,13 @@ class ValidatorTest extends TestCase
         $constraints = ['email' => [new Email()]];
 
         // Act
-        $result = $this->validator->validateValues($source, $constraints);
+        $result = $this->validator->validate($source, $constraints);
 
         // Assert
         $this->assertSame(
             'user@example.com',
             $result['email'],
-            'validateValues() should return transformed values from constraints'
+            'validate() should return transformed values from constraints'
         );
     }
 
@@ -478,7 +478,7 @@ class ValidatorTest extends TestCase
 
         // Act
         try {
-            $this->validator->validateValues($source, $constraints);
+            $this->validator->validate($source, $constraints);
             $this->fail('Expected ValidateFailedException');
         } catch (ValidateFailedException $e) {
             // Assert - both fields should have errors
@@ -495,10 +495,32 @@ class ValidatorTest extends TestCase
         $source = ['name' => 'mark'];
 
         // Act
-        $result = $this->validator->validateValues($source, []);
+        $result = $this->validator->validate($source, []);
 
         // Assert
-        $this->assertSame([], $result, 'Empty constraints should return empty result');
+        $this->assertSame($source, $result, 'Empty constraints should return source unchanged');
+    }
+
+    public function testValidatePassesThroughUnconstrainedFields(): void
+    {
+        $source = ['name' => 'mark', 'extra' => 'keep'];
+        $result = $this->validator->validate($source, [
+            'name' => [new AlwaysPassConstraint()],
+        ]);
+
+        $this->assertSame(['name' => 'mark', 'extra' => 'keep'], $result);
+    }
+
+    public function testValidateObjectMutatesAndReturnsSameInstance(): void
+    {
+        $source = (object) ['email' => 'USER@EXAMPLE.COM', 'role' => 'admin'];
+        $result = $this->validator->validate($source, [
+            'email' => [new Email()],
+        ]);
+
+        $this->assertSame($source, $result);
+        $this->assertSame('user@example.com', $source->email);
+        $this->assertSame('admin', $source->role);
     }
 
     public function testValidateValuesMissingFieldExcludedFromResult(): void
@@ -511,7 +533,7 @@ class ValidatorTest extends TestCase
         ];
 
         // Act
-        $result = $this->validator->validateValues($source, $constraints);
+        $result = $this->validator->validate($source, $constraints);
 
         // Assert - missing fields should NOT appear in result (prevents data pollution)
         $this->assertSame('mark', $result['name']);
@@ -528,7 +550,7 @@ class ValidatorTest extends TestCase
         ];
 
         // Act
-        $result = $this->validator->validateValues($source, $constraints);
+        $result = $this->validator->validate($source, $constraints);
 
         // Assert - explicitly null fields should be preserved
         $this->assertSame('mark', $result['name']);
@@ -546,7 +568,7 @@ class ValidatorTest extends TestCase
         ];
 
         // Act
-        $result = $this->validator->validateValues($source, $constraints);
+        $result = $this->validator->validate($source, $constraints);
 
         // Assert
         $this->assertSame('mark', $result['name']);
@@ -563,7 +585,7 @@ class ValidatorTest extends TestCase
 
         // Act
         try {
-            $this->validator->validateValues($source, $constraints);
+            $this->validator->validate($source, $constraints);
             $this->fail('Expected ValidateFailedException');
         } catch (ValidateFailedException $e) {
             // Assert - value should NOT be uppercased since first constraint failed
@@ -572,7 +594,7 @@ class ValidatorTest extends TestCase
     }
 
     // ========================================================================
-    // validateValue()
+    // validate()
     // ========================================================================
 
     public function testValidateValueReturnsTransformedValue(): void
@@ -581,10 +603,10 @@ class ValidatorTest extends TestCase
         $constraint = new Email();
 
         // Act
-        $result = $this->validator->validateValue('email', 'USER@EXAMPLE.COM', [$constraint]);
+        $result = $this->validator->validate(['email' => 'USER@EXAMPLE.COM'], ['email' => [$constraint]]);
 
         // Assert
-        $this->assertSame('user@example.com', $result, 'validateValue() should return transformed value');
+        $this->assertSame('user@example.com', $result['email'], 'validate() should return transformed value');
     }
 
     // ========================================================================
@@ -732,7 +754,7 @@ class ValidatorTest extends TestCase
 
         // Act
         try {
-            $this->validator->validateValues($source, $constraints);
+            $this->validator->validate($source, $constraints);
             $this->fail('Expected ValidateFailedException');
         } catch (ValidateFailedException $e) {
             // Assert
@@ -753,8 +775,8 @@ class ValidatorTest extends TestCase
     {
         $locale = new class () implements LocaleInterface {
             public function __construct(
-                private string $locale = 'en',
-                private string $default = 'en',
+                protected string $locale = 'en',
+                protected string $default = 'en',
             ) {
             }
 
