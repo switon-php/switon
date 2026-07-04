@@ -7,7 +7,7 @@ namespace Switon\Rpc\Tests\Unit;
 use Switon\Core\ConsoleInterface;
 use Switon\Rpc\Command\RpcCommand;
 use Switon\Rpc\RpcInterface;
-use Switon\Rpc\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class RpcCommandTest extends TestCase
 {
@@ -23,7 +23,7 @@ class RpcCommandTest extends TestCase
     }
 }
 
-final class RpcCommandProbe extends RpcCommand
+class RpcCommandProbe extends RpcCommand
 {
     public function setDependencies(ConsoleInterface $console, RpcInterface $rpc): void
     {
