@@ -111,6 +111,73 @@ abstract class AbstractConnection implements ConnectionInterface
         return $value->sql;
     }
 
+    /**
+     * Runs an operation once, reconnects on failure, and retries exactly once.
+     *
+     * @template T
+     *
+     * @param callable(): T $operation
+     * @param array<string, mixed> $context
+     *
+     * @return T
+     */
+    protected function retryOnce(callable $operation, array $context = []): mixed
+    {
+        try {
+            return $operation();
+        } catch (PDOException $firstException) {
+            try {
+                $this->close();
+                return $operation();
+            } catch (PDOException $retryException) {
+                DbException::raise($retryException, $context);
+            }
+        }
+    }
+
+    /**
+     * Builds UPDATE assignment clauses and bind values for upsert operations.
+     *
+     * @param array<string|int, mixed> $updateFieldValues
+     * @param array<string, mixed> $insertFieldValues
+     * @param array<string, mixed> $bind
+     * @param callable(string): string $quoteField
+     * @param callable(string): string|null $quoteExpression
+     *
+     * @return array{0: list<string>, 1: array<string, mixed>}
+     */
+    protected function prepareUpsertAssignments(
+        array $updateFieldValues,
+        array $insertFieldValues,
+        string $primaryKey,
+        string $bindSuffix,
+        array $bind,
+        callable $quoteField,
+        ?callable $quoteExpression = null,
+    ): array {
+        $quoteExpression ??= fn (string $expression): string => $this->convertQuotes($expression);
+
+        $updates = [];
+        foreach ($updateFieldValues as $key => $value) {
+            $field = is_string($key) ? $key : $value;
+            if ($primaryKey === $field) {
+                continue;
+            }
+
+            if (is_int($key)) {
+                $updates[] = $quoteField($field) . "=:{$field}{$bindSuffix}";
+                $bind["{$field}{$bindSuffix}"] = $insertFieldValues[$field];
+            } elseif ($this->isUpsertExpression($value)) {
+                $updates[] = $quoteExpression($this->getUpsertExpression($value));
+            } else {
+                $updates[] = $quoteField($key) . "=:{$key}{$bindSuffix}";
+                $bind["{$key}{$bindSuffix}"] = $value;
+            }
+        }
+
+        return [$updates, $bind];
+    }
+
     public function getUri(): string
     {
         return $this->uri;
@@ -249,54 +316,42 @@ abstract class AbstractConnection implements ConnectionInterface
 
         $sql = $this->convertQuotes($sql);
 
+        $operation = function () use ($sql, $bind, $has_insert_id): int {
+            $rows = $bind ? $this->executeInternal($sql, $bind)->rowCount() : $this->getPdo()->exec($sql);
+
+            return $has_insert_id ? (int)$this->getPdo()->lastInsertId() : $rows;
+        };
+
         if ($this->in_transaction) {
             try {
-                $rows = $bind ? $this->executeInternal($sql, $bind)->rowCount() : $this->getPdo()->exec($sql);
-                return $has_insert_id ? (int)$this->getPdo()->lastInsertId() : $rows;
+                return $operation();
             } catch (PDOException $exception) {
                 DbException::raise($exception, ['sql' => $sql, 'bind' => $bind]);
             }
         }
 
-        try {
-            $rows = $bind ? $this->executeInternal($sql, $bind)->rowCount() : $this->getPdo()->exec($sql);
-            return $has_insert_id ? (int)$this->getPdo()->lastInsertId() : $rows;
-        } catch (PDOException $firstException) {
-            try {
-                $this->close();
-                $rows = $bind ? $this->executeInternal($sql, $bind)->rowCount() : $this->getPdo()->exec($sql);
-                return $has_insert_id ? (int)$this->getPdo()->lastInsertId() : $rows;
-            } catch (PDOException $retryException) {
-                DbException::raise($retryException, ['sql' => $sql, 'bind' => $bind]);
-            }
-        }
+        return $this->retryOnce($operation, ['sql' => $sql, 'bind' => $bind]);
     }
 
     public function query(string $sql, array $bind = [], int $mode = PDO::FETCH_ASSOC): array
     {
         $sql = $this->convertQuotes($sql);
 
+        $operation = function () use ($sql, $bind, $mode): array {
+            $statement = $bind ? $this->executeInternal($sql, $bind) : $this->getPdo()->query($sql);
+
+            return $statement->fetchAll($mode);
+        };
+
         if ($this->in_transaction) {
             try {
-                $statement = $bind ? $this->executeInternal($sql, $bind) : $this->getPdo()->query($sql);
-                return $statement->fetchAll($mode);
+                return $operation();
             } catch (PDOException $exception) {
                 DbException::raise($exception, ['sql' => $sql, 'bind' => $bind]);
             }
         }
 
-        try {
-            $statement = $bind ? $this->executeInternal($sql, $bind) : $this->getPdo()->query($sql);
-            return $statement->fetchAll($mode);
-        } catch (PDOException $firstException) {
-            try {
-                $this->close();
-                $statement = $bind ? $this->executeInternal($sql, $bind) : $this->getPdo()->query($sql);
-                return $statement->fetchAll($mode);
-            } catch (PDOException $retryException) {
-                DbException::raise($retryException, ['sql' => $sql, 'bind' => $bind]);
-            }
-        }
+        return $this->retryOnce($operation, ['sql' => $sql, 'bind' => $bind]);
     }
 
     public function close(): void
@@ -330,16 +385,9 @@ abstract class AbstractConnection implements ConnectionInterface
             ReadonlyException::raise('Cannot begin transaction on readonly connection "{uri}"', ['uri' => $this->uri]);
         }
 
-        try {
+        $this->retryOnce(function (): void {
             $this->in_transaction = $this->getPdo()->beginTransaction();
-        } catch (PDOException $firstException) {
-            try {
-                $this->close();
-                $this->in_transaction = $this->getPdo()->beginTransaction();
-            } catch (PDOException $retryException) {
-                DbException::raise($retryException);
-            }
-        }
+        });
     }
 
     public function rollback(): void
@@ -375,25 +423,14 @@ abstract class AbstractConnection implements ConnectionInterface
 
         if ($exists) {
             // UPDATE existing record
-            $updates = [];
-            $bind = [];
-            foreach ($updateFieldValues as $key => $value) {
-                $field = is_string($key) ? $key : $value;
-                if ($primaryKey === $field) {
-                    continue;
-                }
-
-                if (is_int($key)) {
-                    // Integer key: field name is the value, get value from insertFieldValues
-                    $updates[] = $this->convertQuotes("[$field]") . "=:{$field}_upd";
-                    $bind["{$field}_upd"] = $insertFieldValues[$field];
-                } elseif ($this->isUpsertExpression($value)) {
-                    $updates[] = $this->convertQuotes($this->getUpsertExpression($value));
-                } else {
-                    $updates[] = $this->convertQuotes("[$key]") . "=:{$key}_upd";
-                    $bind["{$key}_upd"] = $value;
-                }
-            }
+            [$updates, $bind] = $this->prepareUpsertAssignments(
+                $updateFieldValues,
+                $insertFieldValues,
+                $primaryKey,
+                '_upd',
+                [],
+                fn (string $field): string => $this->convertQuotes("[$field]"),
+            );
 
             $whereSql = $this->convertQuotes("[$primaryKey]") . '=:pk';
             $bind['pk'] = $insertFieldValues[$primaryKey];
