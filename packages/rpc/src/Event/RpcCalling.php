@@ -12,7 +12,7 @@ use Switon\Eventing\Severity;
 /**
  * Emitted when one RPC request is about to be sent.
  *
- * Log category: rpc request lifecycle.
+ * Log category: `switon.rpc.calling`
  *
  * @see \Switon\Rpc\Rpc::call()
  */

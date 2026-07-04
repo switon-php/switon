@@ -61,9 +61,7 @@ class Rpc implements RpcInterface, RunnerInterface
     #[Autowired] protected string $queue = 'rpc';
 
     #[Communal] protected string $replyQueue;
-
     #[Communal] protected int $sequence = 0;
-
     /** @var array<string, QueueEnvelope|self> */
     #[Communal] protected array $replies = [];
 

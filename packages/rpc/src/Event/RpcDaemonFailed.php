@@ -13,7 +13,7 @@ use Throwable;
 /**
  * Emitted when the RPC daemon loop catches one processing failure.
  *
- * Log category: rpc daemon lifecycle.
+ * Log category: `switon.rpc.daemon.failed`
  *
  * @see \Switon\Rpc\Rpc::daemon()
  */
