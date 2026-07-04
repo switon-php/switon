@@ -87,6 +87,6 @@ class LowercaseTest extends TestCase
         $constraint = new Lowercase(false);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'UPPERCASE', [$constraint]);
+        $this->validator->validate(['testField' => 'UPPERCASE'], ['testField' => [$constraint]]);
     }
 }

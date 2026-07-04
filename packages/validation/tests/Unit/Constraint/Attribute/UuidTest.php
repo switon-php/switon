@@ -84,6 +84,6 @@ class UuidTest extends TestCase
         $constraint = new Uuid();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'invalid-uuid', [$constraint]);
+        $this->validator->validate(['testField' => 'invalid-uuid'], ['testField' => [$constraint]]);
     }
 }

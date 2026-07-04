@@ -76,6 +76,6 @@ class RequiredTest extends TestCase
         $constraint = new Required();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', null, [$constraint]);
+        $this->validator->validate(['testField' => null], ['testField' => [$constraint]]);
     }
 }

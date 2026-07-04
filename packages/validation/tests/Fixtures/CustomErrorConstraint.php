@@ -11,8 +11,6 @@ class CustomErrorConstraint extends AbstractConstraint
 {
     public function validate(Validation $validation): bool
     {
-        $validation->addError('Custom error for {field}');
-
-        return false;
+        return $validation->addError('Custom error for {field}');
     }
 }

@@ -7,10 +7,10 @@ namespace Switon\Validating;
 /**
  * Defines the validation contract for values and field sets.
  *
- * Use when application or framework code must validate single fields, full payloads, or manual validation sessions.
+ * Use when application or framework code must validate field sets or open manual validation sessions.
  *
  * Road-signs:
- * - validateValue() / validateValues(): caller-facing entrypoints
+ * - validate(): caller-facing entrypoint for field maps
  * - beginValidate() / endValidate(): framework-internal session boundary
  * - formatMessage(): message-template rendering
  *
@@ -29,31 +29,29 @@ namespace Switon\Validating;
 interface ValidatorInterface
 {
     /**
-     * Validate a single value against constraints.
+     * Validate selected fields on `$source` (progressive).
      *
-     * @param string $field Field name
-     * @param mixed $value Value to validate
-     * @param list<ConstraintInterface> $constraints Constraint instances
+     * Unconstrained fields are returned unchanged. Constrained fields are checked
+     * (and may be normalized). Array sources yield arrays; object sources are updated
+     * in place and returned as the same instance.
      *
-     * @return mixed Validated value, or null if validation fails
+     * Missing constrained fields are not injected unless a constraint sets a value
+     * (e.g. {@see \Switon\Validating\Attribute\Defaults}).
+     *
+     * @param array<string, mixed>|object $source Source data
+     * @param array<string, ConstraintInterface|list<ConstraintInterface>> $constraints Field constraints
+     *
+     * @return ($source is array ? array<string, mixed> : object)
+     *
+     * @throws \Switon\Validating\Exception\ValidateFailedException When validation fails for any field
      */
-    public function validateValue(string $field, mixed $value, array $constraints): mixed;
-
-    /**
-     * Validate multiple values against constraints.
-     *
-     * @param array<string, mixed> $source Source data (field => value)
-     * @param array<string, ConstraintInterface|list<ConstraintInterface>> $constraints Constraints (field => constraint list)
-     *
-     * @return array<string, mixed> Validated values (field => validated value)
-     */
-    public function validateValues(array $source, array $constraints): array;
+    public function validate(array|object $source, array $constraints): array|object;
 
     /**
      * Begin a validation session.
      *
      * Intended for framework-internal use (for example request-body binding and entity persistence).
-     * Application code should prefer `validateValue()` or `validateValues()`.
+     * Application code should prefer `validate()`.
      * Callers MUST pair this with `endValidate()` so collected errors are finalized.
      *
      * @param array<string, mixed>|object $source Source data

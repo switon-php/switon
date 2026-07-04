@@ -84,6 +84,6 @@ class RegexTest extends TestCase
         $constraint = new Regex('/^[a-z]+$/');
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'abc123', [$constraint]);
+        $this->validator->validate(['testField' => 'abc123'], ['testField' => [$constraint]]);
     }
 }

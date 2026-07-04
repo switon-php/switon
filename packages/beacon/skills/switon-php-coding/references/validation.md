@@ -11,7 +11,7 @@ on entity properties.
 - **DTO / request body:** Class with `#[RequestBody]`; properties use the same constraint attributes. Invoker resolves
   and validates before controller action. Non-nullable property without default gets `Required` automatically if not
   explicitly set.
-- **Manual:** Inject `Switon\Validating\ValidatorInterface`, call `validateValue()` or `validateValues($input, $rules)`;
+- **Manual:** Inject `Switon\Validating\ValidatorInterface`, call `validate($source, $constraints)`;
   throws `Switon\Validating\Exception\ValidateFailedException` on failure.
 
 ## 2. Packages and namespaces

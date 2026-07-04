@@ -130,6 +130,6 @@ class LengthTest extends TestCase
         $constraint = new Length(4, 8);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('value', '123', [$constraint]);
+        $this->validator->validate(['value' => '123'], ['value' => [$constraint]]);
     }
 }

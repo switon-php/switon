@@ -84,6 +84,6 @@ class AlphaTest extends TestCase
         $constraint = new Alpha();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'abc123', [$constraint]);
+        $this->validator->validate(['testField' => 'abc123'], ['testField' => [$constraint]]);
     }
 }

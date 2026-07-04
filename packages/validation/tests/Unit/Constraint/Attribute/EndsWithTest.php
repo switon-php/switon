@@ -84,6 +84,6 @@ class EndsWithTest extends TestCase
         $constraint = new EndsWith('.org');
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'example.com', [$constraint]);
+        $this->validator->validate(['testField' => 'example.com'], ['testField' => [$constraint]]);
     }
 }

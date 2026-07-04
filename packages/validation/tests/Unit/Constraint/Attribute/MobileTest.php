@@ -99,6 +99,6 @@ class MobileTest extends TestCase
         $constraint = new Mobile();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'invalid-mobile', [$constraint]);
+        $this->validator->validate(['testField' => 'invalid-mobile'], ['testField' => [$constraint]]);
     }
 }

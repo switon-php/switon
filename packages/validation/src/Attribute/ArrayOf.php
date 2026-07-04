@@ -15,13 +15,13 @@ use Attribute;
  * @see \Switon\Http\RequestBodyResolver
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-readonly class ArrayOf
+class ArrayOf
 {
     /** @param string $type Element type (FQCN or scalar name) */
     public function __construct(
         public string $type,
-        public ?int   $minItems = null,
-        public ?int   $maxItems = null,
+        public ?int $minItems = null,
+        public ?int $maxItems = null,
     ) {
     }
 }

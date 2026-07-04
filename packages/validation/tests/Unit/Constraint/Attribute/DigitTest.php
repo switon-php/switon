@@ -84,6 +84,6 @@ class DigitTest extends TestCase
         $constraint = new Digit();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', '123abc', [$constraint]);
+        $this->validator->validate(['testField' => '123abc'], ['testField' => [$constraint]]);
     }
 }

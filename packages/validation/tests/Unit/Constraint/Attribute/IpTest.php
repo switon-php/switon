@@ -84,6 +84,6 @@ class IpTest extends TestCase
         $constraint = new Ip();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'invalid-ip', [$constraint]);
+        $this->validator->validate(['testField' => 'invalid-ip'], ['testField' => [$constraint]]);
     }
 }

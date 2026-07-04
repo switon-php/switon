@@ -64,6 +64,6 @@ class InTest extends TestCase
         $constraint = new In(['red', 'green', 'blue']);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('color', 'yellow', [$constraint]);
+        $this->validator->validate(['color' => 'yellow'], ['color' => [$constraint]]);
     }
 }

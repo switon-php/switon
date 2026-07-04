@@ -82,6 +82,6 @@ class MaxTest extends TestCase
         $constraint = new Max(10);
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('value', 15, [$constraint]);
+        $this->validator->validate(['value' => 15], ['value' => [$constraint]]);
     }
 }

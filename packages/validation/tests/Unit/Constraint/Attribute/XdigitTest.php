@@ -84,6 +84,6 @@ class XdigitTest extends TestCase
         $constraint = new Xdigit();
 
         $this->expectException(ValidateFailedException::class);
-        $this->validator->validateValue('testField', 'abc123g', [$constraint]);
+        $this->validator->validate(['testField' => 'abc123g'], ['testField' => [$constraint]]);
     }
 }

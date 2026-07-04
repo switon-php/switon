@@ -37,7 +37,7 @@ class OptionalFieldIssueTest extends TestCase
         $this->expectExceptionMessage('The age data type is not int.');
 
         // Act
-        $this->validator->validateValues($source, $constraints);
+        $this->validator->validate($source, $constraints);
     }
 
     /**
@@ -59,7 +59,7 @@ class OptionalFieldIssueTest extends TestCase
         $this->expectException(ValidateFailedException::class);
 
         // Act
-        $this->validator->validateValues($source, $constraints);
+        $this->validator->validate($source, $constraints);
     }
 
     /**
@@ -76,7 +76,7 @@ class OptionalFieldIssueTest extends TestCase
         ];
 
         // Act
-        $result = $this->validator->validateValues($source, $constraints);
+        $result = $this->validator->validate($source, $constraints);
 
         // Assert
         $this->assertEquals(['age' => 18], $result);
