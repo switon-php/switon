@@ -20,7 +20,7 @@ use Switon\Eventing\Severity;
  * @see \Switon\Context\Event\ChildContextInherited
  */
 #[EventLevel(Severity::DEBUG)]
-readonly class ChildContextPropagated implements JsonSerializable, SenderAwareInterface
+class ChildContextPropagated implements JsonSerializable, SenderAwareInterface
 {
     /**
      * @param string $owner Context owner class
@@ -32,8 +32,8 @@ readonly class ChildContextPropagated implements JsonSerializable, SenderAwareIn
         public ContextManagerInterface $sender,
         public string $owner,
         public string $context,
-        public int    $cid,
-        public int    $parentCid,
+        public int $cid,
+        public int $parentCid,
     ) {
     }
 

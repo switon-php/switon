@@ -58,10 +58,8 @@ class ContextManager implements ContextManagerInterface
 
     /** @var array<class-string, class-string> Context class cache (component class => context class). */
     protected array $classes = [];
-
     /** @var array<int, object> Non-coroutine context cache by owner object ID. */
     protected array $contexts = [];
-
     /** @var array<int, object> Root fallback cache when coroutine mode is enabled without current coroutine context. */
     protected array $roots = [];
 
