@@ -43,7 +43,7 @@ class ConnectionTest extends TestCase
 
         // Register factory that returns mock adapter
         $factory = new class ($mockAdapter) {
-            public function __construct(private $adapter)
+            public function __construct(protected $adapter)
             {
             }
 
@@ -70,7 +70,7 @@ class ConnectionTest extends TestCase
 
         // Register factory that returns mock adapter
         $factory = new class ($mockAdapter) {
-            public function __construct(private $adapter)
+            public function __construct(protected $adapter)
             {
             }
 
@@ -97,7 +97,7 @@ class ConnectionTest extends TestCase
 
         // Register factory that returns mock adapter
         $factory = new class ($mockAdapter) {
-            public function __construct(private $adapter)
+            public function __construct(protected $adapter)
             {
             }
 

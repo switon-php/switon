@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Db\Tests\Unit;
 
 use Switon\Db\Connection\Adapter\Mysql;
-use Switon\Db\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests for MySQL URI parsing.
