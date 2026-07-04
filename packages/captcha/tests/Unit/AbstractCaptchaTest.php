@@ -13,6 +13,8 @@ use Switon\Captcha\Exception\CaptchaNotFoundException;
 use Switon\Captcha\Exception\CaptchaTooFrequentException;
 use Switon\Captcha\Tests\Fixtures\TestCaptcha;
 use Switon\Captcha\Tests\TestCase;
+use Switon\Core\ClockInterface;
+use Switon\Testing\MockClock;
 
 use function strlen;
 use function strtolower;
@@ -346,6 +348,33 @@ class AbstractCaptchaTest extends TestCase
     /**
      * Test that verify() throws exception when data is corrupted.
      */
+    public function testVerifyForgetsKeyWhenRemainingTtlDropsToZeroAfterFailedAttempt(): void
+    {
+        $this->captcha->setMinInterval(0);
+        $this->captcha->setAttempts(2);
+
+        /** @var MockClock $clock */
+        $clock = $this->container->get(ClockInterface::class);
+        $createdAt = $clock->microtime();
+        $key = 'ttl-edge-key';
+
+        $this->mockStore->put($key, [
+            'code' => 'abcd',
+            'created_at' => $createdAt,
+            'ttl' => 10,
+            'attempts' => 2,
+        ], 10);
+
+        $clock->advance(9.6);
+
+        try {
+            $this->captcha->verify(CaptchaProof::of($key, 'wrong'));
+        } catch (CaptchaMismatchException) {
+        }
+
+        $this->assertNull($this->mockStore->get($key));
+    }
+
     public function testVerifyThrowsExceptionWhenDataInvalid(): void
     {
         // Arrange

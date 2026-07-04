@@ -46,17 +46,13 @@ use function strtolower;
 abstract class AbstractCaptcha implements CaptchaInterface
 {
     #[Autowired] protected StoreInterface $store;
-
     #[Autowired] protected RandomInterface $random;
-
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
-
     #[Autowired] protected ClockInterface $clock;
 
     /** Characters used for random code generation. */
     /** @noinspection SpellCheckingInspection */
     #[Autowired] protected string $charset = '23456789abcdefhijkmnpqrstuvwxyzABCDEFGHJKLMNPQRTUVWXY';
-
     /** @var list<string> TTF font paths for CAPTCHA text rendering. */
     #[Autowired] protected array $fonts
         = [
@@ -66,34 +62,24 @@ abstract class AbstractCaptcha implements CaptchaInterface
 
     /** Max character rotation noise in degrees. */
     #[Autowired] protected int $angle_noise = 10;
-
     /** Max horizontal offset noise in pixels. */
     #[Autowired] protected int $x_noise = 3;
-
     /** Max vertical offset noise in pixels. */
     #[Autowired] protected int $y_noise = 3;
-
     /** Base font size in pixels. */
     #[Autowired] protected int $size = 24;
-
     /** Max font size noise in pixels. */
     #[Autowired] protected int $size_noise = 3;
-
     /** Number of extra noise characters to render. */
     #[Autowired] protected int $char_noise = 1;
-
     /** Imagick wave distortion amplitude in pixels; 0 disables it. */
     #[Autowired] protected float $distort = 2.0;
-
     /** @var array{0: int, 1: int, 2: int} Background RGB color as [R, G, B]. */
     #[Autowired] protected array $background = [255, 255, 255];
-
     /** Generated CAPTCHA code length. */
     #[Autowired] protected int $length = 5;
-
     /** Minimum seconds between create and verify. */
     #[Autowired] protected float $min_interval = 1.0;
-
     /** Allowed verification attempts per challenge (default: one-time). */
     #[Autowired] protected int $attempts = 1;
 
@@ -215,9 +201,9 @@ abstract class AbstractCaptcha implements CaptchaInterface
         // 4. Decrement Attempts (consumes one attempt regardless of code correctness)
         $attempts--;
         $data['attempts'] = $attempts;
-        $remainingTtlSeconds = (float)$data['ttl'] - $timeSinceCreation;
-        if ($remainingTtlSeconds > 0) {
-            $this->store->put($key, $data, max(1, (int)round($remainingTtlSeconds)));
+        $remainingTtl = (int)round((float)$data['ttl'] - $timeSinceCreation);
+        if ($remainingTtl > 0) {
+            $this->store->put($key, $data, $remainingTtl);
         } else {
             $this->store->forget($key);
         }

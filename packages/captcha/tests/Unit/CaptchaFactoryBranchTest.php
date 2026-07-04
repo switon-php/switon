@@ -7,7 +7,7 @@ namespace Switon\Captcha\Tests\Unit;
 use Switon\Captcha\Adapter\Gd;
 use Switon\Captcha\Adapter\Imagick;
 use Switon\Captcha\Captcha;
-use Switon\Captcha\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\MakerInterface;
 
@@ -74,9 +74,9 @@ class CaptchaFactoryBranchTest extends TestCase
     }
 }
 
-final class CaptchaFactoryBranchFixture extends Captcha
+class CaptchaFactoryBranchFixture extends Captcha
 {
-    public function __construct(MakerInterface $maker, private bool $imagickLoaded, private bool $gdLoaded)
+    public function __construct(MakerInterface $maker, protected bool $imagickLoaded, protected bool $gdLoaded)
     {
         $this->maker = $maker;
     }
