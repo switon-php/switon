@@ -7,7 +7,7 @@ namespace Switon\Db\Tests\Fixtures;
 use Switon\Db\ClientInterface;
 
 /** @internal Minimal {@see ClientInterface} stand-in for connection owner typing in tests. */
-final class StubDbClient implements ClientInterface
+class StubDbClient implements ClientInterface
 {
     public function getPrefix(): string
     {

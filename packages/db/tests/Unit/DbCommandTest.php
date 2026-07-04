@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Switon\Core\ClockInterface;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\FilesystemInterface;
-use Switon\Core\PathAliasInterface;
 use Switon\Db\ClientInterface;
 use Switon\Db\Command\DbCommand;
 use Switon\Di\NamedLookupInterface;
@@ -27,7 +26,6 @@ class DbCommandTest extends TestCase
     protected ConsoleInterface&MockObject $console;
     protected NamedLookupInterface&MockObject $namedLookup;
     protected FilesystemInterface&MockObject $filesystem;
-    protected PathAliasInterface&MockObject $pathAlias;
 
     protected function setUp(): void
     {
@@ -37,7 +35,6 @@ class DbCommandTest extends TestCase
         $this->console = $this->createMock(ConsoleInterface::class);
         $this->namedLookup = $this->createMock(NamedLookupInterface::class);
         $this->filesystem = $this->createMock(FilesystemInterface::class);
-        $this->pathAlias = $this->createMock(PathAliasInterface::class);
 
         $clock = $this->createStub(ClockInterface::class);
         $clock->method('microtime')->willReturn(1_000.0);
@@ -47,7 +44,6 @@ class DbCommandTest extends TestCase
         $this->command->setConsole($this->console);
         $this->command->setNamedLookup($this->namedLookup);
         $this->command->setFilesystem($this->filesystem);
-        $this->command->setPathAlias($this->pathAlias);
     }
 
     public function testPingActionReturnsOkWhenSelectOneReturnsRow(): void
@@ -444,10 +440,5 @@ class DbCommandProbe extends DbCommand
     public function setFilesystem(FilesystemInterface $filesystem): void
     {
         $this->filesystem = $filesystem;
-    }
-
-    public function setPathAlias(PathAliasInterface $pathAlias): void
-    {
-        $this->pathAlias = $pathAlias;
     }
 }
