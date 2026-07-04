@@ -12,7 +12,7 @@ use Switon\Eventing\Severity;
 /**
  * Emitted when the RPC daemon receives one request from queue.
  *
- * Log category: rpc request lifecycle.
+ * Log category: `switon.rpc.received`
  *
  * @see \Switon\Rpc\Rpc::daemon()
  */
