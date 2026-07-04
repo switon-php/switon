@@ -16,8 +16,6 @@ use Switon\Db\UpsertExpression;
  *
  * Tests URI parsing, SQL generation, and convertQuotes functionality.
  * Does not require actual PostgreSQL connection.
- *
- * @group pgsql
  */
 class PgsqlAdapterTest extends TestCase
 {

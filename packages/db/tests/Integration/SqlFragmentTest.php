@@ -13,9 +13,6 @@ use Switon\Db\Tests\TestCase;
  *
  * Tests SQL fragment expressions directly against SQLite connection,
  * verifying that the generated SQL executes correctly.
- *
- * @group sqlite
- * @group integration
  */
 class SqlFragmentTest extends TestCase
 {

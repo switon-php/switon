@@ -6,15 +6,13 @@ namespace Switon\Db\Tests\Unit;
 
 use PDO;
 use Switon\Db\Connection\Adapter\Mysql;
-use Switon\Db\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Db\UpsertExpression;
 
 /**
  * Unit tests for MySQL adapter.
  *
  * Focuses on SQL string generation behavior that can be tested without a real database.
- *
- * @group mysql
  */
 class MysqlAdapterTest extends TestCase
 {

@@ -7,6 +7,7 @@ namespace Switon\Db\Tests\Integration;
 use Switon\Db\Client;
 use Switon\Db\ClientInterface;
 use Switon\Db\Connection\Adapter\Sqlite;
+use Switon\Db\Tests\Fixtures\StubDbClient;
 use Switon\Db\Tests\TestCase;
 use Switon\Di\Factory;
 
@@ -14,39 +15,52 @@ use Switon\Di\Factory;
  * Integration tests for SQLite adapter.
  *
  * Uses in-memory SQLite database, always available.
- *
- * @group sqlite
- * @group integration
  */
 class SqliteIntegrationTest extends TestCase
 {
     protected ?Sqlite $connection = null;
+    protected static ?StubDbClient $sharedPoolOwner = null;
+    protected static ?Sqlite $sharedConnection = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->container->set(Sqlite::class, ['uri' => ':memory:', 'owner' => $this->poolOwner]);
-        $this->connection = $this->container->get(Sqlite::class);
+        if (self::$sharedConnection === null) {
+            self::$sharedPoolOwner = new StubDbClient();
+            $this->container->set(Sqlite::class, ['uri' => ':memory:', 'owner' => self::$sharedPoolOwner]);
+            self::$sharedConnection = $this->container->get(Sqlite::class);
+            self::$sharedConnection->execute('
+                CREATE TABLE test_sqlite (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    email TEXT UNIQUE,
+                    age INTEGER DEFAULT 0,
+                    created_at TEXT
+                )
+            ');
+        } else {
+            self::$sharedConnection->execute('DELETE FROM test_sqlite');
+            self::$sharedConnection->execute("DELETE FROM sqlite_sequence WHERE name = 'test_sqlite'");
+        }
 
-        // Create test table
-        $this->connection->execute('
-            CREATE TABLE test_sqlite (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT UNIQUE,
-                age INTEGER DEFAULT 0,
-                created_at TEXT
-            )
-        ');
+        $this->connection = self::$sharedConnection;
     }
 
     protected function tearDown(): void
     {
-        if ($this->connection) {
-            $this->connection->close();
-        }
         parent::tearDown();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$sharedConnection !== null) {
+            self::$sharedConnection->close();
+            self::$sharedConnection = null;
+            self::$sharedPoolOwner = null;
+        }
+
+        parent::tearDownAfterClass();
     }
 
     /**

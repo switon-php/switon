@@ -7,15 +7,13 @@ namespace Switon\Db\Tests\Unit;
 use PDO;
 use Switon\Db\Client;
 use Switon\Db\Connection\Adapter\Sqlite;
-use Switon\Db\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Db\UpsertExpression;
 
 /**
  * Unit tests for SQLite adapter.
  *
  * Tests SQL string generation and identifier handling behavior.
- *
- * @group sqlite
  */
 class SqliteAdapterTest extends TestCase
 {

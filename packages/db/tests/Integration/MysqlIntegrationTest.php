@@ -7,6 +7,7 @@ namespace Switon\Db\Tests\Integration;
 use PDO;
 use Switon\Db\Client;
 use Switon\Db\Connection\Adapter\Mysql;
+use Switon\Db\Tests\Fixtures\StubDbClient;
 use Switon\Db\Tests\TestCase;
 use Exception;
 
@@ -15,9 +16,6 @@ use Exception;
  *
  * Requires a running MySQL server with switon_test database.
  * Skip these tests if MySQL is not available.
- *
- * @group mysql
- * @group integration
  */
 class MysqlIntegrationTest extends TestCase
 {
@@ -26,6 +24,8 @@ class MysqlIntegrationTest extends TestCase
     protected static string $skipReason = '';
     protected static array $mysqlConfig = ['host' => '127.0.0.1', 'user' => 'root', 'pass' => ''];
     protected static ?string $mysqlUri = null;
+    protected static ?StubDbClient $sharedPoolOwner = null;
+    protected static ?Mysql $sharedConnection = null;
 
     public static function setUpBeforeClass(): void
     {
@@ -43,12 +43,12 @@ class MysqlIntegrationTest extends TestCase
             return;
         }
 
-        // Try common MySQL configurations
+        // Try common MySQL configurations (empty password first for faster local discovery)
         $configs = [
-            ['host' => '127.0.0.1', 'user' => 'root', 'pass' => '123456'],
             ['host' => '127.0.0.1', 'user' => 'root', 'pass' => ''],
-            ['host' => '127.0.0.1', 'user' => 'root', 'pass' => 'root'],
             ['host' => 'localhost', 'user' => 'root', 'pass' => ''],
+            ['host' => '127.0.0.1', 'user' => 'root', 'pass' => '123456'],
+            ['host' => '127.0.0.1', 'user' => 'root', 'pass' => 'root'],
         ];
 
         $connected = false;
@@ -106,6 +106,17 @@ class MysqlIntegrationTest extends TestCase
         }
     }
 
+    protected static function resolveUri(): string
+    {
+        if (self::$mysqlUri !== null) {
+            return self::$mysqlUri;
+        }
+
+        $config = self::$mysqlConfig;
+
+        return "mysql://{$config['user']}:{$config['pass']}@{$config['host']}/switon_test";
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -114,32 +125,41 @@ class MysqlIntegrationTest extends TestCase
             $this->markTestSkipped(self::$skipReason);
         }
 
-        $uri = self::$mysqlUri;
-        if ($uri === null) {
-            $config = self::$mysqlConfig;
-            $uri = "mysql://{$config['user']}:{$config['pass']}@{$config['host']}/switon_test";
+        if (self::$sharedConnection === null) {
+            self::$sharedPoolOwner = new StubDbClient();
+            $this->container->set(Mysql::class, ['uri' => self::resolveUri(), 'owner' => self::$sharedPoolOwner]);
+            self::$sharedConnection = $this->container->get(Mysql::class);
+            self::$sharedConnection->execute('DROP TABLE IF EXISTS test_mysql');
+            self::$sharedConnection->execute(
+                'CREATE TABLE test_mysql (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100), status INT DEFAULT 0) ENGINE=InnoDB'
+            );
+        } else {
+            self::$sharedConnection->execute('TRUNCATE TABLE test_mysql');
         }
 
-        $this->container->set(Mysql::class, ['uri' => $uri, 'owner' => $this->poolOwner]);
-        $this->connection = $this->container->get(Mysql::class);
-
-        // Create test table
-        $this->connection->execute('DROP TABLE IF EXISTS test_mysql');
-        $this->connection->execute('CREATE TABLE test_mysql (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100), status INT DEFAULT 0) ENGINE=InnoDB');
+        $this->connection = self::$sharedConnection;
     }
 
     protected function tearDown(): void
     {
-        if ($this->connection) {
+        parent::tearDown();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$sharedConnection !== null) {
             try {
-                $this->connection->execute('DROP TABLE IF EXISTS test_mysql');
-            } catch (Exception $e) {
+                self::$sharedConnection->execute('DROP TABLE IF EXISTS test_mysql');
+                self::$sharedConnection->close();
+            } catch (Exception) {
                 // Ignore cleanup errors
             }
-            $this->connection->close();
+
+            self::$sharedConnection = null;
+            self::$sharedPoolOwner = null;
         }
 
-        parent::tearDown();
+        parent::tearDownAfterClass();
     }
 
     /**
