@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Db\Tests\Unit;
 
 use Switon\Db\PreparedEmulator;
-use Switon\Db\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for PreparedEmulator class.
@@ -18,7 +18,6 @@ class PreparedEmulatorTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->emulator = new PreparedEmulator();
     }
 

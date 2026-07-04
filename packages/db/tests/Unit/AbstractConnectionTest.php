@@ -55,7 +55,7 @@ class AbstractConnectionTest extends TestCase
         // Container's make() now checks if definition object has __invoke and calls it
         // Note: Parameters must have type declarations for DI to work
         $factory = new class ($mockPdo) {
-            public function __construct(private PDO $pdo)
+            public function __construct(protected PDO $pdo)
             {
             }
 
@@ -193,7 +193,7 @@ class AbstractConnectionTest extends TestCase
 
         // Register a factory that throws exception
         $factory = new class ($exception) {
-            public function __construct(private PDOException $exception)
+            public function __construct(protected PDOException $exception)
             {
             }
 
@@ -1169,7 +1169,7 @@ class AbstractConnectionTest extends TestCase
 
         // Register a factory that throws exception
         $factory = new class ($exception) {
-            public function __construct(private PDOException $exception)
+            public function __construct(protected PDOException $exception)
             {
             }
 
