@@ -14,7 +14,7 @@ use function extension_loaded;
 use function file_exists;
 use function strlen;
 
-final class AdapterImagickCoverageTest extends TestCase
+class AdapterImagickCoverageTest extends TestCase
 {
     public function testImagickDrawWithDistortionKeepsRequestedCanvasSize(): void
     {
@@ -100,7 +100,7 @@ final class AdapterImagickCoverageTest extends TestCase
 
         // Call protected method via a tiny subclass.
         $probe = new class ($adapter) {
-            public function __construct(private Imagick $adapter)
+            public function __construct(protected Imagick $adapter)
             {
             }
 

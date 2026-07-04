@@ -9,12 +9,12 @@ use Switon\Captcha\Adapter\Imagick;
 use Switon\Captcha\Captcha;
 use Switon\Captcha\CaptchaInterface;
 use Switon\Captcha\CaptchaProof;
-use Switon\Captcha\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Core\MakerInterface;
 
 use function extension_loaded;
 
-final class CaptchaMakerInvocationTest extends TestCase
+class CaptchaMakerInvocationTest extends TestCase
 {
     public function testFactoryUsesMakerWithParameters(): void
     {
@@ -72,9 +72,10 @@ final class CaptchaMakerInvocationTest extends TestCase
 
         $this->markTestSkipped('Neither ImageMagick nor GD extension is available');
     }
+
 }
 
-final class CaptchaMakerInvocationFixture extends Captcha
+class CaptchaMakerInvocationFixture extends Captcha
 {
     public function __construct(MakerInterface $maker)
     {

@@ -12,7 +12,7 @@ use function file_exists;
 use function function_exists;
 use function strlen;
 
-final class AdapterGdCoverageTest extends TestCase
+class AdapterGdCoverageTest extends TestCase
 {
     public function testGdDrawWithNoiseAndTinyCanvasStillReturnsJpeg(): void
     {
