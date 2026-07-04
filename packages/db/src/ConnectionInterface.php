@@ -25,6 +25,8 @@ use Switon\Core\OwnerAwareInterface;
  * @see \Switon\Db\ClientInterface
  * @see \Switon\Db\Connection
  * @see \Switon\Db\AbstractConnection
+ *
+ * @extends OwnerAwareInterface<ClientInterface>
  */
 interface ConnectionInterface extends OwnerAwareInterface
 {

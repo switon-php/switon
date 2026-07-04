@@ -10,7 +10,6 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\ClockInterface;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\FilesystemInterface;
-use Switon\Core\PathAliasInterface;
 use Switon\Db\Client;
 use Switon\Db\ClientInterface;
 use Switon\Di\NamedLookupInterface;
@@ -35,7 +34,6 @@ class DbCommand
     /** @var NamedLookupInterface<ClientInterface> */
     #[Autowired] protected NamedLookupInterface $namedLookup;
     #[Autowired] protected FilesystemInterface $filesystem;
-    #[Autowired] protected PathAliasInterface $pathAlias;
 
     /**
      * @param string $connection
