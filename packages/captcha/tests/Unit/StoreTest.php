@@ -6,11 +6,23 @@ namespace Switon\Captcha\Tests\Unit;
 
 use Switon\Captcha\Store;
 use Switon\Captcha\Tests\TestCase as CaptchaTestCase;
+use Switon\Core\AppInterface;
 use Switon\Core\Exception\JsonException;
 use Switon\Redis\ClientInterface;
 
 class StoreTest extends CaptchaTestCase
 {
+    protected const string DEFAULT_PREFIX = 'cache:test-app:captcha:';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $app = $this->createStub(AppInterface::class);
+        $app->method('id')->willReturn('test-app');
+        $this->container->set(AppInterface::class, $app);
+    }
+
     public function testGetReturnsNullWhenRedisValueMissing(): void
     {
         $redis = new FakeRedisClient();
@@ -24,7 +36,7 @@ class StoreTest extends CaptchaTestCase
     public function testGetParsesJsonPayloadFromRedis(): void
     {
         $redis = new FakeRedisClient();
-        $redis->values['captcha:key1'] = '{"code":"ABCD","attempts":2}';
+        $redis->values[self::DEFAULT_PREFIX . 'key1'] = '{"code":"ABCD","attempts":2}';
         $store = $this->createStore($redis);
 
         $result = $store->get('key1');
@@ -35,7 +47,7 @@ class StoreTest extends CaptchaTestCase
     public function testGetThrowsJsonExceptionWhenRedisPayloadIsInvalidJson(): void
     {
         $redis = new FakeRedisClient();
-        $redis->values['captcha:key_bad'] = '{bad-json';
+        $redis->values[self::DEFAULT_PREFIX . 'key_bad'] = '{bad-json';
         $store = $this->createStore($redis);
 
         $this->expectException(JsonException::class);
@@ -43,7 +55,7 @@ class StoreTest extends CaptchaTestCase
         $store->get('key_bad');
     }
 
-    public function testPutUsesPrefixedKeyAndNormalizesNonPositiveTtlToOne(): void
+    public function testPutPassesTtlThroughWithoutClamping(): void
     {
         $redis = new FakeRedisClient();
         $store = $this->createStore($redis);
@@ -52,10 +64,10 @@ class StoreTest extends CaptchaTestCase
         $store->put('kn', ['code' => 'X2'], -10);
 
         $this->assertCount(2, $redis->setCalls);
-        $this->assertSame('captcha:k0', $redis->setCalls[0]['key']);
-        $this->assertSame('captcha:kn', $redis->setCalls[1]['key']);
-        $this->assertSame(1, $redis->setCalls[0]['ttl']);
-        $this->assertSame(1, $redis->setCalls[1]['ttl']);
+        $this->assertSame(self::DEFAULT_PREFIX . 'k0', $redis->setCalls[0]['key']);
+        $this->assertSame(self::DEFAULT_PREFIX . 'kn', $redis->setCalls[1]['key']);
+        $this->assertSame(0, $redis->setCalls[0]['ttl']);
+        $this->assertSame(-10, $redis->setCalls[1]['ttl']);
     }
 
     public function testPutUsesCustomPrefix(): void
@@ -96,7 +108,7 @@ class StoreTest extends CaptchaTestCase
 
         $store->forget('key2');
 
-        $this->assertSame(['captcha:key2'], $redis->delCalls);
+        $this->assertSame([self::DEFAULT_PREFIX . 'key2'], $redis->delCalls);
     }
 
     public function testForgetRemovesPreviouslyStoredPayload(): void
@@ -112,13 +124,16 @@ class StoreTest extends CaptchaTestCase
         $this->assertNull($store->get('evict-me'));
     }
 
-    protected function createStore(FakeRedisClient $redis, string $prefix = 'captcha:'): Store
+    protected function createStore(FakeRedisClient $redis, ?string $prefix = null): Store
     {
         $this->container->replace(ClientInterface::class, $redis);
 
-        return $this->make(Store::class, [
-            'prefix' => $prefix,
-        ]);
+        $parameters = [];
+        if ($prefix !== null) {
+            $parameters['prefix'] = $prefix;
+        }
+
+        return $this->make(Store::class, $parameters);
     }
 }
 
