@@ -5,18 +5,22 @@ declare(strict_types=1);
 namespace Switon\Command;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
+use ReflectionNamedType;
+use ReflectionType;
+use ReflectionUnionType;
 use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
 use Switon\Core\Attributes;
 use Switon\Core\Naming;
-use ReflectionException;
-use ReflectionNamedType;
+use Switon\Core\Reflections;
 
 use function class_exists;
 use function count;
 use function get_class_methods;
 use function html_entity_decode;
+use function implode;
 use function ksort;
 use function preg_match;
 use function preg_replace;
@@ -126,10 +130,7 @@ class CommandInspector implements CommandInspectorInterface
     public function hasOptions(ReflectionMethod $rMethod): bool
     {
         foreach ($rMethod->getParameters() as $rParameter) {
-            if (($rType = $rParameter->getType()) === null) {
-                return true;
-            }
-            if (!$rType instanceof ReflectionNamedType || $rType->isBuiltin()) {
+            if (self::isOptionType($rParameter->getType())) {
                 return true;
             }
         }
@@ -149,11 +150,11 @@ class CommandInspector implements CommandInspectorInterface
             }
 
             $rType = $rParameter->getType();
-            if (!$rType instanceof ReflectionNamedType || $rType->isBuiltin()) {
+            if (self::isOptionType($rType)) {
                 $options[$name] = [
                     'description' => '',
                     'default' => $defaultValues[$name] ?? null,
-                    'type' => $rType instanceof ReflectionNamedType ? $rType->getName() : 'mixed',
+                    'type' => self::optionTypeName($rType),
                 ];
             }
         }
@@ -232,5 +233,49 @@ class CommandInspector implements CommandInspectorInterface
         $text = preg_replace('/\s+/', ' ', $text) ?? $text;
         $text = trim($text);
         return rtrim($text, ".。 \t\n\r\0\x0B");
+    }
+
+    /**
+     * Whether a parameter type is CLI-bound (untyped / builtin / builtin-union), not a DI class type.
+     *
+     * Shared with CLI Handler and help rendering so option detection stays consistent.
+     */
+    public static function isOptionType(?ReflectionType $rType): bool
+    {
+        if ($rType === null) {
+            return true;
+        }
+
+        if (Reflections::getTypeNames($rType) === []) {
+            return false;
+        }
+
+        if ($rType instanceof ReflectionNamedType) {
+            return $rType->isBuiltin();
+        }
+
+        if ($rType instanceof ReflectionUnionType) {
+            foreach ($rType->getTypes() as $member) {
+                if (!$member instanceof ReflectionNamedType || !$member->isBuiltin()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /** Declared type label for help/metadata (`mixed` when undeclared). */
+    public static function optionTypeName(?ReflectionType $rType): string
+    {
+        if ($rType === null) {
+            return 'mixed';
+        }
+
+        $names = Reflections::getTypeNames($rType);
+
+        return $names === [] ? 'mixed' : implode('|', $names);
     }
 }
