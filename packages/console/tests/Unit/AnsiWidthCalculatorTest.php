@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Switon\Console\Tests\Unit;
 
 use Switon\Console\AnsiWidthCalculator;
-use Switon\Console\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
-final class AnsiWidthCalculatorTest extends TestCase
+class AnsiWidthCalculatorTest extends TestCase
 {
     public function testGetDisplayWidthWithPlainText(): void
     {
@@ -33,7 +33,7 @@ final class AnsiWidthCalculatorTest extends TestCase
         $this->assertSame(0, $calculator->publicGetDisplayWidth(''));
     }
 
-    private function makeCalculator(): object
+    protected function makeCalculator(): object
     {
         return new class () {
             use AnsiWidthCalculator;

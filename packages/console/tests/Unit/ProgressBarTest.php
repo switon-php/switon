@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Switon\Console\Tests\Unit;
 
 use Switon\Console\ProgressBar;
-use Switon\Console\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Core\ConsoleInterface;
 use Stringable;
 
-final class ProgressBarTest extends TestCase
+class ProgressBarTest extends TestCase
 {
     public function testPublicProgressFlowStartsAutomatically(): void
     {
@@ -105,7 +105,7 @@ final class ProgressBarTest extends TestCase
         $this->assertSame('01:01:01', $progress->exposeFormatTime(3661.9));
     }
 
-    private function makeProgressBar(): TestableProgressBar
+    protected function makeProgressBar(): TestableProgressBar
     {
         $progress = new TestableProgressBar();
         $progress->attachConsole(new RecordingConsole());
@@ -114,7 +114,7 @@ final class ProgressBarTest extends TestCase
     }
 }
 
-final class TestableProgressBar extends ProgressBar
+class TestableProgressBar extends ProgressBar
 {
     public function attachConsole(RecordingConsole $console): void
     {
@@ -169,7 +169,7 @@ final class TestableProgressBar extends ProgressBar
     }
 }
 
-final class RecordingConsole implements ConsoleInterface
+class RecordingConsole implements ConsoleInterface
 {
     public int $writeCount = 0;
     public int $writeLnCount = 0;
