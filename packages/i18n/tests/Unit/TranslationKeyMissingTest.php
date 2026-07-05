@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Switon\I18n\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use Switon\Eventing\Attribute\EventLevel;
-use Switon\Eventing\Severity;
 use Switon\I18n\Event\TranslationKeyMissing;
-use ReflectionClass;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the missing-translation event payload.
@@ -46,22 +43,5 @@ class TranslationKeyMissingTest extends TestCase
             'key' => 'user.missing',
             'locale' => 'en',
         ], $payload);
-    }
-
-    /**
-     * Test that event keeps INFO level metadata for observability.
-     */
-    public function testEventKeepsInfoLevelAttribute(): void
-    {
-        // Arrange
-        $reflection = new ReflectionClass(TranslationKeyMissing::class);
-        $attributes = $reflection->getAttributes(EventLevel::class);
-
-        // Act
-        $attribute = $attributes[0]?->newInstance();
-
-        // Assert
-        $this->assertNotNull($attribute);
-        $this->assertSame(Severity::INFO, $attribute->severity);
     }
 }

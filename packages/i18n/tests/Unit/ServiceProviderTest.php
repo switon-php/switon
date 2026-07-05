@@ -9,7 +9,7 @@ use Switon\Core\LocaleInterface;
 use Switon\Core\TranslatorInterface;
 use Switon\I18n\Locale;
 use Switon\I18n\ServiceProvider;
-use Switon\I18n\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\I18n\Translator;
 
 class ServiceProviderTest extends TestCase

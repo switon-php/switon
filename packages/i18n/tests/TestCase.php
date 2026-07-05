@@ -5,51 +5,51 @@ declare(strict_types=1);
 namespace Switon\I18n\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
 use Switon\Core\ContextManagerInterface;
 use Switon\Core\PathAlias;
 use Switon\Core\PathAliasInterface;
-use Switon\Testing\Container;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
+use Switon\Eventing\EventDispatcher as RealEventDispatcher;
+use Switon\Eventing\EventDispatcherInterface;
+use Switon\Testing\EventDispatcher as TestEventDispatcher;
+use Switon\Testing\InMemoryContextManager;
 
 use function sys_get_temp_dir;
 
 /**
  * Base test case for I18n tests.
  *
- * Provides common functionality for all I18n tests, including Container and ContextManager initialization.
+ * Builds a minimal DI container with path aliases and in-memory context storage.
  */
 abstract class TestCase extends BaseTestCase
 {
-    protected Container $container;
+    protected DiContainer $container;
     protected ContextManagerInterface $contextManager;
     protected PathAlias $pathAlias;
-    protected string|false|null $providerAutoRegisterEnv = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->providerAutoRegisterEnv = getenv('SWITON_TESTS_DISABLE_PROVIDER_AUTO_REGISTER');
-        putenv('SWITON_TESTS_DISABLE_PROVIDER_AUTO_REGISTER=1');
+        $this->container = new DiContainer();
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
 
-        // Use pre-configured test container (ContextManagerInterface and PathAliasInterface are already registered)
-        $this->container = new Container();
-
-        // Get ContextManager from container
-        $this->contextManager = $this->container->get(ContextManagerInterface::class);
-
-        // Get PathAlias from container and set @i18n alias for tests
-        $this->pathAlias = $this->container->get(PathAliasInterface::class);
+        $this->pathAlias = new PathAlias();
         $this->pathAlias->set('@i18n', sys_get_temp_dir() . '/switon_i18n_test_' . uniqid('', true));
-    }
+        $this->container->set(PathAliasInterface::class, $this->pathAlias);
+        $this->container->set(PathAlias::class, $this->pathAlias);
+        $this->container->set(ContextManagerInterface::class, InMemoryContextManager::class);
 
-    protected function tearDown(): void
-    {
-        if ($this->providerAutoRegisterEnv === false || $this->providerAutoRegisterEnv === null) {
-            putenv('SWITON_TESTS_DISABLE_PROVIDER_AUTO_REGISTER');
-        } else {
-            putenv('SWITON_TESTS_DISABLE_PROVIDER_AUTO_REGISTER=' . $this->providerAutoRegisterEnv);
-        }
+        $realDispatcher = $this->container->make(RealEventDispatcher::class);
+        $eventDispatcher = new TestEventDispatcher($realDispatcher);
+        $eventDispatcher->setDispatchEvents(false);
+        $this->container->set(EventDispatcherInterface::class, $eventDispatcher);
+        $this->container->set(PsrEventDispatcherInterface::class, $eventDispatcher);
 
-        parent::tearDown();
+        $this->contextManager = $this->container->get(ContextManagerInterface::class);
     }
 }
