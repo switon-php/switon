@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Command\Tests\Unit;
 
-use ReflectionMethod;
 use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\ShortOption;
 use Switon\Command\Attribute\Tool;
@@ -30,15 +29,15 @@ class CommandInspectorTest extends TestCase
 
         $this->assertTrue($inspector->isHiddenCommand(CommandInspectorFixture::class));
         $this->assertSame('Fixture command summary', $inspector->getCommandDescription(CommandInspectorFixture::class));
-        $this->assertSame('Action summary', $inspector->getMethodDescription(new ReflectionMethod(CommandInspectorFixture::class, 'demoAction')));
         $this->assertSame('Returns JSON: {"ok": true}', $inspector->getActionAiDoc(CommandInspectorFixture::class, 'tool'));
         $this->assertNull($inspector->getActionAiDoc(CommandInspectorFixture::class, 'demo'));
 
         $actions = $inspector->getActions(CommandInspectorFixture::class);
         $this->assertArrayNotHasKey('hidden', $actions);
         $this->assertArrayHasKey('demo', $actions);
+        $this->assertSame('Action summary', $actions['demo']);
 
-        $options = $inspector->getOptions(new ReflectionMethod(CommandInspectorFixture::class, 'demoAction'));
+        $options = $inspector->getActionParameters(CommandInspectorFixture::class, 'demo');
         $this->assertSame('string', $options['name']['type']);
         $this->assertSame('Option name used for filtering', $options['name']['description']);
 
@@ -70,7 +69,7 @@ class CommandInspectorTest extends TestCase
 /**
  * Fixture command summary.
  */
-final class CommandInspectorFixture
+class CommandInspectorFixture
 {
     /**
      * Action summary.
