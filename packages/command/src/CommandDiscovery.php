@@ -37,6 +37,7 @@ class CommandDiscovery implements CommandDiscoveryInterface
 {
     #[Autowired] protected ComposerExtraInterface $composerExtra;
     #[Autowired] protected ClassScannerInterface $classScanner;
+
     #[Autowired] protected bool $app_only = false;
 
     /**
@@ -54,7 +55,6 @@ class CommandDiscovery implements CommandDiscoveryInterface
 
     /** @var array<string, class-string> Cached command name to class FQCN map. */
     protected array $commands = [];
-
     /** Whether discover() already built the cache. */
     protected bool $discovered = false;
 

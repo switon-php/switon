@@ -48,6 +48,28 @@ class CommandDiscoveryTest extends TestCase
         ], $result);
     }
 
+    public function testDiscoverSkipsScannerClassesMatchingExcludePrefixes(): void
+    {
+        $composer = $this->createStub(ComposerExtraInterface::class);
+        $composer->method('collect')->willReturn([]);
+
+        $scanner = $this->createStub(ClassScannerInterface::class);
+        $scanner->method('scan')->willReturn([
+            'App\\Internal\\SkipCommand',
+            'App\\Command\\KeepCommand',
+        ]);
+
+        $discovery = $this->make(CommandDiscovery::class, [
+            'composerExtra' => $composer,
+            'classScanner' => $scanner,
+            'excludes' => ['App\\Internal\\'],
+        ]);
+
+        $this->assertSame([
+            'keep' => 'App\\Command\\KeepCommand',
+        ], $discovery->discover());
+    }
+
     public function testDiscoverCachesResults(): void
     {
         $composer = $this->createMock(ComposerExtraInterface::class);
