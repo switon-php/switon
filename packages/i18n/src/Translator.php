@@ -54,13 +54,11 @@ class Translator implements TranslatorInterface
 
     /** @var list<string> Translation directories in merge order. */
     #[Autowired] protected array $dirs = ['@resources/i18n'];
-
     /** @var array<string, list<string>> Extra fallback locales keyed by requested locale. */
     #[Autowired] protected array $fallbacks = [];
 
     /** @var array<string, list<string>> Map of locale to ordered translation file paths. */
     protected array $files = [];
-
     /** @var array<string, array<string, string>> Loaded templates by locale. */
     protected array $templates = [];
 
@@ -237,7 +235,7 @@ class Translator implements TranslatorInterface
 
         $replaces = [];
         foreach ($placeholders as $k => $v) {
-            $replaces['{' . $k . '}'] = is_string($v) ? $v : Json::stringify($v);
+            $replaces['{' . $k . '}'] = Json::text($v);
         }
 
         return strtr($message, $replaces);
