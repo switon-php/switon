@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Switon\Console\Tests\Unit;
 
 use Switon\Console\Colors;
-use Switon\Console\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
-final class ColorsTest extends TestCase
+class ColorsTest extends TestCase
 {
     public function testForegroundAndBackgroundBitmasksAreDistinct(): void
     {

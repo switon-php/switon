@@ -11,9 +11,9 @@ namespace Switon\Console;
  *
  * Guidance: Combine constants with bitwise OR; they are display hints, not semantic tags.
  */
-final class Colors
+class Colors
 {
-    private function __construct()
+    protected function __construct()
     {
     }
 

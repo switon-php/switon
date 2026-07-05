@@ -7,9 +7,9 @@ Reusable terminal primitives for progress bars, terminal width detection, and AN
 ## Highlights
 
 - **Progress bars:** `ProgressBarInterface` with elapsed and remaining time rendering.
-- **Width detection:** `TerminalWidthDetectorInterface` with Unix and Windows fallbacks.
+- **Width detection:** terminal width comes from the `COLUMNS` environment variable; no shell probing.
 - **ANSI style flags:** `Colors` bitmask constants for foreground, background, and text attributes.
-- **Narrow contracts:** swap progress or width implementations without changing call sites.
+- **Narrow contracts:** swap the progress implementation without changing call sites.
 
 ## Installation
 
