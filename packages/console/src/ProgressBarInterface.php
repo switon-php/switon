@@ -8,6 +8,11 @@ namespace Switon\Console;
  * Contract for in-place CLI progress output.
  *
  * Guidance: Treat progress output as transient console state; callers should pair start/advance with finish.
+ *
+ * Road-signs:
+ * - Lifecycle: `start()` → `advance()`* → `finish()`; leaving a bar open corrupts the next frame
+ * - Width: {@see AnsiWidthCalculator} measures display columns, not bytes
+ * - Output: writes through {@see \Switon\Core\ConsoleInterface}; never raw `echo`
  */
 interface ProgressBarInterface
 {
