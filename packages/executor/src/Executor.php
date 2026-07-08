@@ -47,11 +47,8 @@ use function str_contains;
 class Executor implements ExecutorInterface
 {
     #[Autowired] protected ContainerInterface $container;
-
     #[Autowired] protected ClockInterface $clock;
-
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
-
     #[Autowired] protected GateInterface $gate;
 
     /**
