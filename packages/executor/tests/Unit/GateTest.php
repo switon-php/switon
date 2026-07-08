@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Executor\Tests\Unit;
 
 use Switon\Executor\Gate;
-use Switon\Executor\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class GateTest extends TestCase
 {

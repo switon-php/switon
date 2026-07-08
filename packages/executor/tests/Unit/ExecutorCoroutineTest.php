@@ -305,7 +305,7 @@ class ExecutorCoroutineTest extends TestCase
     }
 }
 
-final class CoroutineRecordingDispatcher implements \Psr\EventDispatcher\EventDispatcherInterface
+class CoroutineRecordingDispatcher implements \Psr\EventDispatcher\EventDispatcherInterface
 {
     /** @var list<object> */
     public array $events = [];
@@ -318,7 +318,7 @@ final class CoroutineRecordingDispatcher implements \Psr\EventDispatcher\EventDi
     }
 }
 
-final class RecordingGate implements GateInterface
+class RecordingGate implements GateInterface
 {
     /** @var list<array<string, mixed>> */
     public array $calls = [];
@@ -341,11 +341,11 @@ final class RecordingGate implements GateInterface
     }
 }
 
-final class TaggedEchoRunner implements RunnerInterface
+class TaggedEchoRunner implements RunnerInterface
 {
     public function __construct(
-        private mixed      $return = null,
-        private ?Throwable $error = null,
+        protected mixed      $return = null,
+        protected ?Throwable $error = null,
     ) {
     }
 
