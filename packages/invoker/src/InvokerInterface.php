@@ -14,6 +14,11 @@ namespace Switon\Invoking;
  * @see \Switon\Invoking\Invoker
  * @see \Switon\Invocation\Attribute\GuardInterface
  * @see \Switon\Invocation\Attribute\InterceptorInterface
+ *
+ * Road-signs:
+ * - Resolution: positional → named → type-keyed overrides → container ({@see \Switon\Di\Injector::resolveDependency()})
+ * - Guards: `GuardInterface` may short-circuit; interceptors wrap the call
+ * - Boundary: framework code that needs interception uses this, not raw `call_user_func`
  */
 interface InvokerInterface
 {
