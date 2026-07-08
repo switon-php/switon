@@ -29,11 +29,6 @@ class ServiceProviderTest extends TestCase
     public function testServiceProviderRegistersLogger(): void
     {
         // Arrange
-        // Define env() function if not exists (ServiceProvider uses it)
-        if (!function_exists('env')) {
-            eval('function env($key, $default = null) { return $default; }');
-        }
-
         $provider = new ServiceProvider();
 
         // Register required dependencies
@@ -62,11 +57,6 @@ class ServiceProviderTest extends TestCase
     public function testServiceProviderRegistersLoggerWithDefaultConfig(): void
     {
         // Arrange
-        // Define env() function if not exists (ServiceProvider uses it)
-        if (!function_exists('env')) {
-            eval('function env($key, $default = null) { return $default; }');
-        }
-
         $provider = new ServiceProvider();
 
         // Register required dependencies
@@ -115,9 +105,6 @@ class ServiceProviderTest extends TestCase
     public function testPartialConfigOverrideAfterServiceProviderSucceeds(): void
     {
         // Arrange - ServiceProvider registers full def
-        if (!function_exists('env')) {
-            eval('function env($key, $default = null) { return $default; }');
-        }
         $this->container->set(\Psr\EventDispatcher\EventDispatcherInterface::class, new MockEventDispatcher());
         $provider = new ServiceProvider();
         $provider->register($this->container);
