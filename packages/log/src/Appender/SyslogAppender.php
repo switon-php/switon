@@ -56,10 +56,8 @@ class SyslogAppender implements AppenderInterface
 
     /** URI in format 'udp://hostname:port' (e.g., 'udp://syslog.example.com:514'). */
     #[Autowired] protected string $uri;
-
     /** Facility code (0-23, default: 1 = user-level messages). */
     #[Autowired] protected int $facility = 1;
-
     /** Format string with {key} placeholder syntax (same as message interpolation). */
     #[Autowired] protected string $format = '[{time}][{level}][{category}][{location}] {message}';
 
@@ -73,11 +71,8 @@ class SyslogAppender implements AppenderInterface
     ];
 
     protected string $scheme = 'udp';
-
     protected string $host = '';
-
     protected int $port = 0;
-
     /** @var Socket|false Socket object created from <code>$uri</code>. */
     protected Socket|false $socket = false;
 
