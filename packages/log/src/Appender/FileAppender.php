@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\AppInterface;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Exception\CreateDirectoryFailedException;
+use Switon\Core\Exception\RuntimeException;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
 use Switon\Core\SceneManagerInterface;
@@ -16,9 +17,9 @@ use Switon\Logging\Event\AppenderWriteFailed;
 use Switon\Logging\FormatterInterface;
 use Switon\Logging\LogEntry;
 use Throwable;
+
 use function dirname;
 use function error_log;
-use function file_put_contents;
 
 /**
  * Writes formatted log lines to files resolved from path aliases.
@@ -63,10 +64,10 @@ class FileAppender implements AppenderInterface
             return;
         }
 
-        // Note: LOCK_EX flag is not used because it conflicts with Swoole coroutines
-        // Swoole's coroutine file operations don't work well with file locking
-        if (@file_put_contents($file, $str, FILE_APPEND) === false) {
-            $this->reportWriteFailure('write', $file, 'file_put_contents returned false');
+        try {
+            $this->filesystem->append($file, $str);
+        } catch (RuntimeException $e) {
+            $this->reportWriteFailure('write', $file, $e->getMessage(), $e);
         }
     }
 
