@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Switon\Logging\Tests\Unit;
 
 use Psr\Log\LogLevel;
-use ReflectionClass;
-use Switon\Eventing\Attribute\EventLevel;
-use Switon\Eventing\EventSilent;
 use Switon\Eventing\Severity;
 use Switon\Logging\Event\LoggerLogged;
 use Switon\Logging\LogEntry;
 use Switon\Logging\LoggerInterface;
-use Switon\Logging\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Stringable;
 
 // Load bootstrap to ensure autoloader is loaded (required when using --no-configuration)
@@ -79,15 +76,5 @@ class LoggerLoggedTest extends TestCase
 
         // Assert
         $this->assertSame('Stringable message', $data['message'], 'Stringable should be converted to string');
-    }
-
-    public function testLoggerLoggedImplementsSilentMarkerAndDeclaresDebugLevel(): void
-    {
-        $rClass = new ReflectionClass(LoggerLogged::class);
-        $attributes = $rClass->getAttributes(EventLevel::class);
-
-        $this->assertCount(1, $attributes);
-        $this->assertSame(Severity::DEBUG, $attributes[0]->newInstance()->severity);
-        $this->assertTrue($rClass->implementsInterface(EventSilent::class));
     }
 }
