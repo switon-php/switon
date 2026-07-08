@@ -56,7 +56,6 @@ class Logger extends AbstractLogger implements LoggerInterface
 
     /** Global fallback level when a category has no override. */
     #[Autowired] protected string $level = LogLevel::DEBUG;
-
     /** @var array<string, string> Per-category overrides (specific key → dotted prefix → global level). */
     #[Autowired] protected array $levels = [
         'switon.di.singleton.created' => LogLevel::ERROR,
@@ -65,10 +64,8 @@ class Logger extends AbstractLogger implements LoggerInterface
 
     /** Hostname override; auto-detected when null. */
     #[Autowired] protected ?string $hostname;
-
     /** PHP date format with optional v/u placeholders. */
     #[Autowired] protected string $time_format = 'Y-m-d\TH:i:s.uP';
-
     /** @var array<string, AppenderInterface> Enabled appenders keyed by name. */
     #[Autowired(instances: true)] protected array $appenders = ['file' => FileAppender::class];
 
