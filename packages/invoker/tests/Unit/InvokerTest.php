@@ -22,8 +22,6 @@ use Throwable;
 
 /**
  * Test cases for Invoker (callable resolution, parameters, guards, interceptors).
- *
- * @group invoker
  */
 class InvokerTest extends TestCase
 {
@@ -545,7 +543,7 @@ class ExceptionalTestInterceptor implements InterceptorInterface
     /** @var list<string> */
     public static array $events = [];
 
-    public function __construct(private readonly string $name)
+    public function __construct(protected readonly string $name)
     {
     }
 

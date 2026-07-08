@@ -7,13 +7,11 @@ namespace Switon\Invoking\Tests\Unit;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Psr\Container\ContainerInterface;
 use Switon\Binding\ArgumentResolvable;
-use Switon\Invoking\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
  * Test cases for ArgumentResolvable interface.
- *
- * @group invoker
  */
 #[AllowMockObjectsWithoutExpectations]
 class ArgumentResolvableTest extends TestCase
