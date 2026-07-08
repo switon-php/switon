@@ -29,7 +29,6 @@ use Throwable;
 class Invoker implements InvokerInterface
 {
     #[Autowired] protected ContainerInterface $container;
-
     #[Autowired] protected BaseInvokerInterface $baseInvoker;
 
     /**
