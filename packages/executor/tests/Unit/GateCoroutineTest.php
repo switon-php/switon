@@ -6,7 +6,7 @@ namespace Switon\Executor\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use Switon\Executor\Gate;
-use Switon\Executor\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Swoole\Coroutine;
 use Swoole\Coroutine\WaitGroup;
 

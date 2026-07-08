@@ -7,7 +7,7 @@ namespace Switon\Executor\Tests\Unit;
 use RuntimeException;
 use Switon\Executor\Event\RunnerFinished;
 use Switon\Executor\Event\RunnerStarting;
-use Switon\Executor\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ExecutorEventsTest extends TestCase
 {
