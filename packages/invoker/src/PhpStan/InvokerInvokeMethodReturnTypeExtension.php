@@ -15,7 +15,7 @@ use Switon\Invoking\InvokerInterface;
 /**
  * Infers <code>InvokerInterface::invoke()</code> return type from the passed callable.
  */
-final class InvokerInvokeMethodReturnTypeExtension implements DynamicMethodReturnTypeExtension
+class InvokerInvokeMethodReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
     /** {@inheritDoc} */
     public function getClass(): string
