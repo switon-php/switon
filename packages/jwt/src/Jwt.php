@@ -26,7 +26,9 @@ use function is_array;
 use function is_numeric;
 use function is_string;
 use function json_decode;
+use function preg_match;
 use function rtrim;
+use function strlen;
 use function strtr;
 use function substr;
 
@@ -45,16 +47,13 @@ class Jwt implements JwtInterface
 {
     /** Cryptographic service for key derivation. */
     #[Autowired] protected CipherInterface $cipher;
-
     /** Clock service for time operations (testable). */
     #[Autowired] protected ClockInterface $clock;
 
     /** HMAC algorithm for signing (HS256, HS384, HS512). */
     #[Autowired] protected string $alg = 'HS256';
-
     /** Default HMAC key in lowercase hex with an even number of characters, null to derive from CipherInterface. */
     #[Autowired] protected ?string $key;
-
     /** Time leeway in seconds for exp/nbf validation (clock skew tolerance). */
     #[Autowired] protected int $leeway = 0;
 
@@ -114,6 +113,14 @@ class Jwt implements JwtInterface
 
         if ($this->key === null) {
             return $this->cipher->getDerivedKey('jwt', $bits);
+        }
+
+        if ($this->key === '' || strlen($this->key) % 2 !== 0 || preg_match('/^[0-9a-f]+$/', $this->key) !== 1) {
+            Exception::raise('{source} must be lowercase hex with an even number of characters.', [
+                'source' => 'Configured JWT key',
+                'alg' => $this->alg,
+                'key_preview' => substr($this->key, 0, 20),
+            ]);
         }
 
         return $this->key;
