@@ -7,25 +7,29 @@ namespace Switon\Jwt\Tests;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Switon\Core\ClockInterface;
 use Switon\Crypto\CipherInterface;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
 use Switon\Jwt\JwtInterface;
-use Switon\Testing\Container;
 use Switon\Testing\MockClock;
 
 /**
  * Base test case for JWT tests.
+ *
+ * Builds a minimal DI container for {@see JwtInterface} only — no full app provider scan.
  */
 abstract class TestCase extends BaseTestCase
 {
-    protected Container $container;
+    protected DiContainer $container;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Use pre-configured test container (ClockInterface is already registered)
-        $this->container = new Container();
+        $this->container = new DiContainer();
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
 
-        // Register dependencies
         $this->setUpContainer();
     }
 

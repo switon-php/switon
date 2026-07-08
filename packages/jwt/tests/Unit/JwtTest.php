@@ -28,12 +28,12 @@ class JwtTest extends TestCase
     protected string $testKey;
     protected string $testKeyHex;
 
-    private function base64UrlEncode(string $str): string
+    protected function base64UrlEncode(string $str): string
     {
         return strtr(rtrim(base64_encode($str), '='), '+/', '-_');
     }
 
-    private function base64UrlDecode(string $str): string
+    protected function base64UrlDecode(string $str): string
     {
         $v = strtr($str, '-_', '+/');
         $pad = strlen($v) % 4;
@@ -49,6 +49,7 @@ class JwtTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->testKey = str_repeat('test-secret-key-', 4);
         $this->testKeyHex = bin2hex($this->testKey);
         $this->jwt = $this->createJwt($this->testKeyHex);
