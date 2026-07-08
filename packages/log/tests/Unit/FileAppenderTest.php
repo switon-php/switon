@@ -7,6 +7,7 @@ namespace Switon\Logging\Tests\Unit;
 use Psr\Log\LogLevel;
 use Switon\Core\App;
 use Switon\Core\Exception\CreateDirectoryFailedException;
+use Switon\Core\Exception\RuntimeException;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\SceneManagerInterface;
 use Switon\Logging\Appender\FileAppender;
@@ -363,6 +364,40 @@ class FileAppenderTest extends TestCase
         $this->assertStringContainsString(dirname($this->testFile), $event->target);
         $this->assertStringContainsString('permission denied', $event->reason);
         $this->assertFileDoesNotExist($this->testFile);
+    }
+
+    public function testFileAppenderDispatchesAppenderWriteFailedWhenAppendFails(): void
+    {
+        $eventDispatcher = new MockEventDispatcher();
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('append')->willThrowException(RuntimeException::of('disk full'));
+
+        $appender = $this->make(FileAppender::class, [
+            'file' => $this->testFile,
+            'eventDispatcher' => $eventDispatcher,
+            'filesystem' => $filesystem,
+        ]);
+
+        $entry = new LogEntry(LogLevel::INFO, 'test-host', 'Y-m-d H:i:s', microtime(true));
+        $entry->category = 'Test.Category';
+        $entry->setLocation(['file' => '/path/to/Test.php', 'line' => 42]);
+        $entry->message = 'After append failure';
+
+        $oldErrorLog = ini_get('error_log');
+        $tmpErrorLog = sys_get_temp_dir() . '/switon_log_append_err_' . bin2hex(random_bytes(8)) . '.log';
+        ini_set('error_log', $tmpErrorLog);
+
+        try {
+            $appender->append($entry);
+        } finally {
+            ini_set('error_log', $oldErrorLog ?: '');
+            if (file_exists($tmpErrorLog)) {
+                @unlink($tmpErrorLog);
+            }
+        }
+
+        $this->assertSame('write', $eventDispatcher->events[0]->operation);
+        $this->assertStringContainsString('disk full', $eventDispatcher->events[0]->reason);
     }
 
     public function testFileAppenderRoutesBySceneFileMapping(): void
