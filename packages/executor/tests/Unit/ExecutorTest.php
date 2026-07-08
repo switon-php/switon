@@ -359,11 +359,11 @@ class ExecutorTest extends TestCase
     }
 }
 
-final class EchoRunner implements RunnerInterface
+class EchoRunner implements RunnerInterface
 {
     public function __construct(
-        private mixed      $return = null,
-        private ?Throwable $error = null,
+        protected mixed      $return = null,
+        protected ?Throwable $error = null,
     ) {
     }
 
@@ -377,7 +377,7 @@ final class EchoRunner implements RunnerInterface
     }
 }
 
-final class RecordingDispatcher implements EventDispatcherInterface
+class RecordingDispatcher implements EventDispatcherInterface
 {
     /** @var list<object> */
     public array $events = [];

@@ -6,7 +6,7 @@ namespace Switon\Executor\Tests\Unit;
 
 use RuntimeException;
 use Switon\Executor\Future;
-use Switon\Executor\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class FutureTest extends TestCase
 {
