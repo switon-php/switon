@@ -17,7 +17,7 @@ use Throwable;
  *
  * Log category: <code>switon.executor.runner.finished</code>
  *
- * @see \Switon\Executor\Executor::runTask()
+ * @see \Switon\Executor\Executor::invoke()
  * @see \Switon\Executor\Event\RunnerStarting
  */
 #[EventLevel(Severity::DEBUG)]

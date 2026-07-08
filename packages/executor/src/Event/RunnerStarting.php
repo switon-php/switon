@@ -16,7 +16,7 @@ use Switon\Executor\ExecutorInterface;
  *
  * Log category: <code>switon.executor.runner.starting</code>
  *
- * @see \Switon\Executor\Executor::runTask()
+ * @see \Switon\Executor\Executor::invoke()
  * @see \Switon\Executor\Event\RunnerFinished
  */
 #[EventLevel(Severity::DEBUG)]
