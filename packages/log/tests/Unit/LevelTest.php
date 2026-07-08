@@ -6,7 +6,7 @@ namespace Switon\Logging\Tests\Unit;
 
 use Psr\Log\LogLevel;
 use Switon\Logging\Level;
-use Switon\Logging\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 // Load bootstrap to ensure autoloader is loaded (required when using --no-configuration)
 

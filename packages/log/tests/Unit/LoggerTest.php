@@ -9,7 +9,6 @@ use Switon\Logging\Logger;
 use Switon\Logging\Tests\Fixtures\MockAppender;
 use Switon\Logging\Tests\Fixtures\MockEventDispatcher;
 use Switon\Logging\Tests\TestCase;
-use ReflectionClass;
 use RuntimeException;
 use Stringable;
 
@@ -173,12 +172,12 @@ class LoggerTest extends TestCase
         $this->assertSame('This should be logged', $appender->entries[0]->message);
     }
 
-    private function makeCategorizedMessage(string $category, string $message): Stringable
+    protected function makeCategorizedMessage(string $category, string $message): Stringable
     {
         return new class ($category, $message) implements \Switon\Core\Categorizable, Stringable {
             public function __construct(
-                private string $category,
-                private string $message,
+                protected string $category,
+                protected string $message,
             ) {
             }
 
@@ -624,10 +623,8 @@ class LoggerTest extends TestCase
             ['class' => 'Switon\Logging\Logger', 'function' => 'log'],
             ['class' => 'App\Controller\UserController', 'function' => 'listAction'],
         ];
-        $reflection = new ReflectionClass($this->logger);
-        $getCategory = $reflection->getMethod('getCategory');
-
-        $category = $getCategory->invoke($this->logger, [], $traces);
+        $logger = $this->createCategoryProbeLogger();
+        $category = $logger->categoryForTest([], $traces);
 
         $this->assertSame('app.controller.user.list', $category);
     }
@@ -640,13 +637,10 @@ class LoggerTest extends TestCase
             ['function' => 'standaloneFunction', 'file' => '/fake/bootstrap.php', 'line' => 10],
             ['class' => 'App\Service\PaymentService', 'function' => 'run', 'file' => '/fake/PaymentService.php', 'line' => 42],
         ];
-        $reflection = new ReflectionClass($this->logger);
-        $getCategory = $reflection->getMethod('getCategory');
+        $logger = $this->createCategoryProbeLogger();
 
-        // Act
-        $category = $getCategory->invoke($this->logger, [], $traces);
+        $category = $logger->categoryForTest([], $traces);
 
-        // Assert - should use traces[2] (caller's class), not the function frame
         $this->assertSame('app.service.payment.run', $category);
     }
 
@@ -657,13 +651,10 @@ class LoggerTest extends TestCase
             ['class' => 'Switon\Logging\Logger', 'function' => 'log', 'file' => '/fake/Logger.php', 'line' => 1],
             ['function' => 'main', 'file' => '/fake/index.php', 'line' => 5],
         ];
-        $reflection = new ReflectionClass($this->logger);
-        $getCategory = $reflection->getMethod('getCategory');
+        $logger = $this->createCategoryProbeLogger();
 
-        // Act
-        $category = $getCategory->invoke($this->logger, [], $traces);
+        $category = $logger->categoryForTest([], $traces);
 
-        // Assert - no class frame found, should return unknown
         $this->assertSame('unknown', $category);
     }
 
@@ -857,5 +848,24 @@ class LoggerTest extends TestCase
         $entry = $appender->getLastEntry();
         $this->assertNotNull($entry);
         $this->assertNotEmpty($entry->time, 'Time should be formatted');
+    }
+
+    protected function createCategoryProbeLogger(): CategoryProbeLogger
+    {
+        return $this->container->make(CategoryProbeLogger::class, [
+            'appenders' => ['file' => null, 'test' => 'test'],
+        ]);
+    }
+}
+
+class CategoryProbeLogger extends Logger
+{
+    /**
+     * @param array<string, mixed> $context
+     * @param list<array<string, mixed>> $traces
+     */
+    public function categoryForTest(array $context, array $traces): string
+    {
+        return $this->getCategory($context, $traces);
     }
 }

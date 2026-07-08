@@ -21,8 +21,8 @@ use RuntimeException;
  */
 class LogUserScenarioTest extends TestCase
 {
-    private MemoryAppender $appender;
-    private Logger $logger;
+    protected MemoryAppender $appender;
+    protected Logger $logger;
 
     protected function setUp(): void
     {
@@ -245,7 +245,7 @@ class LogUserScenarioTest extends TestCase
     /**
      * Helper method to find a log entry by message content.
      */
-    private function findLogByMessage(array $entries, string $message): ?\Switon\Logging\LogEntry
+    protected function findLogByMessage(array $entries, string $message): ?\Switon\Logging\LogEntry
     {
         foreach ($entries as $entry) {
             if (str_contains($entry->message, $message)) {

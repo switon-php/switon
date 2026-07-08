@@ -7,7 +7,7 @@ namespace Switon\Logging\Tests\Unit;
 use Psr\Log\LogLevel;
 use Switon\Logging\Formatter;
 use Switon\Logging\LogEntry;
-use Switon\Logging\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for Formatter class.
@@ -20,7 +20,6 @@ class FormatterTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->formatter = new Formatter();
     }
 
