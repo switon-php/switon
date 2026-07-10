@@ -9,7 +9,6 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\Json;
 use Switon\Core\Lazy;
-use Switon\Core\PathAliasInterface;
 use Switon\Http\RequestInterface;
 use Switon\Redis\ClientInterface;
 
@@ -40,7 +39,6 @@ class Storage implements StorageInterface
     #[Autowired] protected RequestInterface $request;
     #[Autowired] protected ClientInterface|Lazy $redisCache;
     #[Autowired] protected FilesystemInterface $filesystem;
-    #[Autowired] protected PathAliasInterface $pathAlias;
 
     /** Inspector payload TTL in seconds; 0 switches to filesystem mode. */
     #[Autowired] protected int $ttl = 3600;
@@ -60,8 +58,7 @@ class Storage implements StorageInterface
             $content = is_string($content) ? base64_decode($content, true) : null;
         } else {
             $file = "@runtime/inspector/$key.zip";
-            $filePath = $this->pathAlias->resolve($file);
-            $content = is_file($filePath) ? $this->filesystem->read($file) : null;
+            $content = $this->filesystem->isFile($file) ? $this->filesystem->read($file) : null;
         }
 
         if (!is_string($content)) {

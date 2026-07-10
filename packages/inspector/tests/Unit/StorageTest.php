@@ -134,6 +134,11 @@ class StorageTest extends TestCase
         file_put_contents($filePath, $encoded);
 
         $this->filesystem->expects($this->once())
+            ->method('isFile')
+            ->with("@runtime/inspector/$key.zip")
+            ->willReturn(true);
+
+        $this->filesystem->expects($this->once())
             ->method('read')
             ->with("@runtime/inspector/$key.zip")
             ->willReturn($encoded);
