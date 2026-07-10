@@ -35,7 +35,6 @@ class CollectorDiscovery implements CollectorDiscoveryInterface
 
     /** @var iterable<string, string|null> Raw collector definitions; null disables discovered keys. */
     #[Autowired] protected iterable $collectors = [];
-
     /** Whether to auto-discover collectors from composer metadata. */
     #[Autowired] protected bool $autoDiscover = true;
 
