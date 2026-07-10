@@ -17,7 +17,7 @@ use Switon\Logging\Event\LoggerLogged;
 use Switon\Logging\LogEntry;
 
 #[AllowMockObjectsWithoutExpectations]
-final class EventCollectorTest extends BaseTestCase
+class EventCollectorTest extends BaseTestCase
 {
     public function testBootRegistersCollectorAsListener(): void
     {
@@ -160,7 +160,7 @@ final class EventCollectorTest extends BaseTestCase
         $this->assertTrue(true);
     }
 
-    private function createContextManager(EventCollectorTestable $collector, EventCollectorContext $context): ContextManagerInterface
+    protected function createContextManager(EventCollectorTestable $collector, EventCollectorContext $context): ContextManagerInterface
     {
         $contextManager = $this->createMock(ContextManagerInterface::class);
         $contextManager->method('getContext')->with($collector)->willReturn($context);
@@ -169,7 +169,7 @@ final class EventCollectorTest extends BaseTestCase
     }
 }
 
-final class EventCollectorTestable extends EventCollector
+class EventCollectorTestable extends EventCollector
 {
     public function setContextManager(ContextManagerInterface $contextManager): void
     {
@@ -187,28 +187,28 @@ final class EventCollectorTestable extends EventCollector
     }
 }
 
-final class EventCollectorTestEvent
+class EventCollectorTestEvent
 {
     public string $foo = 'alpha';
 
     public int $bar = 7;
 }
 
-final class EventCollectorObservabilityListener implements ObservabilityProbe
+class EventCollectorObservabilityListener implements ObservabilityProbe
 {
     public function onEvent(object $event): void
     {
     }
 }
 
-final class EventCollectorBusinessListener
+class EventCollectorBusinessListener
 {
     public function onEvent(object $event): void
     {
     }
 }
 
-final class EventCollectorWildcardListener
+class EventCollectorWildcardListener
 {
     public function onEvent(object $event): void
     {

@@ -10,7 +10,7 @@ use Switon\Eventing\EventLoggerInterface;
 use Switon\Inspector\Collector\EventMappingsCollector;
 
 #[AllowMockObjectsWithoutExpectations]
-final class EventMappingsCollectorTest extends BaseTestCase
+class EventMappingsCollectorTest extends BaseTestCase
 {
     public function testBootIsNoOp(): void
     {
@@ -47,7 +47,7 @@ final class EventMappingsCollectorTest extends BaseTestCase
     }
 }
 
-final class EventMappingsCollectorTestable extends EventMappingsCollector
+class EventMappingsCollectorTestable extends EventMappingsCollector
 {
     public function setEventLogger(EventLoggerInterface $eventLogger): void
     {

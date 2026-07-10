@@ -10,7 +10,7 @@ use stdClass;
 class TestObjectWithWeakMap
 {
     public WeakMap $weakMap;
-    private object $mapKey;
+    protected object $mapKey;
 
     public function __construct()
     {

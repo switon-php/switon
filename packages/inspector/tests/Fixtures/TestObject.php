@@ -10,7 +10,7 @@ class TestObject
 {
     public string $publicProperty = 'public';
     protected string $protectedProperty = 'protected';
-    private string $privateProperty = 'private';
+    protected string $privateProperty = 'private';
     public static string $staticProperty = 'static';
     public ?string $nullProperty = null;
     public array $arrayProperty = ['key' => 'value'];
