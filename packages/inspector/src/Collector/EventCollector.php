@@ -88,7 +88,7 @@ class EventCollector implements CollectorInterface, ObservabilityProbe, ContextA
     /**
      * @param list<array{name: string, type: string}> $listeners
      */
-    private function appendListener(array &$listeners, mixed $listener): void
+    protected function appendListener(array &$listeners, mixed $listener): void
     {
         if (is_array($listener) && isset($listener[0], $listener[1])) {
             [$listenerObject, $listenerMethod] = $listener;

@@ -31,7 +31,6 @@ class HtmlRenderer implements HtmlRendererInterface
 
     /** Main inspector HTML template path. */
     #[Autowired] protected string $pageTemplate = '@switon.inspector.resources/templates/inspector.html';
-
     /** @var array<int|string, string> Collector tab template configuration. */
     #[Autowired] protected array $tabs = [
         'app',

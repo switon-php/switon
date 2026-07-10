@@ -11,7 +11,7 @@ use Switon\Eventing\Severity;
 /**
  * Event emitted when an inspector link is generated.
  *
- * Log category: <code>switon.debugging.inspector.link.generated</code>
+ * Log category: <code>switon.inspector.link.generated</code>
  *
  * @see \Switon\Inspector\Inspector
  */
