@@ -8,7 +8,7 @@ use Switon\Core\AppInterface;
 use Switon\Inspector\Collector\AppCollector;
 use Switon\Inspector\Tests\TestCase;
 
-final class AppCollectorTest extends TestCase
+class AppCollectorTest extends TestCase
 {
     public function testCollectReturnsAppMetadataSnapshot(): void
     {

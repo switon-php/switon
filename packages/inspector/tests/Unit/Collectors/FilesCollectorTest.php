@@ -10,7 +10,7 @@ use Switon\Inspector\Tests\TestCase;
 
 use function sys_get_temp_dir;
 
-final class FilesCollectorTest extends TestCase
+class FilesCollectorTest extends TestCase
 {
     public function testCollectReturnsListOfIncludedFilePaths(): void
     {
@@ -67,10 +67,10 @@ final class FilesCollectorTest extends TestCase
         );
     }
 
-    private function createPathAlias(string $rootPath): PathAliasInterface
+    protected function createPathAlias(string $rootPath): PathAliasInterface
     {
         return new class ($rootPath) implements PathAliasInterface {
-            public function __construct(private string $rootPath)
+            public function __construct(protected string $rootPath)
             {
             }
 
