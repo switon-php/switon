@@ -8,7 +8,7 @@ use Switon\ComposerExtra\ComposerExtraInterface;
 use Switon\Inspector\Collector\ProviderCollector;
 use Switon\Inspector\Tests\TestCase;
 
-final class ProviderCollectorTest extends TestCase
+class ProviderCollectorTest extends TestCase
 {
     public function testCollectMapsProviderFqcnToPackageName(): void
     {
