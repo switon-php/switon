@@ -179,7 +179,7 @@ class StaticHandlerTest extends TestCase
 
     /**
      * Lines with a semicolon but fewer than two whitespace-separated tokens after trimming
-     * are ignored ({@see StaticHandler::getMimeTypes()} {@code count($parts) < 2}).
+     * are ignored ({@see StaticHandler::getMimeTypes()} `count($parts) < 2`).
      */
     public function testGetMimeTypesSkipsLineWhenMimeLineHasNoExtensionTokens(): void
     {
@@ -266,7 +266,7 @@ class StaticHandlerTest extends TestCase
  *
  * @internal
  */
-final class TestableStaticHandler extends StaticHandler
+class TestableStaticHandler extends StaticHandler
 {
     public function setFilesystemForTest(FilesystemInterface $filesystem): void
     {
