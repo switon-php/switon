@@ -32,7 +32,7 @@ class TenantFilter implements CriteriaAttributeInterface
     #[Autowired] protected TenantInterface $tenant;
 
     public function __construct(
-        public readonly string $field = 'tenant_id',
+        public string $field = 'tenant_id',
     ) {
     }
 

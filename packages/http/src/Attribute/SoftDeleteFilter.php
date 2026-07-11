@@ -24,7 +24,7 @@ use Switon\Http\CriteriaAttributeInterface;
  * @see \Switon\Http\Criteria
  */
 #[Attribute(Attribute::TARGET_METHOD)]
-readonly class SoftDeleteFilter implements CriteriaAttributeInterface
+class SoftDeleteFilter implements CriteriaAttributeInterface
 {
     public function __construct(
         public string $field = 'deleted_at',

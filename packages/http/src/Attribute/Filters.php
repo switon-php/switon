@@ -34,7 +34,7 @@ class Filters implements CriteriaAttributeInterface
      * @param list<string> $fields
      */
     public function __construct(
-        public readonly array $fields = []
+        public array $fields = []
     ) {
     }
 

@@ -24,7 +24,7 @@ use Switon\Http\CriteriaAttributeInterface;
  * @see \Switon\Http\Attribute\Filters
  */
 #[Attribute(Attribute::TARGET_METHOD)]
-readonly class Orders implements CriteriaAttributeInterface
+class Orders implements CriteriaAttributeInterface
 {
     /**
      * @param array<string, int> $orders

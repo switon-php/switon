@@ -37,9 +37,9 @@ class Keyword implements CriteriaAttributeInterface
      * @param list<string> $fields
      */
     public function __construct(
-        public readonly array  $fields,
-        public readonly string $param = 'keyword',
-        public readonly string $operator = '*=',
+        public array $fields,
+        public string $param = 'keyword',
+        public string $operator = '*=',
     ) {
     }
 
