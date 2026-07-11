@@ -98,7 +98,7 @@ class LogServerStatusListenerTest extends TestCase
  *
  * @internal
  */
-final class BufferingLogServerStatusListener extends LogServerStatusListener
+class BufferingLogServerStatusListener extends LogServerStatusListener
 {
     /** @var list<array{0: string, 1: string, 2: array<string, mixed>}> */
     public array $writes = [];

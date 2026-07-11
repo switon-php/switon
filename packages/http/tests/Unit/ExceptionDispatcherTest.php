@@ -12,7 +12,7 @@ use Switon\Http\Exception\NotFoundException;
 use Switon\Http\Exception\UnauthorizedException;
 use Switon\Http\ExceptionDispatcher;
 use Switon\Http\ExceptionHandlerInterface;
-use Switon\Http\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Principal\Exception\NotAuthenticatedException;
 use Throwable;
 use Error;

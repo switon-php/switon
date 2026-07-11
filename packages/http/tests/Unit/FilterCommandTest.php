@@ -293,7 +293,7 @@ class FilterCommandTest extends TestCase
     }
 }
 
-final class FilterCommandProbe extends FilterCommand
+class FilterCommandProbe extends FilterCommand
 {
     public function setDependencies(
         ConsoleInterface         $console,
@@ -327,7 +327,7 @@ class FakeRequestHandler implements RequestHandlerInterface
     }
 }
 
-final class NoFiltersPropertyRequestHandler implements RequestHandlerInterface
+class NoFiltersPropertyRequestHandler implements RequestHandlerInterface
 {
     public function boot(): void
     {
@@ -338,7 +338,7 @@ final class NoFiltersPropertyRequestHandler implements RequestHandlerInterface
     }
 }
 
-final class RequestHandlerWithNonArrayFilters implements RequestHandlerInterface
+class RequestHandlerWithNonArrayFilters implements RequestHandlerInterface
 {
     /** @var mixed intentionally non-array for {@see FilterCommand::getEnabledFilterMap()} */
     public mixed $filters = 'not-an-array';

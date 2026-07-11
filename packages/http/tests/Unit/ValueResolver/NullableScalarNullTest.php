@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\ValueResolver;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionFunction;
-use ReflectionParameter;
 use Switon\Binding\InputBinder;
 use Switon\Http\Attribute\RequestBody as RequestBodyAttribute;
 use Switon\Http\RequestBodyResolver;
@@ -19,9 +17,6 @@ use Switon\Validating\ValidatorInterface;
 
 /**
  * Coverage for nullable scalar handling when request payload explicitly provides null.
- *
- * @group http
- * @group nested-input
  */
 #[AllowMockObjectsWithoutExpectations]
 class NullableScalarNullTest extends TestCase
@@ -70,8 +65,8 @@ class NullableScalarNullTest extends TestCase
 
         $validation = $this->createValidation($inputData);
 
-        $parameter = $this->createMockParameter(TestNullableScalarInput::class, 'request');
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $parameter = $this->resolverParameter();
+        $result = $this->resolver->resolve($parameter, TestNullableScalarInput::class);
 
         $this->assertEmpty($validation->getErrors());
         $this->assertNull($result->email);
@@ -84,8 +79,8 @@ class NullableScalarNullTest extends TestCase
 
         $validation = $this->createValidation($inputData);
 
-        $parameter = $this->createMockParameter(TestNullableScalarExplicitRequiredInput::class, 'request');
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $parameter = $this->resolverParameter();
+        $this->resolver->resolve($parameter, TestNullableScalarExplicitRequiredInput::class);
 
         $errors = $validation->getErrors();
         $this->assertArrayHasKey('email', $errors);
@@ -99,8 +94,8 @@ class NullableScalarNullTest extends TestCase
 
         $validation = $this->createValidation($inputData);
 
-        $parameter = $this->createMockParameter(TestNullableScalarWithLengthInput::class, 'request');
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $parameter = $this->resolverParameter();
+        $result = $this->resolver->resolve($parameter, TestNullableScalarWithLengthInput::class);
 
         $this->assertEmpty($validation->getErrors());
         $this->assertNull($result->name);
@@ -113,19 +108,14 @@ class NullableScalarNullTest extends TestCase
 
         $validation = $this->createValidation($inputData);
 
-        $parameter = $this->createMockParameter(TestNonNullableScalarInput::class, 'request');
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $parameter = $this->resolverParameter();
+        $this->resolver->resolve($parameter, TestNonNullableScalarInput::class);
 
         $errors = $validation->getErrors();
         $this->assertArrayHasKey('email', $errors);
         $this->assertNotEmpty($errors['email']);
     }
 
-    protected function createMockParameter(string $typeName, string $paramName = 'request'): ReflectionParameter
-    {
-        $fn = eval("return function ({$typeName} \${$paramName}) {}; ");
-        return (new ReflectionFunction($fn))->getParameters()[0];
-    }
 
     protected function formatMessage(string $message, array $placeholders): string
     {

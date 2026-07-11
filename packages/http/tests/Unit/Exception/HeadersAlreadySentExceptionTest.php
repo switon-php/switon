@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\Exception;
 
 use Switon\Http\Exception\HeadersAlreadySentException;
-use Switon\Http\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for HeadersAlreadySentException.

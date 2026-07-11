@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\ValueResolver;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionFunction;
-use ReflectionParameter;
 use Switon\Http\Attribute\RequestBody as RequestBodyAttribute;
 use Switon\Http\RequestBodyResolver;
 use Switon\Http\RequestInterface;
@@ -17,8 +15,6 @@ use stdClass;
 
 /**
  * Test cases for RequestBody value resolver class.
- *
- * @group http
  */
 #[AllowMockObjectsWithoutExpectations]
 class RequestBodyResolverTest extends TestCase
@@ -60,7 +56,7 @@ class RequestBodyResolverTest extends TestCase
         $this->request->expects($this->once())->method('post')->willReturn($source);
         $this->validator->expects($this->once())->method('beginValidate')->with($source)->willReturn($validation);
         $this->validator->expects($this->once())->method('endValidate')->with($validation);
-        $rParameter = $this->createTypedParameter(stdClass::class, 'request');
+        $rParameter = $this->resolverParameter();
 
         // Act
         $result = $this->resolver->resolve($rParameter, stdClass::class);
@@ -74,8 +70,7 @@ class RequestBodyResolverTest extends TestCase
      */
     public function testResolveThrowsForNonExistentClass(): void
     {
-        $rParameter = $this->createMock(ReflectionParameter::class);
-        $rParameter->method('getName')->willReturn('request');
+        $rParameter = $this->resolverParameter();
         $this->request->expects($this->once())->method('post')->willReturn([]);
         $this->expectException(ReflectionException::class);
 
@@ -87,8 +82,7 @@ class RequestBodyResolverTest extends TestCase
      */
     public function testResolveThrowsForInvalidType(): void
     {
-        $rParameter = $this->createMock(ReflectionParameter::class);
-        $rParameter->method('getName')->willReturn('request');
+        $rParameter = $this->resolverParameter();
         $this->request->expects($this->once())->method('post')->willReturn([]);
         $this->expectException(ReflectionException::class);
 
@@ -108,8 +102,7 @@ class RequestBodyResolverTest extends TestCase
         $className = get_class($testClass);
 
         // Arrange
-        $rParameter = $this->createMock(ReflectionParameter::class);
-        $rParameter->method('getName')->willReturn('request');
+        $rParameter = $this->resolverParameter();
         $this->request->expects($this->once())->method('post')->willReturn([]);
 
         // Act
@@ -124,7 +117,7 @@ class RequestBodyResolverTest extends TestCase
     public function testResolveDetectsRequestBodyAttribute(): void
     {
         $className = RequestBodyResolverSimpleInput::class;
-        $rParameter = $this->createTypedParameter($className, 'request');
+        $rParameter = $this->resolverParameter();
 
         $source = ['name' => 'test value'];
         $validation = $this->createMockValidation();
@@ -156,7 +149,7 @@ class RequestBodyResolverTest extends TestCase
     public function testResolveExecutesRequestBodyResolutionLogic(): void
     {
         $className = RequestBodyResolverProfileInput::class;
-        $rParameter = $this->createTypedParameter($className, 'request');
+        $rParameter = $this->resolverParameter();
 
         $source = ['name' => 'John Doe', 'email' => 'john@example.com'];
         $validation = $this->createMockValidation();
@@ -194,7 +187,7 @@ class RequestBodyResolverTest extends TestCase
     public function testResolveAchievesMethodCoverageForRequestBody(): void
     {
         $className = RequestBodyResolverNameInput::class;
-        $rParameter = $this->createTypedParameter($className, 'data');
+        $rParameter = $this->resolverParameter();
 
         // Input data
         $inputData = ['name' => 'Test Name'];
@@ -238,7 +231,7 @@ class RequestBodyResolverTest extends TestCase
     public function testRequestBodyResolveMethodExecution(): void
     {
         $className = RequestBodyResolverLooseInput::class;
-        $rParameter = $this->createTypedParameter($className, 'body');
+        $rParameter = $this->resolverParameter();
 
         $inputData = ['simpleField' => 'test'];
         $validation = $this->createMockValidation();
@@ -277,8 +270,7 @@ class RequestBodyResolverTest extends TestCase
      */
     public function testResolveWithDifferentInputs(): void
     {
-        $rParameter = $this->createMock(ReflectionParameter::class);
-        $rParameter->method('getName')->willReturn('request');
+        $rParameter = $this->resolverParameter();
 
         // Test 1: valid class but no RequestBody attribute
         $regularClass = new class () {
@@ -292,11 +284,6 @@ class RequestBodyResolverTest extends TestCase
         $this->assertInstanceOf(get_class($regularClass), $result);
     }
 
-    protected function createTypedParameter(string $typeName, string $paramName): ReflectionParameter
-    {
-        $fn = eval("return function ({$typeName} \${$paramName}) {}; ");
-        return (new ReflectionFunction($fn))->getParameters()[0];
-    }
 }
 
 #[RequestBodyAttribute]

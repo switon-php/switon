@@ -6,17 +6,12 @@ namespace Switon\Http\Tests\Unit\ValueResolver;
 
 use Attribute;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionFunction;
-use ReflectionParameter;
 use Switon\Http\Attribute\RequestData;
 use Switon\Http\RequestDataResolver;
 use Switon\Http\RequestInterface;
 use Switon\Http\Tests\TestCase;
 use ReflectionProperty;
 
-/**
- * @group http
- */
 #[AllowMockObjectsWithoutExpectations]
 class PropertyInputNormalizerTest extends TestCase
 {
@@ -30,18 +25,13 @@ class PropertyInputNormalizerTest extends TestCase
         $this->container->replace(RequestInterface::class, $request);
 
         $resolver = $this->container->get(RequestDataResolver::class);
-        $parameter = $this->createTypedParameter(NormalizedInput::class, 'input');
+        $parameter = $this->resolverParameter();
         $result = $resolver->resolve($parameter, NormalizedInput::class);
 
         $this->assertSame('PAID', $result->status);
         $this->assertSame('hello', $result->title);
     }
 
-    protected function createTypedParameter(string $typeName, string $paramName): ReflectionParameter
-    {
-        $fn = eval("return function ({$typeName} \${$paramName}) {}; ");
-        return (new ReflectionFunction($fn))->getParameters()[0];
-    }
 }
 
 #[RequestData]

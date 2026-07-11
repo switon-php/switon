@@ -12,7 +12,7 @@ use Switon\Http\FilterDiscovery;
 /**
  * {@see FilterDiscovery::discover()} merge + {@see sort()} without the shared test container.
  */
-final class FilterDiscoveryMergeSortTest extends TestCase
+class FilterDiscoveryMergeSortTest extends TestCase
 {
     public function testDiscoverMergesScannerAndComposerClassesThenSortsAndCaches(): void
     {
@@ -47,7 +47,7 @@ final class FilterDiscoveryMergeSortTest extends TestCase
     }
 }
 
-final class FilterDiscoveryProbe extends FilterDiscovery
+class FilterDiscoveryProbe extends FilterDiscovery
 {
     /**
      * @param array<string, string> $files

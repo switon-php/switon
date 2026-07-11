@@ -6,7 +6,7 @@ namespace Switon\Http\Tests\Unit\Exception;
 
 use Switon\Http\Exception\ActionNotFoundException;
 use Switon\Http\Exception\NotFoundException;
-use Switon\Http\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
 /**

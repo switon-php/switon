@@ -256,7 +256,7 @@ class SenderTest extends TestCase
     /**
      * @param array<string, mixed> $parameters
      */
-    private function makeSender(array $parameters = []): Sender
+    protected function makeSender(array $parameters = []): Sender
     {
         return $this->container->make(Sender::class, $parameters);
     }

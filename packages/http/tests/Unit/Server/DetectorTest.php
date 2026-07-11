@@ -7,7 +7,7 @@ namespace Switon\Http\Tests\Unit\Server;
 use PHPUnit\Framework\TestCase;
 use Switon\Http\Server\Detector;
 
-final class DetectorTest extends TestCase
+class DetectorTest extends TestCase
 {
     public function testDetectReturnsPhpFamilyUnderCli(): void
     {

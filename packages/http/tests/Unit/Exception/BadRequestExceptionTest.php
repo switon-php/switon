@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\Exception;
 
 use Switon\Http\Exception\BadRequestException;
-use Switon\Http\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class BadRequestExceptionTest extends TestCase
 {

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\ValueResolver;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionFunction;
-use ReflectionParameter;
 use Switon\Http\Attribute\RequestBody;
 use Switon\Http\Attribute\RequestData;
 use Switon\Http\Attribute\RequestQuery;
@@ -18,9 +16,6 @@ use Switon\Http\Tests\TestCase;
 use Switon\Validating\Validation;
 use Switon\Validating\ValidatorInterface;
 
-/**
- * @group http
- */
 #[AllowMockObjectsWithoutExpectations]
 class RequestSourceResolverTest extends TestCase
 {
@@ -41,8 +36,8 @@ class RequestSourceResolverTest extends TestCase
         $validator->expects($this->once())->method('endValidate')->with($validation);
         $validation->method('validate')->willReturn(true);
 
-        $parameter = $this->createTypedParameter(RequestDataInput::class, 'request');
-        $result = $resolver->resolve($parameter, $parameter->getType()->getName());
+        $parameter = $this->resolverParameter();
+        $result = $resolver->resolve($parameter, RequestDataInput::class);
 
         $this->assertInstanceOf(RequestDataInput::class, $result);
         $this->assertSame('from-all', $result->name);
@@ -65,8 +60,8 @@ class RequestSourceResolverTest extends TestCase
         $validator->expects($this->once())->method('endValidate')->with($validation);
         $validation->method('validate')->willReturn(true);
 
-        $parameter = $this->createTypedParameter(RequestBodyInput::class, 'request');
-        $result = $resolver->resolve($parameter, $parameter->getType()->getName());
+        $parameter = $this->resolverParameter();
+        $result = $resolver->resolve($parameter, RequestBodyInput::class);
 
         $this->assertInstanceOf(RequestBodyInput::class, $result);
         $this->assertSame('from-post', $result->name);
@@ -89,8 +84,8 @@ class RequestSourceResolverTest extends TestCase
         $validator->expects($this->once())->method('endValidate')->with($validation);
         $validation->method('validate')->willReturn(true);
 
-        $parameter = $this->createTypedParameter(RequestQueryInput::class, 'request');
-        $result = $resolver->resolve($parameter, $parameter->getType()->getName());
+        $parameter = $this->resolverParameter();
+        $result = $resolver->resolve($parameter, RequestQueryInput::class);
 
         $this->assertInstanceOf(RequestQueryInput::class, $result);
         $this->assertSame('from-query', $result->name);
@@ -102,12 +97,6 @@ class RequestSourceResolverTest extends TestCase
         $validation->field = '';
         $validation->value = null;
         return $validation;
-    }
-
-    protected function createTypedParameter(string $typeName, string $paramName): ReflectionParameter
-    {
-        $fn = eval("return function ({$typeName} \${$paramName}) {}; ");
-        return (new ReflectionFunction($fn))->getParameters()[0];
     }
 }
 
