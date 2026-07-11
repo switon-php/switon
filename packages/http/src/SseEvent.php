@@ -51,7 +51,7 @@ class SseEvent implements Stringable
     /**
      * Create an event with id.
      */
-    public function withId(string $id): self
+    public function withId(string $id): static
     {
         $clone = clone $this;
         $clone->data['id'] = $id;
@@ -61,7 +61,7 @@ class SseEvent implements Stringable
     /**
      * Create an event with retry interval.
      */
-    public function withRetry(int $milliseconds): self
+    public function withRetry(int $milliseconds): static
     {
         $clone = clone $this;
         $clone->data['retry'] = $milliseconds;

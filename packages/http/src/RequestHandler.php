@@ -45,6 +45,7 @@ use Switon\Routing\Exception\MethodNotAllowedException;
 use Switon\Routing\Exception\NotFoundRouteException;
 use Switon\Routing\RouterInterface;
 use Throwable;
+
 use function array_merge;
 use function class_exists;
 use function explode;
