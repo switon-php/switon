@@ -12,8 +12,13 @@ use Switon\Http\Event\HeadersSending;
 use Switon\Http\Event\RequestBegin;
 use Switon\Http\RequestInterface;
 
+use function is_string;
+use function parse_url;
 use function strpos;
+use function strtolower;
 use function substr;
+
+use const PHP_URL_HOST;
 
 /**
  * Applies CORS headers and preflight handling to HTTP responses.
@@ -71,6 +76,10 @@ class CorsFilter
         if (!is_string($originHost) || $originHost === '' || !is_string($host) || $host === '') {
             return;
         }
+
+        // Hostnames are case-insensitive (RFC 4343); align with LocalOriginFilter allow-list checks.
+        $originHost = strtolower($originHost);
+        $host = strtolower($host);
 
         if ($originHost !== $host) {
             if ($this->origin) {
