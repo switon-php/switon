@@ -23,6 +23,9 @@ use Throwable;
  * - statusCode from Core\Exception
  * - 5xx error vs 4xx debug
  * - merges Exception::getContext()
+ * - omits stack trace from log payload (file/line only)
+ *
+ * Log category: `switon.http.request.failed`
  *
  * @see \Switon\Http\ExceptionDispatcherInterface
  * @see \Switon\Http\ExceptionDispatcher
@@ -69,7 +72,6 @@ class RequestFailed implements JsonSerializable, EventLogInterface, SenderAwareI
             'code' => $exception->getCode(),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString(),
         ];
 
         if ($exception instanceof Exception) {
@@ -89,7 +91,6 @@ class RequestFailed implements JsonSerializable, EventLogInterface, SenderAwareI
             'code' => $this->exception->getCode(),
             'file' => $this->exception->getFile(),
             'line' => $this->exception->getLine(),
-            'trace' => $this->exception->getTraceAsString(),
         ];
     }
 }
