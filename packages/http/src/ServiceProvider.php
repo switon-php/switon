@@ -28,7 +28,7 @@ use Switon\Routing\RouteRegistrarInterface;
  * - boot request and server listeners
  * - LocaleInterface adds RequestLocaleFilter
  * - RequestHandlerInterface boot wires filters and transformers
- * - RouteRegistrarInterface registers controller mappings
+ * - RouteRegistrarInterface registers HTTP and WebSocket controller mappings
  *
  * @see \Switon\Core\ServiceProviderInterface
  * @see \Switon\Http\Server
@@ -42,11 +42,12 @@ class ServiceProvider implements ServiceProviderInterface
 {
     #[Autowired] protected ContainerInterface $container;
     #[Autowired] protected ListenerProviderInterface $listenerProvider;
-
     #[Autowired] protected RequestInterface $request;
     #[Autowired] protected CookiesInterface $cookies;
+
     #[Autowired] protected RenameProcessTitleListener $renameProcessTitleListener;
     #[Autowired] protected LogServerStatusListener $logServerStatusListener;
+
     #[Autowired] protected RequestHandlerInterface $requestHandler;
     #[Autowired] protected PathAliasInterface|Lazy $pathAlias;
     #[Autowired] protected RouteRegistrarInterface $routeRegistrar;
@@ -54,6 +55,7 @@ class ServiceProvider implements ServiceProviderInterface
     public function register(ContainerInterface $container): void
     {
         $container->set(InputInterface::class, RequestInterface::class);
+        $container->set(WsSenderInterface::class, ServerInterface::class);
     }
 
     public function boot(): void
@@ -74,7 +76,6 @@ class ServiceProvider implements ServiceProviderInterface
 
         $this->requestHandler->boot();
 
-        // Scan and register route mappings
         $this->routeRegistrar->register();
     }
 }

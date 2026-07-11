@@ -12,7 +12,9 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\ClockInterface;
 use Switon\Core\ContextAware;
 use Switon\Core\ContextManagerInterface;
+use Switon\Core\Exception\NotSupportedException;
 use Switon\Core\Lazy;
+use Switon\Core\Path;
 use Switon\Core\Runtime as CoreRuntime;
 use Switon\Eventing\Event\DispatchFailed;
 use Switon\Http\AbstractServer;
@@ -49,10 +51,15 @@ use Switon\Http\Server\Event\ServerWorkerStart;
 use Switon\Http\Server\Event\ServerWorkerStop;
 use Switon\Http\Server\Network;
 use Switon\Http\Server\StaticHandlerInterface;
+use Switon\Http\Ws\HandlerInterface;
+use Switon\Http\WsSenderInterface;
+use Switon\Sync\TerminationInterface;
+use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
-use Swoole\Http\Server;
 use Swoole\Runtime;
+use Swoole\WebSocket\Frame;
+use Swoole\WebSocket\Server;
 use Throwable;
 
 use function basename;
@@ -62,6 +69,7 @@ use function strlen;
 use function strtoupper;
 use function substr;
 use function defined;
+use function file_get_contents;
 
 use const SWOOLE_VERSION;
 
@@ -86,15 +94,22 @@ use const SWOOLE_VERSION;
  * @see \Switon\Eventing\Event\DispatchFailed
  * @see \Switon\Http\Server\Adapter\SwooleContext
  */
-class Swoole extends AbstractServer implements ContextAware
+class Swoole extends AbstractServer implements ContextAware, WsSenderInterface
 {
     #[Autowired] protected ContextManagerInterface $contextManager;
     #[Autowired] protected ClockInterface $clock;
+    #[Autowired] protected TerminationInterface $termination;
     #[Autowired] protected StaticHandlerInterface|Lazy $staticHandler;
+    #[Autowired] protected HandlerInterface|Lazy $wsHandler;
+
+    /** @var \Swoole\WebSocket\Server|null Live server instance between start() and shutdown. */
+    protected ?\Swoole\WebSocket\Server $swoole = null;
 
     /** @var array<string, mixed> Swoole server settings */
     #[Autowired] protected array $settings = [];
 
+    /** @var array<int, WsConnState> Per-fd WebSocket transport state (worker-local). */
+    protected array $wsConnStates = [];
     /** @var array<string, mixed> */
     protected array $_SERVER;
 
@@ -103,7 +118,7 @@ class Swoole extends AbstractServer implements ContextAware
         parent::__construct($app);
 
         $script_filename = get_included_files()[0];
-        $document_root = dirname($script_filename);
+        $document_root = $this->settings['document_root'] ?? dirname($script_filename);
         $_SERVER['DOCUMENT_ROOT'] = $document_root;
 
         $swooleVersion = defined('SWOOLE_VERSION') ? SWOOLE_VERSION : 'n/a';
@@ -127,7 +142,18 @@ class Swoole extends AbstractServer implements ContextAware
         }
 
         if (!empty($this->settings['enable_static_handler'])) {
-            $this->settings['document_root'] = $document_root;
+            $this->settings['document_root'] ??= $document_root;
+        }
+
+        if (isset($this->settings['dispatch_mode'])) {
+            if (!in_array((int) $this->settings['dispatch_mode'], [2, 4, 5], true)) {
+                NotSupportedException::raise(
+                    'Only dispatch_mode values 2, 4, or 5 are supported for WebSocket request handling.',
+                    ['dispatch_mode' => $this->settings['dispatch_mode']],
+                );
+            }
+        } else {
+            $this->settings['dispatch_mode'] = 2;
         }
     }
 
@@ -245,6 +271,12 @@ class Swoole extends AbstractServer implements ContextAware
     #[ServerCallback]
     public function onWorkerExit(Server $server, int $worker_id): void
     {
+        // Fires repeatedly until exit. Event loop is still alive here (gone by onWorkerStop), but the
+        // callback itself is not a coroutine — registrants drain channels, so terminate in one.
+        if (!$this->termination->isTerminated()) {
+            Coroutine::create(fn () => $this->termination->terminate());
+        }
+
         $worker_num = $server->setting['worker_num'];
         if ($worker_id >= $worker_num) {
             $tasker_id = $worker_id - $worker_num;
@@ -260,6 +292,41 @@ class Swoole extends AbstractServer implements ContextAware
         $this->dispatchEvent(new ServerConnect($server, $fd, $reactor_id));
     }
 
+    #[ServerCallback]
+    public function onOpen(Server $server, Request $request): void
+    {
+        $fd = $request->fd;
+
+        try {
+            $this->wsHandler->onOpen($request);
+        } catch (Throwable $throwable) {
+            echo $this->formatException($throwable);
+            if ($server->isEstablished($fd)) {
+                $server->disconnect($fd, 1008);
+            }
+        } finally {
+            $this->wsConnState($fd)->finishOpen();
+        }
+    }
+
+    #[ServerCallback]
+    public function onMessage(Server $server, Frame $frame): void
+    {
+        $fd = $frame->fd;
+        $conn = $this->wsConnState($fd);
+
+        $conn->waitForOpenMessage();
+        $conn->restoreConnContexts();
+
+        try {
+            $this->wsHandler->onMessage($frame);
+        } catch (Throwable $throwable) {
+            echo $this->formatException($throwable);
+        } finally {
+            $conn->mergeConnContexts();
+        }
+    }
+
     /**
      * @param array<string, mixed> $client
      */
@@ -270,9 +337,50 @@ class Swoole extends AbstractServer implements ContextAware
     }
 
     #[ServerCallback]
-    public function onClose(Server $server, int $fd, int $reactor_id): void
+    public function onClose(Server $server, int $fd, int $reactor_id = 0): void
     {
+        if (!$server->isEstablished($fd) || !$this->wsConnState($fd)->waitForOpenClose()) {
+            $this->forgetWsConn($fd);
+            $this->dispatchEvent(new ServerClose($server, $fd, $reactor_id));
+
+            return;
+        }
+
+        $conn = $this->wsConnState($fd);
+        $conn->openReady = false;
+
+        $conn->restoreConnContexts();
+
+        try {
+            $this->wsHandler->onClose($fd);
+        } catch (Throwable $throwable) {
+            echo $this->formatException($throwable);
+        } finally {
+            $this->forgetWsConn($fd);
+        }
+
         $this->dispatchEvent(new ServerClose($server, $fd, $reactor_id));
+    }
+
+    /** Swoole WebSocket server has no <code>error</code> event; handler kept for manual wiring if needed. */
+    public function onError(Server $server, int $fd, int $reactorId): void
+    {
+        if (!$this->wsConnState($fd)->waitForOpenClose()) {
+            $this->forgetWsConn($fd);
+
+            return;
+        }
+
+        $conn = $this->wsConnState($fd);
+        $conn->restoreConnContexts();
+
+        try {
+            $this->wsHandler->onError($fd, $reactorId);
+        } catch (Throwable $throwable) {
+            echo $this->formatException($throwable);
+        } finally {
+            $conn->mergeConnContexts();
+        }
     }
 
     #[ServerCallback]
@@ -329,12 +437,45 @@ class Swoole extends AbstractServer implements ContextAware
             Runtime::enableCoroutine();
         }
 
-        $server = new Server($this->serverOptions->host, $this->serverOptions->port);
-        $server->set($this->settings);
-        $this->registerServerCallbacks($server);
+        $this->swoole = new Server($this->serverOptions->host, $this->serverOptions->port);
+        $this->swoole->set($this->settings);
+        $this->registerServerCallbacks($this->swoole);
 
-        $this->dispatchEvent(new ServerReady($server, $this->serverOptions->host, $this->serverOptions->port, $this->settings));
-        $server->start();
+        $this->dispatchEvent(new ServerReady($this->swoole, $this->serverOptions->host, $this->serverOptions->port, $this->settings));
+        $this->swoole->start();
+    }
+
+    protected function wsConnState(int $fd): WsConnState
+    {
+        return $this->wsConnStates[$fd] ??= new WsConnState();
+    }
+
+    protected function forgetWsConn(int $fd): void
+    {
+        unset($this->wsConnStates[$fd]);
+    }
+
+    public function push(int $fd, string $data): bool
+    {
+        if ($this->swoole === null || !$this->swoole->isEstablished($fd)) {
+            return false;
+        }
+
+        return $this->swoole->push($fd, $data) !== false;
+    }
+
+    public function disconnect(int $fd): bool
+    {
+        if ($this->swoole === null || !$this->swoole->exist($fd)) {
+            return false;
+        }
+
+        return $this->swoole->disconnect($fd, 1000);
+    }
+
+    public function isEstablished(int $fd): bool
+    {
+        return $this->swoole !== null && $this->swoole->isEstablished($fd);
     }
 
     #[ServerCallback]
@@ -355,7 +496,8 @@ class Swoole extends AbstractServer implements ContextAware
             $statusCode = 404;
             if (($file = $this->staticHandler->getFile($uri)) !== null) {
                 $response->header('Content-Type', $this->staticHandler->getMimeType($file));
-                $response->sendfile($file);
+                // sendfile() needs a real file descriptor, so phar entries stream through PHP instead.
+                Path::isPhar($file) ? $response->end(file_get_contents($file)) : $response->sendfile($file);
                 $statusCode = 200;
             } else {
                 $response->status(404, 'Not Found');
@@ -424,7 +566,7 @@ class Swoole extends AbstractServer implements ContextAware
             $response->header('Content-Length', (string)strlen($content), false);
             $response->end('');
         } elseif ($file = $this->response->getFile()) {
-            $response->sendfile($file);
+            Path::isPhar($file) ? $response->end(file_get_contents($file)) : $response->sendfile($file);
         } else {
             $event = new BodySending($this, $this->response, $content);
             $this->eventDispatcher->dispatch($event);
