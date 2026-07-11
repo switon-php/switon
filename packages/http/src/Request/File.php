@@ -22,7 +22,7 @@ use function pathinfo;
  * Road-signs:
  * - metadata reads: size / name / tmp_name / mime / error / key
  * - moveTo validates extension, upload status, and destination
- * - PathAlias + Filesystem handle final file operations
+ * - Filesystem handles final file operations; move_uploaded_file gets a PathAlias path
  *
  * @see \Switon\Http\Request\FileInterface
  */
@@ -121,8 +121,7 @@ class File implements FileInterface, JsonSerializable
             FileException::raise('File upload failed with error {error}.', ['error' => $error]);
         }
 
-        $dstPath = $this->pathAlias->resolve($dst);
-        if (is_file($dstPath)) {
+        if ($this->filesystem->isFile($dst)) {
             if ($overwrite) {
                 $this->filesystem->delete($dst);
             } else {
@@ -130,20 +129,22 @@ class File implements FileInterface, JsonSerializable
             }
         }
 
-        $this->filesystem->mkdir(dirname($dstPath));
+        $this->filesystem->mkdir(dirname($dst));
 
-        $resolvedDst = $this->pathAlias->resolve($dst);
         if (PHP_SAPI === 'cli') {
-            $this->filesystem->move($this->file['tmp_name'], $resolvedDst);
-        } elseif (!move_uploaded_file($this->file['tmp_name'], $resolvedDst)) {
+            $this->filesystem->move($this->file['tmp_name'], $dst);
+        } elseif (!move_uploaded_file($this->file['tmp_name'], $this->pathAlias->resolve($dst))) {
             $error = error_get_last()['message'] ?? '';
             FileException::raise('Failed to move uploaded file to "{dst}": {error}.', ['dst' => $dst, 'error' => $error]);
         }
 
         // Only set permissions if file exists (defensive check for testing scenarios)
-        if (file_exists($resolvedDst) && !chmod($resolvedDst, 0644)) {
-            $error = error_get_last()['message'] ?? '';
-            FileException::raise('Failed to set file permissions for "{dst}": {error}', ['dst' => $dst, 'error' => $error]);
+        if ($this->filesystem->exists($dst)) {
+            try {
+                $this->filesystem->chmod($dst, 0644);
+            } catch (RuntimeException $e) {
+                FileException::raise('Failed to set file permissions for "{dst}": {error}', ['dst' => $dst, 'error' => $e->getMessage()]);
+            }
         }
     }
 
