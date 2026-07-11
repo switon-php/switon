@@ -19,7 +19,7 @@ use Switon\Principal\IdentityInterface;
  *
  * Road-signs:
  * - {@see CriteriaAttributeInterface}
- * - default {@see $subject} uses {@see IdentityInterface::getId()}
+ * - default `$subject` uses {@see IdentityInterface::getId()}
  *
  * @see \Switon\Http\CriteriaResolver
  */
@@ -29,8 +29,8 @@ class IdentityFilter implements CriteriaAttributeInterface
     #[Autowired] protected IdentityInterface $identity;
 
     public function __construct(
-        public readonly string $field = 'created_by',
-        public readonly string $subject = 'id',
+        public string $field = 'created_by',
+        public string $subject = 'id',
     ) {
     }
 
