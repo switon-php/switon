@@ -14,10 +14,12 @@ use Switon\Http\CookiesInterface;
 use Switon\Http\Filter\RequestLocaleFilter;
 use Switon\Http\RequestHandlerInterface;
 use Switon\Http\RequestInterface;
+use Switon\Http\ServerInterface;
 use Switon\Http\Server\Listener\LogServerStatusListener;
 use Switon\Http\Server\Listener\RenameProcessTitleListener;
 use Switon\Http\ServiceProvider;
 use Switon\Http\Tests\TestCase;
+use Switon\Http\WsSenderInterface;
 use Switon\Routing\RouteRegistrarInterface;
 use Switon\Testing\PackagePathAssert;
 
@@ -67,10 +69,21 @@ class ServiceProviderTest extends TestCase
     {
         $container = $this->createMock(ContainerInterface::class);
 
-        $container->expects($this->once())
+        $container->expects($this->exactly(2))
             ->method('set')
-            ->with(InputInterface::class, RequestInterface::class)
-            ->willReturn($container);
+            ->willReturnCallback(function (string $id, mixed $definition) use ($container) {
+                static $calls = 0;
+                if ($calls === 0) {
+                    $this->assertSame(InputInterface::class, $id);
+                    $this->assertSame(RequestInterface::class, $definition);
+                } elseif ($calls === 1) {
+                    $this->assertSame(\Switon\Http\WsSenderInterface::class, $id);
+                    $this->assertSame(ServerInterface::class, $definition);
+                }
+                $calls++;
+
+                return $container;
+            });
 
         $this->serviceProvider->register($container);
     }
