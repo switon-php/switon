@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\ValueResolver;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionFunction;
-use ReflectionParameter;
 use Switon\Binding\InputBinder;
 use Switon\Http\Attribute\RequestBody as RequestBodyAttribute;
 use Switon\Http\RequestBodyResolver;
@@ -19,9 +17,6 @@ use Switon\Validating\ValidatorInterface;
 
 /**
  * Test explicit #[Required] attribute on array fields.
- *
- * @group http
- * @group array-of-input
  */
 #[AllowMockObjectsWithoutExpectations]
 class ArrayOfExplicitRequiredTest extends TestCase
@@ -70,10 +65,10 @@ class ArrayOfExplicitRequiredTest extends TestCase
             fn ($message, $placeholders) => $this->formatMessage($message, $placeholders)
         );
 
-        $parameter = $this->createMockParameter(TestRequestWithExplicitRequired::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, TestRequestWithExplicitRequired::class);
 
         // Assert - should have the custom Required error message
         $errors = $validation->getErrors();
@@ -81,11 +76,6 @@ class ArrayOfExplicitRequiredTest extends TestCase
         $this->assertStringContainsString('You must provide items', $errors['items']);
     }
 
-    protected function createMockParameter(string $typeName, string $paramName): ReflectionParameter
-    {
-        $fn = eval("return function ({$typeName} \${$paramName}) {}; ");
-        return (new ReflectionFunction($fn))->getParameters()[0];
-    }
 
     protected function formatMessage(string $message, array $placeholders): string
     {

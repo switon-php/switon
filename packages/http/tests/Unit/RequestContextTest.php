@@ -6,7 +6,7 @@ namespace Switon\Http\Tests\Unit;
 
 use Switon\Core\ContextConnScoped;
 use Switon\Http\RequestContext;
-use Switon\Http\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for RequestContext component.

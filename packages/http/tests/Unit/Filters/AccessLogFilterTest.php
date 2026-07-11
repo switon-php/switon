@@ -309,7 +309,7 @@ class AccessLogFilterTest extends TestCase
     }
 }
 
-final class TestAccessLogFilter extends AccessLogFilter
+class TestAccessLogFilter extends AccessLogFilter
 {
     public function exposeGetVar(string $name): string
     {

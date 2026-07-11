@@ -6,22 +6,18 @@ namespace Switon\Http\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Switon\Core\InputInterface;
-use Switon\Http\Kernel;
 use Switon\Http\RequestInterface;
-use ReflectionClass;
+use Switon\Http\Tests\Fixtures\HttpKernelProbe;
 
 class KernelTest extends TestCase
 {
     public function testKernelServicesBindInputToRequest(): void
     {
-        $kernel = new Kernel(__DIR__);
-
-        $reflection = new ReflectionClass(Kernel::class);
-        $property = $reflection->getProperty('services');
+        $kernel = new HttpKernelProbe(__DIR__);
 
         $this->assertSame(
             [InputInterface::class => RequestInterface::class],
-            $property->getValue($kernel)
+            $kernel->defaultServicesForTest()
         );
     }
 }

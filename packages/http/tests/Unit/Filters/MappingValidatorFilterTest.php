@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Switon\Http\Tests\Unit\Filters;
 
-use ReflectionMethod;
 use Switon\Core\Attribute\Autowired;
 use Switon\Http\Event\RequestReceived;
-use Switon\Http\Event\RequestValidating;
 use Switon\Http\Filter\MappingValidatorFilter;
 use Switon\Http\RequestInterface;
 use Switon\Http\RequestHandlerInterface;
+use Switon\Http\Tests\Fixtures\MappingValidatorActionFixture;
+use Switon\Http\Tests\Support\RequestDispatchHarness;
 use Switon\Http\Tests\TestCase;
-use Switon\Routing\Attribute\GetMapping;
-use Switon\Routing\Attribute\PostMapping;
 use Switon\Routing\Exception\MethodNotAllowedException;
 
 class MappingValidatorFilterTest extends TestCase
@@ -21,15 +19,21 @@ class MappingValidatorFilterTest extends TestCase
     #[Autowired] protected MappingValidatorFilter $filter;
     #[Autowired] protected RequestInterface $request;
 
-    // setUp() is not needed - parent::setUp() automatically autowires this test case
+    private MappingValidatorActionFixture $actions;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->actions = new MappingValidatorActionFixture();
+    }
 
     protected function createRequestEvent(
-        array  $get = [],
-        array  $post = [],
-        array  $server = [],
+        array $get = [],
+        array $post = [],
+        array $server = [],
         string $rawBody = '',
-        array  $cookie = [],
-        array  $files = []
+        array $cookie = [],
+        array $files = []
     ): RequestReceived {
         return new RequestReceived(
             sender: $this->createStub(\Switon\Http\ServerInterface::class),
@@ -49,8 +53,11 @@ class MappingValidatorFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $reflectionMethod = new ReflectionMethod($this, 'testGetAction');
-        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
+        $event = RequestDispatchHarness::validatingEvent(
+            $this->createStub(RequestHandlerInterface::class),
+            $this->actions,
+            'getOnlyAction',
+        );
 
         $this->filter->onValidating($event);
         $this->assertTrue(true);
@@ -63,8 +70,11 @@ class MappingValidatorFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $reflectionMethod = new ReflectionMethod($this, 'testGetAction');
-        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
+        $event = RequestDispatchHarness::validatingEvent(
+            $this->createStub(RequestHandlerInterface::class),
+            $this->actions,
+            'getOnlyAction',
+        );
 
         $this->expectException(MethodNotAllowedException::class);
         $this->filter->onValidating($event);
@@ -77,8 +87,11 @@ class MappingValidatorFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $reflectionMethod = new ReflectionMethod($this, 'testActionWithoutMapping');
-        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
+        $event = RequestDispatchHarness::validatingEvent(
+            $this->createStub(RequestHandlerInterface::class),
+            $this->actions,
+            'noMappingAction',
+        );
 
         $this->filter->onValidating($event);
         $this->assertTrue(true);
@@ -91,25 +104,13 @@ class MappingValidatorFilterTest extends TestCase
         );
         $this->request->onRequestReceived($requestEvent);
 
-        $reflectionMethod = new ReflectionMethod($this, 'testGetOrPostAction');
-        $event = new RequestValidating($this->createStub(RequestHandlerInterface::class), $reflectionMethod);
+        $event = RequestDispatchHarness::validatingEvent(
+            $this->createStub(RequestHandlerInterface::class),
+            $this->actions,
+            'getOrPostAction',
+        );
 
         $this->filter->onValidating($event);
         $this->assertTrue(true);
-    }
-
-    #[GetMapping]
-    protected function testGetAction(): void
-    {
-    }
-
-    protected function testActionWithoutMapping(): void
-    {
-    }
-
-    #[GetMapping]
-    #[PostMapping]
-    protected function testGetOrPostAction(): void
-    {
     }
 }

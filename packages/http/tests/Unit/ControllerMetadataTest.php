@@ -10,9 +10,9 @@ use Switon\Http\Exception\ActionNotFoundException;
 use Switon\Routing\Attribute\GetMapping;
 use Switon\Routing\Attribute\RequestMapping;
 
-final class ControllerMetadataTest extends TestCase
+class ControllerMetadataTest extends TestCase
 {
-    private ControllerMetadata $metadata;
+    protected ControllerMetadata $metadata;
 
     protected function setUp(): void
     {

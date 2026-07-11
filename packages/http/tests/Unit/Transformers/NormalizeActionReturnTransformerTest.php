@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace Switon\Http\Tests\Unit\Transformers;
 
-use ReflectionMethod;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Switon\Core\Attribute\Autowired;
-use Switon\Http\RequestHandlerInterface;
 use Switon\Http\Event\RequestInvoked;
+use Switon\Http\RequestHandlerInterface;
 use Switon\Http\Response\JsonRendererInterface;
 use Switon\Http\ResponseInterface;
 use Switon\Http\ServerInterface;
+use Switon\Http\Tests\Fixtures\NormalizeReturnActionFixture;
+use Switon\Http\Tests\Support\RequestDispatchHarness;
 use Switon\Http\Tests\TestCase;
 use Switon\Http\Transformer\NormalizeActionReturnTransformer;
 use Switon\Routing\RouterInterface;
 use RuntimeException;
 use stdClass;
 
-#[\PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations]
+#[AllowMockObjectsWithoutExpectations]
 class NormalizeActionReturnTransformerTest extends TestCase
 {
     #[Autowired] protected NormalizeActionReturnTransformer $transformer;
@@ -25,13 +27,19 @@ class NormalizeActionReturnTransformerTest extends TestCase
     #[Autowired] protected JsonRendererInterface $jsonRenderer;
     #[Autowired] protected RequestHandlerInterface $requestHandler;
 
+    private NormalizeReturnActionFixture $actions;
+
     protected function beforeSetUpHttpContainer(): void
     {
-        // Set up JsonRendererInterface mock BEFORE property autowiring to prevent container from resolving to real JsonRenderer
-        // This ensures Response (injected in parent::setUp()) gets the mock instead of real JsonRenderer instance
         $this->jsonRenderer = $this->createMock(JsonRendererInterface::class);
         $this->container->remove(JsonRendererInterface::class);
         $this->container->replace(JsonRendererInterface::class, $this->jsonRenderer);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->actions = new NormalizeReturnActionFixture();
     }
 
     protected function setUpContainer(): void
@@ -40,14 +48,16 @@ class NormalizeActionReturnTransformerTest extends TestCase
 
         $this->container->replace(RouterInterface::class, $this->createStub(RouterInterface::class));
         $this->container->replace(ServerInterface::class, $this->createStub(ServerInterface::class));
-
-        // JsonRendererInterface is already set in beforeSetUpHttpContainer()
-        // Property autowiring is automatically performed by parent::setUp()
     }
 
-    protected function createDummyMethod(): ReflectionMethod
+    private function invokedEvent(mixed $return): RequestInvoked
     {
-        return new ReflectionMethod($this, 'setUp');
+        return RequestDispatchHarness::invokedEvent(
+            $this->requestHandler,
+            $this->actions,
+            'sampleAction',
+            $return,
+        );
     }
 
     public function testOnInvokedNormalizesNullReturnValue(): void
@@ -56,8 +66,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => 0, 'msg' => '']);
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), null);
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent(null));
     }
 
     public function testOnInvokedNormalizesArrayReturnValue(): void
@@ -67,8 +76,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => 0, 'msg' => '', 'data' => $data]);
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $data);
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent($data));
     }
 
     public function testOnInvokedNormalizesStringReturnValueAsError(): void
@@ -78,8 +86,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => -1, 'msg' => $errorMessage]);
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $errorMessage);
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent($errorMessage));
     }
 
     public function testOnInvokedNormalizesIntReturnValue(): void
@@ -89,8 +96,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => $code, 'msg' => '']);
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $code);
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent($code));
     }
 
     public function testOnInvokedDoesNothingForResponseReturnValue(): void
@@ -98,8 +104,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
         $this->jsonRenderer->expects($this->never())
             ->method('render');
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $this->response);
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent($this->response));
     }
 
     public function testOnInvokedThrowsThrowableReturnValue(): void
@@ -109,11 +114,9 @@ class NormalizeActionReturnTransformerTest extends TestCase
         $this->jsonRenderer->expects($this->never())
             ->method('render');
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $exception);
-
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Test exception');
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent($exception));
     }
 
     public function testOnInvokedNormalizesOtherReturnValue(): void
@@ -125,8 +128,7 @@ class NormalizeActionReturnTransformerTest extends TestCase
             ->method('render')
             ->with(['code' => 0, 'msg' => '', 'data' => $object]);
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), $object);
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent($object));
     }
 
     public function testOnInvokedSkipsNormalizationWhenResponseHasContent(): void
@@ -136,7 +138,16 @@ class NormalizeActionReturnTransformerTest extends TestCase
         $this->jsonRenderer->expects($this->never())
             ->method('render');
 
-        $event = new RequestInvoked($this->requestHandler, $this->createDummyMethod(), ['key' => 'value']);
-        $this->transformer->onInvoked($event);
+        $this->transformer->onInvoked($this->invokedEvent(['key' => 'value']));
+    }
+
+    public function testOnInvokedSkipsNormalizationWhenResponseHasFile(): void
+    {
+        $this->response->setFile(__FILE__);
+
+        $this->jsonRenderer->expects($this->never())
+            ->method('render');
+
+        $this->transformer->onInvoked($this->invokedEvent(null));
     }
 }
