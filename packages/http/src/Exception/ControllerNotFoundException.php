@@ -8,7 +8,7 @@ namespace Switon\Http\Exception;
  * Controller class could not be found or loaded.
  *
  * @see \Switon\Http\ControllerMetadata
- * @see \Switon\Http\ControllerScanner
+ * @see \Switon\Routing\ControllerScanner
  */
 class ControllerNotFoundException extends NotFoundException
 {

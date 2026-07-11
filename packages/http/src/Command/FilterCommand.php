@@ -40,11 +40,8 @@ use function is_string;
 class FilterCommand
 {
     #[Autowired] protected ConsoleInterface $console;
-
     #[Autowired] protected FilterDiscoveryInterface $filterDiscovery;
-
     #[Autowired] protected RequestHandlerInterface $requestHandler;
-
     #[Autowired] protected FilterMatcherInterface $filterMatcher;
 
     /**

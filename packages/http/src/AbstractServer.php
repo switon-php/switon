@@ -40,6 +40,7 @@ abstract class AbstractServer implements ServerInterface
     #[Autowired] protected ResponseInterface $response;
     #[Autowired] protected RouterInterface $router;
     #[Autowired] protected RequestHandlerInterface $requestHandler;
+
     #[Autowired] protected ServerOptions $serverOptions;
 
     public function __construct(protected AppInterface $app)

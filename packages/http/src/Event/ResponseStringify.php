@@ -30,8 +30,7 @@ class ResponseStringify implements JsonSerializable, SenderAwareInterface
     public function __construct(
         public RequestHandlerInterface $sender,
         public ResponseInterface $response
-    )
-    {
+    ) {
     }
 
     public function getSender(): RequestHandlerInterface

@@ -31,8 +31,7 @@ class HeadersSent implements JsonSerializable, SenderAwareInterface
     public function __construct(
         public ResponseSenderInterface $sender,
         public ResponseInterface $response
-    )
-    {
+    ) {
     }
 
     public function getSender(): ResponseSenderInterface

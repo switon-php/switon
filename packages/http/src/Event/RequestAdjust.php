@@ -34,8 +34,7 @@ class RequestAdjust implements JsonSerializable, SenderAwareInterface
     public function __construct(
         public RequestHandlerInterface $sender,
         public RequestInterface $request
-    )
-    {
+    ) {
     }
 
     public function getSender(): RequestHandlerInterface

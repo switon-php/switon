@@ -133,7 +133,7 @@ interface RequestInterface extends InputInterface
      * Whether the client expects a JSON response body (not an HTML view).
      *
      * True when the {@literal Accept} header indicates JSON (e.g. contains {@literal application/json}),
-     * or when {@see isAjax()} (typical XHR: {@literal X-Requested-With: XMLHttpRequest}).
+     * or when `isAjax()` (typical XHR: {@literal X-Requested-With: XMLHttpRequest}).
      *
      * @see \Switon\Http\RequestHandler::shouldInvokeAction()
      */
