@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\Server;
 
 use Switon\Http\Server\Network;
-use Switon\Http\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class NetworkTest extends TestCase
 {

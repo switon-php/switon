@@ -16,21 +16,6 @@ class ControllerTest extends TestCase
     #[Autowired] protected RequestInterface $request;
     #[Autowired] protected ResponseInterface $response;
 
-    public function testControllerCanBeInstantiated(): void
-    {
-        $controller = new Controller();
-
-        $this->assertInstanceOf(Controller::class, $controller);
-    }
-
-    public function testControllerCanBeExtended(): void
-    {
-        $controller = new class () extends Controller {
-        };
-
-        $this->assertInstanceOf(Controller::class, $controller);
-    }
-
     public function testControllerHasAccessToRequest(): void
     {
         $controller = new class () extends Controller {

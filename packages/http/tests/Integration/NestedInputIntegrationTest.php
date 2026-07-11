@@ -5,22 +5,16 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use Switon\Binding\ArgumentsBinderInterface;
 use Switon\Core\InputInterface;
 use Switon\Http\Attribute\RequestBody;
 use Switon\Http\RequestInterface;
 use Switon\Http\Tests\TestCase;
-use Switon\Invoking\InvokerInterface;
+use Switon\Http\Tests\Support\BoundAction;
 use Switon\Validating\Attribute\Email;
 use Switon\Validating\Attribute\Length;
-use ReflectionMethod;
 
 /**
  * Integration test demonstrating nested typed-input validation in a realistic scenario.
- *
- * @group http
- * @group integration
- * @group nested-input
  */
 #[AllowMockObjectsWithoutExpectations]
 class NestedInputIntegrationTest extends TestCase
@@ -66,13 +60,8 @@ class NestedInputIntegrationTest extends TestCase
         $this->container->set(InputInterface::class, $input);
         $this->container->set(RequestInterface::class, $request);
 
-        $argumentsBinder = $this->container->get(ArgumentsBinderInterface::class);
-        $invoker = $this->container->get(InvokerInterface::class);
         $controller = new OrderController();
-        $arguments = $argumentsBinder->resolve(new ReflectionMethod($controller, 'createAction'));
-
-        // Act - invoke the controller action
-        $result = $invoker->invoke([$controller, 'createAction'], $arguments);
+        $result = BoundAction::invoke($this->container, $controller, 'createAction');
 
         // Assert - verify the order was created correctly
         $this->assertIsArray($result);
@@ -114,13 +103,8 @@ class NestedInputIntegrationTest extends TestCase
         $this->container->set(InputInterface::class, $input);
         $this->container->set(RequestInterface::class, $request);
 
-        $argumentsBinder = $this->container->get(ArgumentsBinderInterface::class);
-        $invoker = $this->container->get(InvokerInterface::class);
         $controller = new OrderController();
-        $arguments = $argumentsBinder->resolve(new ReflectionMethod($controller, 'createAction'));
-
-        // Act
-        $result = $invoker->invoke([$controller, 'createAction'], $arguments);
+        $result = BoundAction::invoke($this->container, $controller, 'createAction');
 
         // Assert - billing address should match shipping
         $this->assertIsArray($result);

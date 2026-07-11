@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\ValueResolver;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionFunction;
-use ReflectionParameter;
 use Switon\Binding\InputBinder;
 use Switon\Http\Attribute\RequestBody as RequestBodyAttribute;
 use Switon\Http\RequestBodyResolver;
@@ -20,9 +18,6 @@ use Switon\Validating\ValidatorInterface;
 
 /**
  * Test cases for ArrayOf attribute support in typed input binding.
- *
- * @group http
- * @group array-of-input
  */
 #[AllowMockObjectsWithoutExpectations]
 class ArrayOfInputTest extends TestCase
@@ -75,10 +70,10 @@ class ArrayOfInputTest extends TestCase
             fn ($message, $placeholders) => $this->formatMessage($message, $placeholders)
         );
 
-        $parameter = $this->createMockParameter(CreateOrderWithArrayRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderWithArrayRequest::class);
 
         // Assert
         $this->assertInstanceOf(CreateOrderWithArrayRequest::class, $result);
@@ -115,10 +110,10 @@ class ArrayOfInputTest extends TestCase
             fn ($message, $placeholders) => $this->formatMessage($message, $placeholders)
         );
 
-        $parameter = $this->createMockParameter(CreateOrderWithArrayRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderWithArrayRequest::class);
 
         // Assert
         $errors = $validation->getErrors();
@@ -146,10 +141,10 @@ class ArrayOfInputTest extends TestCase
             fn ($message, $placeholders) => $this->formatMessage($message, $placeholders)
         );
 
-        $parameter = $this->createMockParameter(CreateOrderWithArrayRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderWithArrayRequest::class);
 
         // Assert
         $errors = $validation->getErrors();
@@ -180,10 +175,10 @@ class ArrayOfInputTest extends TestCase
             fn ($message, $placeholders) => $this->formatMessage($message, $placeholders)
         );
 
-        $parameter = $this->createMockParameter(CreateOrderWithArrayRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderWithArrayRequest::class);
 
         // Assert
         $errors = $validation->getErrors();
@@ -209,10 +204,10 @@ class ArrayOfInputTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreatePostRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreatePostRequest::class);
 
         // Assert
         $this->assertInstanceOf(CreatePostRequest::class, $result);
@@ -241,10 +236,10 @@ class ArrayOfInputTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreatePostRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreatePostRequest::class);
 
         // Assert
         $this->assertIsArray($result->categoryIds);
@@ -270,10 +265,10 @@ class ArrayOfInputTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreatePostRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreatePostRequest::class);
 
         // Assert
         $this->assertIsArray($result->tags);
@@ -299,9 +294,9 @@ class ArrayOfInputTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateOrderWithArrayRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $this->resolver->resolve($parameter, CreateOrderWithArrayRequest::class);
 
         $errors = $validation->getErrors();
         $this->assertArrayHasKey('items.0', $errors);
@@ -325,9 +320,9 @@ class ArrayOfInputTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreatePostRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $this->resolver->resolve($parameter, CreatePostRequest::class);
 
         $errors = $validation->getErrors();
         $this->assertArrayHasKey('categoryIds.1', $errors);
@@ -352,23 +347,14 @@ class ArrayOfInputTest extends TestCase
             fn ($message, $placeholders) => $this->formatMessage($message, $placeholders)
         );
 
-        $parameter = $this->createMockParameter(CreatePostWithFallbackTagsRequest::class, 'request');
+        $parameter = $this->resolverParameter();
 
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreatePostWithFallbackTagsRequest::class);
 
         $errors = $validation->getErrors();
         $this->assertArrayHasKey('tags', $errors);
         $this->assertStringContainsString('at least', $errors['tags']);
         $this->assertSame([], $result->tags);
-    }
-
-    /**
-     * Helper method to create a mock ReflectionParameter.
-     */
-    protected function createMockParameter(string $typeName, string $paramName): ReflectionParameter
-    {
-        $fn = eval("return function ({$typeName} \${$paramName}) {}; ");
-        return (new ReflectionFunction($fn))->getParameters()[0];
     }
 
     protected function formatMessage(string $message, array $placeholders): string

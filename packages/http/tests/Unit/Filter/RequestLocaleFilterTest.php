@@ -16,9 +16,9 @@ use Switon\Http\Tests\Fixtures\TestRequestStub;
 use Switon\Http\Tests\TestCase;
 
 #[AllowMockObjectsWithoutExpectations]
-final class RequestLocaleFilterTest extends TestCase
+class RequestLocaleFilterTest extends TestCase
 {
-    private function makeRecordingLocale(): RecordingLocale
+    protected function makeRecordingLocale(): RecordingLocale
     {
         return new RecordingLocale();
     }
@@ -26,7 +26,7 @@ final class RequestLocaleFilterTest extends TestCase
     /**
      * @param array{supported?: list<string>, aliases?: array<string, string>} $props
      */
-    private function makeFilter(
+    protected function makeFilter(
         TestRequestStub $request,
         TestCookiesStub $cookies,
         RecordingLocale $locale,
@@ -144,7 +144,7 @@ final class RequestLocaleFilterTest extends TestCase
     }
 }
 
-final class RecordingLocale implements LocaleInterface
+class RecordingLocale implements LocaleInterface
 {
     public string $default = 'en';
 

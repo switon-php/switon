@@ -10,7 +10,7 @@ use Switon\Http\Exception\InvalidControllerException;
 use Switon\Routing\Attribute\GetMapping;
 use Switon\Routing\Attribute\RequestMapping;
 
-final class ControllerMetadataCoverageTest extends TestCase
+class ControllerMetadataCoverageTest extends TestCase
 {
     public function testGetActionsIgnoresPublicMethodsWithoutActionMappings(): void
     {

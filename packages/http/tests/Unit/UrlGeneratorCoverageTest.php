@@ -9,7 +9,7 @@ use Switon\Http\RequestInterface;
 use Switon\Http\UrlGenerator;
 use Switon\Routing\RouterInterface;
 
-final class UrlGeneratorCoverageTest extends TestCase
+class UrlGeneratorCoverageTest extends TestCase
 {
     public function testUrlUsesArrayPathAndAppliesPrefix(): void
     {
@@ -97,7 +97,7 @@ final class UrlGeneratorCoverageTest extends TestCase
     }
 }
 
-final class TestableUrlGenerator extends UrlGenerator
+class TestableUrlGenerator extends UrlGenerator
 {
     public function setDependencies(RouterInterface $router, RequestInterface $request): void
     {

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Http\Tests\Unit\ValueResolver;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionFunction;
-use ReflectionParameter;
 use Switon\Binding\Exception\InputBindingNestingDepthExceededException;
 use Switon\Binding\InputBinder;
 use Switon\Http\Attribute\RequestBody as RequestBodyAttribute;
@@ -18,12 +16,10 @@ use Switon\Validating\Attribute\Required;
 use Switon\Validating\Validation;
 use Switon\Validating\ValidatorInterface;
 use DateTimeImmutable;
+use TypeError;
 
 /**
  * Test cases for nested input support in RequestBody resolver.
- *
- * @group http
- * @group nested-input
  */
 #[AllowMockObjectsWithoutExpectations]
 class NestedRequestBodyTest extends TestCase
@@ -74,10 +70,10 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateOrderInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderInput::class);
 
         // Assert
         $this->assertInstanceOf(CreateOrderInput::class, $result);
@@ -109,10 +105,10 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateOrderInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderInput::class);
 
         // Assert
         $this->assertNull($result->billingAddress);
@@ -140,10 +136,10 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateOrderInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderInput::class);
 
         // Assert
         $this->assertNull($result->billingAddress);
@@ -172,10 +168,10 @@ class NestedRequestBodyTest extends TestCase
             fn ($message, $placeholders) => $this->formatMessage($message, $placeholders)
         );
 
-        $parameter = $this->createMockParameter(CreateOrderInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderInput::class);
 
         // Assert
         $errors = $validation->getErrors();
@@ -201,10 +197,10 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateOrderInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateOrderInput::class);
 
         // Assert
         $errors = $validation->getErrors();
@@ -228,10 +224,10 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateOrderInputWithExplicitRequiredNestedInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $this->resolver->resolve($parameter, CreateOrderInputWithExplicitRequiredNestedInput::class);
 
         // Assert
         $errors = $validation->getErrors();
@@ -257,10 +253,10 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateOrderInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $this->resolver->resolve($parameter, CreateOrderInput::class);
 
         // Assert
         $errors = $validation->getErrors();
@@ -291,10 +287,10 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(CreateUserInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act
-        $result = $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $result = $this->resolver->resolve($parameter, CreateUserInput::class);
 
         // Assert
         $this->assertInstanceOf(CreateUserInput::class, $result);
@@ -327,10 +323,10 @@ class NestedRequestBodyTest extends TestCase
         $validation = new Validation($this->validator, $data);
         $this->validator->method('beginValidate')->willReturn($validation);
 
-        $parameter = $this->createMockParameter(DeeplyNestedInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
         // Act - should throw exception
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
+        $this->resolver->resolve($parameter, DeeplyNestedInput::class);
     }
 
     /**
@@ -338,7 +334,7 @@ class NestedRequestBodyTest extends TestCase
      */
     public function testDateTimeImmutableTypeValidationFails(): void
     {
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         $inputData = [
             'eventName' => 'launch',
@@ -352,18 +348,9 @@ class NestedRequestBodyTest extends TestCase
         $this->validator->method('endValidate')->willReturnArgument(0);
         $this->validator->method('formatMessage')->willReturnArgument(0);
 
-        $parameter = $this->createMockParameter(EventWithDateTimeInput::class, 'request');
+        $parameter = $this->resolverParameter();
 
-        $this->resolver->resolve($parameter, $parameter->getType()->getName());
-    }
-
-    /**
-     * Helper method to create a mock ReflectionParameter.
-     */
-    protected function createMockParameter(string $typeName, string $paramName): ReflectionParameter
-    {
-        $fn = eval("return function ({$typeName} \${$paramName}) {}; ");
-        return (new ReflectionFunction($fn))->getParameters()[0];
+        $this->resolver->resolve($parameter, EventWithDateTimeInput::class);
     }
 
     protected function formatMessage(string $message, array $placeholders): string
