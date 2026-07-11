@@ -37,10 +37,12 @@
         "switon/kernel": "^1.0",
         "switon/principal": "^1.0",
         "switon/renderer": "^1.0",
-        "switon/router": "^1.0"
+        "switon/router": "^1.0",
+        "switon/sync": "^1.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.0",
+        "switon/di": "^1.0",
         "switon/i18n": "^1.0",
         "switon/testing": "^1.0",
         "switon/validation": "^1.0",
