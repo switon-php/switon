@@ -16,8 +16,10 @@ use Switon\Http\Server\Adapter\Native\SenderInterface;
 use Switon\Http\Server\Event\ServerReady;
 use Switon\Http\Server\Network;
 use Switon\Http\Server\StaticHandlerInterface;
+use Throwable;
 
 use function console_log;
+use function escapeshellarg;
 use function file_get_contents;
 use function get_included_files;
 use function header;
@@ -131,7 +133,10 @@ class Php extends AbstractServer
 
         $publicDir = $this->pathAlias->resolve('@public');
         $entryScript = $this->getEntryScript();
-        $command = PHP_BINARY . " -S {$this->serverOptions->host}:{$this->serverOptions->port} -t $publicDir  $entryScript";
+        $command = escapeshellarg(PHP_BINARY)
+            . ' -S ' . $this->serverOptions->host . ':' . $this->serverOptions->port
+            . ' -t ' . escapeshellarg($publicDir)
+            . ' ' . escapeshellarg($entryScript);
 
         $this->logCliStart($command);
         $this->runCliCommand($command);
@@ -153,7 +158,13 @@ class Php extends AbstractServer
 
     protected function runCliCommand(string $command): void
     {
-        passthru($command, $exitCode);
+        try {
+            passthru($command, $exitCode);
+        } catch (Throwable $e) {
+            console_log('error', 'Cannot start the built-in PHP server: {error}', ['error' => $e->getMessage()]);
+            exit(1);
+        }
+
         if ($exitCode !== 0) {
             exit($exitCode);
         }
