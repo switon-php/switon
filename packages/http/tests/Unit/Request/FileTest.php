@@ -212,6 +212,22 @@ class FileTest extends TestCase
         $this->file->moveTo('@uploads/readme', 'pdf,doc');
     }
 
+    public function testMoveToReportsChmodFailure(): void
+    {
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isFile')->willReturn(false);
+        $filesystem->method('exists')->willReturn(true);
+        $filesystem->method('chmod')->willThrowException(\Switon\Core\Exception\RuntimeException::of('denied'));
+
+        $file = $this->container->make(File::class, [
+            'file' => $this->createFileData(),
+            'filesystem' => $filesystem,
+        ]);
+
+        $this->expectException(FileException::class);
+        $file->moveTo($this->tempDir . '/moved.txt', 'txt');
+    }
+
     public function testMoveToOverwritesExistingFileWhenOverwriteIsTrue(): void
     {
         $this->pathAlias->set('@uploads', $this->tempDir . '/uploads');
