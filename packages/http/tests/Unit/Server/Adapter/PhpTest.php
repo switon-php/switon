@@ -501,7 +501,7 @@ class TestablePhpAdapter extends Php
 /**
  * Forces non-CLI request path for {@see Php::start()} without touching {@see Php::startCliServer()}.
  */
-final class TestablePhpNonCliStart extends Php
+class TestablePhpNonCliStart extends Php
 {
     protected function isCliRuntime(): bool
     {
@@ -517,7 +517,7 @@ final class TestablePhpNonCliStart extends Php
 /**
  * CLI {@see Php::start()} harness: records {@see shell_exec} command and avoids {@see exit}.
  */
-final class TestablePhpCliHarness extends Php
+class TestablePhpCliHarness extends Php
 {
     /** @var list<string> */
     public array $shellCommands = [];
