@@ -27,8 +27,7 @@ class RequestBegin implements JsonSerializable, SenderAwareInterface
     public function __construct(
         public RequestHandlerInterface $sender,
         public RequestInterface $request
-    )
-    {
+    ) {
 
     }
 

@@ -70,7 +70,7 @@ class Request implements RequestInterface, JsonSerializable, ContextAware
     /**
      * Store transport-level globals from {@see RequestReceived}; does not parse JSON or raw body into POST.
      *
-     * Body parsing runs later in {@see parseBody()} (after {@see \Switon\Http\Event\RequestAdjust}).
+     * Body parsing runs later in `parseBody()` (after {@see \Switon\Http\Event\RequestAdjust}).
      */
     #[EventListener] public function onRequestReceived(RequestReceived $event): void
     {
@@ -107,7 +107,7 @@ class Request implements RequestInterface, JsonSerializable, ContextAware
      *
      * Idempotent when {@see RequestContext::$_POST} is already non-empty (e.g. PHP filled `$_POST` for forms) or when
      * the method is GET/OPTIONS, or raw body is null/empty. JSON decode must yield an array for POST; scalar JSON roots
-     * become an empty POST array — use {@see rawBody()} for scalar JSON payloads.
+     * become an empty POST array — use `rawBody()` for scalar JSON payloads.
      *
      * @throws BadRequestException When Content-Type is JSON and the body is not valid JSON
      *

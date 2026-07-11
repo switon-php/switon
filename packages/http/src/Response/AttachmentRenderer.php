@@ -57,7 +57,7 @@ class AttachmentRenderer implements AttachmentRendererInterface
             // It's a file path
             $this->response->setFile($content);
             $filePath = $this->response->getFile();
-            if ($filePath !== null && is_file($filePath)) {
+            if ($filePath !== null && $this->filesystem->isFile($filePath)) {
                 $fileSize = $this->filesystem->size($filePath);
                 $this->response->setHeader('Content-Length', (string)($fileSize ?? 0));
             } elseif ($filePath !== null) {

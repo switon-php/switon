@@ -13,7 +13,7 @@ use Throwable;
 /**
  * Event emitted when access log writing fails.
  *
- * Log category: <code>switon.http.filters.access.log.write.failed</code>
+ * Log category: <code>switon.http.filter.access.log.write.failed</code>
  *
  * @see \Switon\Http\Filter\AccessLogFilter::onEnd()
  * @see \Switon\Core\FilesystemInterface

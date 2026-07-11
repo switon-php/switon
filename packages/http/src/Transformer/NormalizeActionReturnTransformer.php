@@ -21,7 +21,7 @@ use function is_string;
  *
  * Road-signs:
  * - listens to RequestInvoked
- * - skips when response content already exists
+ * - skips when response content or file already exists
  * - array/object-ish values become success JSON payloads
  * - string/int become shorthand error/code payloads
  * - Throwable is rethrown into the exception path
@@ -41,8 +41,8 @@ class NormalizeActionReturnTransformer
      */
     #[EventListener] public function onInvoked(RequestInvoked $event): void
     {
-        // Skip if response content is already set (e.g., by ViewRenderer)
-        if ($this->response->hasContent()) {
+        // Skip if response body already set (view / raw / file download).
+        if ($this->response->hasContent() || $this->response->hasFile()) {
             return;
         }
 
