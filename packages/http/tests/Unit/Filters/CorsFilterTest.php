@@ -289,4 +289,48 @@ class CorsFilterTest extends TestCase
 
         $this->assertSame('false', $response->getHeader('Access-Control-Allow-Credentials'));
     }
+
+    public function testOnHeadersSendingTreatsMixedCaseHostAsSameOrigin(): void
+    {
+        $requestEvent = $this->createRequestEvent(
+            server: [
+                'REQUEST_METHOD' => 'GET',
+                'HTTP_ORIGIN' => 'https://Example.COM',
+                'HTTP_HOST' => 'example.com',
+            ]
+        );
+        $this->request->onRequestReceived($requestEvent);
+
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $this->response);
+        $this->filter->onResponseHeadersSending($event);
+
+        $this->assertSame(null, $this->response->getHeader('Access-Control-Allow-Origin'));
+    }
+
+    public function testOnHeadersSendingMatchesProductionDomainSuffixCaseInsensitively(): void
+    {
+        $container = $this->createTestContainer();
+
+        $request = $container->get(RequestInterface::class);
+        $response = $container->get(ResponseInterface::class);
+
+        $container->remove(App::class);
+        $container->replace(AppInterface::class, ['class' => App::class, 'env' => 'prod']);
+
+        $filter = $container->make(CorsFilter::class);
+
+        $requestEvent = $this->createRequestEvent(
+            server: [
+                'REQUEST_METHOD' => 'GET',
+                'HTTP_ORIGIN' => 'https://app.EXAMPLE.com',
+                'HTTP_HOST' => 'api.example.COM',
+            ]
+        );
+        $request->onRequestReceived($requestEvent);
+
+        $event = new HeadersSending($this->createMock(ServerInterface::class), $response);
+        $filter->onResponseHeadersSending($event);
+
+        $this->assertSame('https://app.EXAMPLE.com', $response->getHeader('Access-Control-Allow-Origin'));
+    }
 }
