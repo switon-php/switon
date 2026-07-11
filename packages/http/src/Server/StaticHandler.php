@@ -6,15 +6,12 @@ namespace Switon\Http\Server;
 
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\FilesystemInterface;
+use Switon\Core\Path;
 use Switon\Core\PathAliasInterface;
 use Switon\Routing\RouterInterface;
 
 use function count;
 use function in_array;
-use function is_file;
-use function realpath;
-use function rtrim;
-use function str_replace;
 use function str_starts_with;
 use function strlen;
 
@@ -31,15 +28,14 @@ use function strlen;
  *
  * @see \Switon\Http\Server\StaticHandlerInterface
  * @see \Switon\Routing\RouterInterface
- * @see \Switon\Core\PathAliasInterface
  * @see \Switon\Http\Server\Adapter\Php
  * @see \Switon\Http\Server\Adapter\Swoole
  */
 class StaticHandler implements StaticHandlerInterface
 {
-    #[Autowired] protected PathAliasInterface $pathAlias;
     #[Autowired] protected RouterInterface $router;
     #[Autowired] protected FilesystemInterface $filesystem;
+    #[Autowired] protected PathAliasInterface $pathAlias;
 
     /** @var list<string> */
     protected array $locations;
@@ -146,24 +142,18 @@ class StaticHandler implements StaticHandlerInterface
             return null;
         }
 
-        $publicRoot = realpath($this->pathAlias->resolve('@public'));
-        if ($publicRoot === false) {
-            return null;
-        }
-
         // Remove leading slash from fileInternal to avoid double slashes when concatenating with '@public/'
-        $file = $this->pathAlias->resolve('@public/' . ltrim($fileInternal, '/'));
-        $resolvedFile = realpath($file);
-        if ($resolvedFile === false) {
+        $publicFile = '@public/' . ltrim($fileInternal, '/');
+
+        // realpath() resolves disk symlinks. An existing phar entry comes back canonical;
+        // a missing entry stays on the resolved path so both sides still compare in one form.
+        $publicRoot = $this->filesystem->realpath('@public') ?? $this->pathAlias->resolve('@public');
+        $file = $this->filesystem->realpath($publicFile) ?? $this->pathAlias->resolve($publicFile);
+
+        if (!Path::within($publicRoot, $file, true)) {
             return null;
         }
 
-        $publicRoot = rtrim(str_replace('\\', '/', $publicRoot), '/');
-        $resolvedFile = str_replace('\\', '/', $resolvedFile);
-        if ($resolvedFile !== $publicRoot && !str_starts_with($resolvedFile, $publicRoot . '/')) {
-            return null;
-        }
-
-        return is_file($resolvedFile) ? $resolvedFile : null;
+        return $this->filesystem->isFile($file) ? $file : null;
     }
 }
