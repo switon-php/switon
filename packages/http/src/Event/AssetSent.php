@@ -18,7 +18,7 @@ use Switon\Http\ServerInterface;
  * - carries requested URI and final status code
  * - pairs with AssetSending
  *
- * Log category: <code>switon.http.response.asset_sent</code>
+ * Log category: <code>switon.http.asset.sent</code>
  *
  * @see \Switon\Http\Server\Adapter\Swoole::onRequest()
  * @see \Switon\Http\Server\StaticHandlerInterface

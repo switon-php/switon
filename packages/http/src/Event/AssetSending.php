@@ -18,7 +18,7 @@ use Switon\Http\ServerInterface;
  * - uri identifies the requested asset path
  * - AssetSent follows after completion
  *
- * Log category: <code>switon.http.response.asset_sending</code>
+ * Log category: <code>switon.http.asset.sending</code>
  *
  * @see \Switon\Http\Server\Adapter\Swoole::onRequest()
  * @see \Switon\Http\Server\StaticHandlerInterface
