@@ -37,10 +37,10 @@ class HasManyToMany implements RelationAttribute
      * @param class-string<RelationInterface> $handler Relation handler class name. Defaults to {@see \Switon\Orm\Relation\HasManyToManyRelation}.
      */
     public function __construct(
-        public readonly string  $junctionEntity,
-        public readonly ?string $foreignEntity = null,
-        public readonly array   $orderBy = [],
-        public readonly string  $handler = HasManyToManyRelation::class
+        public string  $junctionEntity,
+        public ?string $foreignEntity = null,
+        public array   $orderBy = [],
+        public string  $handler = HasManyToManyRelation::class
     ) {
     }
 

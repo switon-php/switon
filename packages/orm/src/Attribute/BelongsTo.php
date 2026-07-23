@@ -25,7 +25,7 @@ use Switon\Orm\RelationInterface;
  * @see \Switon\Orm\Attribute\HasMany
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-readonly class BelongsTo implements RelationAttribute
+class BelongsTo implements RelationAttribute
 {
     /**
      * Creates a new BelongsTo relationship attribute instance.

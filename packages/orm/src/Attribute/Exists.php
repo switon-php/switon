@@ -36,7 +36,7 @@ class Exists extends AbstractConstraint
      * @param string|null $message
      */
     public function __construct(
-        public readonly string $entityClass,
+        public string $entityClass,
         ?string                $message = null
     ) {
         parent::__construct($message);

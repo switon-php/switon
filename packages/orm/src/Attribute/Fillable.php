@@ -19,7 +19,7 @@ use Attribute;
  * @see \Switon\Orm\Attribute\Column For column name mapping only
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-final class Fillable
+class Fillable
 {
     /**
      * @param bool $fillable true = fillable (default), false = explicitly not fillable

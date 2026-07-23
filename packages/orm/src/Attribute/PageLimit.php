@@ -22,7 +22,7 @@ use Attribute;
  * @see \Switon\Orm\RepositoryInterface::paginate()
  */
 #[Attribute(Attribute::TARGET_METHOD)]
-readonly class PageLimit
+class PageLimit
 {
     public function __construct(
         public int $max
