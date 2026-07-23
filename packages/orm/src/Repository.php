@@ -30,7 +30,6 @@ class Repository extends AbstractRepository
 {
     /** @var EntityManagerInterface<T> */
     #[Autowired] protected EntityManagerInterface $entityManager;
-
     /** @var QueryBuilderInterface<T> */
     #[Autowired] protected QueryBuilderInterface $queryBuilder;
 

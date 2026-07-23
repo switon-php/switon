@@ -22,6 +22,7 @@ use Switon\Query\QueryInterface;
 class QueryBuilder implements QueryBuilderInterface
 {
     #[Autowired] protected string $queryClass = 'Switon\\Query\\Query';
+
     #[Autowired] protected MakerInterface $maker;
 
     /**

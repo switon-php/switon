@@ -50,14 +50,10 @@ class EntityManager extends AbstractEntityManager
 {
     /** @var NamedLookupInterface<ClientInterface> */
     #[Autowired] protected NamedLookupInterface $namedLookup;
-
     /** @var QueryBuilderInterface<Entity> */
     #[Autowired] protected QueryBuilderInterface $queryBuilder;
-
     #[Autowired] protected IdGeneratorInterface $idGenerator;
-
     #[Autowired] protected TransactionManagerInterface $transactionManager;
-
     #[Autowired] protected ShardingManagerInterface $shardingManager;
 
     /**

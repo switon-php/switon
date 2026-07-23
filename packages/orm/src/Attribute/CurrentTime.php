@@ -28,6 +28,7 @@ class CurrentTime implements PropertyWriteFillerInterface
     protected const string SKIP = '__switon.current_time.skip__';
 
     #[Autowired] protected EntityMetadataInterface $entityMetadata;
+
     #[Autowired] protected string $date_format = 'Y-m-d H:i:s';
 
     public function __construct(
