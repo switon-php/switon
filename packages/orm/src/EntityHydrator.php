@@ -7,11 +7,12 @@ namespace Switon\Orm;
 use BackedEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
-use JsonException;
 use JsonSerializable;
 use Stringable;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Exception\JsonException;
 use Switon\Core\Exception\RuntimeException;
+use Switon\Core\Json;
 use UnitEnum;
 use ValueError;
 
@@ -23,8 +24,6 @@ use function is_array;
 use function is_bool;
 use function is_scalar;
 use function is_string;
-use function json_decode;
-use function json_encode;
 use function property_exists;
 
 /**
@@ -94,6 +93,10 @@ class EntityHydrator implements EntityHydratorInterface
      * Converts an entity into a persistence payload.
      *
      * @inheritDoc
+     *
+     * @param array<int, string>|null $fields Optional field allow-list
+     *
+     * @return array<string, mixed>
      */
     public function dehydrate(Entity $entity, ?array $fields = null): array
     {
@@ -126,13 +129,17 @@ class EntityHydrator implements EntityHydratorInterface
      *
      * @return list<int|string>
      */
+    /**
+     * Normalizes a field spec into a plain list of field names.
+     *
+     * @param array<int|string, mixed> $fields Field list or keyed map
+     *
+     * @return list<string> Field names
+     */
     protected function normalizeFields(array $fields): array
     {
-        if (array_is_list($fields)) {
-            return $fields;
-        }
-
-        return array_keys($fields);
+        /** @var list<string> */
+        return array_is_list($fields) ? $fields : array_keys($fields);
     }
 
     /**
@@ -234,7 +241,7 @@ class EntityHydrator implements EntityHydratorInterface
 
         if (is_string($value)) {
             try {
-                $decoded = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+                $decoded = Json::parse($value);
             } catch (JsonException $e) {
                 RuntimeException::raise(
                     'Failed to decode JSON for {entity}.{field}: {error}',
@@ -410,7 +417,7 @@ class EntityHydrator implements EntityHydratorInterface
     protected function encodeJson(string $entityClass, string $field, mixed $value): string
     {
         try {
-            return json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            return Json::stringify($value);
         } catch (JsonException $e) {
             RuntimeException::raise(
                 'Failed to encode JSON for {entity}.{field}: {error}',
