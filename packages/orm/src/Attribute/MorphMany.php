@@ -26,7 +26,7 @@ use Switon\Orm\RelationInterface;
  * @see \Switon\Orm\EntityMetadataInterface::getTable()
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-readonly class MorphMany implements RelationAttribute
+class MorphMany implements RelationAttribute
 {
     /**
      * Creates a new MorphMany relationship attribute instance.

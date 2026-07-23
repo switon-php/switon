@@ -21,7 +21,7 @@ use Switon\Orm\RelationInterface;
  * @see \Switon\Orm\Exception\RelationFieldMissingException
  */
 #[EventLevel(Severity::WARNING)]
-readonly class RelationDataInconsistency implements SenderAwareInterface
+class RelationDataInconsistency implements SenderAwareInterface
 {
     /**
      * @param array<int, int|string|null> $orphanedForeignKeyValues

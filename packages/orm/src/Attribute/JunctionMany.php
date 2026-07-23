@@ -25,7 +25,7 @@ use Switon\Orm\RelationInterface;
  * @see \Switon\Orm\EntityMetadataInterface::getRelations()
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-readonly class JunctionMany implements RelationAttribute
+class JunctionMany implements RelationAttribute
 {
     /**
      * Creates a new JunctionMany relationship attribute instance.

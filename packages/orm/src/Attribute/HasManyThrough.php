@@ -25,7 +25,7 @@ use Switon\Orm\RelationInterface;
  * @see \Switon\Orm\EntityMetadataInterface::getRelations()
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-readonly class HasManyThrough implements RelationAttribute
+class HasManyThrough implements RelationAttribute
 {
     /**
      * Creates a new HasManyThrough relationship attribute instance.
