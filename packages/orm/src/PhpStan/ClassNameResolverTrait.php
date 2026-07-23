@@ -16,7 +16,7 @@ use function preg_match;
 
 trait ClassNameResolverTrait
 {
-    private function resolveClassType(Type $type): ?Type
+    protected function resolveClassType(Type $type): ?Type
     {
         $classNames = $type->getObjectClassNames();
         if ($classNames !== []) {
@@ -31,7 +31,7 @@ trait ClassNameResolverTrait
         return $this->resolveExistingClassName($strings[0]->getValue());
     }
 
-    private function resolveExistingClassName(string $className): ?Type
+    protected function resolveExistingClassName(string $className): ?Type
     {
         if (class_exists($className) || interface_exists($className)) {
             return new ObjectType($className);
@@ -40,7 +40,7 @@ trait ClassNameResolverTrait
         return null;
     }
 
-    private function resolveRepositoryClassName(string $entityClass): ?string
+    protected function resolveRepositoryClassName(string $entityClass): ?string
     {
         if (!class_exists($entityClass)) {
             return null;

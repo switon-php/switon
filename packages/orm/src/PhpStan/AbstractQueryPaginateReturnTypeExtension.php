@@ -13,7 +13,7 @@ use PHPStan\Type\Type;
 use Switon\Query\AbstractQuery;
 use Switon\Query\Paginator;
 
-final class AbstractQueryPaginateReturnTypeExtension implements DynamicMethodReturnTypeExtension
+class AbstractQueryPaginateReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
     public function getClass(): string
     {
