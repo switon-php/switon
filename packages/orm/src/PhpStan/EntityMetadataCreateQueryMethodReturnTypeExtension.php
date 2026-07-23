@@ -11,7 +11,7 @@ use PHPStan\Type\DynamicMethodReturnTypeExtension;
 use PHPStan\Type\Type;
 use Switon\Orm\EntityMetadataInterface;
 
-final class EntityMetadataCreateQueryMethodReturnTypeExtension implements DynamicMethodReturnTypeExtension
+class EntityMetadataCreateQueryMethodReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
     use EntityClassTypeResolver;
 
