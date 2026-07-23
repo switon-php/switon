@@ -19,7 +19,6 @@ use Switon\Orm\Tests\Fixtures\TestArticleTestTag;
 use Switon\Orm\Tests\Fixtures\TestRole;
 use Switon\Orm\Tests\Fixtures\TestTag;
 use Switon\Orm\Tests\Fixtures\TestUser;
-use Switon\Orm\Tests\Fixtures\TestUserRole;
 use Switon\Orm\Tests\Fixtures\TestUserRoleWithBelongsTo;
 use Switon\Orm\Tests\Fixtures\TestUserRoleWithBelongsToIgnored;
 use Switon\Orm\Tests\Fixtures\User;
@@ -46,44 +45,11 @@ class HasManyToManyRelationTest extends TestCase
     }
 
     /**
-     * Test constructor with junction entity only.
-     */
-    public function testConstructorWithJunctionEntityOnly(): void
-    {
-        $relation = new HasManyToManyRelation('App\\Entity\\UserRole');
-
-        $this->assertInstanceOf(HasManyToManyRelation::class, $relation);
-    }
-
-    /**
-     * Test constructor with all parameters.
-     */
-    public function testConstructorWithAllParameters(): void
-    {
-        $relation = new HasManyToManyRelation(
-            'App\\Entity\\UserRole',
-            'App\\Entity\\Role',
-            ['name' => SORT_ASC]
-        );
-
-        $this->assertInstanceOf(HasManyToManyRelation::class, $relation);
-    }
-
-    /**
      * Test earlyLoad with valid junction data.
      */
     public function testEarlyLoadWithValidData(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         // Parent data (users)
         $parentData = [
@@ -135,16 +101,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadKeepsDuplicateRelatedEntitiesWhenJunctionHasDuplicates(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -200,16 +157,7 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testEarlyLoadReturnsEmptyArrayWhenNoJunctionData(): void
     {
-        $relation = new HasManyToManyRelation('App\\Entity\\UserRole', 'App\\Entity\\Role');
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => 'App\\Entity\\User',
-            'relatedEntityClass' => 'App\\Entity\\Role',
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -218,8 +166,8 @@ class HasManyToManyRelationTest extends TestCase
         $this->mockEntityMetadata->method('getPrimaryKey')
             ->willReturnCallback(static function (string $class): string {
                 return match ($class) {
-                    'App\\Entity\\User' => 'user_id',
-                    'App\\Entity\\Role' => 'role_id',
+                    TestUser::class => 'user_id',
+                    TestRole::class => 'role_id',
                     default => 'id',
                 };
             });
@@ -247,16 +195,7 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testEarlyLoadWithEmptyParentRows(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $this->mockEntityMetadata->method('getPrimaryKey')
             ->willReturnCallback(static function (string $class): string {
@@ -296,16 +235,7 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testEarlyLoadIgnoresJunctionRowsForParentsNotInBatch(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -363,16 +293,7 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testEarlyLoadMapsRelatedEntitiesForDuplicateParentRows(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1 - A'],
@@ -407,7 +328,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('createQuery')
-            ->with(TestUserRole::class, ['user_id', 'role_id'])
+            ->with(TestUserRoleWithBelongsTo::class, ['user_id', 'role_id'])
             ->willReturn($junctionQuery);
 
         $this->mockQuery->expects($this->once())
@@ -433,16 +354,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadSkipsJunctionOrphansWhenRelatedEntityMissing(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -487,16 +399,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadSkipsOrphanJunctionsAndKeepsDuplicateValidTargetsWhenJunctionHasStringIds(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -548,16 +451,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadSkipsDuplicateOrphanJunctionValuesWhenRelatedEntityMissingAndDoesNotDispatch(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -603,16 +497,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadThrowsExceptionWhenJunctionRelatedFieldMissing(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -645,16 +530,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadThrowsExceptionWhenRelatedPrimaryKeyMissing(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -695,13 +571,11 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadInfersJunctionFieldsFromBelongsToRelations(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRoleWithBelongsTo::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            TestUserRoleWithBelongsTo::class,
+            $this->mockEntityMetadata,
+            TestUser::class,
+        );
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -768,13 +642,11 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testEarlyLoadSkipsReadOnlyAndStaticBelongsToFieldsWhenInferringJunctionFields(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRoleWithBelongsToIgnored::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            TestUserRoleWithBelongsToIgnored::class,
+            $this->mockEntityMetadata,
+            TestUser::class,
+        );
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -839,13 +711,11 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadThrowsWhenJunctionHasNoBelongsToRelations(): void
     {
-        $relation = new HasManyToManyRelation(UserRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => User::class,
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            UserRole::class,
+            $this->mockEntityMetadata,
+            User::class,
+        );
 
         $this->expectException(MisuseException::class);
         $this->expectExceptionMessage('define two BelongsTo relations');
@@ -861,13 +731,12 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testEarlyLoadRespectsExplicitForeignEntityOverride(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRoleWithBelongsTo::class, TestArticle::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            TestUserRoleWithBelongsTo::class,
+            $this->mockEntityMetadata,
+            TestUser::class,
+            TestArticle::class,
+        );
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -936,13 +805,11 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadThrowsWhenJunctionNeedsPivotNamespaceFallback(): void
     {
-        $relation = new HasManyToManyRelation(PivotUserRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => User::class,
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            PivotUserRole::class,
+            $this->mockEntityMetadata,
+            User::class,
+        );
 
         $this->expectException(MisuseException::class);
         $this->expectExceptionMessage('define two BelongsTo relations');
@@ -955,13 +822,11 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadThrowsWhenJunctionNeedsSuffixNameFallback(): void
     {
-        $relation = new HasManyToManyRelation(TestArticleTestTag::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestTag::class,
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            TestArticleTestTag::class,
+            $this->mockEntityMetadata,
+            TestTag::class,
+        );
 
         $this->expectException(MisuseException::class);
         $this->expectExceptionMessage('define two BelongsTo relations');
@@ -977,21 +842,13 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testLazyLoadCreatesCorrectQuery(): void
     {
-        $relation = new HasManyToManyRelation('App\\Entity\\UserRole', 'App\\Entity\\Role');
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => 'App\\Entity\\User',
-            'relatedEntityClass' => 'App\\Entity\\Role',
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $this->mockEntityMetadata->method('getPrimaryKey')
             ->willReturnCallback(function ($class) {
                 return match ($class) {
-                    'App\\Entity\\User' => 'id',
-                    'App\\Entity\\Role' => 'id',
+                    TestUser::class => 'user_id',
+                    TestRole::class => 'role_id',
                     default => 'id'
                 };
             });
@@ -1000,20 +857,18 @@ class HasManyToManyRelationTest extends TestCase
         $mockRepository->method('values')->willReturn([1, 2]);
 
         $this->mockEntityMetadata->method('getRepository')
-            ->with('App\\Entity\\UserRole')
+            ->with(TestUserRoleWithBelongsTo::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->method('createQuery')
-            ->with('App\\Entity\\Role')
+            ->with(TestRole::class)
             ->willReturn($this->mockQuery);
 
         $this->mockQuery->method('orderBy')->willReturnSelf();
         $this->mockQuery->method('whereIn')->willReturnSelf();
         $this->mockQuery->method('setFetchType')->willReturnSelf();
 
-        $entity = new class (['id' => 42]) extends Entity {
-            public int $id;
-        };
+        $entity = new TestUser(['user_id' => 42, 'name' => 'User']);
 
         $result = $relation->lazyLoad($entity);
 
@@ -1025,15 +880,7 @@ class HasManyToManyRelationTest extends TestCase
      */
     public function testLazyLoadWithEmptyRelatedIdsStillBuildsWhereIn(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $this->mockEntityMetadata->method('getPrimaryKey')
             ->willReturnCallback(static function (string $class): string {
@@ -1052,7 +899,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('getRepository')
-            ->with(TestUserRole::class)
+            ->with(TestUserRoleWithBelongsTo::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->expects($this->once())
@@ -1081,15 +928,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testLazyLoadBuildsWhereInWithZeroRelatedIdsStillBuildsWhereIn(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $this->mockEntityMetadata->method('getPrimaryKey')
             ->willReturnCallback(static function (string $class): string {
@@ -1108,7 +947,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('getRepository')
-            ->with(TestUserRole::class)
+            ->with(TestUserRoleWithBelongsTo::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->expects($this->once())
@@ -1139,16 +978,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadAttachesRelatedEntityWhenRelatedEntityIdIsZero(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -1177,7 +1007,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('createQuery')
-            ->with(TestUserRole::class, ['user_id', 'role_id'])
+            ->with(TestUserRoleWithBelongsTo::class, ['user_id', 'role_id'])
             ->willReturn($junctionQuery);
 
         $this->mockQuery->expects($this->once())
@@ -1201,16 +1031,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadAttachesRelatedEntityWhenSelfEntityIdIsZero(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 0, 'name' => 'User 0'],
@@ -1239,7 +1060,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('createQuery')
-            ->with(TestUserRole::class, ['user_id', 'role_id'])
+            ->with(TestUserRoleWithBelongsTo::class, ['user_id', 'role_id'])
             ->willReturn($junctionQuery);
 
         $this->mockQuery->expects($this->once())
@@ -1263,16 +1084,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadReturnsEmptyRolesForSelfEntityIdIsZeroWhenRelatedEntitiesMissing(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 0, 'name' => 'User 0'],
@@ -1299,7 +1111,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('createQuery')
-            ->with(TestUserRole::class, ['user_id', 'role_id'])
+            ->with(TestUserRoleWithBelongsTo::class, ['user_id', 'role_id'])
             ->willReturn($junctionQuery);
 
         $this->mockQuery->expects($this->once())
@@ -1322,16 +1134,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadSkipsJunctionOrphansWhenRelatedEntityIdIsZeroMissingInRelatedEntities(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -1359,7 +1162,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('createQuery')
-            ->with(TestUserRole::class, ['user_id', 'role_id'])
+            ->with(TestUserRoleWithBelongsTo::class, ['user_id', 'role_id'])
             ->willReturn($junctionQuery);
 
         $this->mockQuery->expects($this->once())
@@ -1382,16 +1185,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadSkipsJunctionOrphansWhenRelatedEntityIdIsZeroStringMissingInRelatedEntities(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRole::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            'junctionRelatedField' => 'role_id',
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -1422,7 +1216,7 @@ class HasManyToManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('createQuery')
-            ->with(TestUserRole::class, ['user_id', 'role_id'])
+            ->with(TestUserRoleWithBelongsTo::class, ['user_id', 'role_id'])
             ->willReturn($junctionQuery);
 
         $this->mockQuery->expects($this->once())
@@ -1452,13 +1246,11 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testLazyLoadThrowsWhenJunctionNeedsSuffixNameFallback(): void
     {
-        $relation = new HasManyToManyRelation(TestArticleTestTag::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestTag::class,
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            TestArticleTestTag::class,
+            $this->mockEntityMetadata,
+            TestTag::class,
+        );
 
         $this->mockEntityMetadata->method('getPrimaryKey')
             ->with(TestTag::class)
@@ -1474,16 +1266,7 @@ class HasManyToManyRelationTest extends TestCase
 
     public function testEarlyLoadInitializesJunctionRelatedFieldWhenOnlyJunctionSelfFieldInjected(): void
     {
-        $relation = new HasManyToManyRelation(TestUserRoleWithBelongsTo::class, TestRole::class);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            'relatedEntityClass' => TestRole::class,
-            'junctionSelfField' => 'user_id',
-            // junctionRelatedField intentionally not injected (null)
-            'eventDispatcher' => $this->mockEventDispatcher,
-        ]);
+        $relation = $this->userRoleManyToManyRelation();
 
         $parentData = [
             ['user_id' => 1, 'name' => 'User 1'],
@@ -1545,13 +1328,13 @@ class HasManyToManyRelationTest extends TestCase
     public function testGetRelatedQueryInitializesWhenRelatedEntityClassIsEmpty(): void
     {
         $orderBy = ['name' => SORT_ASC];
-        $relation = new HasManyToManyRelation(TestUserRoleWithBelongsTo::class, TestRole::class, $orderBy);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestUser::class,
-            // Intentionally do not inject relatedEntityClass, leaving it empty so getRelatedQuery() triggers initializeFields().
-        ]);
+        $relation = $this->makeHasManyToManyRelation(
+            TestUserRoleWithBelongsTo::class,
+            $this->mockEntityMetadata,
+            TestUser::class,
+            '',
+            $orderBy,
+        );
 
         $this->mockEntityMetadata->method('getReferencedKey')
             ->willReturnCallback(static function (string $class): string {
@@ -1581,19 +1364,10 @@ class HasManyToManyRelationTest extends TestCase
     public function testGetRelatedQueryAppliesOrdering(): void
     {
         $orderBy = ['name' => SORT_ASC];
-        $relation = new HasManyToManyRelation(
-            'App\\Entity\\UserRole',
-            'App\\Entity\\Role',
-            $orderBy
-        );
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'relatedEntityClass' => 'App\\Entity\\Role',
-        ]);
+        $relation = $this->userRoleManyToManyRelation($orderBy);
 
         $this->mockEntityMetadata->method('createQuery')
-            ->with('App\\Entity\\Role')
+            ->with(TestRole::class)
             ->willReturn($this->mockQuery);
 
         $this->mockQuery->expects($this->once())
@@ -1602,5 +1376,19 @@ class HasManyToManyRelationTest extends TestCase
             ->willReturnSelf();
 
         $relation->getRelatedQuery();
+    }
+
+    /**
+     * @param array<string, int|string> $orderBy
+     */
+    protected function userRoleManyToManyRelation(array $orderBy = []): HasManyToManyRelation
+    {
+        return $this->makeHasManyToManyRelation(
+            TestUserRoleWithBelongsTo::class,
+            $this->mockEntityMetadata,
+            TestUser::class,
+            TestRole::class,
+            $orderBy,
+        );
     }
 }

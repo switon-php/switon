@@ -4,31 +4,78 @@ declare(strict_types=1);
 
 namespace Switon\Orm\Tests;
 
+use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
+use Psr\EventDispatcher\ListenerProviderInterface as PsrListenerProviderInterface;
+use Psr\Log\LoggerInterface;
+use Switon\Core\App;
+use Switon\Core\ContextManagerInterface;
+use Switon\Core\InjectorInterface;
+use Switon\Core\PathAlias;
+use Switon\Core\PathAliasInterface;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
+use Switon\Eventing\EventDispatcher as RealEventDispatcher;
+use Switon\Eventing\EventDispatcherInterface as SwitonEventDispatcherInterface;
+use Switon\Eventing\ListenerProviderInterface;
 use Switon\Orm\EntityHydratorInterface;
-use Switon\Testing\TestCase as BaseTestCase;
-use ReflectionClass;
+use Switon\Orm\EntityMetadataInterface;
+use Switon\Orm\Relation\HasManyToManyRelation;
+use Switon\Orm\Relation\JunctionManyRelation;
+use Switon\Orm\Relation\MorphToRelation;
+use Switon\Orm\Tests\Fixtures\TestPermission;
+use Switon\Orm\Tests\Fixtures\TestRole;
+use Switon\Testing\EventDispatcher as TestEventDispatcher;
+use Switon\Testing\InMemoryContextManager;
+use Switon\Testing\MockLogger;
+
+use function sys_get_temp_dir;
 
 /**
  * Base test case for ORM tests.
- *
- * Provides common functionality for all ORM tests, including Container initialization.
  */
 abstract class TestCase extends BaseTestCase
 {
-    /**
-     * Configure container dependencies.
-     *
-     * Subclasses can override this method to register additional dependencies
-     * or replace default implementations before autowiring.
-     */
+    protected DiContainer $container;
+    protected InjectorInterface $injector;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->container = new DiContainer();
+
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
+
+        App::setContainer($this->container);
+
+        $pathAlias = new PathAlias();
+        $pathAlias->set('@runtime', sys_get_temp_dir());
+        $this->container->set(PathAliasInterface::class, $pathAlias);
+        $this->container->set(PathAlias::class, $pathAlias);
+        $this->container->set(ContextManagerInterface::class, InMemoryContextManager::class);
+        $this->container->set(LoggerInterface::class, new MockLogger());
+
+        $this->container->set(RealEventDispatcher::class, RealEventDispatcher::class);
+        $this->container->set(SwitonEventDispatcherInterface::class, function (): TestEventDispatcher {
+            $dispatcher = new TestEventDispatcher($this->container->get(RealEventDispatcher::class));
+            $dispatcher->setDispatchEvents(false);
+
+            return $dispatcher;
+        });
+        $this->container->set(PsrEventDispatcherInterface::class, SwitonEventDispatcherInterface::class);
+        $this->container->set(PsrListenerProviderInterface::class, ListenerProviderInterface::class);
+
+        $this->injector = $this->container->get(InjectorInterface::class);
+        $this->setUpContainer();
+        $this->injector->inject($this);
+    }
+
     protected function setUpContainer(): void
     {
-        parent::setUpContainer();
-
-        // Register IdentityInterface stub for EntityFiller dependency
-        // Use createStub (not createMock) to avoid PHPUnit notices about unconfigured expectations
-        // EntityFiller is used by EntityManager and other ORM components
         $stubIdentity = $this->createStub(\Switon\Principal\IdentityInterface::class);
         $stubIdentity->method('isGuest')->willReturn(true);
         $stubIdentity->method('getId')->willReturn(0);
@@ -37,33 +84,17 @@ abstract class TestCase extends BaseTestCase
         $this->container->set(\Switon\Principal\IdentityInterface::class, $stubIdentity);
     }
 
+    protected function make(string $name, array $parameters = []): mixed
+    {
+        return $this->container->make($name, $parameters);
+    }
+
     /**
-     * Create a relation instance with constructor parameters and autowired dependencies.
-     *
-     * This method creates the relation using the container's make() method, which:
-     * 1. Passes constructor parameters
-     * 2. Automatically injects #[Autowired] dependencies from the container
-     *
-     * Usage:
-     * ```php
-     * // First, replace dependencies in container
-     * $this->container->replace(EntityMetadataInterface::class, $mockMetadata);
-     * $this->container->replace(EventDispatcherInterface::class, $mockDispatcher);
-     *
-     * // Then create the relation with constructor parameters
-     * $relation = $this->createRelation(HasManyRelation::class, [
-     *     'relatedEntity' => TestPost::class,
-     *     'foreignKey' => 'user_id',
-     *     'orderBy' => ['created_at' => SORT_DESC],
-     * ]);
-     * ```
-     *
      * @template T of object
      *
-     * @param class-string<T> $relationClass The relation class to instantiate
-     * @param array $parameters Constructor parameters
+     * @param class-string<T> $relationClass
      *
-     * @return T The created relation instance with dependencies autowired
+     * @return T
      */
     protected function createRelation(string $relationClass, array $parameters = []): object
     {
@@ -71,34 +102,81 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
-     * Inject dependencies into a relation instance for testing.
-     *
-     * Simplifies unit testing by allowing mock injection without verbose reflection code.
-     *
-     * @param object $relation The relation instance to configure
-     * @param array $dependencies Associative array of property => value pairs
-     *
-     * @return object The configured relation instance
+     * @param array<string, int> $orderBy
      */
-    protected function injectRelationDependencies(object $relation, array $dependencies): object
-    {
-        if (!isset($dependencies['entityHydrator'])) {
-            $dependencies['entityHydrator'] = $this->container->get(EntityHydratorInterface::class);
-        }
-
-        $reflection = new ReflectionClass($relation);
-
-        if (!isset($dependencies['eventDispatcher']) && $reflection->hasProperty('eventDispatcher')) {
-            $dependencies['eventDispatcher'] = $this->container->get(EventDispatcherInterface::class);
-        }
-
-        foreach ($dependencies as $property => $value) {
-            if ($reflection->hasProperty($property)) {
-                $prop = $reflection->getProperty($property);
-                $prop->setValue($relation, $value);
-            }
-        }
+    /**
+     * @param array<int|string, class-string<\Switon\Orm\Entity>> $morphs
+     */
+    protected function makeMorphToRelation(
+        string $tableField,
+        string $idField,
+        EntityMetadataInterface $entityMetadata,
+        array $morphs = [],
+        string $class = MorphToRelation::class,
+    ): MorphToRelation {
+        /** @var MorphToRelation $relation */
+        $relation = $this->make($class, [
+            'tableField' => $tableField,
+            'idField' => $idField,
+            'entityMetadata' => $entityMetadata,
+            'morphs' => $morphs,
+        ]);
 
         return $relation;
+    }
+
+    protected function makeJunctionManyRelation(
+        EntityMetadataInterface $entityMetadata,
+        string $junctionEntityClass,
+        string $relatedEntityClass,
+        array $orderBy = [],
+    ): JunctionManyRelation {
+        /** @var JunctionManyRelation $relation */
+        $relation = $this->make(JunctionManyRelation::class, [
+            'orderBy' => $orderBy,
+            'entityMetadata' => $entityMetadata,
+        ]);
+        $relation->bind($junctionEntityClass, $relatedEntityClass);
+
+        return $relation;
+    }
+
+    /**
+     * Stub referenced keys used by {@see JunctionManyRelation::inferFromRelations()}.
+     */
+    /**
+     * @param array<string, int|string> $orderBy
+     */
+    protected function makeHasManyToManyRelation(
+        string $junctionEntityClass,
+        EntityMetadataInterface $entityMetadata,
+        string $selfEntityClass,
+        string $relatedEntityClass = '',
+        array $orderBy = [],
+    ): HasManyToManyRelation {
+        $foreignEntity = $relatedEntityClass !== '' ? $relatedEntityClass : null;
+
+        /** @var HasManyToManyRelation $relation */
+        $relation = $this->make(HasManyToManyRelation::class, [
+            'junctionEntity' => $junctionEntityClass,
+            'foreignEntity' => $foreignEntity,
+            'orderBy' => $orderBy,
+            'entityMetadata' => $entityMetadata,
+        ]);
+        $relation->bind($selfEntityClass, $relatedEntityClass);
+
+        return $relation;
+    }
+
+    protected function stubJunctionBelongsToInference(EntityMetadataInterface $entityMetadata): void
+    {
+        if (!$entityMetadata instanceof \PHPUnit\Framework\MockObject\MockObject) {
+            return;
+        }
+
+        $entityMetadata->method('getReferencedKey')->willReturnMap([
+            [TestPermission::class, 'permission_id'],
+            [TestRole::class, 'role_id'],
+        ]);
     }
 }

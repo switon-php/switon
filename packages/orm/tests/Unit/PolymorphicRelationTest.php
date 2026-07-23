@@ -13,7 +13,7 @@ use Switon\Orm\Relation\MorphManyRelation;
 use Switon\Orm\Relation\MorphToRelation;
 use Switon\Orm\Tests\TestCase;
 use Switon\Query\QueryInterface;
-use ReflectionMethod;
+use Switon\Orm\Tests\Fixtures\MorphToRelationProbe;
 
 /**
  * Unit tests for polymorphic relationships (MorphTo and MorphMany).
@@ -122,9 +122,7 @@ class PolymorphicRelationTest extends TestCase
         $metadata = $this->createMock(EntityMetadataInterface::class);
         $query = $this->createMock(QueryInterface::class);
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $metadata]);
 
         $entities = [
             ['commentable_table' => null, 'commentable_id' => null],
@@ -158,9 +156,7 @@ class PolymorphicRelationTest extends TestCase
         $query->method('whereIn')->willReturnSelf();
         $query->method('fetch')->willReturn([]); // No comments
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $metadata]);
 
         $entities = [
             ['id' => 1, 'title' => 'Post 1'],
@@ -178,21 +174,18 @@ class PolymorphicRelationTest extends TestCase
      */
     public function testResolveEntityClassWithTableName(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
+        $relation = new MorphToRelationProbe('type_field', 'id_field');
 
         $metadata = $this->createMock(EntityMetadataInterface::class);
 
-        $this->injectRelationDependencies($relation, [
+        $this->injector->inject($relation, [
             'entityMetadata' => $metadata,
             'morphs' => [
                 'blog_posts' => 'App\\Entity\\Post',
             ],
         ]);
 
-        // Use reflection to call protected method
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-
-        $result = $method->invoke($relation, 'blog_posts');
+        $result = $relation->resolveEntityClassForTest('blog_posts');
         $this->assertSame('App\Entity\Post', $result);
     }
 
@@ -201,21 +194,19 @@ class PolymorphicRelationTest extends TestCase
      */
     public function testResolveEntityClassWithClassName(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
+        $relation = new MorphToRelationProbe('type_field', 'id_field');
 
         $metadata = $this->createMock(EntityMetadataInterface::class);
         $metadata->expects($this->never())->method('getTable');
 
-        $this->injectRelationDependencies($relation, [
+        $this->injector->inject($relation, [
             'entityMetadata' => $metadata,
             'morphs' => [
                 'posts' => 'App\\Entity\\Post',
             ],
         ]);
 
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-
-        $result = $method->invoke($relation, 'App\Entity\Post');
+        $result = $relation->resolveEntityClassForTest('App\Entity\Post');
         $this->assertSame('App\Entity\Post', $result);
     }
 
@@ -224,21 +215,18 @@ class PolymorphicRelationTest extends TestCase
      */
     public function testResolveEntityClassWithSimpleTableName(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
+        $relation = new MorphToRelationProbe('type_field', 'id_field');
 
         $metadata = $this->createMock(EntityMetadataInterface::class);
 
-        $this->injectRelationDependencies($relation, [
+        $this->injector->inject($relation, [
             'entityMetadata' => $metadata,
             'morphs' => [
                 'posts' => 'App\\Entity\\Post',
             ],
         ]);
 
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-
-        // Simple name without underscore or backslash = treated as table name
-        $result = $method->invoke($relation, 'posts');
+        $result = $relation->resolveEntityClassForTest('posts');
         $this->assertSame('App\Entity\Post', $result);
     }
 
@@ -263,7 +251,7 @@ class PolymorphicRelationTest extends TestCase
             ->with('App\Entity\Post')
             ->willReturn($query);
 
-        $this->injectRelationDependencies($relation, [
+        $this->injector->inject($relation, [
             'entityMetadata' => $metadata,
             'morphs' => [
                 'posts' => 'App\\Entity\\Post',
@@ -310,9 +298,7 @@ class PolymorphicRelationTest extends TestCase
             ->with('App\Entity\Comment')
             ->willReturn($query);
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $metadata]);
 
         // Create an anonymous entity class with required property
         $entity = new class (['id' => 42]) extends Entity {
@@ -349,9 +335,7 @@ class PolymorphicRelationTest extends TestCase
             ->with('App\Entity\Comment')
             ->willReturn($query);
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $metadata]);
 
         $relation->getRelatedQuery();
     }
@@ -361,7 +345,7 @@ class PolymorphicRelationTest extends TestCase
      */
     public function testMorphToRelationGetRelatedEntityClassReturnsEmpty(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
+        $relation = new MorphToRelationProbe('type_field', 'id_field');
         $relation->bind('App\Entity\Comment', '');
 
         $this->assertSame('', $relation->getRelatedEntityClass());
