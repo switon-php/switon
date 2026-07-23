@@ -90,11 +90,10 @@ class Unique extends AbstractConstraint
             // Remove primary-key exclusion marker from "fields" hint.
             $fields = array_values(array_filter($fields, static fn ($f) => $f !== $primaryKey . '!='));
 
-            $validation->addError($this->getMessage(), [
+            return $validation->addError($this->getMessage(), [
                 'entity' => $entity,
                 'fields' => $fields,
             ]);
-            return false;
         }
 
         return true;
