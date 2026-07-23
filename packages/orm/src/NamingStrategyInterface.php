@@ -65,7 +65,7 @@ interface NamingStrategyInterface
     /**
      * Converts a database table name to a PHP class name.
      *
-     * This is the reverse operation of {@see classToTableName()}.
+     * This is the reverse operation of `classToTableName()`.
      * Used when inferring entity class names from database table names (e.g., code generation).
      *
      * **Implementation Requirements:**
@@ -88,7 +88,7 @@ interface NamingStrategyInterface
     /**
      * Converts a database column name to a PHP property name.
      *
-     * This is the reverse operation of {@see propertyToColumnName()}.
+     * This is the reverse operation of `propertyToColumnName()`.
      * Used when inferring property names from database column names (e.g., code generation).
      *
      * **Implementation Requirements:**

@@ -31,7 +31,7 @@ interface RelationInterface
     public function bind(string $self, string $related): void;
 
     /**
-     * Returns whether the related entity class is known after {@see bind()}.
+     * Returns whether the related entity class is known after `bind()`.
      *
      * Handlers that resolve related class later (e.g. many-to-many via junction) return true.
      */
