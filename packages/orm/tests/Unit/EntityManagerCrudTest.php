@@ -12,7 +12,7 @@ use Switon\Orm\EntityMetadataInterface;
 use Switon\Orm\Exception\PrimaryKeyImmutableException;
 use Switon\Orm\Exception\PrimaryKeyMissingException;
 use Switon\Orm\Tests\Fixtures\TestEntity;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Validating\ValidatorInterface;
 
 #[AllowMockObjectsWithoutExpectations]
@@ -25,8 +25,6 @@ class EntityManagerCrudTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->mockEntityMetadata = $this->createMock(EntityMetadataInterface::class);
         $this->mockEventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->mockEntityFiller = $this->createMock(EntityFillerInterface::class);

@@ -20,7 +20,7 @@ use Switon\Orm\Attribute\NamingStrategy;
 use Switon\Orm\Attribute\Owner;
 use Switon\Orm\Attribute\PageLimit;
 use Switon\Orm\Attribute\ReferencedKey;
-use Switon\Orm\Attribute\Transactional;
+use Switon\Orm\Tests\Fixtures\TransactionalProbe;
 use Switon\Orm\Attribute\Transient;
 use Switon\Orm\Attribute\Transiently;
 use Switon\Orm\Relation\HasManyRelation;
@@ -30,7 +30,6 @@ use Switon\Orm\Relation\HasOneRelation;
 use Switon\Orm\Relation\MorphManyRelation;
 use Switon\Orm\Relation\MorphToRelation;
 use Switon\Orm\RelationInterface;
-use ReflectionClass;
 use RuntimeException;
 
 #[AllowMockObjectsWithoutExpectations]
@@ -173,8 +172,7 @@ class AttributeBasicsTest extends TestCase
     public function testTransactionalInterceptorDelegatesToTransactionManager(): void
     {
         $transactionManager = $this->createMock(TransactionManagerInterface::class);
-        $attribute = new Transactional('default');
-        $this->injectProperty($attribute, 'transactionManager', $transactionManager);
+        $attribute = (new TransactionalProbe('default'))->setTransactionManagerForTest($transactionManager);
         $method = new ReflectionMethod(self::class, __FUNCTION__);
 
         $transactionManager->expects($this->once())->method('begin')->with('default');
@@ -187,10 +185,4 @@ class AttributeBasicsTest extends TestCase
         $attribute->onException($method, new RuntimeException('fail'));
     }
 
-    private function injectProperty(object $object, string $property, mixed $value): void
-    {
-        $reflection = new ReflectionClass($object);
-        $prop = $reflection->getProperty($property);
-        $prop->setValue($object, $value);
-    }
 }

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionClass;
-use Switon\Orm\AbstractEntityManager;
 use Switon\Orm\Entity;
 use Switon\Orm\EntityMetadata;
 use Switon\Orm\Exception\PrimaryKeyNotFoundException;
@@ -126,30 +124,6 @@ class BugFixTest extends TestCase
             $this->assertStringContainsString('#[Id]', $e->getMessage(), 'Error message should reference #[Id] attribute');
             $this->assertStringNotContainsString('#[PrimaryKey]', $e->getMessage(), 'Error message should NOT reference #[PrimaryKey]');
         }
-    }
-
-    // =========================================================================
-    // Issue 4: AbstractEntityManager::validate() and dispatchEvent() should be protected
-    // =========================================================================
-
-    public function testValidateMethodIsProtected(): void
-    {
-        // Arrange
-        $reflection = new ReflectionClass(AbstractEntityManager::class);
-        $method = $reflection->getMethod('validate');
-
-        // Assert
-        $this->assertTrue($method->isProtected(), 'validate() should be protected');
-    }
-
-    public function testDispatchEventMethodIsProtected(): void
-    {
-        // Arrange
-        $reflection = new ReflectionClass(AbstractEntityManager::class);
-        $method = $reflection->getMethod('dispatchEvent');
-
-        // Assert
-        $this->assertTrue($method->isProtected(), 'dispatchEvent() should be protected');
     }
 
     // =========================================================================

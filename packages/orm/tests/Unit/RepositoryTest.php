@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 use Switon\Orm\EntityManagerInterface;
 use Switon\Orm\QueryBuilderInterface;
 use Switon\Orm\Repository;
+use Switon\Orm\Tests\Fixtures\TestEntity;
+use Switon\Orm\Tests\TestCase;
 
 class RepositoryTestStub extends Repository
 {
+    protected string $entityClass = TestEntity::class;
+
     public function exposeEntityManager(): EntityManagerInterface
     {
         return $this->getEntityManager();
@@ -22,12 +24,6 @@ class RepositoryTestStub extends Repository
     {
         return $this->getQueryBuilder();
     }
-
-    public function setDependencies(EntityManagerInterface $entityManager, QueryBuilderInterface $queryBuilder): void
-    {
-        $this->entityManager = $entityManager;
-        $this->queryBuilder = $queryBuilder;
-    }
 }
 
 #[AllowMockObjectsWithoutExpectations]
@@ -36,23 +32,19 @@ class RepositoryTest extends TestCase
     public function testGetEntityManagerReturnsAutowiredInstance(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $queryBuilder = $this->createMock(QueryBuilderInterface::class);
+        $this->container->set(EntityManagerInterface::class, $entityManager);
 
-        $repository = (new ReflectionClass(RepositoryTestStub::class))->newInstanceWithoutConstructor();
-
-        $repository->setDependencies($entityManager, $queryBuilder);
+        $repository = $this->make(RepositoryTestStub::class);
 
         $this->assertSame($entityManager, $repository->exposeEntityManager());
     }
 
     public function testGetQueryBuilderReturnsAutowiredInstance(): void
     {
-        $entityManager = $this->createMock(EntityManagerInterface::class);
         $queryBuilder = $this->createMock(QueryBuilderInterface::class);
+        $this->container->set(QueryBuilderInterface::class, $queryBuilder);
 
-        $repository = (new ReflectionClass(RepositoryTestStub::class))->newInstanceWithoutConstructor();
-
-        $repository->setDependencies($entityManager, $queryBuilder);
+        $repository = $this->make(RepositoryTestStub::class);
 
         $this->assertSame($queryBuilder, $repository->exposeQueryBuilder());
     }
