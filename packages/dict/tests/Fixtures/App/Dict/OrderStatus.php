@@ -6,6 +6,6 @@ namespace App\Dict;
 
 use Switon\Dict\Dict;
 
-final class OrderStatus extends Dict
+class OrderStatus extends Dict
 {
 }

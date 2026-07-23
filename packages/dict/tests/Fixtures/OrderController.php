@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Dict\Tests\Fixtures;
 
-final class OrderController
+class OrderController
 {
     public function updateAction(OrderStatus $status): void
     {

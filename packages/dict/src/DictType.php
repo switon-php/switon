@@ -10,7 +10,7 @@ namespace Switon\Dict;
  * Use as the read-side result for one controlled value set.
  * The `builtin` flag marks whether the type comes from the built-in dict set.
  */
-final class DictType
+class DictType
 {
     public function __construct(
         public string $typeCode,

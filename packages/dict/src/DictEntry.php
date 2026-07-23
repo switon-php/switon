@@ -10,7 +10,7 @@ namespace Switon\Dict;
  * Use as the read-side result for one allowed item inside a dict type.
  * The `value` contract is stored in `itemValue`.
  */
-final class DictEntry
+class DictEntry
 {
     public function __construct(
         public string $typeCode,
