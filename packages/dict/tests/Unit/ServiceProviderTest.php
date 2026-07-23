@@ -7,8 +7,8 @@ namespace Switon\Dict\Tests\Unit;
 use Switon\Core\ContainerInterface;
 use Switon\Core\PathAliasInterface;
 use Switon\Dict\ServiceProvider;
+use Switon\Dict\Tests\TestCase;
 use Switon\Testing\PackagePathAssert;
-use Switon\Testing\TestCase;
 use Switon\Validating\ValidatorInterface;
 
 class ServiceProviderTest extends TestCase
