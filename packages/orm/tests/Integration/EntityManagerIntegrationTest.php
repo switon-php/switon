@@ -15,6 +15,7 @@ use Switon\Orm\EntityMetadataInterface;
 use Switon\Orm\QueryBuilderInterface;
 use Switon\Orm\RelationManagerInterface;
 use Switon\Orm\ShardingInterface;
+use Switon\Orm\Tests\Fixtures\EntityManagerInternalsProbe;
 use Switon\Orm\Tests\Fixtures\TestEntity;
 use Switon\Orm\Tests\Fixtures\TestItemWithMappedPrimaryKey;
 use Switon\Orm\Tests\Fixtures\TestOrderWithMappedPrimaryKey;
@@ -22,7 +23,6 @@ use Switon\Orm\Tests\Fixtures\TestProduct;
 use Switon\Orm\Tests\TestCase;
 use Switon\Query\QueryInterface;
 use Switon\Validating\ValidatorInterface;
-use ReflectionClass;
 
 /**
  * Integration tests for EntityManager class.
@@ -106,7 +106,7 @@ class EntityManagerIntegrationTest extends TestCase
 
         // Create EntityManager instance using container (no reflection needed)
         // Container automatically handles #[Autowired] property injection
-        $this->entityManager = $this->container->make(EntityManager::class);
+        $this->entityManager = $this->container->make(EntityManagerInternalsProbe::class);
     }
 
     /**
@@ -156,7 +156,9 @@ class EntityManagerIntegrationTest extends TestCase
             ->with($mockValidation);
 
         // validate() should not throw exception
-        $this->callProtectedMethod($this->entityManager, 'validate', [$entity, ['name']]);
+        /** @var EntityManagerInternalsProbe $manager */
+        $manager = $this->entityManager;
+        $manager->validateForTest($entity, ['name']);
     }
 
     /**
@@ -182,7 +184,9 @@ class EntityManagerIntegrationTest extends TestCase
             ->with($mockValidation);
 
         // validate() should not throw exception even with no constraints
-        $this->callProtectedMethod($this->entityManager, 'validate', [$entity, ['name']]);
+        /** @var EntityManagerInternalsProbe $manager */
+        $manager = $this->entityManager;
+        $manager->validateForTest($entity, ['name']);
     }
 
     /**
@@ -220,7 +224,9 @@ class EntityManagerIntegrationTest extends TestCase
             ->method('endValidate')
             ->with($mockValidation);
 
-        $this->callProtectedMethod($this->entityManager, 'validate', [$entity, ['name']]);
+        /** @var EntityManagerInternalsProbe $manager */
+        $manager = $this->entityManager;
+        $manager->validateForTest($entity, ['name']);
 
         // Note: Since we're using a mock, the entity field won't actually be updated
         // The real implementation updates $entity->$field = $validation->value
@@ -244,7 +250,9 @@ class EntityManagerIntegrationTest extends TestCase
             ->with($event);
 
         // dispatchEvent should call entity->onEvent() and eventDispatcher->dispatch()
-        $this->callProtectedMethod($this->entityManager, 'dispatchEvent', [$event]);
+        /** @var EntityManagerInternalsProbe $manager */
+        $manager = $this->entityManager;
+        $manager->dispatchEventForTest($event);
     }
 
     /**
@@ -1056,11 +1064,4 @@ class EntityManagerIntegrationTest extends TestCase
         $this->assertSame($generatedId, $entity->id);
     }
 
-    private function callProtectedMethod(object $object, string $methodName, array $args = []): mixed
-    {
-        $reflection = new ReflectionClass($object);
-        $method = $reflection->getMethod($methodName);
-
-        return $method->invokeArgs($object, $args);
-    }
 }

@@ -8,15 +8,14 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Switon\Core\Exception as CoreException;
-use Switon\Orm\Attribute\Exists;
-use Switon\Orm\Attribute\Immutable;
-use Switon\Orm\Attribute\Unique;
+use Switon\Orm\Tests\Fixtures\ExistsProbe;
+use Switon\Orm\Tests\Fixtures\ImmutableProbe;
+use Switon\Orm\Tests\Fixtures\UniqueProbe;
 use Switon\Orm\Entity;
 use Switon\Orm\EntityMetadataInterface;
 use Switon\Orm\RepositoryInterface;
 use Switon\Validating\Validation;
 use Switon\Validating\ValidatorInterface;
-use ReflectionClass;
 use stdClass;
 
 #[AllowMockObjectsWithoutExpectations]
@@ -34,8 +33,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testExistsValidateReturnsFalseWhenSourceIsNotEntity(): void
     {
-        $constraint = new Exists(User::class);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ExistsProbe(User::class))->setEntityMetadataForTest($this->entityMetadata);
         $validation = new Validation($this->validator, new stdClass());
         $validation->field = 'user_id';
         $validation->value = 1;
@@ -45,8 +43,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testExistsValidateReturnsTrueForNullValue(): void
     {
-        $constraint = new Exists(User::class);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ExistsProbe(User::class))->setEntityMetadataForTest($this->entityMetadata);
         $validation = new Validation($this->validator, new ExistsFixtureOrder());
         $validation->field = 'user_id';
         $validation->value = null;
@@ -64,8 +61,7 @@ class AttributeConstraintTest extends TestCase
             ->with(User::class)
             ->willReturn($repository);
 
-        $constraint = new Exists(User::class);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ExistsProbe(User::class))->setEntityMetadataForTest($this->entityMetadata);
         $validation = new Validation($this->validator, new ExistsFixtureOrder());
         $validation->field = 'user_id';
         $validation->value = 7;
@@ -83,8 +79,7 @@ class AttributeConstraintTest extends TestCase
             ->with(User::class)
             ->willReturn($repository);
 
-        $constraint = new Exists(User::class);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ExistsProbe(User::class))->setEntityMetadataForTest($this->entityMetadata);
         $validation = new Validation($this->validator, new ExistsFixtureOrder());
         $validation->field = 'user_id';
         $validation->value = 9;
@@ -102,8 +97,7 @@ class AttributeConstraintTest extends TestCase
             ->with(User::class)
             ->willReturn($repository);
 
-        $constraint = new Exists(User::class);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ExistsProbe(User::class))->setEntityMetadataForTest($this->entityMetadata);
         $validation = new Validation($this->validator, new ExistsFixtureOrder());
         $validation->field = 'user';
         $validation->value = 1;
@@ -113,8 +107,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testExistsValidateReturnsFalseWhenRepositoryResolutionFails(): void
     {
-        $constraint = new Exists('Ghost');
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ExistsProbe('Ghost'))->setEntityMetadataForTest($this->entityMetadata);
         $validation = new Validation($this->validator, new ExistsFixtureOrder());
         $validation->field = 'ghost_id';
         $validation->value = 1;
@@ -129,8 +122,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testImmutableValidateReturnsTrueForNullValue(): void
     {
-        $constraint = new Immutable();
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ImmutableProbe())->setEntityMetadataForTest($this->entityMetadata);
 
         $entity = new ImmutableFixtureEntity();
         $entity->id = 1;
@@ -144,8 +136,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testImmutableValidateReturnsFalseWhenSourceIsNotEntity(): void
     {
-        $constraint = new Immutable();
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ImmutableProbe())->setEntityMetadataForTest($this->entityMetadata);
 
         $validation = new Validation($this->validator, new stdClass());
         $validation->field = 'name';
@@ -156,8 +147,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testImmutableValidateReturnsFalseWhenSourceIsArray(): void
     {
-        $constraint = new Immutable();
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ImmutableProbe())->setEntityMetadataForTest($this->entityMetadata);
 
         $validation = new Validation($this->validator, ['name' => 'changed']);
         $validation->field = 'name';
@@ -168,8 +158,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testImmutableValidateReturnsTrueWhenPrimaryKeyNotSet(): void
     {
-        $constraint = new Immutable();
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ImmutableProbe())->setEntityMetadataForTest($this->entityMetadata);
 
         $entity = new ImmutableFixtureEntity();
         $validation = new Validation($this->validator, $entity);
@@ -186,8 +175,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testImmutableValidateReturnsTrueWhenValueUnchanged(): void
     {
-        $constraint = new Immutable();
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ImmutableProbe())->setEntityMetadataForTest($this->entityMetadata);
 
         $entity = new ImmutableFixtureEntity();
         $entity->id = 3;
@@ -210,8 +198,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testImmutableValidateReturnsFalseWhenValueChanged(): void
     {
-        $constraint = new Immutable();
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new ImmutableProbe())->setEntityMetadataForTest($this->entityMetadata);
 
         $entity = new ImmutableFixtureEntity();
         $entity->id = 3;
@@ -234,8 +221,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testUniqueValidateReturnsFalseWhenSourceIsArray(): void
     {
-        $constraint = new Unique();
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new UniqueProbe())->setEntityMetadataForTest($this->entityMetadata);
 
         $validation = new Validation($this->validator, ['name' => 'Test']);
         $validation->field = 'name';
@@ -246,8 +232,8 @@ class AttributeConstraintTest extends TestCase
 
     public function testUniqueValidateReturnsFalseWhenRepositoryFindsDuplicateWithFiltersAndPrimaryKeyExclusion(): void
     {
-        $constraint = new Unique(['company_id', 'status' => 'active']);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new UniqueProbe(['company_id', 'status' => 'active']))
+            ->setEntityMetadataForTest($this->entityMetadata);
 
         $entity = new UniqueFixtureEntity();
         $entity->id = 12;
@@ -282,8 +268,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testUniqueValidateReturnsTrueWhenNoDuplicateAndNoPrimaryKeyOnSource(): void
     {
-        $constraint = new Unique(['tenant_id']);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new UniqueProbe(['tenant_id']))->setEntityMetadataForTest($this->entityMetadata);
 
         $entity = new UniqueFixtureEntity();
         $entity->tenant_id = 5;
@@ -315,8 +300,7 @@ class AttributeConstraintTest extends TestCase
 
     public function testUniqueValidateReturnsFalseWhenDuplicateAndNoPrimaryKeyOnSource(): void
     {
-        $constraint = new Unique(['company_id']);
-        $this->injectProperty($constraint, 'entityMetadata', $this->entityMetadata);
+        $constraint = (new UniqueProbe(['company_id']))->setEntityMetadataForTest($this->entityMetadata);
 
         $entity = new UniqueFixtureEntity();
         $entity->company_id = 8;
@@ -346,12 +330,6 @@ class AttributeConstraintTest extends TestCase
         $this->assertFalse($constraint->validate($validation));
     }
 
-    private function injectProperty(object $object, string $property, mixed $value): void
-    {
-        $reflection = new ReflectionClass($object);
-        $prop = $reflection->getProperty($property);
-        $prop->setValue($object, $value);
-    }
 }
 
 class ExistsFixtureOrder extends Entity

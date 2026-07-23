@@ -7,7 +7,6 @@ namespace Switon\Orm\Tests\Unit;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use ReflectionMethod;
 use Switon\Core\MakerInterface;
 use Switon\Db\Client;
 use Switon\Db\ClientInterface;
@@ -31,6 +30,7 @@ use Switon\Orm\IdGeneratorInterface;
 use Switon\Orm\QueryBuilderInterface;
 use Switon\Orm\RelationManagerInterface;
 use Switon\Orm\ShardingInterface;
+use Switon\Orm\Tests\Fixtures\EntityManagerInternalsProbe;
 use Switon\Orm\Tests\Fixtures\TestOrderWithMappedPrimaryKey;
 use Switon\Orm\Tests\TestCase;
 use Switon\Query\QueryInterface;
@@ -93,7 +93,7 @@ class EntityManagerMappedPrimaryKeyTest extends TestCase
         $this->container->set(ShardingManagerInterface::class, $this->shardingManager);
         $this->container->set(MakerInterface::class, $this->createMock(MakerInterface::class));
 
-        $this->entityManager = $this->make(EntityManager::class);
+        $this->entityManager = $this->make(EntityManagerInternalsProbe::class);
     }
 
     public function testUpdateUsesMappedPrimaryKeyColumnInDatabaseConditions(): void
@@ -204,7 +204,7 @@ class EntityManagerMappedPrimaryKeyTest extends TestCase
         $this->entityMetadata->method('getConstraints')->willReturn(['order_no' => [$constraint]]);
         $this->entityMetadata->method('getFillable')->willReturn([]);
         $this->container->replace(EntityMetadataInterface::class, $this->entityMetadata);
-        $this->entityManager = $this->make(EntityManager::class);
+        $this->entityManager = $this->make(EntityManagerInternalsProbe::class);
         $constraint->method('getMessage')->willReturn('');
         $constraint->expects($this->once())
             ->method('validate')
@@ -1105,29 +1105,29 @@ class EntityManagerMappedPrimaryKeyTest extends TestCase
 
     public function testDescribeEntityTypeReflectsScalarDebugType(): void
     {
-        $m = new ReflectionMethod(EntityManager::class, 'describeEntityType');
-        $m->setAccessible(true);
+        /** @var EntityManagerInternalsProbe $manager */
+        $manager = $this->entityManager;
 
-        $this->assertSame('int', $m->invoke($this->entityManager, 7));
-        $this->assertSame('string', $m->invoke($this->entityManager, 'x'));
+        $this->assertSame('int', $manager->describeEntityTypeForTest(7));
+        $this->assertSame('string', $manager->describeEntityTypeForTest('x'));
     }
 
     public function testDescribeEntityTypeUsesShortClassNameForObjects(): void
     {
-        $m = new ReflectionMethod(EntityManager::class, 'describeEntityType');
-        $m->setAccessible(true);
+        /** @var EntityManagerInternalsProbe $manager */
+        $manager = $this->entityManager;
 
-        $this->assertSame('stdClass', $m->invoke($this->entityManager, new stdClass()));
+        $this->assertSame('stdClass', $manager->describeEntityTypeForTest(new stdClass()));
     }
 
     public function testGetChangedFieldsDetectsPresenceAndValueDifferences(): void
     {
-        $m = new ReflectionMethod(EntityManager::class, 'getChangedFields');
-        $m->setAccessible(true);
+        /** @var EntityManagerInternalsProbe $manager */
+        $manager = $this->entityManager;
 
-        $this->assertSame([], $m->invoke($this->entityManager, ['a'], ['a' => 1], ['a' => 1]));
-        $this->assertSame(['a'], $m->invoke($this->entityManager, ['a'], ['a' => 1], ['a' => 2]));
-        $this->assertSame(['a', 'b'], $m->invoke($this->entityManager, ['a', 'b'], ['a' => 1], ['b' => 2]));
+        $this->assertSame([], $manager->getChangedFieldsForTest(['a'], ['a' => 1], ['a' => 1]));
+        $this->assertSame(['a'], $manager->getChangedFieldsForTest(['a'], ['a' => 1], ['a' => 2]));
+        $this->assertSame(['a', 'b'], $manager->getChangedFieldsForTest(['a', 'b'], ['a' => 1], ['b' => 2]));
     }
 
     public function testCreateDoesNotSetDefaultFieldWhenReloadQueryReturnsEmpty(): void

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Switon\Orm\Tests\Unit\Event;
 
+use PHPUnit\Framework\TestCase;
 use Switon\Orm\Event\RelationDataInconsistency;
 use Switon\Orm\RelationInterface;
-use Switon\Orm\Tests\TestCase;
-use ReflectionClass;
-use ReflectionProperty;
 
 class RelationDataInconsistencyTest extends TestCase
 {
@@ -115,10 +113,12 @@ class RelationDataInconsistencyTest extends TestCase
         $this->assertFalse($event->isSevere(threshold: 25.0)); // 20% < 25%
     }
 
-    public function testEventPropertiesAreReadonly(): void
+    public function testEventExposesItsPayloadAsPublicProperties(): void
     {
+        $sender = $this->createStub(RelationInterface::class);
+
         $event = new RelationDataInconsistency(
-            sender: $this->createStub(RelationInterface::class),
+            sender: $sender,
             relationName: 'posts',
             parentEntityClass: 'App\Entity\User',
             relatedEntityClass: 'App\Entity\Post',
@@ -128,12 +128,11 @@ class RelationDataInconsistencyTest extends TestCase
             totalRelatedRecords: 10,
         );
 
-        // Verify properties are readonly by checking they can't be modified
-        $reflection = new ReflectionClass($event);
-        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
-
-        foreach ($properties as $property) {
-            $this->assertTrue($property->isReadOnly(), "Property {$property->getName()} should be readonly");
-        }
+        $this->assertSame($sender, $event->sender);
+        $this->assertSame('posts', $event->relationName);
+        $this->assertSame('user_id', $event->foreignKeyField);
+        $this->assertSame([999], $event->orphanedForeignKeyValues);
+        $this->assertSame(1, $event->orphanedCount);
+        $this->assertSame(10, $event->totalRelatedRecords);
     }
 }

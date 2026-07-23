@@ -30,7 +30,7 @@ class QueryBuilderTest extends TestCase
         $this->mockContainer = $this->createMock(ContainerInterface::class);
         $this->mockContainer->method('make')->willReturn($this->mockQuery);
 
-        $this->container->set(ContainerInterface::class, $this->mockContainer);
+        $this->container->replace(ContainerInterface::class, $this->mockContainer);
         $this->queryBuilder = $this->container->make(QueryBuilder::class);
     }
 
@@ -87,9 +87,9 @@ class QueryBuilderTest extends TestCase
         $callCount = [0]; // Use array to allow reference
         $factory = new class ($query1, $query2, $callCount) {
             public function __construct(
-                private $query1,
-                private $query2,
-                private array $callCount
+                protected $query1,
+                protected $query2,
+                protected array $callCount
             ) {
             }
 
