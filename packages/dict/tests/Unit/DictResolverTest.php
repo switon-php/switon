@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Dict\Tests\Unit;
 
-use ReflectionMethod;
-use Switon\Binding\ScalarResolverInterface;
 use Switon\Dict\Dict;
 use Switon\Dict\DictEntry;
 use Switon\Dict\DictReaderInterface;
@@ -15,11 +13,14 @@ use Switon\Dict\Exception\DictItemNotFoundException;
 use Switon\Dict\Exception\DictTypeCodeRequiredException;
 use Switon\Dict\Exception\DictTypeNotFoundException;
 use Switon\Dict\Exception\UnsupportedDictParameterTypeException;
-use Switon\Dict\Tests\Fixtures\App\Areas\Order\Controller\OrderController as AreaOrderController;
-use Switon\Dict\Tests\Fixtures\OrderController;
+use Switon\Dict\Tests\Fixtures\CapturingAreaOrderController;
+use Switon\Dict\Tests\Fixtures\CapturingOrderController;
+use Switon\Dict\Tests\Support\ArrayInput;
+use Switon\Dict\Tests\Support\BoundAction;
+use ReflectionMethod;
 use Switon\Dict\Tests\TestCase;
+use Switon\Core\InputInterface;
 use Switon\Validating\ValidatorInterface;
-use stdClass;
 
 class DictResolverTest extends TestCase
 {
@@ -35,29 +36,17 @@ class DictResolverTest extends TestCase
             ->with('order.status', 'paid', true)
             ->willReturn(new DictEntry('order.status', 'paid', 'Paid', 'paid'));
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->once())
-            ->method('resolve')
-            ->willReturn('paid');
+        $this->container->set(DictReaderInterface::class, $dictReader);
 
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->never())->method('beginValidate');
-        $validator->expects($this->never())->method('endValidate');
+        $controller = new CapturingOrderController();
+        BoundAction::invoke($this->container, $controller, 'updateAction', ['status' => 'paid']);
 
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $validator,
-        ]);
-
-        $parameter = (new ReflectionMethod(OrderController::class, 'updateAction'))->getParameters()[0];
-        $dict = $resolver->resolve($parameter, $parameter->getType()?->getName() ?? '');
-
-        $this->assertSame('order.status', $dict->getTypeCode());
-        $this->assertSame('paid', $dict->getItemCode());
-        $this->assertSame('Paid', $dict->getItemName());
-        $this->assertSame('paid', $dict->getValue());
+        $status = $controller->receivedStatus;
+        $this->assertNotNull($status);
+        $this->assertSame('order.status', $status->getTypeCode());
+        $this->assertSame('paid', $status->getItemCode());
+        $this->assertSame('Paid', $status->getItemName());
+        $this->assertSame('paid', $status->getValue());
     }
 
     public function testResolveUsesTypeOwnedCodeWhenTypeCodeIsOmitted(): void
@@ -72,27 +61,15 @@ class DictResolverTest extends TestCase
             ->with('order.status', 'paid', true)
             ->willReturn(new DictEntry('order.status', 'paid', 'Paid', 'paid'));
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->once())
-            ->method('resolve')
-            ->willReturn('paid');
+        $this->container->set(DictReaderInterface::class, $dictReader);
 
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->never())->method('beginValidate');
-        $validator->expects($this->never())->method('endValidate');
+        $controller = new CapturingAreaOrderController();
+        BoundAction::invoke($this->container, $controller, 'updateAction', ['status' => 'paid']);
 
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $validator,
-        ]);
-
-        $parameter = (new ReflectionMethod(AreaOrderController::class, 'updateAction'))->getParameters()[0];
-        $dict = $resolver->resolve($parameter, $parameter->getType()?->getName() ?? '');
-
-        $this->assertSame('order.status', $dict->getTypeCode());
-        $this->assertSame('paid', $dict->getValue());
+        $status = $controller->receivedStatus;
+        $this->assertNotNull($status);
+        $this->assertSame('order.status', $status->getTypeCode());
+        $this->assertSame('paid', $status->getValue());
     }
 
     public function testResolveUsesDefaultItemWhenValueIsEmpty(): void
@@ -108,27 +85,15 @@ class DictResolverTest extends TestCase
             ->with('order.status', true)
             ->willReturn(new DictEntry('order.status', 'paid', 'Paid', 'paid'));
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->once())
-            ->method('resolve')
-            ->willReturn('');
+        $this->container->set(DictReaderInterface::class, $dictReader);
 
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->never())->method('beginValidate');
-        $validator->expects($this->never())->method('endValidate');
+        $controller = new CapturingOrderController();
+        BoundAction::invoke($this->container, $controller, 'updateAction', ['status' => '']);
 
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $validator,
-        ]);
-
-        $parameter = (new ReflectionMethod(OrderController::class, 'updateAction'))->getParameters()[0];
-        $dict = $resolver->resolve($parameter, $parameter->getType()?->getName() ?? '');
-
-        $this->assertSame('paid', $dict->getItemCode());
-        $this->assertSame('paid', $dict->getValue());
+        $status = $controller->receivedStatus;
+        $this->assertNotNull($status);
+        $this->assertSame('paid', $status->getItemCode());
+        $this->assertSame('paid', $status->getValue());
     }
 
     public function testResolveReturnsNullForNullableParameterWhenValueIsEmpty(): void
@@ -141,59 +106,31 @@ class DictResolverTest extends TestCase
         $dictReader->expects($this->never())->method('getItem');
         $dictReader->expects($this->never())->method('getDefaultItem');
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->once())
-            ->method('resolve')
-            ->willReturn('');
+        $this->container->set(DictReaderInterface::class, $dictReader);
 
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->never())->method('beginValidate');
-        $validator->expects($this->never())->method('endValidate');
+        $controller = new CapturingOrderController();
+        BoundAction::invoke($this->container, $controller, 'nullableAction', ['status' => '']);
 
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $validator,
-        ]);
-
-        $parameter = (new ReflectionMethod(OrderController::class, 'nullableAction'))->getParameters()[0];
-
-        $this->assertNull($resolver->resolve($parameter, $parameter->getType()?->getName() ?? ''));
+        $this->assertNull($controller->receivedStatus);
     }
 
     public function testResolveThrowsExceptionWhenTypeCodeCannotBeDerived(): void
     {
         $dictReader = $this->createMock(DictReaderInterface::class);
         $dictReader->expects($this->never())->method('getType');
-        $dictReader->expects($this->never())->method('getItem');
-        $dictReader->expects($this->never())->method('getDefaultItem');
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->never())->method('resolve');
-
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->expects($this->never())->method('beginValidate');
-        $validator->expects($this->never())->method('endValidate');
-
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $validator,
-        ]);
+        $this->container->set(DictReaderInterface::class, $dictReader);
 
         $controller = new class () {
             public function updateAction(DictResolverMissingTypeCodeFixture $status): void
             {
             }
         };
-        $parameter = (new ReflectionMethod($controller::class, 'updateAction'))->getParameters()[0];
 
         $this->expectException(DictTypeCodeRequiredException::class);
         $this->expectExceptionMessage('Unable to derive dict type');
 
-        $resolver->resolve($parameter, $parameter->getType()?->getName() ?? '');
+        BoundAction::invoke($this->container, $controller, 'updateAction', ['status' => 'paid']);
     }
 
     public function testResolveThrowsWhenParameterTypeIsNotDictSubclass(): void
@@ -201,21 +138,16 @@ class DictResolverTest extends TestCase
         $dictReader = $this->createMock(DictReaderInterface::class);
         $dictReader->expects($this->never())->method('getType');
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->never())->method('resolve');
+        $this->container->set(DictReaderInterface::class, $dictReader);
+        $this->container->set(InputInterface::class, new ArrayInput());
 
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $this->createStub(ValidatorInterface::class),
-        ]);
-
-        $parameter = (new ReflectionMethod(OrderController::class, 'updateAction'))->getParameters()[0];
+        $resolver = $this->make(DictResolver::class);
+        $controller = new CapturingOrderController();
 
         $this->expectException(UnsupportedDictParameterTypeException::class);
         $this->expectExceptionMessage('DictResolver only supports');
 
+        $parameter = (new ReflectionMethod($controller, 'updateAction'))->getParameters()[0];
         $resolver->resolve($parameter, stdClass::class);
     }
 
@@ -228,22 +160,12 @@ class DictResolverTest extends TestCase
             ->willReturn(null);
         $dictReader->expects($this->never())->method('getItem');
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->never())->method('resolve');
-
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $this->createStub(ValidatorInterface::class),
-        ]);
-
-        $parameter = (new ReflectionMethod(OrderController::class, 'updateAction'))->getParameters()[0];
+        $this->container->set(DictReaderInterface::class, $dictReader);
 
         $this->expectException(DictTypeNotFoundException::class);
         $this->expectExceptionMessage('order.status');
 
-        $resolver->resolve($parameter, $parameter->getType()?->getName() ?? '');
+        BoundAction::invoke($this->container, new CapturingOrderController(), 'updateAction', ['status' => 'paid']);
     }
 
     public function testResolveThrowsWhenItemLookupFailsAfterValidationPasses(): void
@@ -257,9 +179,6 @@ class DictResolverTest extends TestCase
             ->with('order.status', 'missing', true)
             ->willReturn(null);
 
-        $scalarResolver = $this->createMock(ScalarResolverInterface::class);
-        $scalarResolver->expects($this->once())->method('resolve')->willReturn('missing');
-
         $validation = $this->createMock(\Switon\Validating\Validation::class);
         $validation->expects($this->once())->method('validate')->willReturn(true);
 
@@ -267,23 +186,17 @@ class DictResolverTest extends TestCase
         $validator->expects($this->once())->method('beginValidate')->willReturn($validation);
         $validator->expects($this->once())->method('endValidate');
 
-        /** @var DictResolver $resolver */
-        $resolver = $this->make(DictResolver::class, [
-            'dictReader' => $dictReader,
-            'scalarResolver' => $scalarResolver,
-            'validator' => $validator,
-        ]);
-
-        $parameter = (new ReflectionMethod(OrderController::class, 'updateAction'))->getParameters()[0];
+        $this->container->set(DictReaderInterface::class, $dictReader);
+        $this->container->set(ValidatorInterface::class, $validator);
 
         $this->expectException(DictItemNotFoundException::class);
         $this->expectExceptionMessage('did not resolve');
 
-        $resolver->resolve($parameter, $parameter->getType()?->getName() ?? '');
+        BoundAction::invoke($this->container, new CapturingOrderController(), 'updateAction', ['status' => 'missing']);
     }
 }
 
-final class DictResolverMissingTypeCodeFixture extends Dict
+class DictResolverMissingTypeCodeFixture extends Dict
 {
     public static function typeCode(): ?string
     {

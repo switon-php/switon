@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Dict\Tests\Unit;
 
-use ReflectionClass;
 use Switon\Dict\Attribute\DictValue;
 use Switon\Dict\Dict;
 use Switon\Dict\DictEntry;
@@ -14,9 +13,17 @@ use Switon\Dict\Tests\TestCase;
 use Switon\Validating\Validation;
 use Switon\Validating\ValidatorInterface;
 use Error;
+use ReflectionProperty;
 
 class DictValueTest extends TestCase
 {
+    public function testDictStringCastReturnsStoredValue(): void
+    {
+        $dict = Dict::of('order.status', 'paid', 'Paid', 'paid');
+
+        $this->assertSame('paid', (string) $dict);
+    }
+
     public function testValidateUsesDictReaderInterface(): void
     {
         $dictReader = $this->createMock(DictReaderInterface::class);
@@ -60,9 +67,7 @@ class DictValueTest extends TestCase
             'type' => OrderStatus::class,
         ]);
 
-        $property = (new ReflectionClass(DictValueEntityFixture::class))->getProperty('status');
-
-        $this->assertSame('1', $attribute->normalizeInput($property, 'paid'));
+        $this->assertSame('1', $attribute->normalizeInput(DictValueEntityFixture::statusProperty(), 'paid'));
     }
 
     public function testNormalizeInputUsesValidatorWhenItemIsMissing(): void
@@ -90,11 +95,10 @@ class DictValueTest extends TestCase
             'type' => OrderStatus::class,
         ]);
 
-        $property = (new ReflectionClass(DictValueEntityFixture::class))->getProperty('status');
         $this->expectException(Error::class);
         $this->expectExceptionMessage('must not be accessed before initialization');
 
-        $attribute->normalizeInput($property, 'missing');
+        $attribute->normalizeInput(DictValueEntityFixture::statusProperty(), 'missing');
     }
 
     public function testNormalizeInputReturnsNullForEmptyNullableProperty(): void
@@ -113,9 +117,7 @@ class DictValueTest extends TestCase
             'type' => OrderStatus::class,
         ]);
 
-        $property = (new ReflectionClass(DictValueEntityFixture::class))->getProperty('nullableStatus');
-
-        $this->assertNull($attribute->normalizeInput($property, ''));
+        $this->assertNull($attribute->normalizeInput(DictValueEntityFixture::nullableStatusProperty(), ''));
     }
 
     public function testValidateReturnsFalseWhenTypeOwnedCodeIsMissing(): void
@@ -149,9 +151,19 @@ class DictValueEntityFixture
 
     #[DictValue(OrderStatus::class)]
     public ?int $nullableStatus = null;
+
+    public static function statusProperty(): ReflectionProperty
+    {
+        return new ReflectionProperty(self::class, 'status');
+    }
+
+    public static function nullableStatusProperty(): ReflectionProperty
+    {
+        return new ReflectionProperty(self::class, 'nullableStatus');
+    }
 }
 
-final class BrokenOrderStatus extends Dict
+class BrokenOrderStatus extends Dict
 {
     public static function typeCode(): ?string
     {

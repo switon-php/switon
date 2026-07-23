@@ -7,7 +7,7 @@ namespace Switon\Dict\Tests\Unit;
 use App\Dict\OrderStatus as AppDictOrderStatus;
 use Switon\Dict\Tests\Fixtures\App\Areas\Order\OrderStatus as AreaOrderStatus;
 use Switon\Dict\Tests\Fixtures\OrderStatus;
-use Switon\Dict\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class DictTypeCodeTest extends TestCase
 {
