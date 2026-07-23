@@ -85,7 +85,7 @@ interface EntityMetadataInterface
      *
      * @param class-string<Entity> $entityClass Entity class name
      *
-     * @return string[] Array of field names (e.g., ['id', 'name', 'email'])
+     * @return list<string> Field names in declaration order (e.g., ['id', 'name', 'email'])
      */
     public function getFields(string $entityClass): array;
 

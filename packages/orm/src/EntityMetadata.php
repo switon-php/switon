@@ -75,7 +75,7 @@ class EntityMetadata implements EntityMetadataInterface
     protected array $primaryKey = [];
     /** @var array<string, string> Cached referenced key names per entity class */
     protected array $referencedKey = [];
-    /** @var array<string, string[]> Cached field names per entity class */
+    /** @var array<string, list<string>> Cached field names per entity class */
     protected array $fields = [];
     /** @var array<string, array<string, string>> Cached column maps per entity class */
     protected array $columnMap = [];
@@ -136,7 +136,7 @@ class EntityMetadata implements EntityMetadataInterface
             $this->table[$entityClass] = $table;
         }
 
-        return $base ? $this->extractBaseTableName($table) : $table;
+        return $base ? self::extractBaseTableName($table) : $table;
     }
 
     /**
@@ -228,7 +228,7 @@ class EntityMetadata implements EntityMetadataInterface
      *
      * @return string Base table name without schema and sharding suffix
      */
-    protected function extractBaseTableName(string $table): string
+    public static function extractBaseTableName(string $table): string
     {
         // Remove schema prefix (e.g., "schema.table" -> "table")
         if (($pos = strpos($table, '.')) !== false) {
@@ -284,7 +284,11 @@ class EntityMetadata implements EntityMetadataInterface
         return $this->referencedKey[$entityClass];
     }
 
-    /** @inheritDoc */
+    /**
+     * {@inheritDoc}
+     *
+     * @return list<string>
+     */
     public function getFields(string $entityClass): array
     {
         if (!isset($this->fields[$entityClass])) {
