@@ -22,10 +22,15 @@ use Switon\Orm\RepositoryInterface;
 #[EventLevel(Severity::DEBUG)]
 class EntityLoaded implements JsonSerializable, SenderAwareInterface
 {
+    /**
+     * @param RepositoryInterface<Entity> $sender Repository that hydrated the entity
+     * @param Entity $entity Hydrated entity
+     */
     public function __construct(public RepositoryInterface $sender, public Entity $entity)
     {
     }
 
+    /** @return RepositoryInterface<Entity> */
     public function getSender(): RepositoryInterface
     {
         return $this->sender;

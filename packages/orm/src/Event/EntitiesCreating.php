@@ -24,6 +24,7 @@ use Switon\Orm\EntityManagerInterface;
 class EntitiesCreating implements JsonSerializable, SenderAwareInterface
 {
     /**
+     * @param EntityManagerInterface<Entity> $sender
      * @param class-string<Entity> $entityClass
      * @param array<int, Entity> $entities
      */
@@ -34,6 +35,7 @@ class EntitiesCreating implements JsonSerializable, SenderAwareInterface
     ) {
     }
 
+    /** @return EntityManagerInterface<Entity> */
     public function getSender(): EntityManagerInterface
     {
         return $this->sender;
