@@ -7,6 +7,7 @@ namespace Switon\Orm\Relation;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Orm\Entity;
+use Switon\Orm\EntityMetadata;
 use Switon\Orm\Exception\RelationFieldMissingException;
 use Switon\Query\QueryInterface;
 use Switon\Query\Table;
@@ -16,8 +17,6 @@ use function array_first;
 use function is_int;
 use function is_string;
 use function str_contains;
-use function strpos;
-use function substr;
 
 /**
  * Polymorphic many-to-one relation implementation.
@@ -103,14 +102,14 @@ class MorphToRelation extends AbstractRelation
         }
 
         // Otherwise treat as table name
-        $baseTable = $this->extractBaseTableName($typeValue);
+        $baseTable = EntityMetadata::extractBaseTableName($typeValue);
 
         foreach ($this->morphs as $k => $entityClass) {
             $configuredTable = is_int($k)
                 ? $this->entityMetadata->getTable($entityClass, true)
                 : $k;
 
-            if ($this->extractBaseTableName($configuredTable) === $baseTable) {
+            if (EntityMetadata::extractBaseTableName($configuredTable) === $baseTable) {
                 return $entityClass;
             }
         }
@@ -119,25 +118,6 @@ class MorphToRelation extends AbstractRelation
             'No entity class registered for table: {table}. Configure MorphToRelation::$morphs for MorphTo relations.',
             ['table' => $typeValue]
         );
-    }
-
-    /**
-     * Extracts base table name from table string.
-     * Handles schema.table and table:sharding formats.
-     */
-    protected function extractBaseTableName(string $table): string
-    {
-        // Remove schema prefix (e.g., "schema.table" -> "table")
-        if (($pos = strpos($table, '.')) !== false) {
-            $table = substr($table, $pos + 1);
-        }
-
-        // Remove sharding suffix (e.g., "table:sharding" -> "table")
-        if (($pos = strpos($table, ':')) !== false) {
-            $table = substr($table, 0, $pos);
-        }
-
-        return $table;
     }
 
     /**
