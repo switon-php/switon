@@ -27,7 +27,7 @@ trait EntityClassTypeResolver
 {
     use ClassNameResolverTrait;
 
-    private function resolveQueryTypeFromEntityClassArgument(MethodCall $methodCall, Scope $scope, int $argumentIndex = 0): Type
+    protected function resolveQueryTypeFromEntityClassArgument(MethodCall $methodCall, Scope $scope, int $argumentIndex = 0): Type
     {
         $entityType = $this->resolveEntityTypeFromMethodArgument($methodCall, $scope, $argumentIndex);
 
@@ -36,7 +36,7 @@ trait EntityClassTypeResolver
             : new ObjectType(Query::class);
     }
 
-    private function resolveEntityTypeFromMethodArgument(MethodCall $methodCall, Scope $scope, int $argumentIndex = 0): ?ObjectType
+    protected function resolveEntityTypeFromMethodArgument(MethodCall $methodCall, Scope $scope, int $argumentIndex = 0): ?ObjectType
     {
         $args = $methodCall->getArgs();
         if (!isset($args[$argumentIndex])) {
@@ -48,12 +48,12 @@ trait EntityClassTypeResolver
         return $resolved instanceof ObjectType ? $resolved : null;
     }
 
-    private function createQueryTypeForEntity(ObjectType $entityType): Type
+    protected function createQueryTypeForEntity(ObjectType $entityType): Type
     {
         return new GenericObjectType(Query::class, ['Model' => $entityType]);
     }
 
-    private function resolveEntityTypeFromReceiver(MethodCall $methodCall, Scope $scope): ?ObjectType
+    protected function resolveEntityTypeFromReceiver(MethodCall $methodCall, Scope $scope): ?ObjectType
     {
         $receiverType = TypeCombinator::removeNull($scope->getType($methodCall->var));
 
@@ -75,7 +75,7 @@ trait EntityClassTypeResolver
         return null;
     }
 
-    private function narrowToEntityObjectType(Type $type): ?ObjectType
+    protected function narrowToEntityObjectType(Type $type): ?ObjectType
     {
         if (!$type instanceof ObjectType) {
             return null;
@@ -93,7 +93,7 @@ trait EntityClassTypeResolver
         return $type;
     }
 
-    private function resolveEntityTypeFromRepositoryClassName(string $className): ?ObjectType
+    protected function resolveEntityTypeFromRepositoryClassName(string $className): ?ObjectType
     {
         if (!class_exists($className)) {
             return null;

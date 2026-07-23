@@ -20,13 +20,13 @@ use Switon\Orm\RepositoryInterface;
 use Switon\Query\Paginator;
 
 /**
- * Infers repository method return types from the receiver's entity template {@code T}.
+ * Infers repository method return types from the receiver's entity template `T`.
  */
-final class AbstractRepositoryMethodReturnTypeExtension implements DynamicMethodReturnTypeExtension
+class AbstractRepositoryMethodReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
     use EntityClassTypeResolver;
 
-    private const array ENTITY_METHODS = [
+    protected const array ENTITY_METHODS = [
         'get' => true,
         'firstOrFail' => true,
         'fill' => true,
@@ -38,18 +38,18 @@ final class AbstractRepositoryMethodReturnTypeExtension implements DynamicMethod
         'updateById' => true,
     ];
 
-    private const array NULLABLE_ENTITY_METHODS = [
+    protected const array NULLABLE_ENTITY_METHODS = [
         'find' => true,
         'first' => true,
         'deleteById' => true,
     ];
 
-    private const array ARRAY_ENTITY_METHODS = [
+    protected const array ARRAY_ENTITY_METHODS = [
         'all' => true,
         'createMany' => true,
     ];
 
-    private const array ARRAY_KEYED_ENTITY_METHODS = [
+    protected const array ARRAY_KEYED_ENTITY_METHODS = [
         'allBy' => true,
     ];
 
