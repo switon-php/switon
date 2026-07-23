@@ -6,6 +6,6 @@ namespace Switon\Dict\Tests\Fixtures\App\Areas\Order;
 
 use Switon\Dict\Dict;
 
-final class OrderStatus extends Dict
+class OrderStatus extends Dict
 {
 }

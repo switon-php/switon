@@ -6,7 +6,7 @@ namespace Switon\Dict\Tests\Fixtures\App\Areas\Order\Controller;
 
 use Switon\Dict\Tests\Fixtures\App\Areas\Order\OrderStatus;
 
-final class OrderController
+class OrderController
 {
     public function updateAction(OrderStatus $status): void
     {
