@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit;
 
 use Switon\Orm\Page;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class PageTest extends TestCase
 {

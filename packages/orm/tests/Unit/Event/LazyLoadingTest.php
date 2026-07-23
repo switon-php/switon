@@ -7,7 +7,7 @@ namespace Switon\Orm\Tests\Unit\Event;
 use Switon\Orm\Entity;
 use Switon\Orm\Event\LazyLoading;
 use Switon\Orm\RelationManagerInterface;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class LazyLoadingTest extends TestCase
 {

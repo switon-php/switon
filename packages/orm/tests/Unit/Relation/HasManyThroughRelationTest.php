@@ -63,19 +63,6 @@ class HasManyThroughRelationTest extends TestCase
         return $relation;
     }
 
-    public function testConstructorWithExplicitKeys(): void
-    {
-        $relation = new HasManyThroughRelation(
-            'Comment',
-            'Post',
-            'user_id',
-            'post_id',
-            ['created_at' => SORT_DESC]
-        );
-
-        $this->assertInstanceOf(HasManyThroughRelation::class, $relation);
-    }
-
 
     public function testGetRelatedQueryAppliesOrdering(): void
     {

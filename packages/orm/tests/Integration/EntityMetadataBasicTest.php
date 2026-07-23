@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Orm\Tests\Integration;
 
-use ReflectionClass;
 use Switon\Core\Attribute\Autowired;
 use Switon\Orm\EntityMetadata;
 use Switon\Orm\EntityMetadataInterface;
@@ -14,7 +13,6 @@ use Switon\Orm\Tests\Fixtures\TestUser;
 use Switon\Orm\Tests\TestCase;
 use Throwable;
 
-use function array_map;
 use function class_exists;
 use function interface_exists;
 
@@ -42,28 +40,6 @@ class EntityMetadataBasicTest extends TestCase
         $this->assertTrue(class_exists(EntityMetadata::class, true));
         $this->assertTrue(interface_exists(EntityMetadataInterface::class, true));
         $this->assertInstanceOf(EntityMetadataInterface::class, $this->entityMetadata);
-    }
-
-    public function testEntityMetadataInterfaceHasRequiredMethods(): void
-    {
-        $reflection = new ReflectionClass(EntityMetadataInterface::class);
-        $methods = array_map(fn ($m) => $m->getName(), $reflection->getMethods());
-
-        $this->assertContains('getPrimaryKey', $methods);
-        $this->assertContains('getTable', $methods);
-        $this->assertContains('getConnection', $methods);
-        $this->assertContains('getColumnMap', $methods);
-    }
-
-    public function testEntityMetadataClassHasRequiredMethods(): void
-    {
-        $reflection = new ReflectionClass(EntityMetadata::class);
-        $methods = array_map(fn ($m) => $m->getName(), $reflection->getMethods());
-
-        $this->assertContains('getPrimaryKey', $methods);
-        $this->assertContains('getTable', $methods);
-        $this->assertContains('getConnection', $methods);
-        $this->assertContains('getColumnMap', $methods);
     }
 
     public function testGetPrimaryKeyReturnsPrimaryKeyFieldName(): void

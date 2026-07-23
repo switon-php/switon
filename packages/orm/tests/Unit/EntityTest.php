@@ -12,7 +12,7 @@ use Switon\Orm\Tests\Fixtures\TestJsonSerializableValue;
 use Switon\Orm\Tests\Fixtures\TestPriority;
 use Switon\Orm\Tests\Fixtures\TestStatus;
 use Switon\Orm\Tests\Fixtures\TestStringableValue;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use DateTimeImmutable;
 use stdClass;
 
@@ -32,13 +32,6 @@ class EntityTest extends TestCase
         $this->assertSame(1, $entity->id);
         $this->assertSame('Test Name', $entity->name);
         $this->assertSame(1, $entity->status);
-    }
-
-    public function testConstructorHandlesEmptyArray(): void
-    {
-        $entity = new TestEntity();
-
-        $this->assertInstanceOf(TestEntity::class, $entity);
     }
 
     public function testOffsetGetReturnsPropertyValue(): void

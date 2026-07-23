@@ -8,12 +8,11 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Switon\Orm\Entity;
 use Switon\Orm\EntityMetadataInterface;
-use Switon\Orm\Relation\MorphToRelation;
+use Switon\Orm\Tests\Fixtures\MorphToRelationProbe;
 use Switon\Query\QueryInterface;
-use ReflectionProperty;
 
 #[AllowMockObjectsWithoutExpectations]
-final class MorphToRelationTest extends TestCase
+class MorphToRelationTest extends TestCase
 {
     public function testGetRelatedQueryDelegatesToEntityMetadataForSelfPlaceholder(): void
     {
@@ -25,19 +24,15 @@ final class MorphToRelationTest extends TestCase
             ->with(TestSelfEntity::class)
             ->willReturn($query);
 
-        $relation = new MorphToRelation('morph_table', 'morph_id');
-
-        $selfProperty = new ReflectionProperty(MorphToRelation::class, 'selfEntityClass');
-        $selfProperty->setValue($relation, TestSelfEntity::class);
-
-        $metaProperty = new ReflectionProperty(MorphToRelation::class, 'entityMetadata');
-        $metaProperty->setValue($relation, $entityMetadata);
+        $relation = (new MorphToRelationProbe('morph_table', 'morph_id'))
+            ->setSelfEntityClassForTest(TestSelfEntity::class)
+            ->setEntityMetadataForTest($entityMetadata);
 
         $this->assertSame($query, $relation->getRelatedQuery());
     }
 }
 
-final class TestSelfEntity extends Entity
+class TestSelfEntity extends Entity
 {
     public ?int $id = null;
 }

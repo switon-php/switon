@@ -8,7 +8,7 @@ use Switon\Core\Exception as CoreException;
 use Switon\Orm\Exception as OrmException;
 use Switon\Orm\Exception\EntityNotFoundException;
 use Switon\Orm\Tests\Fixtures\TestEntity;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Contract tests for ORM exception hierarchy (stable for catch-by-namespace).

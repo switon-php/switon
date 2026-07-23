@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Switon\Orm\EntityMetadataInterface;
 use Switon\Orm\FilterPreprocessor;
 use Switon\Orm\Tests\Fixtures\TestEntity;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 #[AllowMockObjectsWithoutExpectations]
 class FilterPreprocessorEdgeCasesTest extends TestCase

@@ -11,11 +11,8 @@ use Switon\Core\InputInterface;
 use Switon\Orm\Attribute\PageLimit;
 use Switon\Orm\Page;
 use Switon\Orm\PageResolver;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group orm
- */
 #[AllowMockObjectsWithoutExpectations]
 class PageResolverTest extends TestCase
 {
