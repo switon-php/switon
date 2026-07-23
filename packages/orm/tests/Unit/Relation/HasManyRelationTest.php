@@ -55,11 +55,11 @@ class HasManyRelationTest extends TestCase
         return $relation;
     }
 
-    public function testConstructorWithExplicitForeignKey(): void
+    public function testConstructorUsesExplicitForeignKey(): void
     {
         $relation = new HasManyRelation('RelatedEntity', 'user_id', ['created_at' => SORT_DESC]);
 
-        $this->assertInstanceOf(HasManyRelation::class, $relation);
+        $this->assertSame('user_id', $relation->getForeignKey());
     }
 
 

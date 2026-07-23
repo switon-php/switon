@@ -7,7 +7,7 @@ namespace Switon\Orm\Tests\Unit;
 use Switon\Orm\Event\EntityCreating;
 use Switon\Orm\EntityManagerInterface;
 use Switon\Orm\Tests\Fixtures\TestEntity;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 use function json_decode;
 use function json_encode;

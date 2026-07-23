@@ -46,13 +46,12 @@ class HasOneRelationTest extends TestCase
         return $relation;
     }
 
-    public function testConstructorWithExplicitForeignKey(): void
+    public function testConstructorUsesExplicitForeignKey(): void
     {
         $relation = new HasOneRelation('user_id');
 
-        $this->assertInstanceOf(HasOneRelation::class, $relation);
+        $this->assertSame('user_id', $relation->getForeignKey());
     }
-
 
     public function testEarlyLoadWithValidData(): void
     {

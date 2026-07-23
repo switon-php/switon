@@ -48,11 +48,11 @@ class BelongsToRelationTest extends TestCase
         return $relation;
     }
 
-    public function testConstructorWithExplicitForeignKey(): void
+    public function testConstructorUsesExplicitForeignKey(): void
     {
         $relation = new BelongsToRelation('user_id');
 
-        $this->assertInstanceOf(BelongsToRelation::class, $relation);
+        $this->assertSame('user_id', $relation->getForeignKey());
     }
 
 

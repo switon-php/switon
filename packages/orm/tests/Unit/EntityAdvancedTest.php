@@ -8,7 +8,7 @@ use Switon\Orm\Entity;
 use Switon\Orm\Tests\Fixtures\TestEntity;
 use Switon\Orm\Tests\Fixtures\TestProduct;
 use Switon\Orm\Tests\Fixtures\TestUser;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 use function json_decode;
 use function json_encode;
