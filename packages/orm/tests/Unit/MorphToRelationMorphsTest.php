@@ -5,36 +5,32 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use Switon\Core\Exception\RuntimeException;
 use Switon\Orm\EntityMetadataInterface;
-use Switon\Orm\Relation\MorphToRelation;
+use Switon\Orm\Tests\Fixtures\MorphToRelationProbe;
 use Switon\Orm\Tests\TestCase;
-use ReflectionMethod;
 
 #[AllowMockObjectsWithoutExpectations]
 class MorphToRelationMorphsTest extends TestCase
 {
     public function testResolveUsesExplicitMapping(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
-
         $metadata = $this->createMock(EntityMetadataInterface::class);
         $metadata->expects($this->never())->method('getTable');
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-            'morphs' => [
-                'posts' => 'App\\Entity\\Post',
-            ],
-        ]);
+        $relation = $this->makeMorphToRelation(
+            'type_field',
+            'id_field',
+            $metadata,
+            ['posts' => 'App\\Entity\\Post'],
+            MorphToRelationProbe::class,
+        );
 
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-        $this->assertSame('App\\Entity\\Post', $method->invoke($relation, 'posts'));
+        $this->assertSame('App\\Entity\\Post', $relation->resolveEntityClassForTest('posts'));
     }
 
     public function testResolveSupportsNumericEntityEntries(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
-
         $entityClass = 'App\\Entity\\Post';
 
         $metadata = $this->createMock(EntityMetadataInterface::class);
@@ -42,65 +38,61 @@ class MorphToRelationMorphsTest extends TestCase
             ->with($entityClass, true)
             ->willReturn('posts');
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-            'morphs' => [
-                $entityClass,
-            ],
-        ]);
+        $relation = $this->makeMorphToRelation(
+            'type_field',
+            'id_field',
+            $metadata,
+            [$entityClass],
+            MorphToRelationProbe::class,
+        );
 
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-        $this->assertSame($entityClass, $method->invoke($relation, 'posts'));
+        $this->assertSame($entityClass, $relation->resolveEntityClassForTest('posts'));
     }
 
     public function testResolveNormalizesSchemaQualifiedTable(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
+        $metadata = $this->createStub(EntityMetadataInterface::class);
 
-        $metadata = $this->createMock(EntityMetadataInterface::class);
+        $relation = $this->makeMorphToRelation(
+            'type_field',
+            'id_field',
+            $metadata,
+            ['posts' => 'App\\Entity\\Post'],
+            MorphToRelationProbe::class,
+        );
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-            'morphs' => [
-                'posts' => 'App\\Entity\\Post',
-            ],
-        ]);
-
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-        $this->assertSame('App\\Entity\\Post', $method->invoke($relation, 'schema.posts'));
+        $this->assertSame('App\\Entity\\Post', $relation->resolveEntityClassForTest('schema.posts'));
     }
 
     public function testResolveNormalizesShardingSuffix(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
+        $metadata = $this->createStub(EntityMetadataInterface::class);
 
-        $metadata = $this->createMock(EntityMetadataInterface::class);
+        $relation = $this->makeMorphToRelation(
+            'type_field',
+            'id_field',
+            $metadata,
+            ['posts' => 'App\\Entity\\Post'],
+            MorphToRelationProbe::class,
+        );
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-            'morphs' => [
-                'posts' => 'App\\Entity\\Post',
-            ],
-        ]);
-
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-        $this->assertSame('App\\Entity\\Post', $method->invoke($relation, 'posts:post_id%8'));
+        $this->assertSame('App\\Entity\\Post', $relation->resolveEntityClassForTest('posts:post_id%8'));
     }
 
     public function testResolveThrowsWhenNotConfigured(): void
     {
-        $relation = new MorphToRelation('type_field', 'id_field');
+        $metadata = $this->createStub(EntityMetadataInterface::class);
 
-        $metadata = $this->createMock(EntityMetadataInterface::class);
+        $relation = $this->makeMorphToRelation(
+            'type_field',
+            'id_field',
+            $metadata,
+            [],
+            MorphToRelationProbe::class,
+        );
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $metadata,
-            'morphs' => [],
-        ]);
+        $this->expectException(RuntimeException::class);
 
-        $this->expectException(\Switon\Core\Exception\RuntimeException::class);
-
-        $method = new ReflectionMethod($relation, 'resolveEntityClass');
-        $method->invoke($relation, 'posts');
+        $relation->resolveEntityClassForTest('posts');
     }
 }

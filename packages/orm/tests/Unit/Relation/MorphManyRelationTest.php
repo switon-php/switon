@@ -33,18 +33,24 @@ class MorphManyRelationTest extends TestCase
     /**
      * Create a MorphManyRelation with dependencies autowired and entity classes bound.
      */
+    /**
+     * @param array<string, int|string> $orderBy
+     */
     protected function createMorphManyRelation(
         string $relatedEntity,
         string $tableField,
         string $idField,
-        string $selfEntity = TestUser::class
+        string $selfEntity = TestUser::class,
+        array $orderBy = [],
     ): MorphManyRelation {
         $relation = $this->createRelation(MorphManyRelation::class, [
             'relatedEntity' => $relatedEntity,
             'tableField' => $tableField,
             'idField' => $idField,
+            'orderBy' => $orderBy,
         ]);
         $relation->bind($selfEntity, $relatedEntity);
+
         return $relation;
     }
 
@@ -418,11 +424,12 @@ class MorphManyRelationTest extends TestCase
     public function testLazyLoadAppliesConfiguredOrderBy(): void
     {
         // Arrange
-        $relation = $this->createMorphManyRelation(TestMorphChild::class, 'commentable_table', 'commentable_id');
-
-        $this->injectRelationDependencies($relation, [
-            'orderBy' => ['created_at' => SORT_DESC],
-        ]);
+        $relation = $this->createMorphManyRelation(
+            TestMorphChild::class,
+            'commentable_table',
+            'commentable_id',
+            orderBy: ['created_at' => SORT_DESC],
+        );
 
         $mockEntity = $this->createMock(TestUser::class);
         $mockEntity->user_id = 3;

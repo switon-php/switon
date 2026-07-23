@@ -48,7 +48,7 @@ class MorphToRelationTest extends TestCase
         $relation->bind(Entity::class, '');
         if ($morphs !== []) {
             // morphs is an #[Autowired] property, need to inject it
-            $this->injectRelationDependencies($relation, ['morphs' => $morphs]);
+            $this->injector->inject($relation, ['morphs' => $morphs]);
         }
         return $relation;
     }

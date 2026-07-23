@@ -26,8 +26,7 @@ class RelationManagerTest extends TestCase
         parent::setUp();
 
         $this->entityMetadata = $this->createMock(EntityMetadataInterface::class);
-        $this->manager = new RelationManager();
-        $this->injectRelationDependencies($this->manager, [
+        $this->manager = $this->make(RelationManager::class, [
             'entityMetadata' => $this->entityMetadata,
         ]);
     }

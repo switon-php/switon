@@ -12,7 +12,7 @@ use Switon\Orm\Exception\RelationFieldMissingException;
 use Switon\Orm\Relation\JunctionManyRelation;
 use Switon\Orm\RepositoryInterface;
 use Switon\Orm\Tests\Fixtures\TestPermission;
-use Switon\Orm\Tests\Fixtures\TestRolePermission;
+use Switon\Orm\Tests\Fixtures\TestRolePermissionJunction;
 use Switon\Orm\Tests\TestCase;
 use Switon\Query\QueryInterface;
 
@@ -40,17 +40,7 @@ class JunctionManyRelationTest extends TestCase
      */
     public function testEarlyLoadGroupsEntitiesByForeignKey(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         // Junction data (RolePermission entries grouped by role_id)
         $junctionData = [
@@ -104,17 +94,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testEarlyLoadMatchesZeroSelfFieldValuesCorrectly(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         // Junction data with selfField=0 included
         $junctionData = [
@@ -176,17 +156,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testEarlyLoadDeduplicatesGroupingIdsInPivotWhereIn(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $junctionData = [
             ['role_id' => 1, 'permission_id' => 10],
@@ -257,17 +227,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testEarlyLoadSkipsPivotRowsWithMissingRelatedEntity(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $junctionData = [
             ['role_id' => 1, 'permission_id' => 10],
@@ -315,17 +275,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testEarlyLoadPreservesDuplicatePivotRecordsForSameGrouping(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $junctionData = [
             ['role_id' => 1, 'permission_id' => 10],
@@ -371,17 +321,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testEarlyLoadMapsPermissionIdZeroCorrectly(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $junctionData = [
             ['role_id' => 0, 'permission_id' => 0],
@@ -430,17 +370,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testEarlyLoadThrowsExceptionWhenPivotValueFieldMissing(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $junctionData = [
             ['role_id' => 1, 'permission_id' => 10],
@@ -466,17 +396,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testEarlyLoadThrowsExceptionWhenRelatedPrimaryKeyMissing(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $junctionData = [
             ['role_id' => 1, 'permission_id' => 10],
@@ -510,17 +430,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testLazyLoadBuildsWhereInWithEmptyRelatedIdsAndSetsFetchTypeTrue(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $entity = new class (['role_id' => 0, 'user_id' => 42]) extends Entity {
             public int $role_id;
@@ -540,7 +450,7 @@ class JunctionManyRelationTest extends TestCase
 
         $this->mockEntityMetadata->expects($this->once())
             ->method('getRepository')
-            ->with(TestRolePermission::class)
+            ->with(TestRolePermissionJunction::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->expects($this->once())
@@ -570,17 +480,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testLazyLoadUsesPivotRepositoryValuesWithZeroGroupingId(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $entity = new class (['role_id' => 0, 'user_id' => 42]) extends Entity {
             public int $role_id;
@@ -599,7 +499,7 @@ class JunctionManyRelationTest extends TestCase
             ->willReturn([10, 11]);
 
         $this->mockEntityMetadata->method('getRepository')
-            ->with(TestRolePermission::class)
+            ->with(TestRolePermissionJunction::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->method('createQuery')
@@ -620,17 +520,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testLazyLoadBuildsWhereInWithNonEmptyRelatedIdsAndAppliesOrderBy(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => ['name' => SORT_ASC],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation(['name' => SORT_ASC]);
 
         $entity = new class (['role_id' => 5, 'user_id' => 42]) extends Entity {
             public int $role_id;
@@ -645,7 +535,7 @@ class JunctionManyRelationTest extends TestCase
         $mockRepository->method('values')
             ->willReturn([10, 11]);
         $this->mockEntityMetadata->method('getRepository')
-            ->with(TestRolePermission::class)
+            ->with(TestRolePermissionJunction::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->method('createQuery')
@@ -674,17 +564,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testLazyLoadBuildsWhereInWithNonZeroGroupingId(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $entity = new class (['role_id' => 3, 'user_id' => 42]) extends Entity {
             public int $role_id;
@@ -702,7 +582,7 @@ class JunctionManyRelationTest extends TestCase
             ->willReturn([12]);
 
         $this->mockEntityMetadata->method('getRepository')
-            ->with(TestRolePermission::class)
+            ->with(TestRolePermissionJunction::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->method('createQuery')
@@ -726,17 +606,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testLazyLoadReturnsQueryConfiguredForFetchTypeTrue(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $entity = new class (['role_id' => 1, 'user_id' => 42]) extends Entity {
             public int $role_id;
@@ -750,7 +620,7 @@ class JunctionManyRelationTest extends TestCase
         $mockRepository = $this->createMock(RepositoryInterface::class);
         $mockRepository->method('values')->willReturn([10]);
         $this->mockEntityMetadata->method('getRepository')
-            ->with(TestRolePermission::class)
+            ->with(TestRolePermissionJunction::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->method('createQuery')
@@ -772,17 +642,7 @@ class JunctionManyRelationTest extends TestCase
 
     public function testLazyLoadBuildsWhereInWithDuplicateRelatedIdsWithoutDeduplication(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => TestRolePermission::class,
-            'relatedEntityClass' => TestPermission::class,
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $entity = new class (['role_id' => 2, 'user_id' => 42]) extends Entity {
             public int $role_id;
@@ -798,7 +658,7 @@ class JunctionManyRelationTest extends TestCase
             ->willReturn([10, 10, 11]); // duplicates preserved at repository layer
 
         $this->mockEntityMetadata->method('getRepository')
-            ->with(TestRolePermission::class)
+            ->with(TestRolePermissionJunction::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->method('createQuery')
@@ -825,17 +685,7 @@ class JunctionManyRelationTest extends TestCase
      */
     public function testEarlyLoadReturnsEmptyArrayWhenNoPivotData(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => 'App\\Entity\\UserRole',
-            'relatedEntityClass' => 'App\\Entity\\Permission',
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $junctionData = [
             ['role_id' => 1, 'user_id' => 1],
@@ -866,31 +716,21 @@ class JunctionManyRelationTest extends TestCase
      */
     public function testLazyLoadCreatesCorrectQuery(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'selfEntityClass' => 'App\\Entity\\UserRole',
-            'relatedEntityClass' => 'App\\Entity\\Permission',
-            'selfField' => 'role_id',
-            'selfValue' => 'permission_id',
-            'orderBy' => [],
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation();
 
         $this->mockEntityMetadata->method('getPrimaryKey')
-            ->with('App\\Entity\\Permission')
-            ->willReturn('id');
+            ->with(TestPermission::class)
+            ->willReturn('permission_id');
 
         $mockRepository = $this->createMock(RepositoryInterface::class);
         $mockRepository->method('values')->willReturn([10, 20]);
 
         $this->mockEntityMetadata->method('getRepository')
-            ->with('App\\Entity\\UserRole')
+            ->with(TestRolePermissionJunction::class)
             ->willReturn($mockRepository);
 
         $this->mockEntityMetadata->method('createQuery')
-            ->with('App\\Entity\\Permission')
+            ->with(TestPermission::class)
             ->willReturn($this->mockQuery);
 
         $this->mockQuery->method('orderBy')->willReturnSelf();
@@ -912,18 +752,11 @@ class JunctionManyRelationTest extends TestCase
      */
     public function testGetRelatedQueryAppliesOrdering(): void
     {
-        $relation = $this->createPartialMock(JunctionManyRelation::class, []);
-
         $orderBy = ['name' => SORT_ASC];
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $this->mockEntityMetadata,
-            'relatedEntityClass' => 'App\\Entity\\Permission',
-            'orderBy' => $orderBy,
-            'initialized' => true,
-        ]);
+        $relation = $this->junctionRelation($orderBy);
 
         $this->mockEntityMetadata->method('createQuery')
-            ->with('App\\Entity\\Permission')
+            ->with(TestPermission::class)
             ->willReturn($this->mockQuery);
 
         $this->mockQuery->expects($this->once())
@@ -932,5 +765,20 @@ class JunctionManyRelationTest extends TestCase
             ->willReturnSelf();
 
         $relation->getRelatedQuery();
+    }
+
+    /**
+     * @param array<string, int> $orderBy
+     */
+    protected function junctionRelation(array $orderBy = []): JunctionManyRelation
+    {
+        $this->stubJunctionBelongsToInference($this->mockEntityMetadata);
+
+        return $this->makeJunctionManyRelation(
+            $this->mockEntityMetadata,
+            TestRolePermissionJunction::class,
+            TestPermission::class,
+            $orderBy,
+        );
     }
 }
