@@ -26,8 +26,10 @@ use Switon\Orm\EntityManagerInterface;
  */
 class AbstractEntityEvent implements EntityEventInterface, JsonSerializable, SenderAwareInterface
 {
+    /** @var EntityManagerInterface<Entity> */
     public EntityManagerInterface $sender;
     /**
+     * @param EntityManagerInterface<Entity> $sender
      * @param Entity $entity Current entity state
      * @param Entity|null $original Original entity state (available for update/delete events)
      */
@@ -78,6 +80,7 @@ class AbstractEntityEvent implements EntityEventInterface, JsonSerializable, Sen
         return ['entity' => $this->entity::class, 'fields' => $this->entity->toArray()];
     }
 
+    /** @return EntityManagerInterface<Entity> */
     public function getSender(): EntityManagerInterface
     {
         return $this->sender;
