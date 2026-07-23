@@ -24,7 +24,7 @@ use Switon\Orm\RelationInterface;
  * @see \Switon\Orm\EntityMetadataInterface::getTable()
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-readonly class MorphTo implements RelationAttribute
+class MorphTo implements RelationAttribute
 {
     /**
      * Creates a new MorphTo relationship attribute instance.

@@ -24,7 +24,7 @@ use Switon\Orm\RelationInterface;
  * @see \Switon\Orm\Attribute\BelongsTo
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-readonly class HasOne implements RelationAttribute
+class HasOne implements RelationAttribute
 {
     /**
      * Creates a new HasOne relationship attribute instance.
