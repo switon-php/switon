@@ -133,12 +133,12 @@ class HashStrategyTest extends TestCase
         $this->strategy->calculate(['user_id' => 'x'], 'user', 'user_id', 'md5,8,extra');
     }
 
-    private function expectedShard(string $algo, mixed $val, int $mod): string
+    protected function expectedShard(string $algo, mixed $val, int $mod): string
     {
         return 'user_' . $this->expectedIndex($algo, $val, $mod);
     }
 
-    private function expectedIndex(string $algo, mixed $val, int $mod): int
+    protected function expectedIndex(string $algo, mixed $val, int $mod): int
     {
         $valueStr = is_scalar($val) ? (string)$val : Json::stringify($val);
         $raw = hash($algo, $valueStr, true);
