@@ -5,16 +5,10 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit;
 
 use Switon\Db\Fragment\Increment;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class IncrementTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-    }
-
     public function testSetFieldReturnsSelfForMethodChaining(): void
     {
         $increment = new Increment(1);

@@ -6,7 +6,7 @@ namespace Switon\Orm\Tests\Unit;
 
 use Switon\Orm\NamingStrategy\CamelNamingStrategy;
 use Switon\Orm\NamingStrategy\DefaultNamingStrategy;
-use Switon\Orm\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class NamingStrategyTest extends TestCase
 {
