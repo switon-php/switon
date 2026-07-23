@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit\Relation;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
-use ReflectionClass;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Exception\MisuseException;
 use Switon\Orm\Attribute\BelongsTo;
@@ -39,9 +38,7 @@ class JunctionManyRelationInferenceTest extends TestCase
 
         // Replace entityMetadata on relation with a mock so we can assert calls.
         $mockMetadata = $this->createMock(EntityMetadataInterface::class);
-        $rRelation = new ReflectionClass($relation);
-        $metadataProperty = $rRelation->getProperty('entityMetadata');
-        $metadataProperty->setValue($relation, $mockMetadata);
+        $this->injector->inject($relation, ['entityMetadata' => $mockMetadata]);
 
         $mockMetadata->method('getReferencedKey')
             ->willReturnMap([
@@ -113,9 +110,7 @@ class JunctionManyRelationInferenceTest extends TestCase
             ->method('getReferencedKey')
             ->willReturn('unused_id');
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $mockMetadata,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $mockMetadata]);
 
         $relation->getRelatedQuery();
     }
@@ -172,10 +167,7 @@ class JunctionManyRelationInferenceTest extends TestCase
                 9 => ['role_id' => 9, 'name' => 'R9'],
             ]);
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $mockMetadata,
-            'initialized' => false,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $mockMetadata]);
 
         $rows = [
             ['permission_id' => 1],
@@ -207,10 +199,7 @@ class JunctionManyRelationInferenceTest extends TestCase
 
         $relatedQuery = $this->createMock(QueryInterface::class);
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $mockMetadata,
-            'initialized' => false,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $mockMetadata]);
 
         $this->expectException(MisuseException::class);
         $this->expectExceptionMessage('define two BelongsTo relations');
@@ -238,10 +227,7 @@ class JunctionManyRelationInferenceTest extends TestCase
 
         $relatedQuery = $this->createMock(QueryInterface::class);
 
-        $this->injectRelationDependencies($relation, [
-            'entityMetadata' => $mockMetadata,
-            'initialized' => false,
-        ]);
+        $this->injector->inject($relation, ['entityMetadata' => $mockMetadata]);
 
         $this->expectException(MisuseException::class);
         $this->expectExceptionMessage('define two BelongsTo relations');

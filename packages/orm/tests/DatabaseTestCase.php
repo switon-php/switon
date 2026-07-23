@@ -7,9 +7,6 @@ namespace Switon\Orm\Tests;
 use PDO;
 use Switon\Db\ClientInterface;
 use Switon\Di\Factory;
-use ReflectionException;
-use ReflectionNamedType;
-use ReflectionProperty;
 
 /**
  * Base test case for ORM integration tests with real database.
@@ -288,54 +285,5 @@ abstract class DatabaseTestCase extends TestCase
     {
         // PDO connection will be automatically closed when $this->pdo is destroyed
         parent::tearDown();
-    }
-
-    /**
-     * Create entity from database row with type conversion.
-     *
-     * Helper method for tests to create entities from raw database rows.
-     * Handles SQLite type conversion (e.g., INTEGER 0/1 to bool).
-     *
-     * @template T of \Switon\Orm\Entity
-     *
-     * @param class-string<T> $entityClass Entity class name
-     * @param array<string, mixed> $row Database row data
-     *
-     * @return T Entity instance with type-converted values
-     */
-    protected function createEntityFromRow(string $entityClass, array $row): \Switon\Orm\Entity
-    {
-        $entity = new $entityClass();
-
-        foreach ($row as $field => $value) {
-            if ($value === null) {
-                $entity->$field = null;
-                continue;
-            }
-
-            // Handle boolean conversion for SQLite (stores as 0/1)
-            if (property_exists($entity, $field)) {
-                try {
-                    $rProperty = new ReflectionProperty($entity, $field);
-                    $type = $rProperty->getType();
-                    if ($type instanceof ReflectionNamedType) {
-                        $typeName = $type->getName();
-                        if ($typeName === 'bool' && ($value === 0 || $value === 1 || $value === '0' || $value === '1')) {
-                            $value = (bool)(int)$value;
-                        } elseif ($typeName === 'int' && is_string($value) && is_numeric($value)) {
-                            $value = (int)$value;
-                        } elseif ($typeName === 'float' && is_string($value) && is_numeric($value)) {
-                            $value = (float)$value;
-                        }
-                    }
-                } catch (ReflectionException) {
-                    // Property doesn't exist or can't be reflected, use value as-is
-                }
-            }
-
-            $entity->$field = $value;
-        }
-
-        return $entity;
     }
 }
