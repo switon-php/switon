@@ -148,7 +148,7 @@ class AbstractEntityManagerCoverageTest extends TestCase
  */
 class TestEntityManager extends AbstractEntityManager
 {
-    public function __construct(private QueryBuilderInterface $qb)
+    public function __construct(protected QueryBuilderInterface $qb)
     {
     }
 

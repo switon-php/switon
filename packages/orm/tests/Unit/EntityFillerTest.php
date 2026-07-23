@@ -6,8 +6,6 @@ namespace Switon\Orm\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
-use ReflectionAttribute;
-use ReflectionClass;
 use ReflectionProperty;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\MakerInterface;
@@ -31,6 +29,12 @@ class EntityFillerTest extends TestCase
 {
     #[Autowired] protected EntityFillerInterface $entityFiller;
     protected MockObject|IdentityInterface $identity;
+
+    protected function setUpContainer(): void
+    {
+        parent::setUpContainer();
+        $this->container->set(EntityFillerInterface::class, EntityFillerConfigurableProbe::class);
+    }
 
     protected function setUp(): void
     {
@@ -303,12 +307,7 @@ class EntityFillerTest extends TestCase
 
     public function testSetAtSkipsWhenMetadataFieldTypeIsNotIntOrString(): void
     {
-        $filler = new class () extends EntityFiller {
-            public function callSetAt(Entity $entity, string $field, int $timestamp): void
-            {
-                $this->setAt($entity, $field, $timestamp);
-            }
-        };
+        $filler = new EntityFillerConfigurableProbe();
 
         $entity = new class () extends Entity {
             public float $marker = 1.25;
@@ -320,9 +319,7 @@ class EntityFillerTest extends TestCase
             ->with($entity::class, 'marker')
             ->willReturn('float');
 
-        $metaProp = (new ReflectionClass(EntityFiller::class))->getProperty('entityMetadata');
-        $metaProp->setAccessible(true);
-        $metaProp->setValue($filler, $metadata);
+        $filler->setEntityMetadataForTest($metadata);
 
         $filler->callSetAt($entity, 'marker', 99_999);
 
@@ -331,12 +328,7 @@ class EntityFillerTest extends TestCase
 
     public function testSetBySkipsWhenMetadataFieldTypeIsNotIntOrString(): void
     {
-        $filler = new class () extends EntityFiller {
-            public function callSetBy(Entity $entity, string $field): void
-            {
-                $this->setBy($entity, $field);
-            }
-        };
+        $filler = new EntityFillerConfigurableProbe();
 
         $entity = new class () extends Entity {
             public float $actor = 2.5;
@@ -353,13 +345,8 @@ class EntityFillerTest extends TestCase
         $identity->method('getId')->willReturn(42);
         $identity->method('getName')->willReturn('ignored');
 
-        $metaProp = (new ReflectionClass(EntityFiller::class))->getProperty('entityMetadata');
-        $metaProp->setAccessible(true);
-        $metaProp->setValue($filler, $metadata);
-
-        $idProp = (new ReflectionClass(EntityFiller::class))->getProperty('identity');
-        $idProp->setAccessible(true);
-        $idProp->setValue($filler, $identity);
+        $filler->setEntityMetadataForTest($metadata);
+        $filler->setIdentityForTest($identity);
 
         $filler->callSetBy($entity, 'actor');
 
@@ -391,11 +378,10 @@ class EntityFillerTest extends TestCase
             ->method('make')
             ->willReturnCallback(static fn (string $name, array $arguments) => $strategy);
 
-        $makerProp = (new ReflectionClass(EntityFiller::class))->getProperty('maker');
-        $makerProp->setAccessible(true);
-        $previousMaker = $makerProp->getValue($this->entityFiller);
-
-        $makerProp->setValue($this->entityFiller, $maker);
+        /** @var EntityFillerConfigurableProbe $filler */
+        $filler = $this->entityFiller;
+        $previousMaker = $filler->makerForTest();
+        $filler->setMakerForTest($maker);
 
         try {
             $entity = new TestEntityWithPropertyWriteFillerFields([
@@ -411,7 +397,40 @@ class EntityFillerTest extends TestCase
             $this->entityFiller->onUpdating($entity);
             $this->assertSame(5, $strategy->updatingCalls);
         } finally {
-            $makerProp->setValue($this->entityFiller, $previousMaker);
+            $filler->setMakerForTest($previousMaker);
         }
+    }
+}
+
+class EntityFillerConfigurableProbe extends EntityFiller
+{
+    public function setEntityMetadataForTest(EntityMetadataInterface $metadata): void
+    {
+        $this->entityMetadata = $metadata;
+    }
+
+    public function setIdentityForTest(IdentityInterface $identity): void
+    {
+        $this->identity = $identity;
+    }
+
+    public function setMakerForTest(MakerInterface $maker): void
+    {
+        $this->maker = $maker;
+    }
+
+    public function makerForTest(): MakerInterface
+    {
+        return $this->maker;
+    }
+
+    public function callSetAt(Entity $entity, string $field, int $timestamp): void
+    {
+        $this->setAt($entity, $field, $timestamp);
+    }
+
+    public function callSetBy(Entity $entity, string $field): void
+    {
+        $this->setBy($entity, $field);
     }
 }

@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Switon\Orm\Tests\Unit;
 
 use Attribute;
-use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
 use ReflectionProperty;
-use Switon\Binding\Attribute\ResolvedBy;
 use Switon\Binding\InputBinderInterface;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\InputInterface;
@@ -128,13 +126,22 @@ class EntityResolverTest extends TestCase
         $resolver->resolve($parameter, TestEntityWithRepository::class);
     }
 
-    public function testEntityBaseDeclaresResolvedByForSubclasses(): void
+    /**
+     * Entity subclasses inherit the #[ResolvedBy] binding from the Entity base class.
+     *
+     * Subclasses carry no attribute of their own, so this only works if discovery walks the
+     * parent chain -- which is the behavior callers depend on.
+     */
+    public function testEntitySubclassInheritsResolverBindingFromBaseClass(): void
     {
-        $reflection = new ReflectionClass(Entity::class);
-        $attribute = $reflection->getAttributes(ResolvedBy::class)[0] ?? null;
+        $objectResolver = new class (new \Switon\Testing\Container()) extends \Switon\Binding\ObjectResolver {
+            public function __construct(\Psr\Container\ContainerInterface $container)
+            {
+                $this->container = $container;
+            }
+        };
 
-        $this->assertNotNull($attribute);
-        $this->assertSame(EntityResolver::class, $attribute->newInstance()->getResolver());
+        $this->assertTrue($objectResolver->hasResolver(EntityResolverNormalizedEntity::class));
     }
 
     public function testResolveAppliesPropertyInputNormalizersBeforeRepositoryFill(): void

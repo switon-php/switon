@@ -17,15 +17,9 @@ use Switon\Orm\Tests\Fixtures\TestEntity;
 use Switon\Orm\Tests\Fixtures\TestRepository;
 use Switon\Orm\Tests\TestCase;
 use Switon\Query\QueryInterface;
-use ReflectionClass;
 
 /**
  * Test repository subclass that exposes protected methods for testing.
- *
- * This approach is preferred over Reflection as it:
- * - Makes intent clear (we're testing internal behavior)
- * - Is more maintainable (compiler catches signature changes)
- * - Follows open/closed principle
  */
 class TestableRepository extends TestRepository
 {
@@ -34,10 +28,9 @@ class TestableRepository extends TestRepository
      */
     public function testConvertDateRange(string $field, mixed $min, mixed $max): array
     {
-        $fp = new FilterPreprocessor($this->entityMetadata);
-        $m = (new ReflectionClass(FilterPreprocessor::class))->getMethod('convertDateRange');
+        $fp = new FilterPreprocessorProbe($this->entityMetadata);
 
-        return $m->invoke($fp, TestEntity::class, $field, $min, $max);
+        return $fp->convertDateRangeForTest(TestEntity::class, $field, $min, $max);
     }
 
     /**
@@ -46,6 +39,17 @@ class TestableRepository extends TestRepository
     public function testWhere(array $filters): void
     {
         $this->where($filters);
+    }
+}
+
+class FilterPreprocessorProbe extends FilterPreprocessor
+{
+    /**
+     * @return array{0: mixed, 1: mixed}
+     */
+    public function convertDateRangeForTest(string $entityClass, string $field, mixed $min, mixed $max): array
+    {
+        return $this->convertDateRange($entityClass, $field, $min, $max);
     }
 }
 
