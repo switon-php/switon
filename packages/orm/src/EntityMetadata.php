@@ -67,55 +67,38 @@ class EntityMetadata implements EntityMetadataInterface
 
     /** @var array<string, ReflectionClass<Entity>> Cached reflection classes per entity class */
     protected array $rClass = [];
-
     /** @var array<string, string> Cached table names per entity class */
     protected array $table = [];
-
     /** @var array<string, string> Cached connection names per entity class */
     protected array $connection = [];
-
     /** @var array<string, string> Cached primary key names per entity class */
     protected array $primaryKey = [];
-
     /** @var array<string, string> Cached referenced key names per entity class */
     protected array $referencedKey = [];
-
     /** @var array<string, string[]> Cached field names per entity class */
     protected array $fields = [];
-
     /** @var array<string, array<string, string>> Cached column maps per entity class */
     protected array $columnMap = [];
-
     /** @var array<string, array<string, string>> Cached fillable fields per entity class */
     protected array $fillable = [];
-
     /** @var array<string, array<string, string>> Cached field types per entity class */
     protected array $fieldTypes = [];
-
     /** @var array<string, string|null> Cached ownership fields per entity class */
     protected array $ownerField = [];
-
     /** @var array<string, string> Cached class-level default date format per entity class */
     protected array $defaultDateFormat = [];
-
     /** @var array<string, array<string, string>> Cached per-field date format overrides per entity class */
     protected array $dateFormat = [];
-
     /** @var array<string, string> Cached repository class names per entity class */
     protected array $repository = [];
-
     /** @var array<string, string> Cached naming strategy class names per entity class */
     protected array $namingStrategy = [];
-
     /** @var array<string, array<string, AbstractConstraint[]>> Cached validation constraints per entity class */
     protected array $constraints = [];
-
     /** @var array<string, array<string, RelationInterface>> Cached relations per entity class */
     protected array $relations = [];
-
     /** @var array<string, ReflectionMethod> Cached reflection methods for Repository::select() calls */
     protected array $selectMethods = [];
-
     /** @var array<string, bool> Tracks entities currently being warmed up to prevent recursion */
     protected array $warmingUp = [];
 

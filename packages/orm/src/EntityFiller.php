@@ -46,7 +46,6 @@ class EntityFiller implements EntityFillerInterface
     #[Autowired] protected array $created_by = ['created_by'];
     /** @var array<int, string> */
     #[Autowired] protected array $updated_by = ['updated_by'];
-
     #[Autowired] protected string $date_format = 'Y-m-d H:i:s';
 
     /**
