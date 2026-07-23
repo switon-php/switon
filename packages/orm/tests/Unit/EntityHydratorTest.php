@@ -94,7 +94,7 @@ class TestHydratableEntity extends Entity
     public ?TestHydratableValueObject $payload = null;
 }
 
-final class TestHydratorJsonPayload implements JsonSerializable
+class TestHydratorJsonPayload implements JsonSerializable
 {
     public function __construct(public string $label = 'default')
     {
@@ -114,9 +114,9 @@ class TestHydratorJsonEntity extends Entity
     public ?TestHydratorJsonPayload $payload = null;
 }
 
-final class TestHydratorStringableLabel implements Stringable
+class TestHydratorStringableLabel implements Stringable
 {
-    public function __construct(private string $text)
+    public function __construct(protected string $text)
     {
     }
 
@@ -356,13 +356,10 @@ class EntityHydratorTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to encode JSON');
 
-        // Invalid UTF-8 sequence to force json_encode to throw with JSON_THROW_ON_ERROR.
-        $bad = "\xB1\x31";
-
         $entity = new TestHydratorEntity();
         $entity->id = 1;
         $entity->metadata = [
-            'tags' => ['orm', $bad],
+            'tags' => ['orm', NAN],
         ];
 
         $this->entityHydrator->dehydrate($entity);

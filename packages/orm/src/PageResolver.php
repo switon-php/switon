@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Orm;
 
+use ReflectionMethod;
 use ReflectionParameter;
 use Switon\Binding\ValueResolverInterface;
 use Switon\Core\Attribute\Autowired;
@@ -31,6 +32,7 @@ use Switon\Orm\Attribute\PageLimit;
 class PageResolver implements ValueResolverInterface
 {
     #[Autowired] protected InputInterface $input;
+
     #[Autowired] protected int $max = 1000;
 
     public function resolve(ReflectionParameter $parameter, string $type): Page
@@ -57,11 +59,19 @@ class PageResolver implements ValueResolverInterface
         return $page;
     }
 
+    /**
+     * Resolves the page limit declared on the action method.
+     *
+     * @param ReflectionParameter $parameter Action parameter carrying the page object
+     */
     protected function resolveLimit(ReflectionParameter $parameter): int
     {
         $rMethod = $parameter->getDeclaringFunction();
 
-        $pageLimit = Attributes::first($rMethod, PageLimit::class);
+        $pageLimit = $rMethod instanceof ReflectionMethod
+            ? Attributes::first($rMethod, PageLimit::class)
+            : null;
+
         if ($pageLimit !== null) {
             return $pageLimit->max;
         }
