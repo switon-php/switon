@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Dict\Tests\Unit;
 
 use Switon\Dict\OptionReaderInterface;
-use Switon\Dict\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class OptionReaderInterfaceTest extends TestCase
 {
