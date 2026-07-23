@@ -14,13 +14,16 @@ use Switon\Orm\EntityManagerInterface;
 /**
  * Dispatched when an update is skipped because no persistent fields changed.
  *
- * Log category: <code>switon.orm.entities.unchanged</code>
+ * Log category: <code>switon.orm.entity.unchanged</code>
  *
  * @see \Switon\Orm\EntityManager::update() Typical emitter
  */
 #[EventLevel(Severity::DEBUG)]
 class EntityUnchanged implements JsonSerializable, SenderAwareInterface
 {
+    /**
+     * @param EntityManagerInterface<Entity> $sender
+     */
     public function __construct(
         public EntityManagerInterface $sender,
         public Entity $entity,
@@ -28,6 +31,7 @@ class EntityUnchanged implements JsonSerializable, SenderAwareInterface
     ) {
     }
 
+    /** @return EntityManagerInterface<Entity> */
     public function getSender(): EntityManagerInterface
     {
         return $this->sender;

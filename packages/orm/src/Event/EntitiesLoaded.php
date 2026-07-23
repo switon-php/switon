@@ -14,7 +14,7 @@ use Switon\Orm\RepositoryInterface;
 /**
  * Dispatched after multiple entities are hydrated from query rows.
  *
- * Log category: <code>switon.orm.entity.loaded.bulk</code>
+ * Log category: <code>switon.orm.entities.loaded</code>
  *
  * @see \Switon\Orm\AbstractRepository::hydrateEntities() Typical emitter
  * @see \Switon\Orm\Event\EntityLoaded
@@ -23,6 +23,7 @@ use Switon\Orm\RepositoryInterface;
 class EntitiesLoaded implements JsonSerializable, SenderAwareInterface
 {
     /**
+     * @param RepositoryInterface<Entity> $sender
      * @param class-string<Entity> $entityClass
      * @param array<int, Entity> $entities
      */
@@ -33,6 +34,7 @@ class EntitiesLoaded implements JsonSerializable, SenderAwareInterface
     ) {
     }
 
+    /** @return RepositoryInterface<Entity> */
     public function getSender(): RepositoryInterface
     {
         return $this->sender;
