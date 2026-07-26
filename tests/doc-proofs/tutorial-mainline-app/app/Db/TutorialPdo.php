@@ -8,7 +8,7 @@ use PDO;
 use function str_starts_with;
 use function substr;
 
-final class TutorialPdo extends PDO
+class TutorialPdo extends PDO
 {
     public function __construct(
         string $dsn,

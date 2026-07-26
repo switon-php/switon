@@ -10,7 +10,7 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\ConsoleInterface;
 use Throwable;
 
-final class TaskCommand
+class TaskCommand
 {
     #[Autowired] protected TaskServiceInterface $taskService;
 
