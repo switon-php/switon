@@ -12,7 +12,7 @@ use Iterator;
 /**
  * Fixtures for {@see \Switon\OpenApi\Tests\Unit\PhpReturnSchemaTest} (reflection only; bodies unused).
  */
-final class ReturnTypeSamples
+class ReturnTypeSamples
 {
     public function editAction(): SampleGroup
     {
