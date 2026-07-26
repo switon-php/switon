@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace Switon\OpenApi\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
 use Switon\OpenApi\PhpReturnSchema;
+use Switon\OpenApi\Tests\TestCase;
 use Switon\OpenApi\Tests\Unit\Fixtures\ReturnTypeSamples;
 
-final class PhpReturnSchemaTest extends TestCase
+class PhpReturnSchemaTest extends TestCase
 {
     public function testInfersObjectFromPublicProperties(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'editAction');
-        $schema = $infer->inferSchemaFromReturnType($m);
+        $schema = $this->inferReturnSchema(ReturnTypeSamples::class, 'editAction');
         $this->assertIsArray($schema);
         $this->assertSame('object', $schema['type'] ?? null);
         $this->assertIsArray($schema['properties'] ?? null);
@@ -25,79 +22,59 @@ final class PhpReturnSchemaTest extends TestCase
 
     public function testVoidReturnsNull(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'voidAction');
-        $this->assertNull($infer->inferSchemaFromReturnType($m));
+        $this->assertNull($this->inferReturnSchema(ReturnTypeSamples::class, 'voidAction'));
     }
 
     public function testHttpResponseInterfaceReturnsNull(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'responseAction');
-        $this->assertNull($infer->inferSchemaFromReturnType($m));
+        $this->assertNull($this->inferReturnSchema(ReturnTypeSamples::class, 'responseAction'));
     }
 
     public function testNullableUnionUsesObjectSchema(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'nullableAction');
-        $schema = $infer->inferSchemaFromReturnType($m);
+        $schema = $this->inferReturnSchema(ReturnTypeSamples::class, 'nullableAction');
         $this->assertIsArray($schema);
         $this->assertSame('object', $schema['type'] ?? null);
     }
 
     public function testBackedEnumReturnsScalarType(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'backedEnumAction');
-        $schema = $infer->inferSchemaFromReturnType($m);
+        $schema = $this->inferReturnSchema(ReturnTypeSamples::class, 'backedEnumAction');
         $this->assertSame(['type' => 'integer'], $schema);
     }
 
     public function testIntersectionReturnTypeReturnsNull(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'intersectAction');
-        $this->assertNull($infer->inferSchemaFromReturnType($m));
+        $this->assertNull($this->inferReturnSchema(ReturnTypeSamples::class, 'intersectAction'));
     }
 
     public function testIntScalarReturn(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'intScalarAction');
-        $this->assertSame(['type' => 'integer'], $infer->inferSchemaFromReturnType($m));
+        $this->assertSame(['type' => 'integer'], $this->inferReturnSchema(ReturnTypeSamples::class, 'intScalarAction'));
     }
 
     public function testArrayBuiltinReturn(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'arrayBuiltinAction');
-        $this->assertSame(['type' => 'array'], $infer->inferSchemaFromReturnType($m));
+        $this->assertSame(['type' => 'array'], $this->inferReturnSchema(ReturnTypeSamples::class, 'arrayBuiltinAction'));
     }
 
     public function testSelfReturnUsesDeclaringClass(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'selfAction');
-        $schema = $infer->inferSchemaFromReturnType($m);
+        $schema = $this->inferReturnSchema(ReturnTypeSamples::class, 'selfAction');
         $this->assertIsArray($schema);
         $this->assertSame('object', $schema['type'] ?? null);
     }
 
     public function testIntOrStringUnionUsesFirstConcreteSchema(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'intOrStringAction');
-        $schema = $infer->inferSchemaFromReturnType($m);
+        $schema = $this->inferReturnSchema(ReturnTypeSamples::class, 'intOrStringAction');
         $this->assertIsArray($schema);
         $this->assertContains($schema['type'] ?? null, ['integer', 'string']);
     }
 
     public function testUnitEnumReturnListsCases(): void
     {
-        $infer = new PhpReturnSchema();
-        $m = new ReflectionMethod(ReturnTypeSamples::class, 'unitEnumAction');
-        $schema = $infer->inferSchemaFromReturnType($m);
+        $schema = $this->inferReturnSchema(ReturnTypeSamples::class, 'unitEnumAction');
         $this->assertIsArray($schema);
         $this->assertSame('string', $schema['type'] ?? null);
         $this->assertSame(['Alpha', 'Beta'], $schema['enum'] ?? null);

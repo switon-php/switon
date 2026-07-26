@@ -21,6 +21,21 @@ class PhpReturnSchemaRootFixture
         throw new RuntimeException('fixture');
     }
 
+    public function floatAction(): float
+    {
+        throw new RuntimeException('fixture');
+    }
+
+    public function boolAction(): bool
+    {
+        throw new RuntimeException('fixture');
+    }
+
+    public function nullAction(): null
+    {
+        throw new RuntimeException('fixture');
+    }
+
     public function arrayAction(): array
     {
         throw new RuntimeException('fixture');
@@ -129,9 +144,28 @@ class PhpReturnSchemaRootFixture
     {
         throw new RuntimeException('fixture');
     }
+
+    public function nullishUnionAction(): null|false
+    {
+        throw new RuntimeException('fixture');
+    }
+
+    public function propertyShapeAction(): PhpReturnSchemaPropertyShape
+    {
+        throw new RuntimeException('fixture');
+    }
 }
 
-final class PhpReturnSchemaChildFixture extends PhpReturnSchemaRootFixture
+class PhpReturnSchemaPropertyShape
+{
+    public static int $ignored;
+
+    public $untyped;
+
+    public string $label;
+}
+
+class PhpReturnSchemaChildFixture extends PhpReturnSchemaRootFixture
 {
     public function parentAction(): parent
     {
@@ -139,42 +173,42 @@ final class PhpReturnSchemaChildFixture extends PhpReturnSchemaRootFixture
     }
 }
 
-final class PhpReturnSchemaRecursiveNode
+class PhpReturnSchemaRecursiveNode
 {
     public ?PhpReturnSchemaRecursiveNode $next = null;
 }
 
-final class PhpReturnSchemaDepthOne
+class PhpReturnSchemaDepthOne
 {
     public PhpReturnSchemaDepthTwo $next;
 }
 
-final class PhpReturnSchemaDepthTwo
+class PhpReturnSchemaDepthTwo
 {
     public PhpReturnSchemaDepthThree $next;
 }
 
-final class PhpReturnSchemaDepthThree
+class PhpReturnSchemaDepthThree
 {
     public PhpReturnSchemaDepthFour $next;
 }
 
-final class PhpReturnSchemaDepthFour
+class PhpReturnSchemaDepthFour
 {
     public PhpReturnSchemaDepthFive $next;
 }
 
-final class PhpReturnSchemaDepthFive
+class PhpReturnSchemaDepthFive
 {
     public PhpReturnSchemaDepthSix $next;
 }
 
-final class PhpReturnSchemaDepthSix
+class PhpReturnSchemaDepthSix
 {
     public PhpReturnSchemaDepthSeven $next;
 }
 
-final class PhpReturnSchemaDepthSeven
+class PhpReturnSchemaDepthSeven
 {
 }
 
@@ -196,6 +230,6 @@ enum PhpReturnSchemaBackedStringEnum: string
     case Two = 'two';
 }
 
-final class PhpReturnSchemaUnknownClass
+class PhpReturnSchemaUnknownClass
 {
 }
