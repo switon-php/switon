@@ -15,6 +15,8 @@ use Switon\Beacon\Tests\Fixtures\ClassCommand\DummyInspectable;
 use Switon\Beacon\Tests\Fixtures\ClassCommand\DummyThrowable;
 use Switon\Beacon\Tests\Fixtures\ClassCommand\Event\SampleEvent;
 use Switon\Core\ConsoleInterface;
+use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\FilterMatcherInterface;
 use Switon\Testing\Container;
 use DateTime;
@@ -401,6 +403,24 @@ class ClassCommandTest extends TestCase
         $this->assertSame(null, $this->command->exposedGetClassFile('Not\\Existing\\Type'));
         $this->assertSame(null, $this->command->exposedGetClassFile(DateTime::class));
         $this->assertNotNull($this->command->exposedGetClassFile(DummyInspectable::class));
+    }
+
+    public function testContentDataReportsUnreadableSource(): void
+    {
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isFile')->willReturn(true);
+        $filesystem->method('read')->willThrowException(FileNotFoundException::of('gone'));
+        $container = new Container([
+            ClassIndexInterface::class => $this->classIndex,
+            ConsoleInterface::class => $this->console,
+            FilterMatcherInterface::class => $this->filterMatcher,
+            FilesystemInterface::class => $filesystem,
+        ]);
+        $command = $container->make(ClassCommandHarness::class);
+
+        $result = $command->exposedGetContentData(DummyInspectable::class, null);
+
+        $this->assertSame('could not read file', $result['error']['error']);
     }
 
 }
