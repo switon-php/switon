@@ -14,7 +14,8 @@ use Switon\Storage\BlobStore;
 use Switon\Storage\Exception\ExtensionNotAllowedException;
 use Switon\Storage\Exception\ObjectNotFoundException;
 use Switon\Storage\Exception\StorageException;
-use Switon\Storage\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
+use ValueError;
 
 use function fclose;
 use function file_get_contents;
@@ -35,14 +36,12 @@ class BlobStoreTest extends TestCase
     public function existsReturnsFilesystemExistenceForNormalizedKey(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('exists')
             ->with('/tmp/storage/nested/file.txt')
             ->willReturn(true);
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->assertTrue($store->exists("  nested\\file.txt  "));
     }
@@ -51,14 +50,12 @@ class BlobStoreTest extends TestCase
     public function sizeReturnsFilesystemSizeForNormalizedKey(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('size')
             ->with('/tmp/storage/reports/daily.txt')
             ->willReturn(123);
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->assertSame(123, $store->size("  reports\\daily.txt  "));
     }
@@ -67,8 +64,6 @@ class BlobStoreTest extends TestCase
     public function deleteRemovesExistingObject(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('exists')
             ->with('/tmp/storage/object.txt')
@@ -78,7 +73,7 @@ class BlobStoreTest extends TestCase
             ->method('delete')
             ->with('/tmp/storage/object.txt');
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $store->delete('object.txt');
         $this->addToAssertionCount(1);
@@ -88,8 +83,6 @@ class BlobStoreTest extends TestCase
     public function deleteReturnsQuietlyWhenObjectIsMissing(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('exists')
             ->with('/tmp/storage/object.txt')
@@ -97,7 +90,7 @@ class BlobStoreTest extends TestCase
 
         $filesystem->expects($this->never())->method('delete');
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $store->delete('object.txt');
         $this->addToAssertionCount(1);
@@ -107,8 +100,6 @@ class BlobStoreTest extends TestCase
     public function putWritesContentsForNormalizedKey(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('mkdir')
             ->with('/tmp/storage/docs');
@@ -117,7 +108,7 @@ class BlobStoreTest extends TestCase
             ->method('write')
             ->with('/tmp/storage/docs/example.txt', 'payload');
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $store->put("  docs\\example.txt  ", 'payload');
         $this->addToAssertionCount(1);
@@ -127,14 +118,12 @@ class BlobStoreTest extends TestCase
     public function getThrowsObjectNotFoundWhenFileMissing(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('read')
             ->with('/tmp/storage/missing.txt')
             ->willThrowException(FileNotFoundException::of('missing'));
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(ObjectNotFoundException::class);
         $store->get('missing.txt');
@@ -144,14 +133,12 @@ class BlobStoreTest extends TestCase
     public function getWrapsRuntimeReadFailureAsStorageException(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('read')
             ->with('/tmp/storage/object.txt')
             ->willThrowException(RuntimeException::of('read failed'));
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(StorageException::class);
         $store->get('object.txt');
@@ -161,8 +148,6 @@ class BlobStoreTest extends TestCase
     public function putWrapsMkdirFailureAsStorageException(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('mkdir')
             ->with('/tmp/storage/dir')
@@ -170,7 +155,7 @@ class BlobStoreTest extends TestCase
 
         $filesystem->expects($this->never())->method('write');
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(StorageException::class);
         $store->put('dir/file.txt', 'payload');
@@ -180,8 +165,7 @@ class BlobStoreTest extends TestCase
     public function existsThrowsMisuseExceptionForWhitespaceOnlyKey(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(MisuseException::class);
         $store->exists('   ');
@@ -191,7 +175,6 @@ class BlobStoreTest extends TestCase
     public function writeStreamCopiesBytesToResolvedPath(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createMock(PathAliasInterface::class);
         $target = tempnam(sys_get_temp_dir(), 'switon-storage-write-');
         $stream = fopen('php://temp', 'rb+');
 
@@ -204,6 +187,7 @@ class BlobStoreTest extends TestCase
             ->method('mkdir')
             ->with('/tmp/storage/dir');
 
+        $pathAlias = $this->createMock(PathAliasInterface::class);
         $pathAlias->expects($this->once())
             ->method('resolve')
             ->with('/tmp/storage/dir/file.txt')
@@ -228,8 +212,6 @@ class BlobStoreTest extends TestCase
     public function writeStreamWrapsMkdirFailureAsStorageException(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('mkdir')
             ->with('/tmp/storage/dir')
@@ -239,7 +221,7 @@ class BlobStoreTest extends TestCase
         $this->assertTrue(is_resource($stream));
 
         try {
-            $store = $this->makeStore($filesystem, $pathAlias);
+            $store = $this->makeStore($filesystem);
             $this->expectException(StorageException::class);
             $store->writeStream('dir/file.txt', $stream);
         } finally {
@@ -253,7 +235,6 @@ class BlobStoreTest extends TestCase
     public function readStreamThrowsStorageExceptionWhenOpenFails(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createMock(PathAliasInterface::class);
         $invalidPath = '/tmp/switon-storage-readstream-missing-' . uniqid('', true);
 
         $filesystem->expects($this->once())
@@ -261,6 +242,7 @@ class BlobStoreTest extends TestCase
             ->with('/tmp/storage/folder')
             ->willReturn(true);
 
+        $pathAlias = $this->createMock(PathAliasInterface::class);
         $pathAlias->expects($this->once())
             ->method('resolve')
             ->with('/tmp/storage/folder')
@@ -276,8 +258,7 @@ class BlobStoreTest extends TestCase
     public function putFileThrowsExtensionNotAllowedWhenKeyExtensionNotInAllowList(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(ExtensionNotAllowedException::class);
         $this->expectExceptionMessage('not allowed');
@@ -289,7 +270,6 @@ class BlobStoreTest extends TestCase
     public function putFileAcceptsTrimmedAllowListCaseInsensitive(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createMock(PathAliasInterface::class);
         $source = tempnam(sys_get_temp_dir(), 'switon-storage-putfile-');
         $target = tempnam(sys_get_temp_dir(), 'switon-storage-putfile-out-');
 
@@ -301,6 +281,7 @@ class BlobStoreTest extends TestCase
             ->method('mkdir')
             ->with('/tmp/storage/out');
 
+        $pathAlias = $this->createMock(PathAliasInterface::class);
         $pathAlias->expects($this->once())
             ->method('resolve')
             ->with('/tmp/storage/out/item.dat')
@@ -325,8 +306,7 @@ class BlobStoreTest extends TestCase
     public function putFileThrowsStorageExceptionWhenLocalSourceCannotBeOpened(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(StorageException::class);
         $this->expectExceptionMessage('Failed to open local file');
@@ -339,8 +319,7 @@ class BlobStoreTest extends TestCase
     public function putFileRejectsWhenAllowListIsEmptyString(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(ExtensionNotAllowedException::class);
 
@@ -351,10 +330,9 @@ class BlobStoreTest extends TestCase
     public function writeStreamRequiresStreamResource(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
-        $this->expectException(\ValueError::class);
+        $this->expectException(ValueError::class);
 
         $store->writeStream('key.txt', 'not-a-stream');
     }
@@ -363,8 +341,7 @@ class BlobStoreTest extends TestCase
     public function existsThrowsMisuseExceptionForAbsoluteObjectKey(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(MisuseException::class);
         $this->expectExceptionMessage('relative');
@@ -377,8 +354,7 @@ class BlobStoreTest extends TestCase
     public function putThrowsMisuseExceptionWhenKeyContainsParentSegments(): void
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(MisuseException::class);
         $this->expectExceptionMessage('..');
@@ -390,8 +366,6 @@ class BlobStoreTest extends TestCase
     public function deleteWrapsRuntimeExceptionWhenFilesystemDeleteFails(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('exists')
             ->with('/tmp/storage/x.txt')
@@ -402,7 +376,7 @@ class BlobStoreTest extends TestCase
             ->with('/tmp/storage/x.txt')
             ->willThrowException(RuntimeException::of('unlink failed'));
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(StorageException::class);
         $store->delete('x.txt');
@@ -412,8 +386,6 @@ class BlobStoreTest extends TestCase
     public function putWrapsRuntimeWriteFailureAsStorageException(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-
         $filesystem->expects($this->once())
             ->method('mkdir')
             ->with('/tmp/storage/docs');
@@ -423,7 +395,7 @@ class BlobStoreTest extends TestCase
             ->with('/tmp/storage/docs/report.txt', 'payload')
             ->willThrowException(RuntimeException::of('write failed'));
 
-        $store = $this->makeStore($filesystem, $pathAlias);
+        $store = $this->makeStore($filesystem);
 
         $this->expectException(StorageException::class);
         $store->put('docs/report.txt', 'payload');
@@ -433,7 +405,6 @@ class BlobStoreTest extends TestCase
     public function readStreamReturnsReadableHandleForResolvedPath(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createMock(PathAliasInterface::class);
         $source = tempnam(sys_get_temp_dir(), 'switon-storage-readstream-');
 
         $this->assertIsString($source);
@@ -444,6 +415,7 @@ class BlobStoreTest extends TestCase
             ->with('/tmp/storage/docs/file.txt')
             ->willReturn(true);
 
+        $pathAlias = $this->createMock(PathAliasInterface::class);
         $pathAlias->expects($this->once())
             ->method('resolve')
             ->with('/tmp/storage/docs/file.txt')
@@ -467,13 +439,13 @@ class BlobStoreTest extends TestCase
     public function readStreamThrowsObjectNotFoundWhenFileMissing(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createMock(PathAliasInterface::class);
 
         $filesystem->expects($this->once())
             ->method('exists')
             ->with('/tmp/storage/missing.bin')
             ->willReturn(false);
 
+        $pathAlias = $this->createMock(PathAliasInterface::class);
         $pathAlias->expects($this->never())->method('resolve');
 
         $store = $this->makeStore($filesystem, $pathAlias);
@@ -484,9 +456,11 @@ class BlobStoreTest extends TestCase
 
     protected function makeStore(
         FilesystemInterface $filesystem,
-        PathAliasInterface  $pathAlias,
+        ?PathAliasInterface $pathAlias = null,
         string              $root = '/tmp/storage'
     ): BlobStore {
+        $pathAlias ??= $this->createStub(PathAliasInterface::class);
+
         return new class ($filesystem, $pathAlias, $root) extends BlobStore {
             public function __construct(
                 protected FilesystemInterface $filesystem,
