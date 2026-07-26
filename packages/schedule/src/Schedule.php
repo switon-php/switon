@@ -148,7 +148,7 @@ class Schedule implements ScheduleInterface
     }
 
     /**
-     * Not HTTP {@see \Switon\Http\HandlerId}; split FQCN by <code>\\</code>, drop the root namespace segment, strip repeated leading <code>Task</code>, remove nested <code>Areas</code> segments, strip trailing class-name <code>Task</code> suffix, then {@see Naming::kebab()}.
+     * Not HTTP {@see \Switon\Routing\HandlerId}; split FQCN by <code>\\</code>, drop the root namespace segment, strip repeated leading <code>Task</code>, remove nested <code>Areas</code> segments, strip trailing class-name <code>Task</code> suffix, then {@see Naming::kebab()}.
      */
     protected function taskClassToId(string $fqcn): string
     {
