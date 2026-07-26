@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Switon\Schedule\Tests\Unit;
 
 use Switon\Schedule\Expression;
-use Switon\Schedule\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ExpressionTest extends TestCase
 {

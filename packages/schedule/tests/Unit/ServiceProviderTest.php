@@ -6,7 +6,7 @@ namespace Switon\Schedule\Tests\Unit;
 
 use Switon\Schedule\ServiceProvider;
 use Switon\Schedule\TaskDiscoveryInterface;
-use Switon\Schedule\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ServiceProviderTest extends TestCase
 {
