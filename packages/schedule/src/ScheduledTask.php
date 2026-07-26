@@ -14,7 +14,7 @@ use Switon\Core\RunnerInterface;
  * @see \Switon\Schedule\Schedule::register()
  * @see \Switon\Schedule\Attribute\Scheduled
  */
-readonly class ScheduledTask
+class ScheduledTask
 {
     /**
      * @param class-string<RunnerInterface> $taskClass Task class FQCN.
@@ -24,7 +24,7 @@ readonly class ScheduledTask
         public string $name,
         public string $taskClass,
         public string $expression,
-        public int    $lockTtl,
+        public int $lockTtl,
     ) {
     }
 }
