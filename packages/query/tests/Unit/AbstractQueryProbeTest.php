@@ -115,7 +115,7 @@ class AbstractQueryProbeTest extends TestCase
     }
 }
 
-final class AbstractQueryProbe extends \Switon\Query\Query
+class AbstractQueryProbe extends \Switon\Query\Query
 {
     public function setShardRouting(ShardRoutingInterface $shardRouting): void
     {

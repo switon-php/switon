@@ -13,8 +13,6 @@ use ArrayIterator;
  * Test cases for Query Iterator and JSON serialization.
  *
  * Tests IteratorAggregate and JsonSerializable interface implementations.
- *
- * @group query
  */
 #[AllowMockObjectsWithoutExpectations]
 class QueryIteratorTest extends QueryExecutionTest

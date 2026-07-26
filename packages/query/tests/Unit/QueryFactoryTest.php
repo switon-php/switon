@@ -10,8 +10,6 @@ use Switon\Query\Tests\TestCase;
 
 /**
  * Tests for factory-style query creation.
- *
- * @group query
  */
 class QueryFactoryTest extends TestCase
 {

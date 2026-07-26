@@ -22,8 +22,6 @@ use Switon\Sharding\ShardingManagerInterface;
  * Test cases for Query execution methods.
  *
  * Tests query execution, aggregation, and data modification methods using mocks.
- *
- * @group query
  */
 #[AllowMockObjectsWithoutExpectations]
 class QueryExecutionTest extends TestCase

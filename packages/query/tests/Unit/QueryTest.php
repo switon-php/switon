@@ -12,8 +12,6 @@ use Switon\Query\Tests\TestCase;
  * Test cases for Query class.
  *
  * Tests basic query building functionality without database connection.
- *
- * @group query
  */
 class QueryTest extends TestCase
 {
