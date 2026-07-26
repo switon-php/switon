@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace Switon\Rendering\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
+use Switon\Core\ContextManagerInterface;
 use Switon\Core\PathAlias;
 use Switon\Core\PathAliasInterface;
-use Switon\Testing\Container;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
+use Switon\Eventing\EventDispatcher as RealEventDispatcher;
+use Switon\Eventing\EventDispatcherInterface;
+use Switon\Testing\EventDispatcher as TestEventDispatcher;
+use Switon\Testing\InMemoryContextManager;
 
 /**
  * Base test case for Renderer tests.
  *
- * Provides common functionality for all Renderer tests using Container (as in real applications).
- * All dependencies are injected through Container's autowiring.
+ * Builds a minimal DI container with path aliases and a recording event dispatcher.
  */
 abstract class TestCase extends BaseTestCase
 {
-    protected Container $container;
+    protected DiContainer $container;
     protected EventDispatcherInterface $eventDispatcher;
     protected PathAlias $pathAlias;
 
@@ -26,19 +31,23 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // Use pre-configured test container (ContextManagerInterface and PathAliasInterface are already registered)
-        $this->container = new Container();
+        $this->container = new DiContainer();
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
 
-        // Disable event dispatching (Renderer tests don't need real event handling)
-        // This is equivalent to NoOp behavior - events are collected but not dispatched
-        $this->container->disableEventDispatching();
-
-        // Get EventDispatcher from container (TestEventDispatcher wrapper with dispatching disabled)
-        $this->eventDispatcher = $this->container->get(EventDispatcherInterface::class);
-
-        // Get PathAlias from container and set @root alias for tests
-        $this->pathAlias = $this->container->get(PathAliasInterface::class);
+        $this->pathAlias = new PathAlias();
         $this->pathAlias->set('@root', $this->getTestTempDir());
+        $this->container->set(PathAliasInterface::class, $this->pathAlias);
+        $this->container->set(PathAlias::class, $this->pathAlias);
+        $this->container->set(ContextManagerInterface::class, InMemoryContextManager::class);
+
+        $realDispatcher = $this->container->make(RealEventDispatcher::class);
+        $this->eventDispatcher = new TestEventDispatcher($realDispatcher);
+        $this->eventDispatcher->setDispatchEvents(false);
+
+        $this->container->set(EventDispatcherInterface::class, $this->eventDispatcher);
+        $this->container->set(PsrEventDispatcherInterface::class, $this->eventDispatcher);
     }
 
     protected function getTestTempDir(): string

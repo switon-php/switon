@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Rendering\Tests\Fixtures;
 
 use Switon\Core\AppInterface;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
 use Switon\Rendering\Engine\Sword;
 use Switon\Rendering\Engine\Sword\Compiler;
@@ -23,6 +24,12 @@ class TestableSword extends Sword
     public function withCompiler(Compiler $compiler): static
     {
         $this->swordCompiler = $compiler;
+        return $this;
+    }
+
+    public function withFilesystem(FilesystemInterface $filesystem): static
+    {
+        $this->filesystem = $filesystem;
         return $this;
     }
 
