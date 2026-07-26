@@ -23,7 +23,7 @@ use const JSON_UNESCAPED_UNICODE;
 /**
  * Default {@see JsonSchemaFromSampleInterface}.
  *
- * @see \Switon\OpenApi\YamlSnippetEmitter
+ * @see \Switon\Yaml\YamlWriter
  */
 class JsonSchemaFromSample implements JsonSchemaFromSampleInterface
 {
