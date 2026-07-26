@@ -10,8 +10,8 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\Exception\JsonException;
 use Switon\Core\FilesystemInterface;
-use Switon\Core\Json;
 use Switon\Core\PathAliasInterface;
+use Switon\Core\Json;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -94,7 +94,7 @@ class PackagesCommand
 
             $packageName = $parts[1];
             $srcDir = $packagesRoot . '/' . $packageName . '/src';
-            if (!is_dir($srcDir)) {
+            if (!$this->filesystem->isDir($srcDir)) {
                 unset($packages[$index]['classes']);
                 continue;
             }
@@ -161,7 +161,7 @@ class PackagesCommand
 
     protected function officialPackagesPath(): string
     {
-        return $this->pathAlias->resolve('@switon.beacon.resources/data/official-packages.json');
+        return '@switon.beacon.resources/data/official-packages.json';
     }
 
     protected function packagesVendorRoot(): string

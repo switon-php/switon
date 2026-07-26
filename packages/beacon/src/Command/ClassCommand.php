@@ -11,6 +11,8 @@ use Switon\Command\Attribute\Tool;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ClassName;
 use Switon\Core\ConsoleInterface;
+use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\FilterMatcherInterface;
 use Switon\Core\Json;
 use ReflectionClass;
@@ -21,7 +23,6 @@ use function array_slice;
 use function array_values;
 use function class_exists;
 use function explode;
-use function file_get_contents;
 use function interface_exists;
 use function ksort;
 use function str_contains;
@@ -38,9 +39,8 @@ use function trim;
 class ClassCommand
 {
     #[Autowired] protected ClassIndexInterface $classIndex;
-
     #[Autowired] protected ConsoleInterface $console;
-
+    #[Autowired] protected FilesystemInterface $filesystem;
     #[Autowired] protected FilterMatcherInterface $filterMatcher;
 
     /** List FQCNs from class index, optional filter. */
@@ -296,11 +296,12 @@ class ClassCommand
             $file = $refMethod->getDeclaringClass()->getFileName();
         }
 
-        if ($file === false || !is_file($file)) {
+        if ($file === false || !$this->filesystem->isFile($file)) {
             return ['error' => ['error' => 'file not found', 'file' => $file], 'humanMessage' => 'Source file not available.'];
         }
-        $content = file_get_contents($file);
-        if ($content === false) {
+        try {
+            $content = $this->filesystem->read($file);
+        } catch (FileNotFoundException) {
             return ['error' => ['error' => 'could not read file', 'file' => $file], 'humanMessage' => 'Could not read file.'];
         }
 
