@@ -4,37 +4,68 @@ declare(strict_types=1);
 
 namespace Switon\Routing\Tests;
 
+use PHPUnit\Framework\TestCase as BaseTestCase;
+use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
+use Switon\Core\App;
+use Switon\Core\ContextManagerInterface;
+use Switon\Core\InjectorInterface;
+use Switon\Di\Container as DiContainer;
+use Switon\Di\ServiceProvider as DiServiceProvider;
+use Switon\Eventing\EventDispatcher as RealEventDispatcher;
+use Switon\Eventing\EventDispatcherInterface;
 use Switon\Routing\PatternCompilerInterface;
 use Switon\Routing\Router;
-use Switon\Testing\TestCase as BaseTestCase;
+use Switon\Testing\EventDispatcher as TestEventDispatcher;
+use Switon\Testing\InMemoryContextManager;
 
-/**
- * Base test case for router tests.
- *
- * Provides common functionality for all router tests, including Router initialization
- * with mocked dependencies via container.
- */
 abstract class TestCase extends BaseTestCase
 {
+    protected DiContainer $container;
+    protected InjectorInterface $injector;
+
     protected Router $router;
-    protected \Switon\Routing\Tests\Fixtures\MockRequest $request;
-    protected \Switon\Routing\Tests\Fixtures\MockPatternCompiler $patternCompiler;
-    protected \Switon\Routing\Tests\Fixtures\MockEventDispatcher $eventDispatcher;
+    protected Fixtures\MockRequest $request;
+    protected Fixtures\MockPatternCompiler $patternCompiler;
+    protected Fixtures\MockEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create mock dependencies
-        $this->request = new \Switon\Routing\Tests\Fixtures\MockRequest();
-        $this->patternCompiler = new \Switon\Routing\Tests\Fixtures\MockPatternCompiler();
-        $this->eventDispatcher = new \Switon\Routing\Tests\Fixtures\MockEventDispatcher();
+        $this->container = new DiContainer();
+        $diProvider = new DiServiceProvider();
+        $diProvider->register($this->container);
+        $diProvider->boot();
 
-        // Register mocks in container
+        App::setContainer($this->container);
+        $this->container->set(ContextManagerInterface::class, InMemoryContextManager::class);
+
+        $realDispatcher = $this->container->make(RealEventDispatcher::class);
+        $defaultDispatcher = new TestEventDispatcher($realDispatcher);
+        $defaultDispatcher->setDispatchEvents(false);
+        $this->container->set(EventDispatcherInterface::class, $defaultDispatcher);
+        $this->container->set(PsrEventDispatcherInterface::class, $defaultDispatcher);
+
+        $this->injector = $this->container->get(InjectorInterface::class);
+        $this->setUpContainer();
+        $this->injector->inject($this);
+
+        $this->request = new Fixtures\MockRequest();
+        $this->patternCompiler = new Fixtures\MockPatternCompiler();
+        $this->eventDispatcher = new Fixtures\MockEventDispatcher();
+
         $this->container->replace(PatternCompilerInterface::class, $this->patternCompiler);
-        $this->container->replace(\Psr\EventDispatcher\EventDispatcherInterface::class, $this->eventDispatcher);
+        $this->container->replace(PsrEventDispatcherInterface::class, $this->eventDispatcher);
 
-        // Create Router instance via container - dependencies will be autowired
         $this->router = $this->make(Router::class);
+    }
+
+    protected function setUpContainer(): void
+    {
+    }
+
+    protected function make(string $name, array $parameters = []): mixed
+    {
+        return $this->container->make($name, $parameters);
     }
 }
