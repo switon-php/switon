@@ -49,33 +49,21 @@ use function trim;
 class Mailer implements MailerInterface
 {
     #[Autowired] protected EventDispatcherInterface $eventDispatcher; // @phpstan-ignore property.uninitialized
-
     #[Autowired] protected ClockInterface $clock; // @phpstan-ignore property.uninitialized
-
     #[Autowired] protected Rfc822SerializerInterface $serializer; // @phpstan-ignore property.uninitialized
-
     /** @var PoolManagerInterface<Mailer, ConnectionInterface> */
     #[Autowired] protected PoolManagerInterface $poolManager; // @phpstan-ignore property.uninitialized
 
     #[Autowired] protected string $host;
-
     #[Autowired] protected int $port = 587;
-
     /** @var 'none'|'starttls'|'ssl' */
     #[Autowired] protected string $encryption = 'starttls';
-
     #[Autowired] protected string $username; // @phpstan-ignore property.uninitialized
-
     #[Autowired] protected string $password; // @phpstan-ignore property.uninitialized
-
     #[Autowired] protected string $from; // @phpstan-ignore property.uninitialized
-
     #[Autowired] protected ?string $from_name = null;
-
     #[Autowired] protected float $timeout = 10.0;
-
     #[Autowired] protected int $pool_size = 1;
-
     #[Autowired] protected float $pool_timeout = 1.0;
 
     public function __construct()
