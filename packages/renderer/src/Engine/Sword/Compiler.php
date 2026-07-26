@@ -80,11 +80,14 @@ class Compiler
                 }
 
                 $path = '@public' . $url;
-                $file = $this->pathAlias->resolve($path);
-                if (!is_file($file)) {
+                if (!$this->filesystem->isFile($path)) {
                     return $match[0];
                 }
-                $hash = substr(md5_file($file), 0, $this->hash_length);
+                try {
+                    $hash = substr(md5($this->filesystem->read($path)), 0, $this->hash_length);
+                } catch (FileNotFoundException) {
+                    return $match[0];
+                }
 
                 return "=\"$url?v=$hash\"";
             },
