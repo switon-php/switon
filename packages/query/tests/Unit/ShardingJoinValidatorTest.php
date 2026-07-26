@@ -6,11 +6,11 @@ namespace Switon\Query\Tests\Unit;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Query\ShardingJoinValidator;
-use Switon\Query\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Sharding\Exception\ShardingNotSupportedException;
 use Switon\Sharding\ShardingManagerInterface;
 
-final class TestableShardingJoinValidator extends ShardingJoinValidator
+class TestableShardingJoinValidator extends ShardingJoinValidator
 {
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
     {
@@ -45,6 +45,43 @@ class ShardingJoinValidatorTest extends TestCase
         $validator->setEventDispatcher($eventDispatcher);
 
         return $validator;
+    }
+
+    public function testValidateNoOpsWhenMainShardsEmptyAndConnectionMissing(): void
+    {
+        $shardingManager = $this->createStub(ShardingManagerInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
+        $validator = $this->createValidator($shardingManager, $eventDispatcher);
+        $validator->validate([], [], []);
+    }
+
+    public function testValidateUsesExplicitConnectionWhenMainShardsEmpty(): void
+    {
+        $shardingManager = $this->createStub(ShardingManagerInterface::class);
+        $shardingManager->method('multiple')->willReturn(['db1' => ['orders_5']]);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
+        $validator = $this->createValidator($shardingManager, $eventDispatcher);
+        $joins = [['orders', 'users.user_id = orders.user_id', 'o', 'INNER']];
+        $validator->validate([], ['user_id' => 5], $joins, null, 'db1');
+    }
+
+    public function testValidateResolvesJoinShardsViaManagerWhenResolverReturnsNull(): void
+    {
+        $shardingManager = $this->createStub(ShardingManagerInterface::class);
+        $shardingManager->method('multiple')->willReturn(['db1' => ['orders_5']]);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->never())->method('dispatch');
+
+        $validator = $this->createValidator($shardingManager, $eventDispatcher);
+        $mainShards = ['db1' => ['users_5']];
+        $joins = [['orders', 'users.user_id = orders.user_id', 'o', 'INNER']];
+        $resolver = static fn (): ?array => null;
+
+        $validator->validate($mainShards, ['user_id' => 5], $joins, $resolver, 'db1');
     }
 
     public function testValidateJoinTablesPasses(): void

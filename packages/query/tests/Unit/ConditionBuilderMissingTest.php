@@ -7,12 +7,10 @@ namespace Switon\Query\Tests\Unit;
 use Switon\Db\Exception\UnknownOperatorException;
 use Switon\Query\ConditionBuilder;
 use Switon\Query\Exception\InvalidFilterException;
-use Switon\Query\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for ConditionBuilder missing coverage - commonly used features.
- *
- * @group query
  */
 class ConditionBuilderMissingTest extends TestCase
 {
@@ -20,7 +18,6 @@ class ConditionBuilderMissingTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->builder = new ConditionBuilder();
     }
 
@@ -326,5 +323,49 @@ class ConditionBuilderMissingTest extends TestCase
 
         $this->assertSame([], $result['conditions']);
         $this->assertSame([], $result['bind']);
+    }
+
+    public function testWhereRangeFilterRequiresExactlyTwoValues(): void
+    {
+        $this->expectException(InvalidFilterException::class);
+        $this->builder->where(['age~=' => [18, 30, 40]]);
+    }
+
+    public function testWhereArraySuffixWithUnsupportedOperatorRaises(): void
+    {
+        $this->expectException(InvalidFilterException::class);
+        $this->builder->where(['score@=' => [1, 2]]);
+    }
+
+    public function testWhereSingleFieldStartsWithEndsWithContainsAndInset(): void
+    {
+        $this->builder->where([
+            'name^=' => 'admin',
+            'email$=' => '.com',
+            'bio*=' => 'php',
+            'role,=' => 'vip',
+        ]);
+        $result = $this->builder->build();
+
+        $this->assertCount(4, $result['conditions']);
+        $this->assertSame('admin%', $result['bind']['name']);
+        $this->assertSame('%.com', $result['bind']['email']);
+        $this->assertSame('%php%', $result['bind']['bio']);
+        $this->assertSame('vip', $result['bind']['role']);
+    }
+
+    public function testWhereMultiFieldComparisonUsesCmpWhenOnlyOneField(): void
+    {
+        $this->builder->where(['age>=' => 21]);
+        $result = $this->builder->build();
+
+        $this->assertSame(['[age]>=:age'], $result['conditions']);
+        $this->assertSame(21, $result['bind']['age']);
+    }
+
+    public function testWhereSingleFieldUnknownOperatorRaises(): void
+    {
+        $this->expectException(InvalidFilterException::class);
+        $this->builder->where(['status@@' => 'x']);
     }
 }

@@ -12,8 +12,6 @@ use Switon\Query\Tests\TestCase;
  * Advanced feature test cases for Query class.
  *
  * Tests advanced query functionality that doesn't require execution.
- *
- * @group query
  */
 class QueryAdvancedFeatureTest extends TestCase
 {
@@ -197,6 +195,10 @@ class QueryAdvancedFeatureTest extends TestCase
         $this->assertIsArray($allBinds);
         $this->assertArrayHasKey('status', $allBinds);
         $this->assertEquals(1, $allBinds['status']);
+
+        $slice = $this->query->getBind('status');
+        $this->assertSame(['status' => 1], $slice);
+        $this->assertNull($this->query->getBind('missing')['missing']);
     }
 
     /**
