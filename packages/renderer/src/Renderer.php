@@ -6,8 +6,10 @@ namespace Switon\Rendering;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\Exception\AliasNotFoundException;
 use Switon\Core\Exception\FileNotFoundException;
 use Switon\Core\Exception\PreconditionException;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
 use Switon\Core\Runtime;
 use Switon\Rendering\Event\RendererRendered;
@@ -24,7 +26,6 @@ use function dirname;
 use function implode;
 use function ob_get_clean;
 use function ob_start;
-use function realpath;
 use function str_contains;
 use function str_replace;
 use function strtr;
@@ -49,6 +50,7 @@ class Renderer implements RendererInterface
 {
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
     #[Autowired] protected PathAliasInterface $pathAlias;
+    #[Autowired] protected FilesystemInterface $filesystem;
     #[Autowired] protected MutexInterface $mutex;
 
     /** @var array<string, EngineInterface> */
@@ -88,7 +90,11 @@ class Renderer implements RendererInterface
      */
     public function exists(string $template): bool
     {
-        $template = $this->pathAlias->resolve($template);
+        try {
+            $template = $this->pathAlias->resolve($template);
+        } catch (AliasNotFoundException) {
+            return false;
+        }
 
         try {
             $this->findTemplateFile(Frames::of(), $template);
@@ -176,13 +182,7 @@ class Renderer implements RendererInterface
         if ($theme && str_contains($template, '/View/')) {
             $themeTemplate = str_replace('/View/', '/themes/' . $theme . '/View/', $template);
             foreach ($this->engines as $ext => $_) {
-                if (is_file($tmp = $themeTemplate . $ext)) {
-                    if (PHP_EOL !== "\n") {
-                        $realPath = strtr(realpath($tmp), '\\', '/');
-                        if ($tmp !== $realPath) {
-                            trigger_error("File name ($realPath) case mismatch for $tmp", E_USER_ERROR);
-                        }
-                    }
+                if ($this->isTemplateFile($tmp = $themeTemplate . $ext)) {
                     $file = $tmp;
                     $extension = $ext;
                     break;
@@ -192,13 +192,7 @@ class Renderer implements RendererInterface
 
         if ($file === null) {
             foreach ($this->engines as $ext => $_) {
-                if (is_file($tmp = $template . $ext)) {
-                    if (PHP_EOL !== "\n") {
-                        $realPath = strtr(realpath($tmp), '\\', '/');
-                        if ($tmp !== $realPath) {
-                            trigger_error("File name ($realPath) case mismatch for $tmp", E_USER_ERROR);
-                        }
-                    }
+                if ($this->isTemplateFile($tmp = $template . $ext)) {
                     $file = $tmp;
                     $extension = $ext;
                     break;
@@ -215,6 +209,28 @@ class Renderer implements RendererInterface
         }
 
         return $this->files[$cacheKey] = [$file, $extension];
+    }
+
+    /**
+     * Accept a template candidate. On Windows, a case-mismatched real path is an error.
+     */
+    private function isTemplateFile(string $file): bool
+    {
+        if (!$this->filesystem->isFile($file)) {
+            return false;
+        }
+
+        if (PHP_EOL !== "\n") {
+            $realPath = $this->filesystem->realpath($file);
+            if ($realPath !== null) {
+                $realPath = strtr($realPath, '\\', '/');
+                if ($file !== $realPath) {
+                    trigger_error("File name ($realPath) case mismatch for $file", E_USER_ERROR);
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
