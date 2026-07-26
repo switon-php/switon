@@ -10,7 +10,7 @@ use Switon\Orm\Attribute\Table;
 use Switon\Orm\Entity;
 
 #[Table('tasks')]
-final class Task extends Entity
+class Task extends Entity
 {
     #[Id]
     public ?int $id = null;

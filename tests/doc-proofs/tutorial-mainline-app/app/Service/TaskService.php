@@ -8,7 +8,7 @@ use App\Entity\Task;
 use App\Repository\TaskRepository;
 use Switon\Core\Attribute\Autowired;
 
-final class TaskService implements TaskServiceInterface
+class TaskService implements TaskServiceInterface
 {
     #[Autowired] protected TaskRepository $taskRepository;
 
