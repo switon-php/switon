@@ -10,7 +10,7 @@ use Switon\Mail\Delivery;
 /**
  * @internal
  */
-final class ConnectionProbe extends Connection
+class ConnectionProbe extends Connection
 {
     public function handleObjectId(): int
     {

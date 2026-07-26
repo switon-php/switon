@@ -10,7 +10,7 @@ use Switon\Mail\MessageInterface;
 /**
  * @internal
  */
-final class MailerProbe extends Mailer
+class MailerProbe extends Mailer
 {
     public ?MessageInterface $lastDelivered = null;
 
