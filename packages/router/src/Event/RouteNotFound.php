@@ -13,7 +13,7 @@ use Switon\Routing\RouterInterface;
 /**
  * Event emitted when route matching fails.
  *
- * Log category: router matching.
+ * Log category: `switon.routing.route.not.found`
  *
  * @see \Switon\Routing\RouterInterface
  * @see \Switon\Routing\RouterInterface::match()

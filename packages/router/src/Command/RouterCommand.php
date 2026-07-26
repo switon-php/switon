@@ -49,13 +49,10 @@ class RouterCommand
 {
     /** Console output adapter. */
     #[Autowired] protected ConsoleInterface $console;
-
     /** Route data source. */
     #[Autowired] protected RouterInterface $router;
-
     /** Path filter (substring or wildcards * ?). */
     #[Autowired] protected FilterMatcherInterface $filterMatcher;
-
     /** Filesystem for reading handler source files. */
     #[Autowired] protected FilesystemInterface $filesystem;
 
