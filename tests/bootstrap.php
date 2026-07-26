@@ -78,7 +78,7 @@ function switon_register_monorepo_package_autoloads(string $repoRoot): void
     }
 }
 
-function switon_register_monorepo_test_autoloads(string $packageRoot): void
+function switon_register_monorepo_test_autoloads(string $packageRoot, string $repoRoot): void
 {
     $packageComposerJson = $packageRoot . '/composer.json';
     if (!file_exists($packageComposerJson)) {
@@ -101,6 +101,17 @@ function switon_register_monorepo_test_autoloads(string $packageRoot): void
     $gmpOverride = $packageRoot . '/tests/gmp-function-override.php';
     if (file_exists($gmpOverride)) {
         require_once $gmpOverride;
+    }
+
+    // In the monorepo, the package under test lives under {repoRoot}/packages/*. Its own vendor/ is a stale
+    // split-repo snapshot whose Composer autoloader would PREPEND itself and shadow the current package sources
+    // (already registered from packages/*/src). Only load a package-local vendor when running as a standalone
+    // split repo (package root == repo root), so monorepo runs always resolve against the root vendor + sources.
+    if (rtrim($packageRoot, '/') === rtrim($repoRoot, '/')) {
+        $packageVendor = $packageRoot . '/vendor/autoload.php';
+        if (file_exists($packageVendor)) {
+            require_once $packageVendor;
+        }
     }
 }
 
@@ -136,4 +147,4 @@ if ($configPath === false) {
 }
 
 $packageRoot = dirname($configPath, 2);
-switon_register_monorepo_test_autoloads($packageRoot);
+switon_register_monorepo_test_autoloads($packageRoot, $repoRoot);
