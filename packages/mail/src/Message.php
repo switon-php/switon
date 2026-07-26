@@ -98,7 +98,7 @@ class Message implements MessageInterface
         return $this;
     }
 
-    /** Plain-text body (can combine with {@see html()} for multipart/alternative). */
+    /** Plain-text body (can combine with `html()` for multipart/alternative). */
     public function text(?string $body): static
     {
         $this->textBody = $body;
@@ -106,7 +106,7 @@ class Message implements MessageInterface
         return $this;
     }
 
-    /** HTML body (can combine with {@see text()} for multipart/alternative). */
+    /** HTML body (can combine with `text()` for multipart/alternative). */
     public function html(?string $body): static
     {
         $this->htmlBody = $body;
