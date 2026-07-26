@@ -13,7 +13,7 @@ use Switon\Di\NamedLookupInterface;
 use Switon\Query\Query;
 use Switon\Query\Table;
 use Switon\Query\Tests\QueryTestHelper;
-use Switon\Query\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Switon\Sharding\ShardingManagerInterface;
 
 /**
@@ -21,8 +21,6 @@ use Switon\Sharding\ShardingManagerInterface;
  *
  * These tests focus on real-world usage scenarios rather than implementation details.
  * Tests verify "what" the query does, not "how" it does it.
- *
- * @group query
  */
 #[AllowMockObjectsWithoutExpectations]
 class QueryUserScenariosTest extends TestCase
@@ -38,7 +36,6 @@ class QueryUserScenariosTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
 
         // Create container for dependency injection
         $container = new \Switon\Testing\Container();

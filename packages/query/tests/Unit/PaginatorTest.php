@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Switon\Query\Tests\Unit;
 
 use Switon\Query\Paginator;
-use Switon\Query\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use DivisionByZeroError;
 
 /**
  * Test cases for Paginator class.
- *
- * @group query
  */
 class PaginatorTest extends TestCase
 {

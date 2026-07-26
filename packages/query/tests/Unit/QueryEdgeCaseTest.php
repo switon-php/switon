@@ -13,8 +13,6 @@ use Switon\Query\Tests\TestCase;
  * Edge case test cases for Query class.
  *
  * Tests edge cases and error handling for Query functionality.
- *
- * @group query
  */
 class QueryEdgeCaseTest extends TestCase
 {

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Switon\Query\Tests\Unit;
 
 use Switon\Query\ConditionBuilder;
-use Switon\Query\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for ConditionBuilder class.
- *
- * @group query
  */
 class ConditionBuilderTest extends TestCase
 {
@@ -18,7 +16,6 @@ class ConditionBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->builder = new ConditionBuilder();
     }
 
