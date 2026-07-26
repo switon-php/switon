@@ -9,8 +9,8 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\ClassName;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\FilesystemInterface;
-use Switon\Core\Json;
 use Switon\Core\PathAliasInterface;
+use Switon\Core\Json;
 use Switon\OpenApi\DocumentBuilderInterface;
 use Switon\OpenApi\LinterInterface;
 use Switon\OpenApi\YmlSyncInterface;
@@ -38,15 +38,10 @@ use function str_ends_with;
 class OpenApiCommand
 {
     #[Autowired] protected ConsoleInterface $console;
-
     #[Autowired] protected FilesystemInterface $filesystem;
-
     #[Autowired] protected PathAliasInterface $pathAlias;
-
     #[Autowired] protected DocumentBuilderInterface $documentBuilder;
-
     #[Autowired] protected YmlSyncInterface $ymlSync;
-
     #[Autowired] protected LinterInterface $linter;
 
     /**
