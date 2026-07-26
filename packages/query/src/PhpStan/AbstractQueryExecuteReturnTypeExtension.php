@@ -19,7 +19,7 @@ use Switon\Query\AbstractQuery;
 /**
  * Infers {@see AbstractQuery::execute()} row list shape (sharded queries may use string keys).
  */
-final class AbstractQueryExecuteReturnTypeExtension implements DynamicMethodReturnTypeExtension
+class AbstractQueryExecuteReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
     public function getClass(): string
     {

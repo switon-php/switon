@@ -8,11 +8,11 @@ use PHPStan\Reflection\ParameterReflection;
 use PHPStan\Reflection\PassedByReference;
 use PHPStan\Type\Type;
 
-final class ShardingManagerWidenedParameterReflection implements ParameterReflection
+class ShardingManagerWidenedParameterReflection implements ParameterReflection
 {
     public function __construct(
-        private ParameterReflection $inner,
-        private Type                $type,
+        protected ParameterReflection $inner,
+        protected Type                $type,
     ) {
     }
 
