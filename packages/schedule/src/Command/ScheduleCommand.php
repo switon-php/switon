@@ -40,6 +40,7 @@ class ScheduleCommand
     #[Autowired] protected TaskRunnerInterface $runner;
     #[Autowired] protected ScheduleInterface $schedule;
     #[Autowired] protected ConsoleInterface $console;
+
     #[Autowired] protected int $tick = 1000;
 
     /** Show registered scheduled tasks. */

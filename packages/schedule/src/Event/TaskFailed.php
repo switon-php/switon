@@ -12,7 +12,7 @@ use Throwable;
 /**
  * A scheduled task invocation failed with an exception.
  *
- * Log category: schedule task lifecycle.
+ * Log category: `switon.schedule.task.failed`
  *
  * @see \Switon\Schedule\TaskRunner
  */

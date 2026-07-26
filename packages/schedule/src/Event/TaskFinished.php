@@ -11,7 +11,7 @@ use Switon\Eventing\Severity;
 /**
  * A scheduled task invocation completed without throwing.
  *
- * Log category: schedule task lifecycle.
+ * Log category: `switon.schedule.task.finished`
  *
  * @see \Switon\Schedule\TaskRunner
  * @see \Switon\Schedule\Event\TaskFailed
