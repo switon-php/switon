@@ -13,8 +13,6 @@ use Exception;
  * Test cases for Query advanced scenarios.
  *
  * Tests complex query scenarios including JOINs, sharding, column mapping, etc.
- *
- * @group query
  */
 #[AllowMockObjectsWithoutExpectations]
 class QueryAdvancedTest extends QueryExecutionTest
@@ -71,6 +69,36 @@ class QueryAdvancedTest extends QueryExecutionTest
         $this->assertNotEmpty($sql);
         $this->assertStringContainsString('SELECT', $sql);
         $this->assertStringContainsString('users', $sql);
+    }
+
+    public function testGetSqlCompilesJoinClauses(): void
+    {
+        $joinTable = Table::of('profiles', 'default');
+        $this->query->leftJoin($joinTable, '[users].[id] = [profiles].[user_id]');
+
+        $this->shardingManager->expects($this->exactly(2))
+            ->method('multiple')
+            ->willReturnOnConsecutiveCalls(
+                ['default' => ['users']],
+                ['default' => ['profiles']],
+            );
+
+        $this->namedLookup->expects($this->once())
+            ->method('by')
+            ->with(ClientInterface::class, 'default')
+            ->willReturn($this->dbClient);
+
+        $this->dbClient->expects($this->atLeastOnce())
+            ->method('getPrefix')
+            ->willReturn('');
+
+        $this->dbClient->expects($this->once())
+            ->method('buildSql')
+            ->with($this->isArray())
+            ->willReturn('SELECT * FROM [users] LEFT JOIN [profiles] ON [users].[id] = [profiles].[user_id]');
+
+        $sql = $this->query->getSql();
+        $this->assertStringContainsString('profiles', $sql);
     }
 
     /**
