@@ -31,6 +31,7 @@ class TaskDiscovery implements TaskDiscoveryInterface
     #[Autowired] protected ClassScannerInterface $classScanner;
     #[Autowired] protected ComposerExtraInterface $composerExtra;
     #[Autowired] protected ScheduleInterface $schedule;
+
     /** @var array<string, string> */
     #[Autowired] protected array $tasks
         = [
