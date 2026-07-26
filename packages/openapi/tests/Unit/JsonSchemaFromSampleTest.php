@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Switon\OpenApi\JsonSchemaFromSample;
 use stdClass;
 
-final class JsonSchemaFromSampleTest extends TestCase
+class JsonSchemaFromSampleTest extends TestCase
 {
     public function testObjectWithProperties(): void
     {

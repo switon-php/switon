@@ -11,7 +11,7 @@ use Switon\OpenApi\Command\OpenApiCommand;
 use Switon\Testing\Container;
 use Switon\OpenApi\Tests\TestCase;
 
-final class OpenApiCommandTest extends TestCase
+class OpenApiCommandTest extends TestCase
 {
     public function testInitActionReadsScaffoldFromResourceAlias(): void
     {
@@ -21,6 +21,9 @@ final class OpenApiCommandTest extends TestCase
 
         $filesystem = $this->createStub(FilesystemInterface::class);
         $console = $this->createMock(ConsoleInterface::class);
+        $filesystem->method('resolve')->willReturnCallback(
+            static fn (string $path): string => $pathAlias->resolve($path)
+        );
 
         $filesystem->method('exists')->willReturnCallback(
             static function (string $path) use ($targetRoot): bool {
@@ -78,6 +81,9 @@ final class OpenApiCommandTest extends TestCase
         touch($openapiDir . '/openapi.yml');
 
         $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('resolve')->willReturnCallback(
+            static fn (string $path): string => $pathAlias->resolve($path)
+        );
         $filesystem->method('exists')->willReturnCallback(
             static fn (string $path): bool => is_file($path) || is_dir($path)
         );

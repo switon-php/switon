@@ -10,8 +10,9 @@ use Switon\Core\PathAlias;
 use Switon\OpenApi\RouteCollectorInterface;
 use Switon\OpenApi\YmlSync;
 use Switon\Yaml\YamlReader;
+use Switon\Yaml\YamlWriter;
 
-final class YmlSyncTest extends TestCase
+class YmlSyncTest extends TestCase
 {
     public function testControllerYamlFileNameUsesOperationIdPrefix(): void
     {
@@ -134,6 +135,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -206,6 +208,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -300,6 +303,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -364,6 +368,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -427,6 +432,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -478,6 +484,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -535,6 +542,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -625,6 +633,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -721,6 +730,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -780,6 +790,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -837,6 +848,7 @@ YAML;
                 };
                 $this->filesystem = $fs;
                 $this->yamlReader = new YamlReader();
+                $this->yamlWriter = new YamlWriter();
             }
         };
 
@@ -864,7 +876,7 @@ YAML;
         file_put_contents($path, $yaml);
     }
 
-    private function rrmdir(string $dir): void
+    protected function rrmdir(string $dir): void
     {
         if (!is_dir($dir)) {
             return;

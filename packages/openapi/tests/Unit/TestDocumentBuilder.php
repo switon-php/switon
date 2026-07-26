@@ -11,7 +11,7 @@ use Switon\Yaml\YamlReaderInterface;
 /**
  * Test double with explicit constructor injection (no reflection).
  */
-final class TestDocumentBuilder extends DocumentBuilder
+class TestDocumentBuilder extends DocumentBuilder
 {
     public function __construct(YamlReaderInterface $yamlReader, FilesystemInterface $filesystem)
     {
