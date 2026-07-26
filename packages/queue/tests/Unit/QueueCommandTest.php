@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Switon\Queue\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use ReflectionMethod;
 use Switon\Core\ConsoleInterface;
 use Switon\Core\Json;
 use Switon\Core\RandomInterface;
@@ -478,9 +477,8 @@ class QueueCommandTest extends TestCase
     public function testNowMsReturnsMillisecondTimestamp(): void
     {
         $command = $this->makeCommand();
-        $method = new ReflectionMethod(QueueCommand::class, 'nowMs');
 
-        $value = $method->invoke($command);
+        $value = $command->nowMsForTest();
 
         $this->assertIsInt($value);
         $this->assertGreaterThan(0, $value);
@@ -500,25 +498,23 @@ class QueueCommandTest extends TestCase
     public function testParseQueueNamesNormalizesInput(string $input, array $expected): void
     {
         $command = $this->makeCommand();
-        $method = new ReflectionMethod(QueueCommand::class, 'parseQueueNames');
 
-        $this->assertSame($expected, $method->invoke($command, $input));
+        $this->assertSame($expected, $command->parseQueueNamesForTest($input));
     }
 
     public function testTryAcquireLeaderLockAcceptsTrueOrOk(): void
     {
         $redis = new LeaderLockRedisStub();
         $command = $this->makeCommand(redis: $redis);
-        $method = new ReflectionMethod(QueueCommand::class, 'tryAcquireLeaderLock');
 
         $redis->setReturn = true;
-        $this->assertTrue($method->invoke($command, 'k', 't', 10));
+        $this->assertTrue($command->tryAcquireLeaderLockForTest('k', 't', 10));
 
         $redis->setReturn = 'OK';
-        $this->assertTrue($method->invoke($command, 'k', 't', 10));
+        $this->assertTrue($command->tryAcquireLeaderLockForTest('k', 't', 10));
 
         $redis->setReturn = false;
-        $this->assertFalse($method->invoke($command, 'k', 't', 10));
+        $this->assertFalse($command->tryAcquireLeaderLockForTest('k', 't', 10));
     }
 
     public function testRenewLeaderLockRequiresMatchingToken(): void
@@ -526,33 +522,31 @@ class QueueCommandTest extends TestCase
         $redis = new LeaderLockRedisStub();
         $redis->getReturn = 'other';
         $command = $this->makeCommand(redis: $redis);
-        $method = new ReflectionMethod(QueueCommand::class, 'renewLeaderLock');
 
-        $this->assertFalse($method->invoke($command, 'k', 'mine', 10));
+        $this->assertFalse($command->renewLeaderLockForTest('k', 'mine', 10));
 
         $redis->getReturn = 'mine';
         $redis->expireReturn = false;
-        $this->assertFalse($method->invoke($command, 'k', 'mine', 10));
+        $this->assertFalse($command->renewLeaderLockForTest('k', 'mine', 10));
 
         $redis->expireReturn = true;
-        $this->assertTrue($method->invoke($command, 'k', 'mine', 10));
+        $this->assertTrue($command->renewLeaderLockForTest('k', 'mine', 10));
 
         $redis->expireReturn = 1;
-        $this->assertTrue($method->invoke($command, 'k', 'mine', 10));
+        $this->assertTrue($command->renewLeaderLockForTest('k', 'mine', 10));
     }
 
     public function testReleaseLeaderLockDeletesOnlyWhenTokenMatches(): void
     {
         $redis = new LeaderLockRedisStub();
         $command = $this->makeCommand(redis: $redis);
-        $method = new ReflectionMethod(QueueCommand::class, 'releaseLeaderLock');
 
         $redis->getReturn = 'x';
-        $method->invoke($command, 'k', 'mine');
+        $command->releaseLeaderLockForTest('k', 'mine');
         $this->assertSame(0, $redis->delCalls);
 
         $redis->getReturn = 'mine';
-        $method->invoke($command, 'k', 'mine');
+        $command->releaseLeaderLockForTest('k', 'mine');
         $this->assertSame(1, $redis->delCalls);
     }
 
@@ -566,7 +560,8 @@ class QueueCommandTest extends TestCase
         $random ??= $this->createStub(RandomInterface::class);
         $random->method('uuid')->willReturn('test-uuid');
 
-        $command = $this->make(QueueCommand::class, [
+        /** @var QueueCommandTestHarness $command */
+        $command = $this->make(QueueCommandTestHarness::class, [
             'console' => $console ?? $this->createStub(ConsoleInterface::class),
             'queue' => $queue ?? $this->createStub(QueueInterface::class),
             'jobDiscovery' => $jobDiscovery ?? $this->createStub(JobDiscoveryInterface::class),
@@ -621,7 +616,38 @@ class QueueCommandTest extends TestCase
 /**
  * Minimal Redis double for {@see QueueCommand} leader-lock helpers.
  */
-final class LeaderLockRedisStub implements ClientInterface
+class QueueCommandTestHarness extends QueueCommand
+{
+    public function nowMsForTest(): int
+    {
+        return $this->nowMs();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function parseQueueNamesForTest(string $input): array
+    {
+        return $this->parseQueueNames($input);
+    }
+
+    public function tryAcquireLeaderLockForTest(string $key, string $token, int $ttl): bool
+    {
+        return $this->tryAcquireLeaderLock($key, $token, $ttl);
+    }
+
+    public function renewLeaderLockForTest(string $key, string $token, int $ttl): bool
+    {
+        return $this->renewLeaderLock($key, $token, $ttl);
+    }
+
+    public function releaseLeaderLockForTest(string $key, string $token): void
+    {
+        $this->releaseLeaderLock($key, $token);
+    }
+}
+
+class LeaderLockRedisStub implements ClientInterface
 {
     public mixed $setReturn = true;
 
@@ -664,11 +690,11 @@ final class LeaderLockRedisStub implements ClientInterface
     }
 }
 
-final class StopQueueCommandLoop extends RuntimeException
+class StopQueueCommandLoop extends RuntimeException
 {
 }
 
-final class QueueCommandLoopStub extends QueueCommand
+class QueueCommandLoopStub extends QueueCommand
 {
     /** @var list<bool> */
     public array $acquireResults = [true];
