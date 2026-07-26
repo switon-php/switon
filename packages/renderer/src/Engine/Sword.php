@@ -6,14 +6,13 @@ namespace Switon\Rendering\Engine;
 
 use Switon\Core\AppInterface;
 use Switon\Core\Attribute\Autowired;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
 use Switon\Rendering\Engine\Sword\Compiler;
 use Switon\Rendering\EngineInterface;
 use Switon\Rendering\Frames;
 
 use function extract;
-use function file_exists;
-use function filemtime;
 use function str_replace;
 use function str_starts_with;
 use function strlen;
@@ -33,15 +32,10 @@ class Sword implements EngineInterface
     #[Autowired] protected AppInterface $app;
     #[Autowired] protected Compiler $swordCompiler;
     #[Autowired] protected PathAliasInterface $pathAlias;
+    #[Autowired] protected FilesystemInterface $filesystem;
 
-    protected string $doc_root;
     /** @var array<string, string> */
     protected array $compiled = [];
-
-    public function __construct(?string $doc_root = null)
-    {
-        $this->doc_root = $doc_root ?? ($_SERVER['DOCUMENT_ROOT'] ?? '');
-    }
 
     /**
      * Resolves and refreshes the compiled PHP file for one `.sword` source template.
@@ -51,8 +45,6 @@ class Sword implements EngineInterface
         $root = $this->pathAlias->resolve('@root');
         if (str_starts_with($source, $root)) {
             $compiled = '@runtime/sword' . substr($source, strlen($root));
-        } elseif ($this->doc_root !== '' && str_starts_with($source, $this->doc_root)) {
-            $compiled = '@runtime/sword/' . substr($source, strlen($this->doc_root));
         } else {
             $compiled = "@runtime/sword/$source";
             if (DIRECTORY_SEPARATOR === '\\') {
@@ -62,7 +54,10 @@ class Sword implements EngineInterface
 
         $compiled = $this->pathAlias->resolve($compiled);
 
-        if ($this->app->isDebug() || !file_exists($compiled) || filemtime($source) > filemtime($compiled)) {
+        if ($this->app->isDebug()
+            || !$this->filesystem->exists($compiled)
+            || ($this->filesystem->mtime($source) ?? 0) > ($this->filesystem->mtime($compiled) ?? 0)
+        ) {
             $this->swordCompiler->compileFile($source, $compiled);
         }
 
