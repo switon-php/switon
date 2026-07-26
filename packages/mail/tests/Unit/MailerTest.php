@@ -268,7 +268,7 @@ class MailerTest extends TestCase
         $clock->method('elapsed')->willReturn(0.001);
 
         $mailer = new class ($eventDispatcher, $clock) extends Mailer {
-            public function __construct(private SpyEventDispatcher $spy, ClockInterface $clock)
+            public function __construct(protected SpyEventDispatcher $spy, ClockInterface $clock)
             {
                 $this->eventDispatcher = $spy;
                 $this->clock = $clock;
@@ -373,7 +373,7 @@ class MailerTest extends TestCase
     /**
      * @return array{mailer: Mailer, serializer: SpySerializer, pool: SpyPoolManager, events: SpyEventDispatcher}
      */
-    private function makeMailer(array $parameters = [], ?object $defaultResource = null): array
+    protected function makeMailer(array $parameters = [], ?object $defaultResource = null): array
     {
         $serializer = new SpySerializer();
         $poolManager = new SpyPoolManager();
@@ -405,7 +405,7 @@ class MailerTest extends TestCase
         ];
     }
 
-    private function makeProbeMailer(array $parameters = []): MailerProbe
+    protected function makeProbeMailer(array $parameters = []): MailerProbe
     {
         /** @var MailerProbe $mailer */
         $mailer = $this->make(MailerProbe::class, array_merge([
