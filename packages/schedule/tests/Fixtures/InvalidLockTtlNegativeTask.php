@@ -8,7 +8,7 @@ use Switon\Core\RunnerInterface;
 use Switon\Schedule\Attribute\Scheduled;
 
 #[Scheduled('0 * * *', lockTtl: -1)]
-final class InvalidLockTtlNegativeTask implements RunnerInterface
+class InvalidLockTtlNegativeTask implements RunnerInterface
 {
     public function run(mixed $payload): mixed
     {

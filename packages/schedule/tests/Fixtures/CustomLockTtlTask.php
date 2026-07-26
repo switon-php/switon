@@ -8,7 +8,7 @@ use Switon\Core\RunnerInterface;
 use Switon\Schedule\Attribute\Scheduled;
 
 #[Scheduled('0 * * *', lockTtl: 120)]
-final class CustomLockTtlTask implements RunnerInterface
+class CustomLockTtlTask implements RunnerInterface
 {
     public function run(mixed $payload): mixed
     {

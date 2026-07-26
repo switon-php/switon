@@ -8,7 +8,7 @@ use Switon\Core\RunnerInterface;
 use Switon\Schedule\Attribute\Scheduled;
 
 #[Scheduled('0 * * *')]
-final class AdminTask implements RunnerInterface
+class AdminTask implements RunnerInterface
 {
     public function run(mixed $payload): mixed
     {
