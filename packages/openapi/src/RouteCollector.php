@@ -29,13 +29,9 @@ use function str_starts_with;
 class RouteCollector implements RouteCollectorInterface
 {
     #[Autowired] protected ControllerScannerInterface $controllerScanner;
-
     #[Autowired] protected MappingPathInterface $mappingPath;
-
     #[Autowired] protected RouterInterface $router;
-
     #[Autowired] protected OperationIdInterface $operationIds;
-
     #[Autowired] protected ResponseSchemaGuesserInterface $responseSchemaGuesser;
 
     /**
