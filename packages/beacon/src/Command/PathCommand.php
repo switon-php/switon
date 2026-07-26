@@ -10,6 +10,7 @@ use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ConsoleInterface;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\Json;
 use ReflectionClass;
 
@@ -30,6 +31,7 @@ class PathCommand
 {
     #[Autowired] protected ClassIndexInterface $classIndex;
     #[Autowired] protected ConsoleInterface $console;
+    #[Autowired] protected FilesystemInterface $filesystem;
 
     /**
      * Map file path to FQCN(s) in that file; output JSON path and fqcns
@@ -80,9 +82,7 @@ class PathCommand
         if ($file === false) {
             return null;
         }
-        $norm = str_replace('\\', '/', $file);
-        $real = realpath($file);
-        return $real !== false ? str_replace('\\', '/', $real) : $norm;
+        return str_replace('\\', '/', $this->filesystem->realpath($file) ?? $file);
     }
 
     protected function shortName(string $fqcn): string
