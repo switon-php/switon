@@ -9,8 +9,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Switon\Beacon\Command\CodeCommand;
 use Switon\Core\ConsoleInterface;
-use Switon\Testing\Container;
+use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\Exception\RuntimeException;
+use Switon\Core\FilesystemInterface;
 use ReflectionMethod;
+use Switon\Beacon\Tests\Fixtures\VisibilityMethodFixture;
+use Switon\Testing\Container;
 
 use function file_get_contents;
 use function file_put_contents;
@@ -113,9 +117,18 @@ class CodeCommandTest extends TestCase
 
     public function testVisibilityMapsMethodModifiers(): void
     {
-        $this->assertSame('public', $this->command->callVisibility(ReflectionMethod::IS_PUBLIC));
-        $this->assertSame('protected', $this->command->callVisibility(ReflectionMethod::IS_PROTECTED));
-        $this->assertSame('private', $this->command->callVisibility(ReflectionMethod::IS_PRIVATE));
+        $this->assertSame(
+            'public',
+            $this->command->callVisibility((new ReflectionMethod(VisibilityMethodFixture::class, 'publicMethod'))->getModifiers()),
+        );
+        $this->assertSame(
+            'protected',
+            $this->command->callVisibility((new ReflectionMethod(VisibilityMethodFixture::class, 'protectedMethod'))->getModifiers()),
+        );
+        $this->assertSame(
+            'private',
+            $this->command->callVisibility((new ReflectionMethod(VisibilityMethodFixture::class, 'privateMethod'))->getModifiers()),
+        );
         $this->assertSame('public', $this->command->callVisibility(0));
     }
 
@@ -330,11 +343,74 @@ PHP
         $this->assertSame([], $out);
     }
 
-    private function makeCommand(): CodeCommandHarness
+    public function testVendorReadsTreatMissingFilesAsEmpty(): void
     {
-        $container = new Container([
-            ConsoleInterface::class => $this->console,
-        ]);
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isFile')->willReturn(true);
+        $filesystem->method('read')->willThrowException(FileNotFoundException::of('gone'));
+        $filesystem->method('isDir')->willReturn(false);
+        $command = $this->makeCommand($filesystem);
+
+        $this->assertSame([], $command->callGetVendorDevPackageNames('/tmp/app'));
+        $this->assertSame([], $command->callLoadOrBuildVendorCache('/tmp/app', true));
+    }
+
+    public function testVendorScanIgnoresListingAndWriteFailures(): void
+    {
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isFile')->willReturn(false);
+        $filesystem->method('isDir')->willReturn(true);
+        $filesystem->method('isReadable')->willReturn(true);
+        $filesystem->method('list')->willThrowException(RuntimeException::of('unreadable'));
+        $filesystem->method('write')->willThrowException(RuntimeException::of('full'));
+        $command = $this->makeCommand($filesystem);
+
+        $this->assertSame([], $command->callScanVendorForClassSummaries('/tmp/app/vendor', []));
+        $this->assertSame([], $command->callLoadOrBuildVendorCache('/tmp/app', true));
+    }
+
+    public function testPackageListingFailureSkipsThatVendor(): void
+    {
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isDir')->willReturn(true);
+        $filesystem->method('isReadable')->willReturn(true);
+        $filesystem->method('list')->willReturnCallback(function (string $dir): array {
+            if (str_ends_with($dir, '/acme')) {
+                throw RuntimeException::of('unreadable');
+            }
+            return ['acme'];
+        });
+        $command = $this->makeCommand($filesystem);
+
+        $this->assertSame([], $command->callScanVendorForClassSummaries('/tmp/app/vendor', []));
+    }
+
+    public function testClassScanSkipsUnreadablePhpFiles(): void
+    {
+        $dir = sys_get_temp_dir() . '/switon-code-' . uniqid();
+        mkdir($dir);
+        file_put_contents($dir . '/Sample.php', '<?php class Sample {}');
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isDir')->willReturn(true);
+        $filesystem->method('isReadable')->willReturn(true);
+        $filesystem->method('read')->willThrowException(FileNotFoundException::of('gone'));
+        $command = $this->makeCommand($filesystem);
+
+        try {
+            $this->assertSame([], $command->callScanPathForClassSummaries($dir));
+        } finally {
+            unlink($dir . '/Sample.php');
+            rmdir($dir);
+        }
+    }
+
+    protected function makeCommand(?FilesystemInterface $filesystem = null): CodeCommandHarness
+    {
+        $definitions = [ConsoleInterface::class => $this->console];
+        if ($filesystem !== null) {
+            $definitions[FilesystemInterface::class] = $filesystem;
+        }
+        $container = new Container($definitions);
 
         return $container->make(CodeCommandHarness::class);
     }

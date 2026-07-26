@@ -27,7 +27,7 @@ class PackagesCommandTest extends TestCase
         $this->console = $this->createMock(ConsoleInterface::class);
     }
 
-    private function makeTestableCommand(): TestablePackagesCommand
+    protected function makeTestableCommand(): TestablePackagesCommand
     {
         $container = new Container([
             ConsoleInterface::class => $this->console,
@@ -36,15 +36,19 @@ class PackagesCommandTest extends TestCase
         return $container->make(TestablePackagesCommand::class);
     }
 
-    private function makeRealCommand(FilesystemInterface $filesystem, PathAliasInterface $pathAlias): RealPackagesCommand
-    {
-        $container = new Container([
+    protected function makeRealCommand(
+        FilesystemInterface $filesystem,
+        ?PathAliasInterface $pathAlias = null,
+    ): RealPackagesCommand {
+        $services = [
             ConsoleInterface::class => $this->console,
             FilesystemInterface::class => $filesystem,
-            PathAliasInterface::class => $pathAlias,
-        ]);
+        ];
+        if ($pathAlias !== null) {
+            $services[PathAliasInterface::class] = $pathAlias;
+        }
 
-        return $container->make(RealPackagesCommand::class);
+        return (new Container($services))->make(RealPackagesCommand::class);
     }
 
     public function testOfficialActionReturnsPackagesWithClassesByDefault(): void
@@ -406,20 +410,15 @@ class PackagesCommandTest extends TestCase
     public function testOfficialActionUsesRealDependenciesAndKeepsClasses(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createMock(PathAliasInterface::class);
-        $pathAlias->expects($this->once())
-            ->method('resolve')
-            ->with('@switon.beacon.resources/data/official-packages.json')
-            ->willReturn('/virtual/resources/data/official-packages.json');
         $filesystem->expects($this->once())
             ->method('exists')
-            ->with('/virtual/resources/data/official-packages.json')
+            ->with('@switon.beacon.resources/data/official-packages.json')
             ->willReturn(true);
         $filesystem->expects($this->once())
             ->method('read')
-            ->with('/virtual/resources/data/official-packages.json')
+            ->with('@switon.beacon.resources/data/official-packages.json')
             ->willReturn('[{"install":"switon/http","namespace":"Switon\\\\Http","keywords":"http filter","classes":"Kernel RequestHandler"}]');
-        $command = $this->makeRealCommand($filesystem, $pathAlias);
+        $command = $this->makeRealCommand($filesystem);
 
         $captured = null;
         $this->console->expects($this->once())
@@ -437,16 +436,11 @@ class PackagesCommandTest extends TestCase
     public function testOfficialActionReturnsOneWhenRealReadPackagesMissing(): void
     {
         $filesystem = $this->createMock(FilesystemInterface::class);
-        $pathAlias = $this->createMock(PathAliasInterface::class);
-        $pathAlias->expects($this->once())
-            ->method('resolve')
-            ->with('@switon.beacon.resources/data/official-packages.json')
-            ->willReturn('/virtual/resources/data/official-packages.json');
         $filesystem->expects($this->once())
             ->method('exists')
-            ->with('/virtual/resources/data/official-packages.json')
+            ->with('@switon.beacon.resources/data/official-packages.json')
             ->willReturn(false);
-        $command = $this->makeRealCommand($filesystem, $pathAlias);
+        $command = $this->makeRealCommand($filesystem);
 
         $captured = null;
         $this->console->expects($this->once())
@@ -472,9 +466,7 @@ class PackagesCommandTest extends TestCase
             ->method('read')
             ->with('/virtual/data.json')
             ->willThrowException(new RuntimeException('boom'));
-        $pathAlias = $this->createMock(PathAliasInterface::class);
-        $pathAlias->method('resolve')->willReturn('/virtual/path');
-        $command = $this->makeRealCommand($filesystem, $pathAlias);
+        $command = $this->makeRealCommand($filesystem);
 
         $captured = null;
         $this->console->expects($this->once())
@@ -498,9 +490,7 @@ class PackagesCommandTest extends TestCase
             ->method('read')
             ->with('/virtual/data.json')
             ->willReturn('{');
-        $pathAlias = $this->createMock(PathAliasInterface::class);
-        $pathAlias->method('resolve')->willReturn('/virtual/path');
-        $command = $this->makeRealCommand($filesystem, $pathAlias);
+        $command = $this->makeRealCommand($filesystem);
 
         $captured = null;
         $this->console->expects($this->once())
@@ -520,9 +510,7 @@ class PackagesCommandTest extends TestCase
             ->method('write')
             ->with('/virtual/data.json', '[]')
             ->willThrowException(new RuntimeException('boom'));
-        $pathAlias = $this->createMock(PathAliasInterface::class);
-        $pathAlias->method('resolve')->willReturn('/virtual/path');
-        $command = $this->makeRealCommand($filesystem, $pathAlias);
+        $command = $this->makeRealCommand($filesystem);
 
         $this->assertFalse($command->writePackagesPublic('/virtual/data.json', '[]'));
     }
@@ -539,29 +527,26 @@ class PackagesCommandTest extends TestCase
         file_put_contents($srcDir . '/LeafInterface.php', '<?php');
         file_put_contents($srcDir . '/bad-name.php', '<?php');
 
+        $dataPath = '@switon.beacon.resources/data/official-packages.json';
         $filesystem = $this->createMock(FilesystemInterface::class);
         $pathAlias = $this->createMock(PathAliasInterface::class);
-        $pathAlias->expects($this->exactly(2))
+        $pathAlias->expects($this->once())
             ->method('resolve')
-            ->willReturnCallback(static function (string $path) use ($vendorRoot): string {
-                return match ($path) {
-                    '@switon.beacon.resources/data/official-packages.json' => '/virtual/resources/data/official-packages.json',
-                    '@vendor/switon' => $vendorRoot,
-                    default => throw new RuntimeException('unexpected alias ' . $path),
-                };
-            });
+            ->with('@vendor/switon')
+            ->willReturn($vendorRoot);
         $filesystem->expects($this->once())
             ->method('exists')
-            ->with('/virtual/resources/data/official-packages.json')
+            ->with($dataPath)
             ->willReturn(true);
+        $filesystem->method('isDir')->willReturnCallback(static fn (string $dir): bool => is_dir($dir));
         $filesystem->expects($this->once())
             ->method('read')
-            ->with('/virtual/resources/data/official-packages.json')
+            ->with($dataPath)
             ->willReturn('[{"install":"switon/demo","namespace":"Switon\\\\Demo","keywords":"demo package"}]');
         $writtenJson = null;
         $filesystem->expects($this->once())
             ->method('write')
-            ->with('/virtual/resources/data/official-packages.json', $this->callback(static function (string $json) use (&$writtenJson): bool {
+            ->with($dataPath, $this->callback(static function (string $json) use (&$writtenJson): bool {
                 $writtenJson = $json;
                 return true;
             }));
@@ -585,7 +570,7 @@ class PackagesCommandTest extends TestCase
         $this->removeDirectory($tempRoot);
     }
 
-    private function removeDirectory(string $path): void
+    protected function removeDirectory(string $path): void
     {
         if (!is_dir($path)) {
             return;
