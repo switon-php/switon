@@ -10,7 +10,7 @@ use Switon\OpenApi\Linter;
 use Switon\OpenApi\Tests\TestCase;
 
 #[AllowMockObjectsWithoutExpectations]
-final class LinterTest extends TestCase
+class LinterTest extends TestCase
 {
     public function testLintDetectsDuplicateOperationId(): void
     {
@@ -798,7 +798,7 @@ final class LinterTest extends TestCase
     /**
      * @param array<string, mixed> $doc
      */
-    private function makeLinter(array $doc): Linter
+    protected function makeLinter(array $doc): Linter
     {
         $builder = $this->createMock(DocumentBuilderInterface::class);
         $builder->method('build')->willReturn($doc);

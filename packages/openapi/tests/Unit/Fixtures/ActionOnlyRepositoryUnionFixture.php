@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\OpenApi\Tests\Unit\Fixtures;
 
-final class ActionOnlyRepositoryUnionFixture
+class ActionOnlyRepositoryUnionFixture
 {
     public OpenApiTestsFakeGroupRepository|ActionOnlyRepositoryContractRepository|null $groupRepository;
 

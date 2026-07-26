@@ -7,7 +7,7 @@ namespace Switon\OpenApi\Tests\Unit\Fixtures;
 // Intentionally left as a coverage-only placeholder file.
 // Fixtures previously stored here moved to per-class files for PSR-4 autoloading.
 
-final class ActionOnlyRepositoryBuiltinFixture
+class ActionOnlyRepositoryBuiltinFixture
 {
     public int $legacy = 0;
 
@@ -17,7 +17,7 @@ final class ActionOnlyRepositoryBuiltinFixture
     }
 }
 
-final class ActionOnlyRepositoryMissingPropertyFixture
+class ActionOnlyRepositoryMissingPropertyFixture
 {
     public function indexAction(): array
     {
@@ -25,7 +25,7 @@ final class ActionOnlyRepositoryMissingPropertyFixture
     }
 }
 
-final class ActionOnlyRepositoryNoThisFixture
+class ActionOnlyRepositoryNoThisFixture
 {
     public function indexAction(): array
     {

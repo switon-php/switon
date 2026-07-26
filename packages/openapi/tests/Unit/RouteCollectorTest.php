@@ -16,7 +16,7 @@ use Switon\Routing\RouterInterface;
 use Switon\OpenApi\Tests\TestCase;
 use stdClass;
 
-final class RouteCollectorTest extends TestCase
+class RouteCollectorTest extends TestCase
 {
     public static function setUpBeforeClass(): void
     {
@@ -62,6 +62,62 @@ final class RouteCollectorTest extends TestCase
         $this->assertArrayHasKey('properties', $first['responseSchema']);
     }
 
+    public function testCollectSkipsControllersWhoseClassIsMissing(): void
+    {
+        $scanner = $this->createStub(ControllerScannerInterface::class);
+        $scanner->method('getControllers')->willReturn([
+            'Switon\\OpenApi\\Tests\\Unit\\MissingRouteCollectorController',
+            RouteCollectorPlainControllerFixture::class,
+        ]);
+        $collector = $this->make(RouteCollector::class, [
+            'controllerScanner' => $scanner,
+            'mappingPath' => new MappingPath(),
+            'router' => $this->routerStub(''),
+            'operationIds' => $this->operationIdStub(),
+            'responseSchemaGuesser' => $this->createStub(ResponseSchemaGuesser::class),
+        ]);
+
+        $this->assertSame([], $collector->collect());
+    }
+
+    public function testCollectPrependsStandardRouterPrefix(): void
+    {
+        $scanner = $this->createStub(ControllerScannerInterface::class);
+        $scanner->method('getControllers')->willReturn([RouteCollectorControllerFixture::class]);
+        $collector = $this->make(RouteCollector::class, [
+            'controllerScanner' => $scanner,
+            'mappingPath' => new MappingPath(),
+            'router' => $this->routerStub('/api'),
+            'operationIds' => $this->operationIdStub(),
+            'responseSchemaGuesser' => $this->responseGuesserStub(),
+        ]);
+
+        $patterns = array_column($collector->collect(), 'pattern');
+        $this->assertNotSame([], $patterns);
+        foreach ($patterns as $pattern) {
+            $this->assertStringStartsWith('/api', $pattern);
+        }
+    }
+
+    public function testCollectKeepsOptionalQuestionMarkRouterPrefix(): void
+    {
+        $scanner = $this->createStub(ControllerScannerInterface::class);
+        $scanner->method('getControllers')->willReturn([RouteCollectorControllerFixture::class]);
+        $collector = $this->make(RouteCollector::class, [
+            'controllerScanner' => $scanner,
+            'mappingPath' => new MappingPath(),
+            'router' => $this->routerStub('?/v1'),
+            'operationIds' => $this->operationIdStub(),
+            'responseSchemaGuesser' => $this->responseGuesserStub(),
+        ]);
+
+        $patterns = array_column($collector->collect(), 'pattern');
+        $this->assertNotSame([], $patterns);
+        foreach ($patterns as $pattern) {
+            $this->assertStringStartsWith('?/v1', $pattern);
+        }
+    }
+
     public function testCollectReturnsEmptyArrayWhenNoControllerHasRequestMapping(): void
     {
         $scanner = $this->createStub(ControllerScannerInterface::class);
@@ -77,7 +133,7 @@ final class RouteCollectorTest extends TestCase
         $this->assertSame([], $collector->collect());
     }
 
-    private function routerStub(string $prefix): RouterInterface
+    protected function routerStub(string $prefix): RouterInterface
     {
         $router = $this->createStub(RouterInterface::class);
         $router->method('getPrefix')->willReturn($prefix);
@@ -85,7 +141,7 @@ final class RouteCollectorTest extends TestCase
         return $router;
     }
 
-    private function operationIdStub(): OperationIdInterface
+    protected function operationIdStub(): OperationIdInterface
     {
         $ids = $this->createStub(OperationIdInterface::class);
         $ids->method('getOperationId')->willReturnCallback(
@@ -101,7 +157,7 @@ final class RouteCollectorTest extends TestCase
         return $ids;
     }
 
-    private function responseGuesserStub(): ResponseSchemaGuesser
+    protected function responseGuesserStub(): ResponseSchemaGuesser
     {
         return $this->make(ResponseSchemaGuesser::class, [
             'phpReturnSchema' => new PhpReturnSchema(),

@@ -24,7 +24,7 @@ use Switon\OpenApi\Tests\Unit\Fixtures\RepoOnlyControllerFixture;
 use Switon\OpenApi\Tests\Unit\Fixtures\RepoPlusOtherPropertyControllerFixture;
 use Switon\OpenApi\Tests\Unit\Fixtures\UntypedPropertyControllerFixture;
 
-final class ActionOnlyRepositoryThisTest extends TestCase
+class ActionOnlyRepositoryThisTest extends TestCase
 {
     /**
      * @return array<string, array{0: class-string, 1: string, 2: bool}>

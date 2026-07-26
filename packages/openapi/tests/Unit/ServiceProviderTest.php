@@ -11,7 +11,7 @@ use Switon\OpenApi\ServiceProvider;
 use Switon\Testing\Container;
 use Switon\Testing\PackagePathAssert;
 
-final class ServiceProviderTest extends TestCase
+class ServiceProviderTest extends TestCase
 {
     public function testRegisterIsNoop(): void
     {
@@ -20,6 +20,13 @@ final class ServiceProviderTest extends TestCase
         $container->expects($this->never())->method('set');
 
         $provider->register($container);
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function testBootIsNoop(): void
+    {
+        (new ServiceProvider())->boot();
 
         $this->addToAssertionCount(1);
     }

@@ -15,7 +15,7 @@ use Switon\Testing\Container;
 use Switon\OpenApi\Tests\TestCase;
 use RuntimeException;
 
-final class OpenApiCommandCoverageTest extends TestCase
+class OpenApiCommandCoverageTest extends TestCase
 {
     public function testExportActionWritesDefaultDocumentFile(): void
     {
@@ -41,7 +41,6 @@ final class OpenApiCommandCoverageTest extends TestCase
         $command = $this->makeCommand($root, [
             'documentBuilder' => $documentBuilder,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $code = $command->exportAction('@root/openapi');
@@ -76,7 +75,6 @@ final class OpenApiCommandCoverageTest extends TestCase
         $command = $this->makeCommand($root, [
             'documentBuilder' => $documentBuilder,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $this->assertSame(1, $command->exportAction('@root/openapi'));
@@ -110,7 +108,6 @@ final class OpenApiCommandCoverageTest extends TestCase
         $command = $this->makeCommand($root, [
             'documentBuilder' => $documentBuilder,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $out = $root . '/out/custom-openapi.json';
@@ -153,7 +150,6 @@ final class OpenApiCommandCoverageTest extends TestCase
         $command = $this->makeCommand($root, [
             'linter' => $linter,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $this->assertSame(0, $command->lintAction('@root/openapi'));
@@ -193,7 +189,6 @@ final class OpenApiCommandCoverageTest extends TestCase
         $command = $this->makeCommand($root, [
             'linter' => $linter,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $this->assertSame(1, $command->lintAction('@root/openapi'));
@@ -231,10 +226,158 @@ final class OpenApiCommandCoverageTest extends TestCase
         $command = $this->makeCommand($root, [
             'linter' => $linter,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $this->assertSame(1, $command->lintAction('@root/openapi', true));
+
+        $this->removeDir($root);
+    }
+
+    public function testExportActionFailsWhenRootIsNotDirectory(): void
+    {
+        $root = sys_get_temp_dir() . '/openapi_export_not_dir_' . uniqid('', true);
+        $this->assertTrue(mkdir($root, 0777, true));
+        file_put_contents($root . '/openapi', 'not-a-dir');
+
+        $console = $this->createMock(ConsoleInterface::class);
+        $console->expects($this->once())
+            ->method('error')
+            ->with(
+                'OpenAPI root is not a directory: {path}',
+                ['path' => $root . '/openapi'],
+                1,
+            )
+            ->willReturn(1);
+
+        $pathAlias = (new Container())->get(PathAliasInterface::class);
+        $pathAlias->set('@root', $root);
+        $command = $this->makeCommand($root, [
+            'console' => $console,
+            'pathAlias' => $pathAlias,
+        ]);
+
+        $this->assertSame(1, $command->exportAction('@root/openapi'));
+
+        unlink($root . '/openapi');
+        @rmdir($root);
+    }
+
+    public function testLintActionFailsWhenRootIsNotDirectory(): void
+    {
+        $root = sys_get_temp_dir() . '/openapi_lint_not_dir_' . uniqid('', true);
+        mkdir($root, 0777, true);
+        file_put_contents($root . '/openapi', 'file');
+
+        $console = $this->createMock(ConsoleInterface::class);
+        $console->expects($this->once())
+            ->method('error')
+            ->with('OpenAPI root is not a directory: {path}', ['path' => $root . '/openapi'], 1)
+            ->willReturn(1);
+
+        $pathAlias = (new Container())->get(PathAliasInterface::class);
+        $pathAlias->set('@root', $root);
+
+        $command = $this->makeCommand($root, ['console' => $console, 'pathAlias' => $pathAlias]);
+
+        $this->assertSame(1, $command->lintAction('@root/openapi'));
+
+        unlink($root . '/openapi');
+        @rmdir($root);
+    }
+
+    public function testLintActionReportsFailureWhenLinterThrows(): void
+    {
+        $root = sys_get_temp_dir() . '/openapi_lint_throw_' . uniqid('', true);
+        $this->assertTrue(mkdir($root . '/openapi', 0777, true));
+
+        $linter = $this->createStub(LinterInterface::class);
+        $linter->method('lint')->willThrowException(new RuntimeException('lint boom'));
+
+        $console = $this->createMock(ConsoleInterface::class);
+        $console->expects($this->once())
+            ->method('error')
+            ->with('open-api:lint failed: {message}', ['message' => 'lint boom'], 1)
+            ->willReturn(1);
+
+        $command = $this->makeCommand($root, ['linter' => $linter, 'console' => $console]);
+
+        $this->assertSame(1, $command->lintAction('@root/openapi'));
+
+        $this->removeDir($root);
+    }
+
+    public function testSyncActionFailsWhenRootIsNotDirectory(): void
+    {
+        $root = sys_get_temp_dir() . '/openapi_sync_not_dir_' . uniqid('', true);
+        mkdir($root, 0777, true);
+        file_put_contents($root . '/openapi', 'file');
+
+        $console = $this->createMock(ConsoleInterface::class);
+        $console->expects($this->once())
+            ->method('error')
+            ->with('OpenAPI root is not a directory: {path}', ['path' => $root . '/openapi'], 1)
+            ->willReturn(1);
+
+        $pathAlias = (new Container())->get(PathAliasInterface::class);
+        $pathAlias->set('@root', $root);
+
+        $command = $this->makeCommand($root, ['console' => $console, 'pathAlias' => $pathAlias]);
+
+        $this->assertSame(1, $command->syncAction('@root/openapi'));
+
+        unlink($root . '/openapi');
+        @rmdir($root);
+    }
+
+    public function testSyncActionPrintsWarningsAndNothingWrittenMessage(): void
+    {
+        $root = sys_get_temp_dir() . '/openapi_sync_empty_' . uniqid('', true);
+        $this->assertTrue(mkdir($root . '/openapi', 0777, true));
+
+        $ymlSync = $this->createStub(YmlSyncInterface::class);
+        $ymlSync->method('sync')->willReturn(['written' => [], 'warnings' => ['Already up to date']]);
+
+        $warnings = [];
+        $lines = [];
+        $console = $this->createStub(ConsoleInterface::class);
+        $console->method('warning')->willReturnCallback(static function (string $msg) use (&$warnings): void {
+            $warnings[] = $msg;
+        });
+        $console->method('writeLn')->willReturnCallback(static function (string $line = '') use (&$lines): void {
+            $lines[] = $line;
+        });
+
+        $command = $this->makeCommand($root, ['ymlSync' => $ymlSync, 'console' => $console]);
+
+        $this->assertSame(0, $command->syncAction('@root/openapi'));
+        $this->assertSame(['Already up to date'], $warnings);
+        $this->assertStringContainsString('nothing written', $lines[0] ?? '');
+
+        $this->removeDir($root);
+    }
+
+    public function testInitActionReturnsNonZeroWhenSyncFailsDuringInit(): void
+    {
+        $root = sys_get_temp_dir() . '/openapi_init_sync_fail_' . uniqid('', true);
+        $pathAlias = (new Container())->get(PathAliasInterface::class);
+        $pathAlias->set('@root', $root);
+
+        $ymlSync = $this->createStub(YmlSyncInterface::class);
+        $ymlSync->method('sync')->willThrowException(new RuntimeException('sync failed'));
+
+        $console = $this->createMock(ConsoleInterface::class);
+        $console->expects($this->once())
+            ->method('error')
+            ->with('open-api:sync failed: {message}', ['message' => 'sync failed'], 1)
+            ->willReturn(1);
+
+        $command = $this->makeCommand($root, [
+            'pathAlias' => $pathAlias,
+            'ymlSync' => $ymlSync,
+            'console' => $console,
+        ]);
+
+        $this->assertSame(1, $command->initAction('@root/openapi'));
 
         $this->removeDir($root);
     }
@@ -262,10 +405,37 @@ final class OpenApiCommandCoverageTest extends TestCase
         $command = $this->makeCommand($root, [
             'ymlSync' => $ymlSync,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $this->assertSame(1, $command->syncAction('@root/openapi'));
+
+        $this->removeDir($root);
+    }
+
+    public function testInitActionSkipsSyncWhenNoSyncFlagIsSet(): void
+    {
+        $root = sys_get_temp_dir() . '/openapi_init_no_sync_' . uniqid('', true);
+        $pathAlias = (new Container())->get(PathAliasInterface::class);
+        $pathAlias->set('@root', $root);
+
+        $ymlSync = $this->createMock(YmlSyncInterface::class);
+        $ymlSync->expects($this->never())->method('sync');
+
+        $console = $this->createMock(ConsoleInterface::class);
+        $console->expects($this->once())
+            ->method('writeLn')
+            ->with($root . '/openapi');
+
+        $command = $this->makeCommand($root, [
+            'pathAlias' => $pathAlias,
+            'ymlSync' => $ymlSync,
+            'console' => $console,
+        ]);
+
+        $code = $command->initAction('@root/openapi', true);
+
+        $this->assertSame(0, $code);
+        $this->assertFileExists($root . '/openapi/openapi.yml');
 
         $this->removeDir($root);
     }
@@ -293,7 +463,6 @@ final class OpenApiCommandCoverageTest extends TestCase
             'pathAlias' => $pathAlias,
             'ymlSync' => $ymlSync,
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $code = $command->initAction('@root/openapi');
@@ -325,7 +494,6 @@ final class OpenApiCommandCoverageTest extends TestCase
 
         $command = $this->makeCommand($root, [
             'console' => $console,
-            'filesystem' => $this->filesystemStub(),
         ]);
 
         $this->assertSame(1, $command->initAction('@root/openapi', true));
@@ -339,6 +507,7 @@ final class OpenApiCommandCoverageTest extends TestCase
         $this->assertTrue(mkdir($root, 0777, true));
 
         $pathAlias = (new Container())->get(PathAliasInterface::class);
+        $pathAlias->set('@root', $root);
         $pathAlias->set('@switon.openapi.resources', $root . '/missing-resources');
 
         $console = $this->createMock(ConsoleInterface::class);
@@ -352,9 +521,9 @@ final class OpenApiCommandCoverageTest extends TestCase
             ->willReturn(1);
 
         $command = $this->makeCommand($root, [
-            'pathAlias' => $pathAlias,
             'console' => $console,
-            'filesystem' => $this->missingScaffoldFilesystem(),
+            'filesystem' => $this->missingScaffoldFilesystem($pathAlias),
+            'pathAlias' => $pathAlias,
         ]);
 
         $this->assertSame(1, $command->initAction('@root/openapi', true));
@@ -365,19 +534,30 @@ final class OpenApiCommandCoverageTest extends TestCase
     /**
      * @param array<string, mixed> $parameters
      */
-    private function makeCommand(string $root, array $parameters = []): OpenApiCommand
+    protected function makeCommand(string $root, array $parameters = []): OpenApiCommand
     {
-        $pathAlias = (new Container())->get(PathAliasInterface::class);
-        $pathAlias->set('@root', $root);
+        if (isset($parameters['pathAlias']) && $parameters['pathAlias'] instanceof PathAliasInterface) {
+            $pathAlias = $parameters['pathAlias'];
+        } else {
+            $pathAlias = (new Container())->get(PathAliasInterface::class);
+            $pathAlias->set('@root', $root);
+        }
+        unset($parameters['pathAlias']);
+        $parameters['pathAlias'] = $pathAlias;
 
-        return $this->make(OpenApiCommand::class, array_replace([
-            'pathAlias' => $pathAlias,
-        ], $parameters));
+        if (!isset($parameters['filesystem'])) {
+            $parameters['filesystem'] = $this->filesystemStub($pathAlias);
+        }
+
+        return $this->make(OpenApiCommand::class, $parameters);
     }
 
-    private function filesystemStub(): FilesystemInterface
+    protected function filesystemStub(PathAliasInterface $pathAlias): FilesystemInterface
     {
         $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('resolve')->willReturnCallback(
+            static fn (string $path): string => $pathAlias->resolve($path)
+        );
         $filesystem->method('exists')->willReturnCallback(static fn (string $path): bool => is_file($path) || is_dir($path));
         $filesystem->method('isDir')->willReturnCallback(static fn (string $path): bool => is_dir($path));
         $filesystem->method('mkdir')->willReturnCallback(static function (string $path): void {
@@ -397,10 +577,10 @@ final class OpenApiCommandCoverageTest extends TestCase
         return $filesystem;
     }
 
-    private function missingScaffoldFilesystem(): FilesystemInterface
+    protected function missingScaffoldFilesystem(PathAliasInterface $pathAlias): FilesystemInterface
     {
-        $base = $this->scaffoldBasePath();
-        $filesystem = $this->filesystemStub();
+        $base = $pathAlias->resolve('@switon.openapi.resources/scaffold');
+        $filesystem = $this->filesystemStub($pathAlias);
         $filesystem->method('exists')->willReturnCallback(static function (string $path) use ($base): bool {
             if ($path === $base . '/openapi.yml' || $path === $base . '/README.md') {
                 return false;
@@ -412,12 +592,7 @@ final class OpenApiCommandCoverageTest extends TestCase
         return $filesystem;
     }
 
-    private function scaffoldBasePath(): string
-    {
-        return (new Container())->get(PathAliasInterface::class)->resolve('@switon.openapi.resources/scaffold');
-    }
-
-    private function removeDir(string $path): void
+    protected function removeDir(string $path): void
     {
         if (!is_dir($path)) {
             return;

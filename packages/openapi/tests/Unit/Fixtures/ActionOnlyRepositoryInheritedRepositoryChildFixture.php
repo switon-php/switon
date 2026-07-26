@@ -9,7 +9,7 @@ class ActionOnlyRepositoryInheritedRepositoryParentFixture
     public OpenApiTestsFakeGroupRepository $groupRepository;
 }
 
-final class ActionOnlyRepositoryInheritedRepositoryChildFixture extends ActionOnlyRepositoryInheritedRepositoryParentFixture
+class ActionOnlyRepositoryInheritedRepositoryChildFixture extends ActionOnlyRepositoryInheritedRepositoryParentFixture
 {
     public function indexAction(): array
     {

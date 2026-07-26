@@ -10,9 +10,9 @@ use Switon\OpenApi\OperationId;
 /**
  * Matches {@see \Switon\Http\HandlerId::getId()} / {@see \Switon\Core\Tests\Unit\ClassNameTest} composeHttpHandlerId cases.
  */
-final class OperationIdTest extends TestCase
+class OperationIdTest extends TestCase
 {
-    private OperationId $ids;
+    protected OperationId $ids;
 
     protected function setUp(): void
     {
