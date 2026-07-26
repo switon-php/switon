@@ -8,7 +8,7 @@ use Switon\Core\RunnerInterface;
 use Switon\Schedule\Attribute\Scheduled;
 
 #[Scheduled('0-5 * * *')]
-final class BadExpressionFieldTask implements RunnerInterface
+class BadExpressionFieldTask implements RunnerInterface
 {
     public function run(mixed $payload): mixed
     {

@@ -9,7 +9,7 @@ use Switon\Schedule\Attribute\Scheduled;
 
 /** Intentionally invalid: five fields only (for registration test). */
 #[Scheduled('* * * * *')]
-final class FiveFieldTask implements RunnerInterface
+class FiveFieldTask implements RunnerInterface
 {
     public function run(mixed $payload): mixed
     {
