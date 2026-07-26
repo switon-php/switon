@@ -138,6 +138,10 @@ class ClassIndexTest extends TestCase
         file_put_contents($globalFile, "<?php\nclass {$globalClass} {}\n");
 
         $filesystem = $this->createMock(FilesystemInterface::class);
+        $filesystem->method('realpath')->willReturnCallback(static function (string $path): ?string {
+            $resolved = realpath($path);
+            return $resolved === false ? null : str_replace('\\', '/', $resolved);
+        });
         $index = new ExposedClassIndex($filesystem);
 
         $result = $index->collectFqcnsFromFilesPublic([
@@ -274,7 +278,7 @@ class ClassIndexTest extends TestCase
         }
     }
 
-    private function vendorFqcnList(int $count): array
+    protected function vendorFqcnList(int $count): array
     {
         $out = [];
         for ($i = 0; $i < $count; $i++) {
@@ -284,7 +288,7 @@ class ClassIndexTest extends TestCase
         return $out;
     }
 
-    private function shortName(string $fqcn): string
+    protected function shortName(string $fqcn): string
     {
         $parts = explode('\\', $fqcn);
         return (string)array_last($parts);

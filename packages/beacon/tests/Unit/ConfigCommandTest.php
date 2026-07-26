@@ -13,6 +13,8 @@ use Switon\Beacon\Command\PathCommand;
 use Switon\Core\App;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ConsoleInterface;
+use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\FilesystemInterface;
 use Switon\Testing\Container;
 use ArrayAccess;
 use ArrayIterator;
@@ -263,6 +265,25 @@ class ConfigCommandTest extends TestCase
         $this->assertFalse($captured['ok']);
         $this->assertSame($file, $captured['file']);
         $this->assertStringContainsString('Failed to read', $captured['errors'][0]);
+    }
+
+    public function testCheckActionReportsAReadThatDisappears(): void
+    {
+        $captured = null;
+        $this->console->expects($this->once())->method('writeLn')
+            ->willReturnCallback(static function (string $line) use (&$captured): void {
+                $captured = json_decode($line, true);
+            });
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isFile')->willReturn(true);
+        $filesystem->method('isReadable')->willReturn(true);
+        $filesystem->method('read')->willThrowException(FileNotFoundException::of('gone'));
+        $command = $this->makeHarness([FilesystemInterface::class => $filesystem]);
+
+        $code = $command->checkAction('/tmp/switon.yml', '', false, false);
+
+        $this->assertSame(1, $code);
+        $this->assertFalse($captured['ok']);
     }
 
     public function testCheckActionReportsWarningForUnknownFqcnLikeServiceId(): void
@@ -576,7 +597,7 @@ YAML;
         $this->assertSame('string|int', $options[0]['type']);
     }
 
-    private function makeCommand(array $parameters = []): ConfigCommand
+    protected function makeCommand(array $parameters = []): ConfigCommand
     {
         $container = new Container([
             ConsoleInterface::class => $this->console,
@@ -585,7 +606,7 @@ YAML;
         return $container->make(ConfigCommand::class, $parameters);
     }
 
-    private function makeHarness(array $definitions = []): ConfigCommandHarness
+    protected function makeHarness(array $definitions = []): ConfigCommandHarness
     {
         $container = new Container(array_merge([
             ConsoleInterface::class => $this->console,
