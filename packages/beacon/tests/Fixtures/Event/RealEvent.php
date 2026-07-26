@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Beacon\Tests\Fixtures\Event;
 
-final class RealEvent
+class RealEvent
 {
 }
