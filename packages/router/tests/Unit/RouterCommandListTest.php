@@ -14,7 +14,7 @@ use Switon\Testing\Mock\MockConsole;
 
 class RouterCommandListTest extends TestCase
 {
-    private RouterCommand $command;
+    protected RouterCommand $command;
 
     protected function setUp(): void
     {
@@ -82,7 +82,7 @@ class RouterCommandListTest extends TestCase
         $this->assertSame('(empty)', $this->getLastConsoleLine());
     }
 
-    private function getLastJsonLine(): array
+    protected function getLastJsonLine(): array
     {
         $console = $this->container->get(ConsoleInterface::class);
         $this->assertInstanceOf(MockConsole::class, $console);
@@ -93,7 +93,7 @@ class RouterCommandListTest extends TestCase
         return $decoded;
     }
 
-    private function getLastConsoleLine(): string
+    protected function getLastConsoleLine(): string
     {
         $console = $this->container->get(ConsoleInterface::class);
         $this->assertInstanceOf(MockConsole::class, $console);
