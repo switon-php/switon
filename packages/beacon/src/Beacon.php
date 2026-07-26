@@ -13,6 +13,6 @@ namespace Switon\Beacon;
  * @see \Switon\Beacon\Command\ToolCommand AI tool entrypoint
  * @see \Switon\Beacon\Command\DiCommand AI tool entrypoint
  */
-final class Beacon
+class Beacon
 {
 }
