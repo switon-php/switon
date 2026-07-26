@@ -15,8 +15,6 @@ use Switon\Sharding\ShardingManagerInterface;
  * Test cases for Query sharding functionality.
  *
  * Tests sharding scenarios including join table shard suffix application.
- *
- * @group query
  */
 #[AllowMockObjectsWithoutExpectations]
 class QueryShardingTest extends QueryExecutionTest

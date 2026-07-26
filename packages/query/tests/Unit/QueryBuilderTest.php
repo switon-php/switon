@@ -13,8 +13,6 @@ use Switon\Query\Tests\TestCase;
  * Test cases for Query builder methods edge cases and error handling.
  *
  * Tests builder method validation, error cases, and edge conditions.
- *
- * @group query
  */
 class QueryBuilderTest extends TestCase
 {

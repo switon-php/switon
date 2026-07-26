@@ -6,14 +6,12 @@ namespace Switon\Query\Tests\Unit;
 
 use Switon\Query\ConditionBuilder;
 use Switon\Query\Paginator;
-use Switon\Query\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Regression tests for bug fixes in the query component.
  *
  * Each test verifies a specific bug fix to prevent regressions.
- *
- * @group query
  */
 class BugFixRegressionTest extends TestCase
 {

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Switon\Query\Tests\Unit;
 
 use Switon\Query\Table;
-use Switon\Query\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test cases for Table class.
- *
- * @group query
  */
 class TableTest extends TestCase
 {
