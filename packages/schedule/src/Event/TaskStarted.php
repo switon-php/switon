@@ -11,7 +11,7 @@ use Switon\Eventing\Severity;
 /**
  * A scheduled task invocation has started.
  *
- * Log category: schedule task lifecycle.
+ * Log category: `switon.schedule.task.started`
  *
  * @see \Switon\Schedule\TaskRunner
  * @see \Switon\Schedule\Event\TaskFinished

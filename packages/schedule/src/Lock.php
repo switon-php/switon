@@ -21,6 +21,7 @@ use function random_bytes;
 class Lock implements LockInterface
 {
     #[Autowired] protected ClientInterface $redisLock;
+
     /** @var array<string, string> */
     #[Communal] protected array $ownedTokens = [];
 
