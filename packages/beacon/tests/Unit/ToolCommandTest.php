@@ -235,7 +235,7 @@ class ToolCommandTest extends TestCase
         );
     }
 
-    private function makeCommand(): ToolCommand
+    protected function makeCommand(): ToolCommand
     {
         $container = new Container([
             ConsoleInterface::class => $this->console,
