@@ -12,7 +12,7 @@ use Switon\Queue\QueueEnvelope;
 /**
  * Event emitted when a dequeued message starts running.
  *
- * Log category: queue consume.
+ * Log category: `switon.queue.consuming`
  *
  * @see \Switon\Queue\Queue::consume()
  * @see \Switon\Queue\Event\QueueConsumed

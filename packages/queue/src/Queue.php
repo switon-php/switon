@@ -45,11 +45,11 @@ class Queue implements QueueInterface
     #[Autowired] protected string $prefix = 'queue:';
 
     /**
-     * Minimum seconds between {@see migrateDue} runs for a logical queue in this PHP process.
+     * Minimum seconds between `migrateDue` runs for a logical queue in this PHP process.
      */
     #[Autowired] protected int $dueEvery = 1;
 
-    /** @var array<string, int> logical queue name => last unix time {@see migrateDue} ran */
+    /** @var array<string, int> logical queue name => last unix time `migrateDue` ran */
     protected array $dueAt = [];
 
     public function push(string $queue, QueueEnvelope $envelope, int $delay = 0): string
@@ -181,8 +181,8 @@ class Queue implements QueueInterface
      * Move due delayed messages to ready list for one logical queue.
      *
      * Flow:
-     * - Called by {@see migrateDue} from delay migrator loop.
-     * - Throttled per queue by {@see $dueEvery}; if interval not reached, return immediately.
+     * - Called by `migrateDue` from delay migrator loop.
+     * - Throttled per queue by `$dueEvery`; if interval not reached, return immediately.
      * - Once triggered, drain currently due delayed messages in batches (100 each) until empty.
      */
     protected function maybeMigrateDue(string $queue, int $limit = 100): int
