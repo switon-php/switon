@@ -24,7 +24,7 @@ use Switon\Mail\Tests\TestCase;
  */
 class MailerDeliveryTest extends TestCase
 {
-    private string $serverScript;
+    protected string $serverScript;
 
     protected function setUp(): void
     {
@@ -60,7 +60,7 @@ class MailerDeliveryTest extends TestCase
     /**
      * @return array{0: resource, 1: int, 2: array<int, resource>}
      */
-    private function startFakeSmtpServer(array $envExtra): array
+    protected function startFakeSmtpServer(array $envExtra): array
     {
         $env = $this->inheritServerEnv($envExtra);
 
@@ -99,7 +99,7 @@ class MailerDeliveryTest extends TestCase
      * @param resource $proc
      * @param array<int, resource> $pipes
      */
-    private function finishFakeSmtpServer($proc, array $pipes): void
+    protected function finishFakeSmtpServer($proc, array $pipes): void
     {
         foreach ($pipes as $idx => $p) {
             if ($idx === 0) {
@@ -121,7 +121,7 @@ class MailerDeliveryTest extends TestCase
     /**
      * @return array<string, string>
      */
-    private function inheritServerEnv(array $extra): array
+    protected function inheritServerEnv(array $extra): array
     {
         $env = [];
         foreach (array_merge($_ENV, $_SERVER) as $k => $v) {
@@ -139,7 +139,7 @@ class MailerDeliveryTest extends TestCase
     /**
      * @return array{mailer: Mailer, pool: SpyPoolManager, events: SpyEventDispatcher}
      */
-    private function makeMailer(
+    protected function makeMailer(
         int                        $port,
         string                     $user = '',
         string                     $pass = '',

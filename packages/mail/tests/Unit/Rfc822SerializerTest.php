@@ -12,7 +12,7 @@ use Switon\Mail\Rfc822Serializer;
 
 class Rfc822SerializerTest extends TestCase
 {
-    private function baseMessage(): Message
+    protected function baseMessage(): Message
     {
         return Message::compose()
             ->from(new Address('from@example.com', 'From Name'))
