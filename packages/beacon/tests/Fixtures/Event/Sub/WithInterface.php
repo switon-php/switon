@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Beacon\Tests\Fixtures\Event\Sub;
 
-final class WithInterface implements SomeInterface
+class WithInterface implements SomeInterface
 {
 }
