@@ -15,11 +15,14 @@ use Switon\Query\QueryInterface;
  * Log category: <code>switon.query.skipped</code>.
  *
  * @see \Switon\Query\Query::execute() Typical emitter
+ *
+ * @template Model
  */
 #[EventLevel(Severity::DEBUG)]
 class QuerySkipped implements SenderAwareInterface
 {
     /**
+     * @param QueryInterface<Model> $sender Query that was skipped
      * @param array<string, mixed> $bind
      */
     public function __construct(
@@ -29,6 +32,7 @@ class QuerySkipped implements SenderAwareInterface
     ) {
     }
 
+    /** @return QueryInterface<Model> */
     public function getSender(): QueryInterface
     {
         return $this->sender;
