@@ -35,7 +35,6 @@ class DocumentBuilder implements DocumentBuilderInterface
     protected const int MAX_DEREF_DEPTH = 64;
 
     #[Autowired] protected YamlReaderInterface $yamlReader;
-
     #[Autowired] protected FilesystemInterface $filesystem;
 
     /**
@@ -74,9 +73,8 @@ class DocumentBuilder implements DocumentBuilderInterface
         $files = $this->collectFragmentFiles($root);
 
         foreach ($files as $file) {
-            $raw = $this->filesystem->read($file);
             /** @var array<int|string, mixed> $parsed */
-            $parsed = $this->yamlReader->parse($raw);
+            $parsed = $this->yamlReader->load($file);
             $fragment = $this->normalizeObjectMap($parsed);
             $doc = $this->mergeFragment($doc, $fragment);
         }
@@ -138,7 +136,7 @@ class DocumentBuilder implements DocumentBuilderInterface
         }
 
         /** @var array<int|string, mixed> $main */
-        $main = $this->yamlReader->parse($this->filesystem->read($path));
+        $main = $this->yamlReader->load($path);
 
         return $this->normalizeObjectMap($main);
     }

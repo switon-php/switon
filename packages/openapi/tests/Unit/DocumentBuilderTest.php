@@ -10,11 +10,12 @@ use PHPUnit\Framework\TestCase;
 use Switon\Core\FilesystemInterface;
 use Switon\OpenApi\DocumentBuilder;
 use Switon\Yaml\YamlReader;
+use Switon\OpenApi\Tests\Fixtures\YamlReaderProbe;
 
 #[AllowMockObjectsWithoutExpectations]
-final class DocumentBuilderTest extends TestCase
+class DocumentBuilderTest extends TestCase
 {
-    private const ROOT = '/app/openapi';
+    protected const ROOT = '/app/openapi';
 
     public function testMergeUsesSkeletonWhenNoMainFile(): void
     {
@@ -229,7 +230,7 @@ YAML,
 
         $this->assertArrayHasKey('components', $doc);
         $responseKey = array_key_first($doc['paths']['/users']['get']['responses']);
-        $this->assertSame("'200'", $responseKey);
+        $this->assertSame(200, $responseKey);
         $this->assertSame('object', $doc['paths']['/users']['get']['responses'][$responseKey]['content']['application/json']['schema']['type']);
     }
 
@@ -395,16 +396,18 @@ YAML,
         $this->assertArrayNotHasKey('components', $doc);
     }
 
-    private function makeBuilder(FilesystemInterface|MockObject $filesystem): DocumentBuilder
+    protected function makeBuilder(FilesystemInterface|MockObject $filesystem): DocumentBuilder
     {
-        return new TestDocumentBuilder(new YamlReader(), $filesystem);
+        $reader = (new YamlReaderProbe())->assignFilesystemForTest($filesystem);
+
+        return new TestDocumentBuilder($reader, $filesystem);
     }
 
     /**
      * @param array<string, string> $controllerFiles path => YAML source
      * @param array<string, string> $componentFiles path => YAML source
      */
-    private function makeFilesystem(
+    protected function makeFilesystem(
         bool   $mainExists,
         array  $controllerFiles = [],
         array  $componentFiles = [],
