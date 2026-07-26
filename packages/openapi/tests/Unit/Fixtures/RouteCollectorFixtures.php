@@ -11,7 +11,7 @@ use Switon\Routing\Attribute\ViewMapping;
 use BadMethodCallException;
 
 #[RequestMapping(['/api/admin/', '/api/v2/admin/'])]
-final class RouteCollectorControllerFixture
+class RouteCollectorControllerFixture
 {
     #[GetMapping('/users/{id}')]
     public function showAction(): SampleGroup
@@ -31,7 +31,7 @@ final class RouteCollectorControllerFixture
     }
 }
 
-final class RouteCollectorPlainControllerFixture
+class RouteCollectorPlainControllerFixture
 {
     public function indexAction(): void
     {

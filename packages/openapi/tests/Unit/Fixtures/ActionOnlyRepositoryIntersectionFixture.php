@@ -6,7 +6,7 @@ namespace Switon\OpenApi\Tests\Unit\Fixtures;
 
 use Countable;
 
-final class ActionOnlyRepositoryIntersectionFixture
+class ActionOnlyRepositoryIntersectionFixture
 {
     public OpenApiTestsFakeGroupRepository&Countable $groupRepository;
 

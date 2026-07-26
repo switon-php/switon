@@ -6,8 +6,9 @@ namespace Switon\OpenApi\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Switon\OpenApi\YmlSync;
+use Switon\Yaml\YamlWriter;
 
-final class YmlSyncCoverageTest extends TestCase
+class YmlSyncCoverageTest extends TestCase
 {
     public function testTextHelpersCoverQuotingIndentAndVerbMapping(): void
     {
@@ -115,9 +116,14 @@ final class YmlSyncCoverageTest extends TestCase
         $this->assertStringContainsString('operationId: \'user::save\'', $controllerYml);
     }
 
-    private function makeProbe(): object
+    protected function makeProbe(): object
     {
         return new class () extends YmlSync {
+            public function __construct()
+            {
+                $this->yamlWriter = new YamlWriter();
+            }
+
             public function leadingSpacesLenProbe(string $line): ?int
             {
                 return $this->leadingSpacesLen($line);

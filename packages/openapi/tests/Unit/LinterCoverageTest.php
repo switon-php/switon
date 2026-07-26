@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Switon\OpenApi\DocumentBuilderInterface;
 use Switon\OpenApi\Linter;
 
-final class LinterCoverageTest extends TestCase
+class LinterCoverageTest extends TestCase
 {
     public function testHelperMethodsCoverSchemaAndParameterEdgeCases(): void
     {
@@ -156,13 +156,13 @@ final class LinterCoverageTest extends TestCase
         $this->assertStringContainsString('Broken $ref: #/components/schemas/missing', $joinedErrors);
     }
 
-    private function makeProbe(array $doc): object
+    protected function makeProbe(array $doc): object
     {
         return new class ($doc) extends Linter {
             public function __construct(array $doc)
             {
                 $this->documentBuilder = new class ($doc) implements DocumentBuilderInterface {
-                    public function __construct(private array $doc)
+                    public function __construct(protected array $doc)
                     {
                     }
 
