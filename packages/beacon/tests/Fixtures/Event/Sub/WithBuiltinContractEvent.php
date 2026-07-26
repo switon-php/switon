@@ -6,7 +6,7 @@ namespace Switon\Beacon\Tests\Fixtures\Event\Sub;
 
 use Stringable;
 
-final class WithBuiltinContractEvent implements Stringable
+class WithBuiltinContractEvent implements Stringable
 {
     public function __toString(): string
     {
