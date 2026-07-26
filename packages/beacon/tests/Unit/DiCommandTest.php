@@ -187,7 +187,7 @@ class DiCommandTest extends TestCase
         $this->assertSame('mixed', $this->command->exposedTypeToString($intersectionType));
     }
 
-    private function makeCommand(): DiCommandHarness
+    protected function makeCommand(): DiCommandHarness
     {
         $container = new Container([
             ConsoleInterface::class => $this->console,
