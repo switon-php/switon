@@ -9,6 +9,7 @@ use Switon\Core\Exception\FileNotFoundException;
 use Switon\Core\Exception\MisuseException;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\FilesystemInterface;
+use Switon\Core\Path;
 use Switon\Core\PathAliasInterface;
 use Switon\Storage\Exception\ExtensionNotAllowedException;
 use Switon\Storage\Exception\ObjectNotFoundException;
@@ -22,14 +23,11 @@ use function fclose;
 use function in_array;
 use function pathinfo;
 use function rtrim;
-use function str_contains;
-use function str_replace;
-use function str_starts_with;
 use function stream_copy_to_stream;
 use function strtolower;
 
 /**
- * Filesystem-backed local blob store; object keys are relative paths under {@see $root} (path aliases allowed).
+ * Filesystem-backed local blob store; object keys are relative paths under `$root` (path aliases allowed).
  *
  * Use when object storage can be backed by the local filesystem and Switon path aliases.
  *
@@ -38,7 +36,7 @@ use function strtolower;
  * Road-signs:
  * - BlobStoreInterface contract
  * - FilesystemInterface for file operations
- * - PathAliasInterface for root resolution
+ * - PathAliasInterface for the path fopen receives
  *
  * @see \Switon\Storage\BlobStoreInterface
  * @see \Switon\Core\FilesystemInterface
@@ -47,7 +45,6 @@ use function strtolower;
 class BlobStore implements BlobStoreInterface
 {
     #[Autowired] protected FilesystemInterface $filesystem;
-
     #[Autowired] protected PathAliasInterface $pathAlias;
 
     /** Root directory for all keys; supports aliases such as <code>@runtime/storage</code>. */
@@ -113,8 +110,7 @@ class BlobStore implements BlobStoreInterface
         if (!$this->filesystem->exists($path)) {
             ObjectNotFoundException::raise('Object not found for key "{key}".', ['key' => $key]);
         }
-        $resolved = $this->pathAlias->resolve($path);
-        $handle = @fopen($resolved, 'rb');
+        $handle = @fopen($this->pathAlias->resolve($path), 'rb');
         if ($handle === false) {
             StorageException::raise('Failed to open read stream for key "{key}".', ['key' => $key]);
         }
@@ -134,8 +130,7 @@ class BlobStore implements BlobStoreInterface
         } catch (RuntimeException $e) {
             StorageException::raise('Failed to write object for key "{key}".', ['key' => $key], 0, $e);
         }
-        $resolved = $this->pathAlias->resolve($path);
-        $out = @fopen($resolved, 'wb');
+        $out = @fopen($this->pathAlias->resolve($path), 'wb');
         if ($out === false) {
             StorageException::raise('Failed to open write stream for key "{key}".', ['key' => $key]);
         }
@@ -175,7 +170,7 @@ class BlobStore implements BlobStoreInterface
         }
     }
 
-    /** Joins {@see $root} and object key into a path accepted by {@see FilesystemInterface}. */
+    /** Joins `$root` and object key into a path accepted by {@see FilesystemInterface}. */
     protected function path(string $key): string
     {
         $key = $this->normalizeObjectKey($key);
@@ -188,21 +183,18 @@ class BlobStore implements BlobStoreInterface
      */
     protected function normalizeObjectKey(string $key): string
     {
-        $key = trim(str_replace('\\', '/', $key));
+        $key = Path::normalize(trim($key));
         if ($key === '') {
             MisuseException::raise('Object key must not be empty.');
         }
-        if (str_starts_with($key, '/')) {
-            MisuseException::raise('Object key must be relative, without a leading slash.');
-        }
-        if (str_contains($key, '..')) {
-            MisuseException::raise('Object key must not contain ".." segments.');
+        if (!Path::isRelative($key)) {
+            MisuseException::raise('Object key must be a relative path without ".." segments.');
         }
 
         return $key;
     }
 
-    /** Returns the parent directory path used by mkdir (supports aliases in {@see $root}). */
+    /** Returns the parent directory path used by mkdir (supports aliases in `$root`). */
     protected function parentDir(string $fullPath): string
     {
         $parent = dirname($fullPath);
