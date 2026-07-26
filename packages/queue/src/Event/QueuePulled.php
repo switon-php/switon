@@ -12,7 +12,7 @@ use Switon\Queue\QueueEnvelope;
 /**
  * Event emitted when one pull attempt finishes.
  *
- * Log category: queue transport.
+ * Log category: `switon.queue.pulled`
  *
  * @see \Switon\Queue\Queue::pull()
  */

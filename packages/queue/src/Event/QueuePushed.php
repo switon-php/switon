@@ -12,7 +12,7 @@ use Switon\Queue\QueueEnvelope;
 /**
  * Event emitted when a message is enqueued.
  *
- * Log category: queue transport.
+ * Log category: `switon.queue.pushed`
  *
  * @see \Switon\Queue\Queue::push()
  */
