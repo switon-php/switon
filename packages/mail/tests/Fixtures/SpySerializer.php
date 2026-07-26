@@ -10,7 +10,7 @@ use Switon\Mail\Rfc822SerializerInterface;
 /**
  * @internal
  */
-final class SpySerializer implements Rfc822SerializerInterface
+class SpySerializer implements Rfc822SerializerInterface
 {
     public ?MessageInterface $lastMessage = null;
 

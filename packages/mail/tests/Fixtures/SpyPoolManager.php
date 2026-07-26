@@ -11,7 +11,7 @@ use stdClass;
 /**
  * @internal
  */
-final class SpyPoolManager implements PoolManagerInterface
+class SpyPoolManager implements PoolManagerInterface
 {
     public ?object $defaultResource = null;
 

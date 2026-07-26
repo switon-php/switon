@@ -12,7 +12,7 @@ use Switon\Mail\Rfc822Serializer;
  *
  * @internal
  */
-final class Rfc822SerializerProbe extends Rfc822Serializer
+class Rfc822SerializerProbe extends Rfc822Serializer
 {
     public function probeDomainFromEmail(string $email): string
     {

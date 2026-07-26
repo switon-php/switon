@@ -11,7 +11,7 @@ use Switon\Mail\MailerInterface;
 /**
  * @internal
  */
-final class SpyConnection implements ConnectionInterface
+class SpyConnection implements ConnectionInterface
 {
     protected MailerInterface $owner;
 
