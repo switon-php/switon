@@ -8,7 +8,7 @@ use Switon\Db\Connection\Adapter\Sqlite;
 use function str_starts_with;
 use function substr;
 
-final class TutorialSqliteConnection extends Sqlite
+class TutorialSqliteConnection extends Sqlite
 {
     public function __construct()
     {
