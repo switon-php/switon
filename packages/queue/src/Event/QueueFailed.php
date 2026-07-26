@@ -14,7 +14,7 @@ use Throwable;
 /**
  * Event emitted when a dequeued message fails during consume.
  *
- * Log category: queue consume.
+ * Log category: `switon.queue.failed`
  *
  * @see \Switon\Queue\Queue::consume()
  * @see \Switon\Queue\Event\QueueConsuming
@@ -36,6 +36,9 @@ class QueueFailed implements JsonSerializable, SenderAwareInterface
     ) {
     }
 
+    /**
+     * @param class-string<\Switon\Core\RunnerInterface> $jobClass
+     */
     public static function from(
         \Switon\Queue\QueueInterface $sender,
         string $queue,
