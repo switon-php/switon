@@ -12,7 +12,7 @@ namespace Switon\Query;
  *
  * @see \Switon\Query\SqlBuilderInterface
  */
-final class Clauses
+class Clauses
 {
     public ?Table $table = null;
 

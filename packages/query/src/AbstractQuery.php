@@ -56,22 +56,16 @@ abstract class AbstractQuery implements QueryInterface, IteratorAggregate, JsonS
     #[Autowired] protected PredicatePipelineInterface $predicatePipeline;
 
     protected Clauses $clauses;
-
     /** @var string|null Entity class name for ORM operations. */
     protected ?string $entityClass = null;
-
     /** @var bool|null Whether to return multiple records (null = auto-detect). */
     protected ?bool $multiple = null;
-
     /** @var array<int|string, mixed> Relations to eager load. */
     protected array $with = [];
-
     /** @var mixed Index field for result array. */
     protected mixed $index = null;
-
     /** @var array<int|string, string>|null Aggregate expressions. */
     protected ?array $aggregate = null;
-
     /** @var callable|mixed Result mapping function. */
     protected mixed $map = null;
 
