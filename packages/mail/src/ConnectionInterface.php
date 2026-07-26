@@ -21,6 +21,8 @@ use Switon\Core\OwnerAwareInterface;
  * @see \Switon\Mail\Delivery
  * @see \Switon\Mail\Connection
  * @see \Switon\Mail\Exception\DeliveryException
+ *
+ * @extends OwnerAwareInterface<MailerInterface>
  */
 interface ConnectionInterface extends OwnerAwareInterface
 {
