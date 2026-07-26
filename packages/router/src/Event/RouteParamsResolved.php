@@ -14,7 +14,7 @@ use Switon\Routing\RouterInterface;
 /**
  * Event emitted after a route handler and variables are resolved.
  *
- * Log category: router matching.
+ * Log category: `switon.routing.route.params.resolved`
  *
  * @see \Switon\Routing\RouterInterface
  * @see \Switon\Routing\RouterInterface::match()

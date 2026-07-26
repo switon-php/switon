@@ -47,7 +47,6 @@ class Router implements RouterInterface
 {
     /** Compiles dynamic route patterns. */
     #[Autowired] protected PatternCompilerInterface $patternCompiler;
-
     /** Dispatches routing events. */
     #[Autowired] protected EventDispatcherInterface $eventDispatcher;
 
@@ -56,7 +55,6 @@ class Router implements RouterInterface
 
     /** @var array<string, array<string, string>> Literal routes indexed by verb and pattern. */
     protected array $literals = [];
-
     /** @var RouteInterface[] Dynamic routes matched by compiled patterns. */
     protected array $dynamics = [];
 

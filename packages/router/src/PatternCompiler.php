@@ -39,7 +39,6 @@ class PatternCompiler implements PatternCompilerInterface
 
     /** When true, route regex is case-sensitive. */
     #[Autowired] protected bool $strict = true;
-
     /** @var array<string, string> Snippet replacements used during compile(). */
     #[Autowired] protected array $snippets
         = [
