@@ -9,7 +9,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-final class SpyEventDispatcher implements EventDispatcherInterface
+class SpyEventDispatcher implements EventDispatcherInterface
 {
     /** @var list<object> */
     public array $events = [];

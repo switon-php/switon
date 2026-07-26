@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @internal
  */
-final class StreamSocketPair
+class StreamSocketPair
 {
     /**
      * @return array{0: resource, 1: resource}

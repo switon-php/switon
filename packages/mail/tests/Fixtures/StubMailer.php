@@ -9,7 +9,7 @@ use Switon\Mail\Message;
 use Switon\Mail\MessageInterface;
 
 /** @internal Minimal {@see MailerInterface} stand-in for connection owner typing in tests. */
-final class StubMailer implements MailerInterface
+class StubMailer implements MailerInterface
 {
     public function compose(): Message
     {
