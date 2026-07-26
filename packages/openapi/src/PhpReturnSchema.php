@@ -29,7 +29,7 @@ use function is_subclass_of;
 /**
  * Default {@see PhpReturnSchemaInterface}: object schema from public instance properties; enums and scalars when returned directly.
  *
- * @see \Switon\OpenApi\YamlSnippetEmitter
+ * @see \Switon\Yaml\YamlWriter
  */
 class PhpReturnSchema implements PhpReturnSchemaInterface
 {
