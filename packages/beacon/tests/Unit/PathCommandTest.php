@@ -105,7 +105,7 @@ class PathCommandTest extends TestCase
         $this->assertSame([], $captured['fqcns']);
     }
 
-    private function makeCommand(): PathCommand
+    protected function makeCommand(): PathCommand
     {
         $container = new Container([
             ClassIndexInterface::class => $this->classIndex,
