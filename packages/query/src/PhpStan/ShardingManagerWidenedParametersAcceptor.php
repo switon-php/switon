@@ -11,9 +11,9 @@ use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
 use Switon\Query\Table;
 
-final class ShardingManagerWidenedParametersAcceptor implements ParametersAcceptor
+class ShardingManagerWidenedParametersAcceptor implements ParametersAcceptor
 {
-    public function __construct(private ParametersAcceptor $inner)
+    public function __construct(protected ParametersAcceptor $inner)
     {
     }
 

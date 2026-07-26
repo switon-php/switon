@@ -13,9 +13,9 @@ use Switon\Sharding\ShardingManagerInterface;
  * Allows {@see ShardingManagerInterface::multiple()} / {@see ShardingManagerInterface::all()}
  * to accept {@see Table} or connection table name strings.
  */
-final class ShardingManagerTableArgumentMethodsClassReflectionExtension implements MethodsClassReflectionExtension
+class ShardingManagerTableArgumentMethodsClassReflectionExtension implements MethodsClassReflectionExtension
 {
-    private const array METHODS = [
+    protected const array METHODS = [
         'multiple' => true,
         'all' => true,
     ];

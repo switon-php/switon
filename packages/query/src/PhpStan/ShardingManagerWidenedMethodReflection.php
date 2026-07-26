@@ -10,9 +10,9 @@ use PHPStan\Reflection\MethodReflection;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Type;
 
-final class ShardingManagerWidenedMethodReflection implements MethodReflection
+class ShardingManagerWidenedMethodReflection implements MethodReflection
 {
-    public function __construct(private MethodReflection $inner)
+    public function __construct(protected MethodReflection $inner)
     {
     }
 
