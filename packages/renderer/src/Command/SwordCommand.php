@@ -22,9 +22,11 @@ use function str_replace;
 class SwordCommand
 {
     #[Autowired] protected ConsoleInterface $console;
+
     #[Autowired] protected Compiler $swordCompiler;
-    #[Autowired] protected FilesystemInterface $filesystem;
+
     #[Autowired] protected PathAliasInterface $pathAlias;
+    #[Autowired] protected FilesystemInterface $filesystem;
 
     /**
      * Compiles discovered `.sword` templates.

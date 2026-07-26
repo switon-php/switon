@@ -13,7 +13,7 @@ use Switon\Rendering\RendererInterface;
 /**
  * Event emitted after renderer executes a template.
  *
- * Log category: renderer lifecycle.
+ * Log category: `switon.rendering.renderer.rendered`
  *
  * @see \Switon\Rendering\Renderer
  * @see \Switon\Rendering\Event\RendererRendering
@@ -21,6 +21,9 @@ use Switon\Rendering\RendererInterface;
 #[EventLevel(Severity::DEBUG)]
 class RendererRendered implements JsonSerializable, SenderAwareInterface
 {
+    /**
+     * @param array<string, mixed> $vars Template variables passed to the renderer
+     */
     public function __construct(
         public RendererInterface $sender,
         public string            $template,

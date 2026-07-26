@@ -31,7 +31,9 @@ use function strlen;
  */
 class Compiler
 {
+    #[Autowired] protected PathAliasInterface $pathAlias;
     #[Autowired] protected FilesystemInterface $filesystem;
+
     #[Autowired] protected int $hash_length = 12;
     /** @var array<string, callable(string|null): string> */
     #[Autowired] protected array $directives = [];
@@ -39,7 +41,6 @@ class Compiler
     #[Autowired] protected array $rawTags = ['{!!', '!!}'];
     /** @var list<string> */
     #[Autowired] protected array $escapedTags = ['{{', '}}'];
-    #[Autowired] protected PathAliasInterface $pathAlias;
 
     /** @var list<string> */
     protected array $safe_functions
