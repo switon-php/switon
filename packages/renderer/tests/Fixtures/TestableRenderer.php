@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Rendering\Tests\Fixtures;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
 use Switon\Rendering\EngineInterface;
 use Switon\Rendering\Frames;
@@ -16,6 +17,12 @@ class TestableRenderer extends Renderer
     public function withEventDispatcher(EventDispatcherInterface $eventDispatcher): static
     {
         $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
+
+    public function withFilesystem(FilesystemInterface $filesystem): static
+    {
+        $this->filesystem = $filesystem;
         return $this;
     }
 
