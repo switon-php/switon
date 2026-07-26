@@ -11,6 +11,8 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\Attributes;
 use Switon\Core\ClassName;
 use Switon\Core\ConsoleInterface;
+use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\Json;
 use Switon\Core\Naming;
 use Switon\Di\ContainerInterface as DiContainerInterface;
@@ -33,17 +35,12 @@ use function basename;
 use function class_exists;
 use function dirname;
 use function explode;
-use function file_get_contents;
 use function get_class;
 use function get_debug_type;
-use function glob;
 use function implode;
 use function interface_exists;
 use function is_array;
-use function is_dir;
-use function is_file;
 use function is_object;
-use function is_readable;
 use function is_scalar;
 use function is_string;
 use function iterator_to_array;
@@ -74,6 +71,7 @@ class ConfigCommand
 {
     #[Autowired] protected ConsoleInterface $console;
     #[Autowired] protected ContainerInterface $container;
+    #[Autowired] protected FilesystemInterface $filesystem;
 
     /**
      * List config keys (property names) and types for a class that receives config.
@@ -146,13 +144,14 @@ class ConfigCommand
         $errors = [];
         $warnings = [];
 
-        if (!is_file($file) || !is_readable($file)) {
+        if (!$this->filesystem->isFile($file) || !$this->filesystem->isReadable($file)) {
             $this->console->writeLn(Json::stringify(['ok' => false, 'file' => $file, 'errors' => ["Failed to read: $file"]]));
             return 1;
         }
 
-        $contents = file_get_contents($file);
-        if ($contents === false) {
+        try {
+            $contents = $this->filesystem->read($file);
+        } catch (FileNotFoundException) {
             $this->console->writeLn(Json::stringify(['ok' => false, 'file' => $file, 'errors' => ["Failed to read: $file"]]));
             return 1;
         }
@@ -238,10 +237,10 @@ class ConfigCommand
 
         if ($configDir !== '') {
             $dir = $configDir;
-            if (!is_dir($dir)) {
+            if (!$this->filesystem->isDir($dir)) {
                 $dir = rtrim($yamlRoot, '/') . '/' . ltrim($configDir, '/');
             }
-            if (is_dir($dir)) {
+            if ($this->filesystem->isDir($dir)) {
                 $phpConfig = $this->loadPhpConfigForCheck($dir);
                 foreach ($phpConfig as $id => $phpDef) {
                     if (!is_string($id) || !array_key_exists($id, $data)) {
@@ -345,7 +344,7 @@ class ConfigCommand
     protected function loadPhpConfigForCheck(string $dir): array
     {
         $configs = [];
-        foreach (glob(rtrim($dir, '/') . '/*.php') ?: [] as $path) {
+        foreach ($this->filesystem->glob($dir . '/*.php') as $path) {
             if (str_starts_with(basename($path), '.')) {
                 continue;
             }

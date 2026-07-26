@@ -9,6 +9,7 @@ use Composer\InstalledVersions;
 use Switon\Beacon\Exception\ClassIndexNotFoundException;
 use Switon\Core\ClassName;
 use Switon\Core\FilesystemInterface;
+use Switon\Core\Path;
 use Switon\Core\Runtime;
 use ReflectionClass;
 use Throwable;
@@ -20,7 +21,6 @@ use function array_values;
 use function basename;
 use function get_declared_classes;
 use function method_exists;
-use function realpath;
 use function str_contains;
 use function str_ends_with;
 use function str_replace;
@@ -188,15 +188,9 @@ class ClassIndex implements ClassIndexInterface
     }
 
     /** Whether the path is absolute (Unix / or Windows C:). */
-    private static function isAbsolutePath(string $path): bool
+    protected static function isAbsolutePath(string $path): bool
     {
-        if ($path === '') {
-            return false;
-        }
-        if (str_starts_with($path, '/')) {
-            return true;
-        }
-        return (bool)preg_match('#^[a-zA-Z]:[/\\\\]#', $path);
+        return Path::isAbsolute($path);
     }
 
     /** @return list<string> App FQCNs; always scan @app (no cache). */
@@ -238,7 +232,8 @@ class ClassIndex implements ClassIndexInterface
             if ($file === false) {
                 continue;
             }
-            $fileNorm = str_replace('\\', '/', (string)realpath($file));
+            $real = $this->filesystem->realpath($file);
+            $fileNorm = $real === null ? '' : str_replace('\\', '/', $real);
             if ($fileNorm !== '' && isset($filesSet[$fileNorm])) {
                 $classes[] = $fqcn;
             }

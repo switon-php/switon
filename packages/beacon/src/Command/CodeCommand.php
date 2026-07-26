@@ -12,15 +12,13 @@ use Switon\Command\Attribute\Hidden;
 use Switon\Command\Attribute\Tool;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ConsoleInterface;
+use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\Exception\RuntimeException;
+use Switon\Core\FilesystemInterface;
 use Switon\Core\Json;
 
-use function file_get_contents;
-use function file_put_contents;
 use function getcwd;
 use function implode;
-use function is_dir;
-use function is_file;
-use function is_readable;
 use function json_decode;
 use function token_get_all;
 use function trim;
@@ -43,6 +41,7 @@ use const T_WHITESPACE;
 class CodeCommand
 {
     #[Autowired] protected ConsoleInterface $console;
+    #[Autowired] protected FilesystemInterface $filesystem;
 
     protected const string DEFAULT_PATH = 'app';
     protected const string VENDOR_CACHE_FILE = 'vendor/switon/cli-code-index.json';
@@ -88,7 +87,7 @@ class CodeCommand
     /** @return list<string> */
     protected function collectPhpFiles(string $dir): array
     {
-        if (!is_dir($dir)) {
+        if (!$this->filesystem->isDir($dir)) {
             return [];
         }
         $files = [];
@@ -125,21 +124,30 @@ class CodeCommand
     protected function isVendorCacheValid(string $cwd): bool
     {
         $cacheFile = $this->getVendorCachePath($cwd);
-        if (!is_file($cacheFile)) {
+        if (!$this->filesystem->isFile($cacheFile)) {
             return false;
         }
         $installed = $cwd . '/vendor/composer/installed.json';
-        return !(is_file($installed) && filemtime($installed) > filemtime($cacheFile));
+        if (!$this->filesystem->isFile($installed)) {
+            return true;
+        }
+
+        return ($this->filesystem->mtime($installed) ?? 0) <= ($this->filesystem->mtime($cacheFile) ?? 0);
     }
 
     /** @return list<string> */
     protected function getVendorDevPackageNames(string $cwd): array
     {
         $installed = $cwd . '/vendor/composer/installed.json';
-        if (!is_file($installed)) {
+        if (!$this->filesystem->isFile($installed)) {
             return [];
         }
-        $data = json_decode((string)(file_get_contents($installed) ?: ''), true);
+        try {
+            $raw = $this->filesystem->read($installed);
+        } catch (FileNotFoundException) {
+            $raw = '';
+        }
+        $data = json_decode($raw !== '' ? $raw : '', true);
         return $data['dev-package-names'] ?? [];
     }
 
@@ -147,8 +155,12 @@ class CodeCommand
     protected function loadOrBuildVendorCache(string $cwd, bool $includeDev): array
     {
         if ($this->isVendorCacheValid($cwd)) {
-            $raw = (string)(file_get_contents($this->getVendorCachePath($cwd)) ?: '');
-            $data = json_decode($raw, true);
+            try {
+                $raw = $this->filesystem->read($this->getVendorCachePath($cwd));
+            } catch (FileNotFoundException) {
+                $raw = '';
+            }
+            $data = json_decode($raw !== '' ? $raw : '', true);
             if (isset($data['classes']) && is_array($data['classes']) && array_is_list($data['classes'])) {
                 /** @var list<array{class: string, file: string, summary: string, methods: list<array{name: string, summary: string}>}> $classes */
                 $classes = $data['classes'];
@@ -156,14 +168,15 @@ class CodeCommand
             }
         }
         $vendorDir = $cwd . '/vendor';
-        if (!is_dir($vendorDir)) {
+        if (!$this->filesystem->isDir($vendorDir)) {
             return [];
         }
         $classes = $this->scanVendorForClassSummaries($vendorDir, $includeDev ? [] : $this->getVendorDevPackageNames($cwd));
         $cacheFile = $this->getVendorCachePath($cwd);
-        $dir = dirname($cacheFile);
-        if (is_dir($dir) || mkdir($dir, 0755, true) || is_dir($dir)) {
-            file_put_contents($cacheFile, Json::stringify(['classes' => $classes], JSON_PRETTY_PRINT));
+        try {
+            $this->filesystem->write($cacheFile, Json::stringify(['classes' => $classes], JSON_PRETTY_PRINT));
+        } catch (RuntimeException) {
+            // Cache write is best-effort; a failed write used to be ignored.
         }
         return $classes;
     }
@@ -175,43 +188,36 @@ class CodeCommand
     {
         $classes = [];
         $devSet = array_flip($devPackageNames);
-        if (!is_dir($vendorDir)) {
-            return [];
-        }
-        if (!is_readable($vendorDir)) {
+        if (!$this->filesystem->isDir($vendorDir) || !$this->filesystem->isReadable($vendorDir)) {
             return [];
         }
 
-        $dirs = scandir($vendorDir);
-        if ($dirs === false) {
+        try {
+            $dirs = $this->filesystem->list($vendorDir);
+        } catch (RuntimeException) {
             return [];
         }
         foreach ($dirs as $v) {
-            if ($v === '.' || $v === '..' || $v === 'composer') {
+            if ($v === 'composer') {
                 continue;
             }
             $vendorPath = $vendorDir . '/' . $v;
-            if (!is_dir($vendorPath)) {
-                continue;
-            }
-            if (!is_readable($vendorPath)) {
+            if (!$this->filesystem->isDir($vendorPath) || !$this->filesystem->isReadable($vendorPath)) {
                 continue;
             }
 
-            $subs = scandir($vendorPath);
-            if ($subs === false) {
+            try {
+                $subs = $this->filesystem->list($vendorPath);
+            } catch (RuntimeException) {
                 continue;
             }
             foreach ($subs as $pkg) {
-                if ($pkg === '.' || $pkg === '..') {
-                    continue;
-                }
                 $pkgName = $v . '/' . $pkg;
                 if (isset($devSet[$pkgName])) {
                     continue;
                 }
                 $pkgPath = $vendorPath . '/' . $pkg;
-                if (is_dir($pkgPath)) {
+                if ($this->filesystem->isDir($pkgPath)) {
                     foreach ($this->scanPathForClassSummaries($pkgPath) as $c) {
                         $classes[] = $c;
                     }
@@ -227,12 +233,13 @@ class CodeCommand
         $files = $this->collectPhpFiles($dir);
         $classes = [];
         foreach ($files as $file) {
-            if (!is_readable($file)) {
+            if (!$this->filesystem->isReadable($file)) {
                 continue;
             }
 
-            $code = file_get_contents($file);
-            if ($code === false) {
+            try {
+                $code = $this->filesystem->read($file);
+            } catch (FileNotFoundException) {
                 continue;
             }
             foreach ($this->extractClassSummariesFromSource($code, $file) as $c) {
