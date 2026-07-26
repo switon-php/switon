@@ -9,7 +9,7 @@ use Attribute;
 /**
  * Binds schedule metadata on a runner class executed by {@see \Switon\Schedule\TaskRunner}.
  *
- * Guidance: Scheduled classes should implement {@see \Switon\Core\RunnerInterface}; <code>$expression</code> is four fields (second minute hour day-of-month) in {@see \Switon\Schedule\Expression} grammar, interpreted in {@see \Switon\Core\AppInterface::timezone()} (not full crontab); task id is derived at {@see \Switon\Schedule\Schedule::register()} via {@see \Switon\Schedule\Schedule::taskClassToId()}, not {@see \Switon\Http\HandlerId}.
+ * Guidance: Scheduled classes should implement {@see \Switon\Core\RunnerInterface}; <code>$expression</code> is four fields (second minute hour day-of-month) in {@see \Switon\Schedule\Expression} grammar, interpreted in {@see \Switon\Core\AppInterface::timezone()} (not full crontab); task id is derived at {@see \Switon\Schedule\Schedule::register()} via {@see \Switon\Schedule\Schedule::taskClassToId()}, not {@see \Switon\Routing\HandlerId}.
  *
  * Road-signs:
  * - Schedule register
