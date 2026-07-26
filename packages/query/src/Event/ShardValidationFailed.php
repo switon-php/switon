@@ -14,7 +14,7 @@ use Throwable;
 /**
  * Event emitted when join shard validation fails.
  *
- * Log category: sharding validation.
+ * Log category: `switon.query.shard.validation.failed`
  *
  * Join tuples are produced by the query layer; sharding keeps them opaque
  * (table target is typically a string or a query value object).
@@ -64,8 +64,7 @@ class ShardValidationFailed implements JsonSerializable, SenderAwareInterface
         array $context,
         array $joins,
         Throwable $exception
-    ): self
-    {
+    ): self {
         return new self(
             $sender,
             $exception->getMessage(),
