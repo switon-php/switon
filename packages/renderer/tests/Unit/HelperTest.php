@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Switon\Rendering\Tests\Unit;
 
-use Switon\Rendering\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 use function e;
 
