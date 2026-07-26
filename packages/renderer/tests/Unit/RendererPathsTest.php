@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Switon\Rendering\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Switon\Core\PathAliasInterface;
+use Switon\Core\Filesystem;
+use Switon\Rendering\Tests\Fixtures\FilesystemProbe;
+use Switon\Core\FilesystemInterface;
+use Switon\Core\PathAlias;
 use Switon\Rendering\EngineInterface;
 use Switon\Rendering\Frames;
 use Switon\Rendering\Tests\Fixtures\TestableRenderer;
@@ -76,20 +79,21 @@ class RendererPathsTest extends TestCase
 
     protected function renderer(): TestableRenderer
     {
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $tempDir = $this->tempDir;
-        $pathAlias->method('resolve')->willReturnCallback(static fn (string $path): string => match ($path) {
-            '@root' => $tempDir,
-            default => $path,
-        });
-
         $engine = $this->createStub(EngineInterface::class);
         $engine->method('render')->willReturnCallback(static function (): void {
         });
 
         return (new TestableRenderer())
-            ->withPathAlias($pathAlias)
+            ->withFilesystem($this->realFilesystem())
+            ->withPathAlias(new PathAlias())
             ->withEngines(['.phtml' => $engine]);
+    }
+
+    protected function realFilesystem(): FilesystemInterface
+    {
+        $filesystem = (new FilesystemProbe())->setPathAliasForTest(new PathAlias());
+
+        return $filesystem;
     }
 
     protected function removeDirectory(string $dir): void

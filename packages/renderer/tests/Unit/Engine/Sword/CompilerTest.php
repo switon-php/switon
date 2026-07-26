@@ -7,11 +7,13 @@ namespace Switon\Rendering\Tests\Unit\Engine\Sword;
 use PHPUnit\Framework\TestCase;
 use Switon\Core\Exception\FileNotFoundException;
 use Switon\Core\Exception\RuntimeException;
+use Switon\Core\Filesystem;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAlias;
 use Switon\Core\PathAliasInterface;
 use Switon\Rendering\Exception\TemplateCompilationException;
 use Switon\Rendering\Tests\Fixtures\TestableCompiler;
+use Switon\Testing\Container;
 
 use function array_diff;
 use function file_put_contents;
@@ -34,7 +36,17 @@ class CompilerTest extends TestCase
 
         $this->tempDir = sys_get_temp_dir() . '/switon-renderer-tests/' . uniqid('compiler-', true);
         mkdir($this->tempDir, 0755, true);
-        $this->compiler = new TestableCompiler();
+        $this->compiler = (new TestableCompiler())
+            ->withFilesystem($this->realFilesystem())
+            ->withPathAlias(new PathAlias());
+    }
+
+    protected function realFilesystem(?PathAlias $pathAlias = null): FilesystemInterface
+    {
+        $pathAlias ??= new PathAlias();
+        $container = new Container([PathAliasInterface::class => $pathAlias]);
+
+        return $container->make(Filesystem::class);
     }
 
     protected function tearDown(): void
@@ -57,7 +69,7 @@ class CompilerTest extends TestCase
         $pathAlias->set('@public', $publicDir);
 
         $this->compiler
-            ->withPathAlias($pathAlias)
+            ->withFilesystem($this->realFilesystem($pathAlias))
             ->withHashLength(8)
             ->directive('caps', static fn (?string $expression): string => 'DIRECTIVE_OK');
 
@@ -87,12 +99,24 @@ TPL
         $pathAlias = new PathAlias();
         $pathAlias->set('@public', $this->tempDir . '/public');
         $this->compiler
-            ->withPathAlias($pathAlias)
+            ->withFilesystem($this->realFilesystem($pathAlias))
             ->withHashLength(8);
 
         $result = $this->compiler->compileString('<img src="/docs/page.html"><img src="/img/missing.png">');
 
         $this->assertSame('<img src="/docs/page.html"><img src="/img/missing.png">', $result);
+    }
+
+    public function testCompileStringKeepsTheUrlWhenTheAssetDisappearsDuringRead(): void
+    {
+        $filesystem = $this->createStub(FilesystemInterface::class);
+        $filesystem->method('isFile')->willReturn(true);
+        $filesystem->method('read')->willThrowException(FileNotFoundException::of('gone'));
+        $this->compiler->withFilesystem($filesystem)->withHashLength(8);
+
+        $result = $this->compiler->compileString('<img src="/img/logo.png">');
+
+        $this->assertSame('<img src="/img/logo.png">', $result);
     }
 
     public function testCompilerConstructorMergesSafeFunctions(): void
@@ -324,15 +348,10 @@ TPL
         $filesystem->expects($this->once())
             ->method('write')
             ->with($compiled, 'Hello <?= e($name); ?>');
-
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $pathAlias->method('resolve')->willReturnCallback(
-            static fn (string $path): string => match ($path) {
-                '@source' => $source,
-                '@compiled' => $compiled,
-                default => $path,
-            }
-        );
+        $pathAlias = $this->aliasMap([
+            '@source' => $source,
+            '@compiled' => $compiled,
+        ]);
 
         $this->compiler
             ->withFilesystem($filesystem)
@@ -340,6 +359,10 @@ TPL
             ->compileFile('@source', '@compiled');
 
         $filesystem = $this->createMock(FilesystemInterface::class);
+        $pathAlias = $this->aliasMap([
+            '@source' => $source,
+            '@compiled' => $compiled,
+        ]);
         $filesystem->expects($this->once())->method('mkdir')->with(dirname($compiled));
         $filesystem->expects($this->once())
             ->method('read')
@@ -373,23 +396,27 @@ TPL
             ->method('write')
             ->with($compiled, 'Hello')
             ->willThrowException(RuntimeException::of('write failed'));
-
-        $pathAlias = $this->createStub(PathAliasInterface::class);
-        $pathAlias->method('resolve')->willReturnCallback(
-            static fn (string $path): string => match ($path) {
-                '@source' => $source,
-                '@compiled' => $compiled,
-                default => $path,
-            }
-        );
-
         $this->compiler
             ->withFilesystem($filesystem)
-            ->withPathAlias($pathAlias);
+            ->withPathAlias($this->aliasMap([
+                '@source' => $source,
+                '@compiled' => $compiled,
+            ]));
 
         $this->expectException(TemplateCompilationException::class);
         $this->expectExceptionMessage('Failed to write template: ' . $compiled);
         $this->compiler->compileFile('@source', '@compiled');
+    }
+
+    /** @param array<string, string> $map */
+    protected function aliasMap(array $map): PathAliasInterface
+    {
+        $pathAlias = $this->createStub(PathAliasInterface::class);
+        $pathAlias->method('resolve')->willReturnCallback(
+            static fn (string $path): string => $map[$path] ?? $path
+        );
+
+        return $pathAlias;
     }
 
     protected function removeDirectory(string $dir): void
