@@ -78,12 +78,16 @@ run_one_package() {
             break
         fi
         case "$1" in
-            unit|all|integration)
+            unit|all|integration|eval|live)
                 PHPUNIT_ARGS+=("--testsuite=$1")
                 shift
                 ;;
             --fast|-f)
-                PHPUNIT_ARGS+=("--testsuite=unit")
+                if grep -q 'name="fast"' "$PHPUNIT_XML" 2>/dev/null; then
+                    PHPUNIT_ARGS+=("--testsuite=fast" "--exclude-group=coroutine")
+                else
+                    PHPUNIT_ARGS+=("--testsuite=unit")
+                fi
                 shift
                 ;;
             --coverage|-c)
