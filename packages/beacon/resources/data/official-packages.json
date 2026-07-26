@@ -32,7 +32,7 @@
     "install": "switon/cli",
     "namespace": "Switon\\Cli",
     "keywords": "gnu-options --no-flag tool:list bash-completion router hidden",
-    "classes": "AnsiWidthCalculator Command/CompletionCommand Command/CommandHelpRenderer Command/HelpCommand Command/ListCommand CommandDiscovery CommandHelpRenderer CommandInspector Console ErrorHandler Event/AbstractCommandEvent Event/CliInvoked Event/CliInvoking Event/CommandDuplicate Event/CommandExecuted Event/CommandExecuting Event/ConsoleDebug Event/ConsoleError Event/ConsoleInfo Event/ConsoleWarning Event/ToolInvoked Event/ToolInvoking Exception Exception/OptionsException Handler Kernel Options ProgressBar Router Server ServiceProvider TerminalWidthDetector"
+    "classes": "AnsiWidthCalculator Command/CompletionCommand Command/CommandHelpRenderer Command/HelpCommand Command/ListCommand CommandDiscovery CommandHelpRenderer CommandInspector Console ErrorHandler Event/AbstractCommandEvent Event/CliInvoked Event/CliInvoking Event/CommandDuplicate Event/CommandExecuted Event/CommandExecuting Event/ConsoleDebug Event/ConsoleError Event/ConsoleInfo Event/ConsoleWarning Event/ToolInvoked Event/ToolInvoking Exception Exception/OptionsException Handler Kernel Options ProgressBar Router Server ServiceProvider"
   },
   {
     "install": "switon/composer-extra-plugin",

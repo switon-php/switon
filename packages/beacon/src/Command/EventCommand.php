@@ -34,13 +34,9 @@ use function strtolower;
 class EventCommand
 {
     #[Autowired] protected ConsoleInterface $console;
-
     #[Autowired] protected EventLoggerInterface $eventLogger;
-
     #[Autowired] protected EventScannerInterface $eventScanner;
-
     #[Autowired] protected FilterMatcherInterface $filterMatcher;
-
     #[Autowired] protected ListenerProviderInterface $listenerProvider;
 
     /**

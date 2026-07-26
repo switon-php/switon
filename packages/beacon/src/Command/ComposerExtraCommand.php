@@ -17,6 +17,7 @@ use Switon\Core\ConsoleInterface;
 class ComposerExtraCommand
 {
     #[Autowired] protected ConsoleInterface $console;
+
     #[Autowired] protected ComposerExtra $composerExtra;
 
     /**
