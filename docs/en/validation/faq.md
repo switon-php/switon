@@ -16,10 +16,9 @@ Yes. Rules like `Trim`, `Defaults`, `Type`, `Email`, `Date`, `Lowercase`, and `U
 
 ### Which entrypoint should I use? {#entrypoint}
 
-Use `validateValues()` for payloads, `validateValue()` for one field, and `beginValidate()` / `endValidate()` only when
-you need a manual session.
-`validateValue()` still fails by throwing `ValidateFailedException` through the validation session, not by returning
-`null`.
+Use `validate($source, $constraints)` for progressive field checks on an array or object (same shape returned).
+Use `beginValidate()` / `endValidate()` only when you need a manual session. Failure throws
+`ValidateFailedException`, not a `null` return.
 
 ## Constraints {#constraints}
 
@@ -66,7 +65,7 @@ The built-ins include `ArrayOf` alongside presence, type, string, numeric, set, 
 
 ## Troubleshooting {#troubleshooting}
 
-### Why is a missing field absent from `validateValues()` output? {#missing-output}
+### Why is a missing field absent from `validate()` output? {#missing-output}
 
 Because missing fields stay missing unless a rule like `Defaults` writes a value.
 

@@ -5,7 +5,7 @@ messages.
 
 **Key features:**
 
-- **Two main entrypoints** — `validateValue()` for one field, `validateValues()` for one payload
+- **One entrypoint** — `validate($source, $constraints)` progressively validates a field map (array or object); unconstrained fields pass through unchanged
 - **Attribute-first rules** — built-in constraints live under `Switon\Validating\Attribute`
 - **Normalization during validation** — rules such as `Trim`, `Defaults`, `Type`, `Email`, `Date`, `Lowercase`, and
   `Uppercase` can change the value
@@ -42,7 +42,7 @@ final class UserService
 
     public function register(array $input): array
     {
-        return $this->validator->validateValues($input, [
+        return $this->validator->validate($input, [
             'username' => [new Required(), new Length(4, 16)],
             'email' => [new Required(), new Email()],
         ]);
@@ -59,11 +59,10 @@ normalized value.
 
 ### Entrypoints {#entrypoints}
 
-- `validateValue()` validates one field and returns the result
-- `validateValues()` validates one payload and returns the validated array
+- `validate($source, $constraints)` progressively validates fields on an array or object and returns the same shape (unconstrained fields unchanged; objects updated in place)
 - `beginValidate()` / `endValidate()` are for manual sessions inside framework code
 
-For most application code, start with `validateValues()`.
+For most application code, start with `validate()`.
 
 ### Rules {#rules}
 
@@ -129,7 +128,7 @@ the container.
 
 ## Keep in Mind {#keep-in-mind}
 
-- `validateValues()` does not invent missing fields.
+- `validate()` does not invent missing fields.
 - `Defaults` can make a missing field appear in the returned array.
 - Order matters when one rule normalizes a value for the next rule.
 - Field order follows the constraint map, not the source array.
