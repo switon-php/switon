@@ -214,7 +214,7 @@ class Renderer implements RendererInterface
     /**
      * Accept a template candidate. On Windows, a case-mismatched real path is an error.
      */
-    private function isTemplateFile(string $file): bool
+    protected function isTemplateFile(string $file): bool
     {
         if (!$this->filesystem->isFile($file)) {
             return false;
