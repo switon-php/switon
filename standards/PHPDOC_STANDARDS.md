@@ -32,7 +32,7 @@ Markdown doc structure is out of scope here.
 - Public methods: write from the caller perspective.
 - Document purpose, inputs, outputs, `@throws`, side effects, and recommended usage when they are not obvious.
 - Protected overridable methods: document override expectations and call timing.
-- Protected internal helpers and private methods: explain only non-obvious logic, invariants, or edge cases.
+- Protected internal helpers: explain only non-obvious logic, invariants, or edge cases.
 - `*Command` classes and `*Action` methods: the first summary line and `@param` text are CLI help; keep them plain and action-oriented.
 - If a signature stays broad for compatibility, document the recommended caller contract.
 
@@ -74,6 +74,12 @@ Markdown doc structure is out of scope here.
 - If an existing `@see` misleads, report the exact tag, the actual 2–4 hop path, and a minimal patch suggestion.
 - Common triggers: unrelated target, stale default label, missing next hop, or a runtime path that no longer matches the tag.
 
+## Inline code
+
+- Use Markdown backticks for identifiers, literals, and wire keys: `` `name` ``.
+- Do not use `{@code …}` — PhpStorm Quick Doc does not render it.
+- Leave `@codeCoverageIgnore` alone; it is a PHPUnit attribute tag, not inline markup.
+
 ## Type precision
 
 - Keep native PHP types on signatures and properties.
@@ -106,4 +112,5 @@ Preferred compact exception shape:
 - Minimal property docs
 - Concise exception and event docs
 - Resolvable `@see`
+- Inline code with backticks, not `{@code}`
 - `Guidance` and `Road-signs` only where they add real navigation value
