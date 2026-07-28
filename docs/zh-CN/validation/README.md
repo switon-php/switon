@@ -9,7 +9,7 @@ description: switon/validation：属性约束、校验时规范化与本地化�
 
 **关键特性：**
 
-- **两个主入口** — `validateValue()` 校验单字段，`validateValues()` 校验整份 payload。
+- **一个入口** — `validate($source, $constraints)` 渐进校验字段映射（数组或对象）；未约束字段原样保留
 - **属性优先规则** — 内置约束位于 `Switon\Validating\Attribute`。
 - **校验过程中规范化** — `Trim`、`Defaults`、`Type`、`Email`、`Date`、`Lowercase`、`Uppercase` 等可改写值。
 - **本地化消息** — 语言环境文件提供模板与标签。
@@ -45,7 +45,7 @@ final class UserService
 
     public function register(array $input): array
     {
-        return $this->validator->validateValues($input, [
+        return $this->validator->validate($input, [
             'username' => [new Required(), new Length(4, 16)],
             'email' => [new Required(), new Email()],
         ]);
@@ -61,11 +61,10 @@ final class UserService
 
 ### 入口 {#entrypoints}
 
-- `validateValue()` 校验一个字段并返回结果；
-- `validateValues()` 校验一份 payload 并返回已校验数组；
+- `validate($source, $constraints)` 对数组或对象做渐进校验并返回同形结果（未约束字段保留；对象就地写回）；
 - `beginValidate()` / `endValidate()` 供框架内手动会话。
 
-多数应用代码从 `validateValues()` 开始。
+多数应用代码从 `validate()` 开始。
 
 ### 规则 {#rules}
 
@@ -126,7 +125,7 @@ bash bin/console config:options 'Switon\Validating\ValidatorInterface'
 
 ## 使用注意 {#keep-in-mind}
 
-- `validateValues()` **不会**凭空发明缺失字段。
+- `validate()` **不会**凭空发明缺失字段。
 - `Defaults` 可使缺失字段出现在返回数组中。
 - 顺序很重要：一条规则可能为下一条规则规范化值。
 - 字段顺序遵循**约束映射**，而非源数组键顺序。

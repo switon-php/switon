@@ -21,7 +21,7 @@ description: Validation：入口、规范化、Required 与 HTTP 自动必填。
 
 ### 用哪个入口？ {#entrypoint}
 
-payload → `validateValues()`；单字段 → `validateValue()`；手动会话 → `beginValidate()` / `endValidate()`。`validateValue()` 失败也是抛异常，**不是**返回 `null`。
+数组或对象的渐进字段校验 → `validate($source, $constraints)`（同形返回）；手动会话 → `beginValidate()` / `endValidate()`。失败抛 `ValidateFailedException`，**不是**返回 `null`。
 
 ## 约束 {#constraints}
 
