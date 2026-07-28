@@ -130,7 +130,8 @@ Applies to packages under `packages/*`.
 ## Visibility (MANDATORY)
 
 - ✅ Use `protected` by default for methods and properties.
-- ⚠️ Use `private` only when subclass access must be blocked.
+- ❌ Do not use `private` on classes, methods, or properties; use `protected` so subclasses and test stubs can extend or override.
+- ❌ Do not mark classes or methods `final`; framework code stays open for extension and test doubles.
 - ✅ DTO, event, and context objects may use public properties when they act as plain data carriers.
 - ❌ Do not expose public mutable state on service objects.
 
@@ -170,6 +171,13 @@ Applies to packages under `packages/*`.
 - Use static methods only for pure utilities, factory entrypoints, or boundary bridges.
 - Default service and business behavior to instance methods.
 - Keep `App::get()` and `App::make()` as boundary bridges, not as the default dependency access pattern.
+
+### Avoid over-abstraction (SHOULD)
+
+- Prefer the simplest shape that still states the contract.
+- Inline short one-off logic; no extra helpers for a single expression or trivial rename.
+- No extra types, fields, or steps unless they encode a real boundary, reuse, or non-obvious rules.
+- Registries: validate, store, invoke — do not re-derive what the entry already carries.
 
 ---
 
