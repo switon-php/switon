@@ -35,10 +35,10 @@ description: ターミナル専用の仕組みを core とコマンド執筆か�
 
 ## なぜ分けたか {#separate-pieces}
 
-`ProgressBar`、`TerminalWidthDetector`、`Colors` は別問題なので、それぞれ単純なまま独立させる。
+`ProgressBar`、`Colors` は別問題なので、それぞれ単純なまま独立させる。
 
 - `ProgressBar` — その場進捗の状態と描画ヒント
-- `TerminalWidthDetector` — 幅の取得とキャッシュ
+- 幅の取得 — `COLUMNS` を描画層が読む（共有ディテクタなし）
 - `Colors` — `Switon\Core\ConsoleInterface::colorize()` 向け ANSI ビットマスク
 
 分離すると直接使いやすく、既に自前ターミナル層があるアプリでは差し替えもしやすい。

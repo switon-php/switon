@@ -10,9 +10,9 @@ description: switon/console：プログレスバー、端末幅、ANSI 色フラ
 **主な機能:**
 
 - **プログレスバー:** `ProgressBar` が自動開始し、進捗をクランプし、経過・残り時間を描画する。
-- **幅検出:** `TerminalWidthDetector` が現在の端末幅をキャッシュし、Unix／Windows それぞれのフォールバック経路を持つ。
+- **幅検出:** 端末幅は `COLUMNS` 環境変数から取得し、描画を担当する層がそれぞれ読む（シェルプローブなし）。
 - **ANSI スタイル:** `Colors` が前景・背景・テキスト属性のビットマスクをまとめる。
-- **フレームワーク向け契約:** `ProgressBarInterface` と `TerminalWidthDetectorInterface` は小さく配線しやすい。
+- **フレームワーク向け契約:** `ProgressBarInterface` は小さく配線しやすい。
 
 ---
 
@@ -75,12 +75,11 @@ class ImportUsers
 
 ### 端末幅 {#terminal-width}
 
-`TerminalWidthDetector` は **キャッシュされた幅** を返し、`clearCache()` の後だけ更新する。
+幅は `COLUMNS` 環境変数（対話シェルがエクスポートする）から取得する。描画を担当する層が一度読んでキャッシュする。シェルプローブも共有ディテクタサービスもない。
 
-- まず `COLUMNS` を見る。
-- Unix では `stty`、次に `tput` にフォールバック。
-- Windows では `mode con`、次に PowerShell にフォールバック。
-- 極端に小さい値は最小サポート幅 `20` まで持ち上げる。
+- `COLUMNS` が未設定または数値でない場合は `120` 桁にフォールバック。
+- `20` 未満は利用不可として既定値にフォールバック。
+- 非対話実行では環境変数を明示設定（または `putenv('COLUMNS=120')`）して幅を固定できる。
 
 ### ANSI 色 {#ansi-colors}
 
@@ -94,7 +93,7 @@ class ImportUsers
 ## 注意点 {#keep-in-mind}
 
 - `ProgressBar` は状態を持ち、**ひとつのアクティブなターミナルフロー** 向け。
-- `TerminalWidthDetector` はキャッシュするので、テストやリサイズに敏感なコードでは `clearCache()` が必要かもしれない。
+- 幅は `COLUMNS` から読むため、リサイズ後は変数を読み直さない限り起動時の幅のままになる。
 - `Colors` はビットマスクであり、名前付きテーマではない。
 
 ---
