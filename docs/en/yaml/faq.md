@@ -12,11 +12,15 @@ Use `switon/yaml` when you want the Switon YAML subset on purpose. If you need a
 
 ### Do I have to use DI to use this package? {#need-di}
 
-No. Inject `YamlReaderInterface` in framework code, or construct `YamlReader` directly at bootstrap edges.
+No. Inject `YamlReaderInterface` / `YamlWriterInterface` in framework code, or construct `YamlReader` / `YamlWriter` directly at bootstrap edges. `YamlWriter::write()` still needs a wired `FilesystemInterface`.
 
 ### Where is the exact subset defined? {#subset-source}
 
 The normative subset lives in `packages/yaml/subset.md`.
+
+### How do I emit YAML from a PHP array? {#emit-yaml}
+
+Use `YamlWriterInterface::dump()` for a string, or `write()` to persist via the filesystem. Prefer this over stringifying JSON and converting.
 
 ## Parsing And Interpolation {#parsing-and-interpolation}
 

@@ -41,6 +41,12 @@ Interpolation answers a different one: which parsed strings need runtime values 
 
 Keeping those steps separate makes both phases easier to test and easier to explain.
 
+## Why Dump Lives Beside Read {#why-dump}
+
+Config workflows need array → YAML as a first-class path. Emitting through JSON is awkward and does not guarantee subset shape.
+
+`YamlWriter` dumps subset YAML meant to round-trip through `YamlReader`. Compact output uses a default line width of 80: scalar-only lists may stay on one flow line, associative maps always break to block, and multiline strings prefer double-quoted one-liners when they fit. `write()` is only a thin filesystem wrapper around `dump()`. There is no reverse-interpolation.
+
 ## Why Failures Stay Specific {#failures-specific}
 
 `YamlParseException` marks subset violations and invalid placeholder syntax.

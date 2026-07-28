@@ -1,12 +1,13 @@
 # YAML Package {#yaml-package}
 
-`switon/yaml` parses the Switon YAML subset and can resolve `${NAME}` placeholders in a second pass.
+`switon/yaml` parses and emits the Switon YAML subset, and can resolve `${NAME}` placeholders in a second pass.
 
 **Key features:**
 
 - **Strict subset** — predictable mappings, sequences, scalars, and block scalars
 - **Two-step model** — `parse()` reads YAML syntax, then `interpolate()` resolves placeholders
 - **Convenient `read()` path** — parse and interpolate in one call when you already have variables
+- **Array → YAML emit** — `YamlWriterInterface::dump()` / `write()` for config-style documents
 - **Clear parse failures** — `YamlParseException` marks invalid subset input
 
 ---
@@ -42,6 +43,34 @@ final class ConfigLoader
 
 At bootstrap edges, `new Switon\Yaml\YamlReader()` also works.
 
+### Write Config YAML {#write-config-yaml}
+
+Inject `YamlWriterInterface` when you need array → YAML without going through JSON.
+
+```php
+use Switon\Core\Attribute\Autowired;
+use Switon\Yaml\YamlWriterInterface;
+
+final class ConfigSaver
+{
+    #[Autowired] protected YamlWriterInterface $yamlWriter;
+
+    /** @param array<int|string, mixed> $data */
+    public function save(string $file, array $data): void
+    {
+        $this->yamlWriter->write($file, $data);
+    }
+
+    /** @param array<int|string, mixed> $data */
+    public function toString(array $data): string
+    {
+        return $this->yamlWriter->dump($data);
+    }
+}
+```
+
+`dump()` returns block-style subset YAML. `write()` dumps and persists via `FilesystemInterface`, adding a trailing newline when the body is non-empty.
+
 ---
 
 ## Core Concepts {#core-concepts}
@@ -51,6 +80,16 @@ At bootstrap edges, `new Switon\Yaml\YamlReader()` also works.
 - `parse()` turns YAML into a PHP array
 - `interpolate()` walks parsed string values and resolves placeholders
 - `read()` combines both steps
+
+### Dump And Write {#dump-and-write}
+
+- `dump()` turns a PHP array into Switon YAML subset text
+- `write()` dumps and writes through the filesystem
+- associative arrays always use block mappings
+- scalar-only lists use flow `[...]` when the whole line fits the width (default 80)
+- multiline strings use double-quoted escapes when they fit, otherwise literal `|` / `|-`
+- emitted documents are meant to round-trip through `YamlReaderInterface`
+- there is no reverse-interpolation step
 
 ### Subset Shape {#subset-shape}
 
@@ -86,6 +125,7 @@ Use `YamlParseException` for invalid subset input or invalid placeholder syntax.
 
 - This package is for the Switon YAML subset, not full YAML.
 - Parsing and interpolation are separate on purpose.
+- Prefer `YamlWriter` over JSON when emitting config YAML.
 - Scalar-only documents are out of scope.
 - Tabs, multi-document markers, anchors, aliases, tags, and merge keys are rejected.
 - Duplicate mapping keys are rejected.
