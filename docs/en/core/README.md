@@ -72,7 +72,7 @@ class StatusReporter
 
 ### Paths and runtime {#paths-and-runtime}
 
-- `Runtime::getRoot()` resolves the project root. It reads `SWITON_ROOT` first, then falls back to Composer's `autoload.php` location. `Runtime::setRoot()` overrides it for tests or bootstrap.
+- `Runtime::getRoot()` resolves the project root from Composer's `autoload.php` location. `Runtime::setRoot()` overrides it for tests or non-standard bootstrap.
 - `PathAliasInterface` expands `@root`, `@app`, `@runtime`, `@vendor`, `@resources`, plus aliases registered through `#[ResourceAlias]`.
 
 ### Helpers and exceptions {#helpers-and-exceptions}
