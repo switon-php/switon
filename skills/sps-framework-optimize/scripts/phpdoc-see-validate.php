@@ -17,7 +17,7 @@ declare(strict_types=1);
  *   php phpdoc-see-validate.php [--json] [--fail-on-issues] [--all] [--root=/abs/path]
  */
 
-final class PhpdocSeeValidate
+class PhpdocSeeValidate
 {
     public static function main(array $argv): int
     {
@@ -211,34 +211,67 @@ final class PhpdocSeeValidate
         return $out;
     }
 
+    /**
+     * Read the FQCN of the first class-like declaration in `$file`.
+     *
+     * Token-based so that every modifier combination resolves (`readonly`, `final readonly`,
+     * `abstract`, attributes, comments between modifier and keyword).
+     */
     protected static function extractFqcn(string $file): ?string
     {
         $code = (string)file_get_contents($file);
+        $tokens = @token_get_all($code);
+        if ($tokens === false) {
+            return null;
+        }
+
         $namespace = null;
-        $name = null;
+        $count = count($tokens);
 
-        $lines = preg_split('/\\R/', $code) ?: [];
-        $limit = min(count($lines), 450);
-
-        for ($i = 0; $i < $limit; $i++) {
-            $line = trim((string)$lines[$i]);
-            if ($namespace === null && preg_match('/^namespace\\s+([^;]+);/', $line, $m)) {
-                $namespace = trim($m[1]);
+        for ($i = 0; $i < $count; $i++) {
+            $token = $tokens[$i];
+            if (!is_array($token)) {
                 continue;
             }
-            if ($name === null && preg_match('/^(?:final\\s+|abstract\\s+)?(class|interface|trait|enum)\\s+(\\w+)/', $line, $m)) {
-                $name = $m[2];
-                break;
+
+            if ($token[0] === T_NAMESPACE) {
+                $buffer = '';
+                for ($j = $i + 1; $j < $count; $j++) {
+                    $next = $tokens[$j];
+                    if (is_string($next)) {
+                        if ($next === ';' || $next === '{') {
+                            break;
+                        }
+                        continue;
+                    }
+                    if (in_array($next[0], [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED], true)) {
+                        $buffer .= $next[1];
+                    }
+                }
+                $namespace = trim($buffer, '\\');
+                continue;
+            }
+
+            if (in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM], true)) {
+                for ($j = $i + 1; $j < $count; $j++) {
+                    $next = $tokens[$j];
+                    if (is_array($next) && $next[0] === T_WHITESPACE) {
+                        continue;
+                    }
+                    if (is_array($next) && $next[0] === T_STRING) {
+                        return $namespace !== null && $namespace !== ''
+                            ? $namespace . '\\' . $next[1]
+                            : $next[1];
+                    }
+                    break;
+                }
             }
         }
 
-        if ($namespace !== null && $name !== null) {
-            return $namespace . '\\' . $name;
-        }
         return null;
     }
 
-    /** @return iterable<string> absolute file paths */
+    /** @return iterable<string> absolute file paths (package sources only; nested vendor skipped) */
     protected static function iterPhpFiles(string $root): iterable
     {
         $it = new RecursiveIteratorIterator(
@@ -252,7 +285,11 @@ final class PhpdocSeeValidate
             if ($fi->getExtension() !== 'php') {
                 continue;
             }
-            yield $fi->getPathname();
+            $path = $fi->getPathname();
+            if (str_contains($path, '/vendor/')) {
+                continue;
+            }
+            yield $path;
         }
     }
 }
