@@ -24,15 +24,15 @@ declare(strict_types=1);
  *   ./skills/sps-framework-optimize/scripts/use-deps-tree.php --reverse --package=switon/query
  */
 
-final class UseDepsTree
+class UseDepsTree
 {
-    private const DEFAULT_PACKAGES_DIR = 'packages';
+    protected const DEFAULT_PACKAGES_DIR = 'packages';
 
     /** @var array<string, array{dir: string, composer: array<string,mixed>, name: string}> */
-    private array $packages = [];
+    protected array $packages = [];
 
     /** @var list<array{ns: string, package: string}> */
-    private array $nsMap = [];
+    protected array $nsMap = [];
 
     public function run(array $argv): int
     {
@@ -88,7 +88,7 @@ final class UseDepsTree
     /**
      * @return array{repoRoot:string,packagesDir:string,json:bool,dot:bool,reverse:bool,root:?string,package:?string,maxDepth:int,maxIn:int}
      */
-    private function parseArgs(array $argv): array
+    protected function parseArgs(array $argv): array
     {
         $repoRoot = $this->detectRepoRoot(getcwd() ?: '.');
         $packagesDir = self::DEFAULT_PACKAGES_DIR;
@@ -167,7 +167,7 @@ final class UseDepsTree
         ];
     }
 
-    private function printHelp(): void
+    protected function printHelp(): void
     {
         echo "Build internal package dependency graph from PHP use statements.\n\n";
         echo "Usage:\n";
@@ -185,7 +185,7 @@ final class UseDepsTree
         echo "  -h, --help            Show this help\n";
     }
 
-    private function detectRepoRoot(string $start): string
+    protected function detectRepoRoot(string $start): string
     {
         $dir = realpath($start) ?: $start;
         while (true) {
@@ -206,7 +206,7 @@ final class UseDepsTree
         }
     }
 
-    private function loadPackages(string $packagesDir): void
+    protected function loadPackages(string $packagesDir): void
     {
         $glob = rtrim($packagesDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '*' . DIRECTORY_SEPARATOR . 'composer.json';
         $files = glob($glob) ?: [];
@@ -233,7 +233,7 @@ final class UseDepsTree
         ksort($this->packages);
     }
 
-    private function buildNamespaceMap(): void
+    protected function buildNamespaceMap(): void
     {
         $map = [];
         foreach ($this->packages as $packageName => $info) {
@@ -259,7 +259,7 @@ final class UseDepsTree
     /**
      * @return array<string, list<string>> package => used package list
      */
-    private function buildPackageGraph(): array
+    protected function buildPackageGraph(): array
     {
         $graph = [];
 
@@ -309,7 +309,7 @@ final class UseDepsTree
      * @param array<string, list<string>> $graph
      * @return array<string, list<string>> package => incoming package list
      */
-    private function buildReverseGraph(array $graph): array
+    protected function buildReverseGraph(array $graph): array
     {
         $reverse = [];
         foreach (array_keys($this->packages) as $pkg) {
@@ -337,7 +337,7 @@ final class UseDepsTree
      *
      * @return list<string> fqcn-like tokens (may or may not have leading backslash)
      */
-    private function extractSwitonFqcnsFromUse(string $php): array
+    protected function extractSwitonFqcnsFromUse(string $php): array
     {
         $matches = [];
 
@@ -361,7 +361,7 @@ final class UseDepsTree
         return array_keys($uniq);
     }
 
-    private function ownerPackage(string $fqcn): ?string
+    protected function ownerPackage(string $fqcn): ?string
     {
         $normalized = ltrim($fqcn, '\\');
         foreach ($this->nsMap as $row) {
@@ -372,7 +372,7 @@ final class UseDepsTree
         return null;
     }
 
-    private function resolveRoot(?string $root): ?string
+    protected function resolveRoot(?string $root): ?string
     {
         if ($root === null || $root === '') {
             return null;
@@ -395,7 +395,7 @@ final class UseDepsTree
      * @param array<string, list<string>> $reverse
      * @return list<array{package:string,incoming:int,consumers:list<string>}>
      */
-    private function reverseList(array $reverse, int $maxIn, ?string $onlyPackage): array
+    protected function reverseList(array $reverse, int $maxIn, ?string $onlyPackage): array
     {
         $rows = [];
         foreach ($reverse as $pkg => $consumers) {
@@ -426,7 +426,7 @@ final class UseDepsTree
     /**
      * @param array<string, list<string>> $reverse
      */
-    private function printReverseList(array $reverse, int $maxIn, ?string $onlyPackage): void
+    protected function printReverseList(array $reverse, int $maxIn, ?string $onlyPackage): void
     {
         $rows = $this->reverseList($reverse, $maxIn, $onlyPackage);
         if ($rows === []) {
@@ -445,7 +445,7 @@ final class UseDepsTree
      * @param array<string, list<string>> $graph
      * @return array{root:string,levels:array<int,list<string>>,edges:array<string,list<string>>}
      */
-    private function buildBfsTree(array $graph, string $root, int $maxDepth): array
+    protected function buildBfsTree(array $graph, string $root, int $maxDepth): array
     {
         $seen = [$root => true];
         $levels = [0 => [$root]];
@@ -493,7 +493,7 @@ final class UseDepsTree
     /**
      * @param array{root:string,levels:array<int,list<string>>,edges:array<string,list<string>>} $tree
      */
-    private function printTree(array $tree): void
+    protected function printTree(array $tree): void
     {
         $root = $tree['root'];
         echo $root . "\n";
@@ -506,7 +506,7 @@ final class UseDepsTree
      * @param array<string, list<string>> $edges
      * @param array<string, bool> $printed
      */
-    private function printTreeNode(string $node, array $edges, array &$printed, string $prefix): void
+    protected function printTreeNode(string $node, array $edges, array &$printed, string $prefix): void
     {
         $kids = $edges[$node] ?? [];
         $count = count($kids);
@@ -529,7 +529,7 @@ final class UseDepsTree
     /**
      * @param array<string, list<string>> $graph
      */
-    private function printSummary(array $graph): void
+    protected function printSummary(array $graph): void
     {
         $totalEdges = 0;
         $maxOut = 0;
@@ -554,7 +554,7 @@ final class UseDepsTree
     /**
      * @param array<string, list<string>> $graph
      */
-    private function toDot(array $graph): string
+    protected function toDot(array $graph): string
     {
         $lines = [];
         $lines[] = 'digraph switon_deps {';

@@ -17,9 +17,9 @@ declare(strict_types=1);
  *   ./skills/sps-framework-optimize/scripts/phpdoc-see-filter.php --package=orm
  */
 
-final class PhpdocSeeFilter
+class PhpdocSeeFilter
 {
-    private const DEFAULT_PACKAGES_DIR = 'packages';
+    protected const DEFAULT_PACKAGES_DIR = 'packages';
 
     public function run(array $argv): int
     {
@@ -74,7 +74,7 @@ final class PhpdocSeeFilter
     /**
      * @return array{repoRoot:string,packagesDir:string,json:bool,min:int,package:?string}
      */
-    private function parseArgs(array $argv): array
+    protected function parseArgs(array $argv): array
     {
         $repoRoot = $this->detectRepoRoot(getcwd() ?: '.');
         $packagesDir = self::DEFAULT_PACKAGES_DIR;
@@ -126,7 +126,7 @@ final class PhpdocSeeFilter
         ];
     }
 
-    private function printHelp(): void
+    protected function printHelp(): void
     {
         echo "Scan interface class-level PHPDoc for method-level @see entries.\n\n";
         echo "Usage:\n";
@@ -140,7 +140,7 @@ final class PhpdocSeeFilter
         echo "  -h, --help           Show this help\n";
     }
 
-    private function detectRepoRoot(string $start): string
+    protected function detectRepoRoot(string $start): string
     {
         $dir = realpath($start) ?: $start;
         while (true) {
@@ -164,7 +164,7 @@ final class PhpdocSeeFilter
     /**
      * @return array<string, array{path:string,count:int,matches:list<array{line:int,text:string}>}>
      */
-    private function scanInterfaces(string $packagesDir, ?string $package): array
+    protected function scanInterfaces(string $packagesDir, ?string $package): array
     {
         $roots = [];
         if ($package !== null) {
@@ -226,7 +226,7 @@ final class PhpdocSeeFilter
     /**
      * Extract the first docblock immediately preceding the interface declaration.
      */
-    private function extractInterfaceDocblock(string $php): ?string
+    protected function extractInterfaceDocblock(string $php): ?string
     {
         $re = '/(\/\*\*[\s\S]*?\*\/)\s*(?:#[^\n]*\n\s*)*interface\s+[A-Za-z0-9_]+\b/m';
         if (!preg_match($re, $php, $m)) {
@@ -238,7 +238,7 @@ final class PhpdocSeeFilter
     /**
      * @return list<array{line:int,text:string}>
      */
-    private function findSeeMethodRefs(string $docblock): array
+    protected function findSeeMethodRefs(string $docblock): array
     {
         $out = [];
         $lines = preg_split('/\R/', $docblock) ?: [];

@@ -9,7 +9,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 
-final class DocProofSupport
+class DocProofSupport
 {
     public static function repoRoot(): string
     {
@@ -310,7 +310,7 @@ final class DocProofSupport
         }
     }
 
-    private static function collectTargetFiles(string $target): array
+    protected static function collectTargetFiles(string $target): array
     {
         if (is_file($target)) {
             return str_ends_with($target, '.md') ? [$target] : [];
@@ -341,7 +341,7 @@ final class DocProofSupport
         return $files;
     }
 
-    private static function countFencedBlocks(string $markdown, string $info): int
+    protected static function countFencedBlocks(string $markdown, string $info): int
     {
         if (!preg_match_all('/```' . preg_quote($info, '/') . '\s*\n(.*?)\n```/s', $markdown, $matches)) {
             return 0;
@@ -350,7 +350,7 @@ final class DocProofSupport
         return count($matches[1]);
     }
 
-    private static function extractCommands(string $markdown): array
+    protected static function extractCommands(string $markdown): array
     {
         $commands = [];
 
@@ -374,7 +374,7 @@ final class DocProofSupport
         return array_values(array_unique($commands));
     }
 
-    private static function extractSymbols(string $markdown): array
+    protected static function extractSymbols(string $markdown): array
     {
         $symbols = [];
 
@@ -395,7 +395,7 @@ final class DocProofSupport
         return array_values(array_unique($symbols));
     }
 
-    private static function extractLinks(string $markdown): array
+    protected static function extractLinks(string $markdown): array
     {
         if (!preg_match_all('/\[[^\]]+\]\(([^)]+)\)/', $markdown, $matches)) {
             return [];
@@ -404,7 +404,7 @@ final class DocProofSupport
         return array_values(array_unique(array_map('trim', $matches[1])));
     }
 
-    private static function extractHttpPaths(string $markdown): array
+    protected static function extractHttpPaths(string $markdown): array
     {
         $paths = [];
 
@@ -417,14 +417,14 @@ final class DocProofSupport
         return array_values(array_unique($paths));
     }
 
-    private static function mergeSamples(array $current, array $new): array
+    protected static function mergeSamples(array $current, array $new): array
     {
         $merged = array_values(array_unique(array_merge($current, $new)));
 
         return array_slice($merged, 0, 20);
     }
 
-    private static function relativePath(string $root, string $path): string
+    protected static function relativePath(string $root, string $path): string
     {
         $normalizedRoot = rtrim(str_replace('\\', '/', $root), '/');
         $normalizedPath = str_replace('\\', '/', $path);
