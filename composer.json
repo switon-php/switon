@@ -57,9 +57,19 @@
     "switon/storage": "^1.0",
     "switon/openapi": "^1.0",
     "switon/dict": "^1.0",
+    "switon/cache": "^1.0",
+    "switon/console": "^1.0",
+    "switon/executor": "^1.0",
+    "switon/http-cache": "^1.0",
+    "switon/http-client": "^1.0",
+    "switon/invocation": "^1.0",
+    "switon/queue": "^1.0",
+    "switon/rpc": "^1.0",
+    "switon/view": "^1.0",
     "ext-zlib": "*",
     "ext-sockets": "*",
-    "ext-fileinfo": "*"
+    "ext-fileinfo": "*",
+    "ext-curl": "*"
   },
   "require-dev": {
     "composer/composer": "^2.0",
