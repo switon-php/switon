@@ -11,7 +11,7 @@ Only when you use Core contracts or helpers explicitly. Most Switon stacks pull 
 
 ### How do I find the project root? {#project-root}
 
-Call `Switon\Core\Runtime::getRoot()`. It reads `SWITON_ROOT` first, then falls back to Composer's `autoload.php` location. `Runtime::setRoot()` overrides it for tests or bootstrap.
+Call `Switon\Core\Runtime::getRoot()`. It derives the root from Composer's `autoload.php` location. `Runtime::setRoot()` overrides it for tests or non-standard bootstrap.
 
 ## Contracts {#contracts}
 

@@ -21,7 +21,7 @@ Core 契約やヘルパーを直接使うときだけ。多くのスタックは
 
 ### プロジェクトルートの見つけ方は？ {#project-root}
 
-`Runtime::getRoot()`。まず `SWITON_ROOT` を見て、なければ Composer の `autoload.php` 位置にフォールバック。テストやブートストラップでは `Runtime::setRoot()` で上書き可能。[パス](README.md#paths) を参照。
+`Runtime::getRoot()`。Composer の `autoload.php` 位置からプロジェクトルートを推定します。テストや非標準のブートストラップでは `Runtime::setRoot()` で上書き可能。[パス](README.md#paths) を参照。
 
 ## 契約 {#contracts}
 
