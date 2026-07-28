@@ -10,7 +10,7 @@ description: switon/console：进度条、终端宽度、ANSI Colors 等终端�
 **关键特性：**
 
 - **进度条：** `Switon\Console\ProgressBarInterface`（默认实现 `Switon\Console\ProgressBar`）自动启动，把进度限制在配置上限内，并渲染已用与剩余时间。
-- **宽度检测：** `Switon\Console\TerminalWidthDetectorInterface` 缓存当前终端宽度，Unix 与 Windows 各有一套回退探测命令。
+- **宽度检测：** 终端宽度取自 `COLUMNS` 环境变量，由各渲染层自行读取，不做 shell 探测。
 - **ANSI 样式标志：** `Switon\Console\Colors` 提供前景、背景与文本属性的位掩码常量。
 - **小契约：** 进度与宽度接口保持精简，便于替换实现而不改调用点。
 
@@ -72,12 +72,11 @@ class ImportUsers
 
 ### 终端宽度 {#terminal-width}
 
-`TerminalWidthDetector` 返回缓存宽度，仅在 `clearCache()` 后刷新。
+宽度取自 `COLUMNS` 环境变量（交互式 shell 会导出）。各渲染层读取一次并缓存结果；没有 shell 探测，也没有共享的 detector 服务。
 
-- 先读 `$_ENV['COLUMNS']`。
-- Unix 回退：`stty size`，再 `tput cols`。
-- Windows 回退：`mode con`，再 PowerShell。
-- 低于支持下限（`20`）的值会被抬到该下限。
+- `COLUMNS` 未设置或非数字时回退到 `120` 列。
+- 低于 `20` 视为不可用，回退到默认值。
+- 非交互运行时可显式设置环境变量（或 `putenv('COLUMNS=120')`）来固定宽度。
 
 ### ANSI 颜色 {#ansi-colors}
 
@@ -86,7 +85,7 @@ class ImportUsers
 ## 使用注意 {#keep-in-mind}
 
 - `ProgressBar` 面向单次联机终端流程。多个并发任务共用一个实例会导致输出交错。
-- `TerminalWidthDetector` 有意缓存；长期进程若处理窗口缩放，应在响应相关信号时调用 `clearCache()`。
+- 宽度读自 `COLUMNS`，终端缩放后进程不重新读取该变量就会保持启动时的宽度。
 - `Colors` 是位掩码，不是命名主题；需要命名样式时在应用里建预设。
 
 ## 下一步 {#next}

@@ -4,9 +4,9 @@
 **Key features:**
 
 - **Progress bars:** `Switon\Console\ProgressBarInterface` (default impl `Switon\Console\ProgressBar`) auto-starts, clamps progress to the configured max, and renders elapsed and remaining time.
-- **Width detection:** `Switon\Console\TerminalWidthDetectorInterface` caches the current terminal width and falls back through Unix and Windows discovery commands.
+- **Width detection:** terminal width comes from the `COLUMNS` environment variable, read at each consuming layer; no shell probing.
 - **ANSI style flags:** `Switon\Console\Colors` provides bitmask constants for foreground, background, and text attributes.
-- **Small contracts:** progress and width interfaces stay narrow so apps can swap implementations without touching call sites.
+- **Small contract:** `ProgressBarInterface` stays narrow so apps can swap implementations without touching call sites.
 
 ## Installation {#installation}
 
@@ -66,12 +66,11 @@ class ImportUsers
 
 ### Terminal width {#terminal-width}
 
-`TerminalWidthDetector` returns a cached width value and refreshes only after `clearCache()`.
+Width is taken from the `COLUMNS` environment variable, which interactive shells export. Each rendering layer reads it once and caches the result; there is no shell probing and no shared detector service.
 
-- Reads `$_ENV['COLUMNS']` first.
-- On Unix, falls back to `stty size` and then `tput cols`.
-- On Windows, falls back to `mode con` and then PowerShell.
-- Values below the supported minimum (`20`) are raised to that minimum.
+- Unset or non-numeric `COLUMNS` falls back to `120` columns.
+- Values below `20` are treated as unusable and fall back to the default.
+- Set `COLUMNS` in the environment (or call `putenv('COLUMNS=120')`) to pin the width when running non-interactively.
 
 ### ANSI colors {#ansi-colors}
 
@@ -80,7 +79,7 @@ class ImportUsers
 ## Keep in Mind {#keep-in-mind}
 
 - `ProgressBar` is meant for one live terminal flow. Sharing one instance across concurrent tasks produces interleaved output.
-- `TerminalWidthDetector` caches by design; long-lived processes that handle resize signals should call `clearCache()`.
+- Width is read from `COLUMNS`, so a resized terminal keeps its startup width unless the process re-reads the variable.
 - `Colors` are bitmasks, not named themes; build presets in your app if you need named styles.
 
 ## Next {#next}

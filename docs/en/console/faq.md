@@ -21,7 +21,7 @@ No. It ships primitives only. `switon/cli` wires the interfaces for command auth
 
 ### Why does terminal width stay the same? {#width-cache}
 
-`TerminalWidthDetector` caches the first usable width. Long-lived processes that survive a terminal resize should call `clearCache()` when they react to `SIGWINCH`.
+Width is read from `COLUMNS` and cached by the consuming layer. A resized terminal keeps the startup width unless the process re-reads the variable; set `COLUMNS` explicitly when you need a fixed width.
 
 ### Why does the progress bar jump to the end? {#bar-jumps}
 
