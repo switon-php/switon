@@ -27,7 +27,7 @@ description: Console：进度条、着色、绑定与宽度缓存。
 
 ### 为什么终端宽度不变？ {#width-cache}
 
-`TerminalWidthDetector` 缓存第一次可用的宽度。长期进程若在终端缩放后仍要正确换行，应在响应 `SIGWINCH` 等时机调用 `clearCache()`。
+宽度读自 `COLUMNS`，由消费层缓存。终端缩放后，进程不重新读取该变量就会保持启动时的宽度；需要固定宽度时显式设置 `COLUMNS`。
 
 ### 为什么进度条一下子到头？ {#bar-jumps}
 

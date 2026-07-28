@@ -26,7 +26,7 @@ Expose small reusable primitives instead of a full terminal toolkit.
 Three independent primitives, each owning one concern.
 
 - `ProgressBar` owns rendering state and timing hints; auto-start keeps call sites short.
-- `TerminalWidthDetector` owns width lookup with a small cache; fallbacks cover the common shells.
+- Width comes from the `COLUMNS` environment variable and is read by the layer that renders, so no detector service is shared.
 - `Colors` owns ANSI bitmask constants and stays a constants-only class.
 
 That separation keeps each primitive easy to use directly and easy to replace when an app already has its own terminal layer.
