@@ -27,7 +27,7 @@ final class InlineAutowiredAttributeFixer extends AbstractFixer
     }
 
     /**
-     * Merge multiline {@code #[Autowired]} onto the property line before {@code single_space_around_construct}.
+     * Merge multiline `#[Autowired]` onto the property line before `single_space_around_construct`.
      */
     public function getPriority(): int
     {
