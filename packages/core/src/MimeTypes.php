@@ -14,7 +14,7 @@ use function strstr;
  */
 class MimeTypes
 {
-    /** @param string $name Path or URL (e.g. {@code https://…/a.png?x=1}); uses the extension only. */
+    /** @param string $name Path or URL (e.g. `https://…/a.png?x=1`); uses the extension only. */
     public static function guess(string $name): ?string
     {
         if (str_contains($name, '?')) {
