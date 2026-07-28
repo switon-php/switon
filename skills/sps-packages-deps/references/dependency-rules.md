@@ -50,7 +50,7 @@ Use: when you see `use Switon\Logging\...` → add or check `switon/log` in requ
 - **Wrong:** Forgetting that `extends` / `implements` and type hints also create a dependency (e.g. implementing `Switon\Core\SomeInterface` requires `switon/core`).
 - **Wrong:** Putting a package used in `src/` only in `require-dev` — it must be in `require`.
 - **Wrong:** Declaring `ext-*` that the package does not use, or omitting an extension the package actually uses (e.g. Redis client needs `ext-redis` if used at runtime).
-- **Wrong:** Adding `ext-swoole` to require. Swoole is **optional**; code that uses Swoole (e.g. `Backtrace`, coroutine helpers) must work only when the extension is present (runtime check). Do not list `ext-swoole` in any package's `require`.
+- **Wrong:** Adding `ext-swoole` to require for packages that only *optionally* touch Swoole (e.g. `Backtrace`, coroutine helpers) — those must keep a runtime check and omit `ext-swoole` from `require`.
 
 ---
 
