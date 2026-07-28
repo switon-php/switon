@@ -6,7 +6,7 @@ description: GitHub-facing guide to the English Switon docs tree.
 
 This directory is the English documentation source for Switon.
 
-For the website homepage, open [index.md](index.md#a-first-look).
+For the website homepage, open [index.md](index.md).
 For the published docs experience, start from the site home rather than this repository view.
 
 This page is only a repo-facing pointer map. Use one route below, then leave this page.
@@ -23,7 +23,7 @@ This page is only a repo-facing pointer map. Use one route below, then leave thi
 
 ## Start here {#start-here}
 
-- **To see the actual website homepage source:** [index.md](index.md#a-first-look)
+- **To see the actual website homepage source:** [index.md](index.md)
 - **To begin the normal first-user path:** [Getting started](getting-started/README.md#getting-started)
 - **To understand what `Switon` is trying to standardize:** [Concepts](concepts/README.md#switon-fundamentals)
 - **To compare the differentiating framework patterns:** [Highlights](highlights/README.md#switon-highlights)

@@ -19,7 +19,7 @@ description: Core：直装、项目根、App/Scene/Context、路径别名、Comm
 
 ### 怎么取项目根目录？ {#project-root}
 
-用 `Runtime::getRoot()`：先看环境变量 `SWITON_ROOT`，否则回退到 Composer `autoload.php` 所在推断。测试或引导里可用 `Runtime::setRoot()` 覆盖。见 [路径与运行时](README.md#paths-and-runtime)。
+用 `Runtime::getRoot()`：从 Composer `autoload.php` 所在位置推断项目根。测试或非标准引导里可用 `Runtime::setRoot()` 覆盖。见 [路径与运行时](README.md#paths-and-runtime)。
 
 ## 契约 {#contracts}
 

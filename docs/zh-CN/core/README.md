@@ -86,7 +86,7 @@ class StatusReporter
 
 ### 路径与运行时 {#paths-and-runtime}
 
-- `Runtime::getRoot()` 解析项目根：先看 `SWITON_ROOT`，否则回退到 Composer `autoload.php` 位置。测试或引导里可用 `Runtime::setRoot()` 覆盖。
+- `Runtime::getRoot()` 从 Composer `autoload.php` 位置解析项目根。测试或非标准引导里可用 `Runtime::setRoot()` 覆盖。
 - `PathAliasInterface` 展开 `@root`、`@app`、`@runtime`、`@vendor`、`@resources` 以及通过 `#[ResourceAlias]` 注册的别名。
 
 ### 辅助类与异常 {#helpers-and-exceptions}
