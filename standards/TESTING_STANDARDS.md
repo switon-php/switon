@@ -4,16 +4,16 @@ Test quality only. Scaffolding: `TEST_SETUP.md`.
 
 ## Why
 
-- Tests should survive refactors; coupling to private state or internals creates false confidence and blocks legitimate renames.
+- Tests should survive refactors; coupling to internal state or implementation details creates false confidence and blocks legitimate renames.
 - A bad test is worse than a missing test when it encodes storage layout instead of behavior.
 - Packages split to standalone repos — run tests the same way in monorepo and split checkout (`bash tests/run.sh`).
 
 ## Behavior
 
-- Test public, user-visible behavior — not private state or implementation trivia.
+- Test public, user-visible behavior — not internal state or implementation trivia.
 - One behavior per test; AAA; independent; no conditional assertions; no shared order-dependent state.
 - Name by behavior + condition: `test{Behavior}With{Condition}()`, `test{Behavior}ThrowsExceptionFor{Condition}()`.
-- Avoid names tied to private methods or storage (`testGetLazyTypeNameWithTwoTypes()`).
+- Avoid names tied to internal methods or storage (`testGetLazyTypeNameWithTwoTypes()`).
 
 **Prioritize:** public API, exceptions, boundaries, cross-component interactions, `ContextAware` state.
 
@@ -24,7 +24,7 @@ Test quality only. Scaffolding: `TEST_SETUP.md`.
 - `make()` for DI-aware instances; register/replace services before `make()`.
 - `remove()` before replacing a resolved service.
 - `make($class, $params)` may supply constructor args and `#[Autowired]` properties.
-- No Reflection to inject dependencies or assert private/protected fields.
+- No Reflection to inject dependencies or assert protected fields.
 - Protected behavior: public API first; small test subclass second; Reflection only for rare isolation cleanup.
 
 ## Doubles
