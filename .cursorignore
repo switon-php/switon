@@ -1,8 +1,33 @@
+# IDE / tooling
 /.github
 /.idea
 /.vscode
+/.codebuddy
+/.cursor
+
+# Legacy / unused apps
 /app-api
 /app-cli
 /app-user
 /app-ws
 /build
+
+# Heavy deps & generated (biggest retrieval win)
+**/node_modules/
+**/vendor/
+**/runtime/
+**/@runtime/
+**/dist/
+**/coverage/
+**/.cache/
+**/.phpstan.cache/
+**/.vitepress/cache/
+**/.vitepress/dist/
+**/.vitepress/.temp/
+**/.venv*/
+**/.phpunit.result.cache
+
+# Large sibling apps (source rarely needed while working switon core)
+/arcus/
+/app-admin/vendor/
+/framework/vendor/
