@@ -56,6 +56,11 @@
   "extra": {
     "branch-alias": {
       "dev-dev": "1.0.x-dev"
+    },
+    "switon": {
+      "providers": [
+        "Switon\\Mcp\\ServiceProvider"
+      ]
     }
   }
 }
