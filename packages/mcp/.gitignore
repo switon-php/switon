@@ -1,0 +1,7 @@
+/vendor
+/composer.lock
+/runtime
+/tests/.phpunit.cache
+/tests/.phpstan.cache
+/tests/coverage
+.DS_Store

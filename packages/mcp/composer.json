@@ -1,0 +1,61 @@
+{
+  "name": "switon/mcp",
+  "description": "Model Context Protocol tool catalog for Switon Framework",
+  "type": "library",
+  "keywords": [
+    "switon",
+    "mcp",
+    "model-context-protocol",
+    "tools"
+  ],
+  "homepage": "https://github.com/switon-php/mcp",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "switon",
+      "email": "admin@switon.dev"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/switon-php/mcp",
+    "issues": "https://github.com/switon-php/mcp/issues"
+  },
+  "require": {
+    "php": ">=8.3",
+    "psr/log": "^2.0",
+    "psr/event-dispatcher": "^1.0",
+    "switon/core": "^1.0",
+    "switon/event": "^1.0"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.0",
+    "switon/testing": "^1.0",
+    "phpstan/extension-installer": "^1.4"
+  },
+  "config": {
+    "allow-plugins": {
+      "switon/composer-extra": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Switon\\Mcp\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Switon\\Mcp\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "phpstan": "@php vendor/bin/phpstan analyse",
+    "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+    "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-dev": "1.0.x-dev"
+    }
+  }
+}
