@@ -31,7 +31,8 @@
   "require-dev": {
     "phpstan/phpstan": "^2.0",
     "switon/testing": "^1.0",
-    "phpstan/extension-installer": "^1.4"
+    "phpstan/extension-installer": "^1.4",
+    "switon/http": "^1.0"
   },
   "config": {
     "allow-plugins": {
@@ -66,5 +67,8 @@
         "Switon\\Mcp\\Command\\McpCommand"
       ]
     }
+  },
+  "suggest": {
+    "switon/http": "Streamable HTTP via HttpTransport; wire your own controller to POST /mcp (or any path)"
   }
 }
