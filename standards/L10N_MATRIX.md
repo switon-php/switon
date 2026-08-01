@@ -1,5 +1,7 @@
 # Switon Global L10N Matrix (The "Ubiquity" Strategy)
 
+**Status:** published framework docs are **English-only**. The `docs/zh-CN` and `docs/ja-JP` trees are removed; do not recreate locale trees under `docs/`. This matrix remains a product/UI localization reference, not a docs-site locale plan.
+
 ## 准入基准 (Criteria)
 1. **Google SEO 有效性**：Google 搜索引擎与翻译原生支持（确保有充足的网民基数和搜索索引价值）。
 2. **AI 质量兜底**：大语言模型（AI）具备该语种的中高级语法能力，结合 `SKILL.md` 的“混合翻译（Code-switching）”规则，可实现**零人工 Review** 的高质量技术文档输出。
@@ -11,7 +13,7 @@
 
 | 地区 | 语种名称 | 代码 | Google支持 | AI擅长度 | 战略定位 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **全球大语言** | 英语, 西班牙语, 法语, 德语, 巴西葡萄牙语, 俄语, 日语, 繁/简中文, 阿拉伯语 | `en, es, fr, de, pt-BR, ru, ja, zh, ar` | ✅ | 极高 | 框架基本盘 |
+| **全球大语言** | 英语, 西班牙语, 法语, 德语, 巴西葡萄牙语, 俄语, 阿拉伯语（文档站点仅英文；日/中文本文档树已删除） | `en, es, fr, de, pt-BR, ru, ar` | ✅ | 极高 | 框架基本盘 |
 | **欧洲/巴尔干** | 保加利亚语, 塞尔维亚语, 捷克语, 克罗地亚语, 阿尔巴尼亚语, 斯洛伐克语, 波兰语, 罗马尼亚语, 乌克兰语 | `bg, sr, cs, hr, sq, sk, pl, ro, uk` | ✅ | 极高 | 欧洲近岸外包接单工厂 |
 | **高加索/中东** | 希伯来语, 土耳其语, 亚美尼亚语, 格鲁吉亚语, 阿塞拜疆语, 波斯语 | `he, tr, hy, ka, az, fa` | ✅ | 极高 | 创投圣地与游民外包据点 |
 | **中亚/南亚** | 哈萨克语, 乌兹别克语, 印地语 | `kk, uz, hi` | ✅ | 高 | 俄语区外包承接与南亚大盘 |

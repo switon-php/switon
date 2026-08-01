@@ -75,7 +75,7 @@ final class ArticleController
 }
 ```
 
-Docs: https://docs.switon.dev/latest/binding
+Docs: https://github.com/switon-php/binding/blob/main/docs/README.md
 
 ## License
 

@@ -5,7 +5,7 @@
 
 - [I18n Package](README.md) — usage, configuration, and common pitfalls
 - [FAQ](faq.md#i18n-faq) — common questions and troubleshooting
-- [HTTP Package](../../http/docs/README.md) — request-side locale input
+- [HTTP Package](https://github.com/switon-php/http/blob/main/docs/README.md) — request-side locale input
 
 ---
 

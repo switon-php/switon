@@ -95,7 +95,7 @@ Switon\Db\ClientInterface:
 
 - **To map entities and keys:** [Entity Guide](entity.md#entity)
 - **To understand repository persistence:** [ORM Package](README.md)
-- **To compare shard rules with the lower-level package:** [Sharding package](../../sharding/docs/README.md)
-- **To check cross-shard query routing:** [Query package](../../query/docs/README.md)
+- **To compare shard rules with the lower-level package:** [Sharding package](https://github.com/switon-php/sharding/blob/main/docs/README.md)
+- **To check cross-shard query routing:** [Query package](https://github.com/switon-php/query/blob/main/docs/README.md)
 - **To inspect common questions:** [FAQ](faq.md#orm-faq)
 - **To review trade-offs:** [Design Rationale](design.md#design-rationale)

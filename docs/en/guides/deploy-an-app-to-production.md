@@ -9,13 +9,13 @@ Start with the boundary that actually changes between local work and production 
 
 | Boundary | Best when | Keep in mind |
 |---|---|---|
-| [Kernel](../../packages/kernel/docs/README.md) | the real problem is where env, YAML, and app metadata come from | system env wins over `.env.local` and `.env`; `switon.yml` stays the primary config surface |
-| [HTTP Server](../../packages/http/docs/server.md#server-deployment) | you must choose the HTTP adapter, proxy shape, and restart policy | `type: php` is development-only; `swoole` and `fpm` are the production choices |
-| [Storage](../../packages/storage/docs/README.md) | uploads, generated files, or blobs must survive deploys or cleanup | `@runtime` is fine for runtime-owned files, not for durable user data |
-| [Redis](../../packages/redis/docs/README.md) | queues, locks, cache, or session traffic now need real backing-service policy | one shared client is enough first; split named clients only when workloads truly differ |
-| [Schedule](../../packages/schedule/docs/README.md) | recurring work exists and now must run reliably in production | the HTTP server does **not** start scheduled work for you |
-| [Queue](../../packages/queue/docs/README.md) / [RPC](../../packages/rpc/docs/README.md) | background or request/reply workers must run outside the request lifecycle | keep worker loops as separate operator-managed processes |
-| [Log](../../packages/log/docs/README.md) / [Inspector](../../packages/inspector/docs/README.md) | you need production signal without leaving development debugging turned on | keep one stable log target first; use Inspector only for controlled debugging |
+| [Kernel](https://github.com/switon-php/kernel/blob/main/docs/README.md) | the real problem is where env, YAML, and app metadata come from | system env wins over `.env.local` and `.env`; `switon.yml` stays the primary config surface |
+| [HTTP Server](https://github.com/switon-php/http/blob/main/docs/server.md#server-deployment) | you must choose the HTTP adapter, proxy shape, and restart policy | `type: php` is development-only; `swoole` and `fpm` are the production choices |
+| [Storage](https://github.com/switon-php/storage/blob/main/docs/README.md) | uploads, generated files, or blobs must survive deploys or cleanup | `@runtime` is fine for runtime-owned files, not for durable user data |
+| [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) | queues, locks, cache, or session traffic now need real backing-service policy | one shared client is enough first; split named clients only when workloads truly differ |
+| [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md) | recurring work exists and now must run reliably in production | the HTTP server does **not** start scheduled work for you |
+| [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) / [RPC](https://github.com/switon-php/rpc/blob/main/docs/README.md) | background or request/reply workers must run outside the request lifecycle | keep worker loops as separate operator-managed processes |
+| [Log](https://github.com/switon-php/log/blob/main/docs/README.md) / [Inspector](https://github.com/switon-php/inspector/blob/main/docs/README.md) | you need production signal without leaving development debugging turned on | keep one stable log target first; use Inspector only for controlled debugging |
 
 Common shape: **Kernel** for config, **HTTP** for requests, **Storage** for durable files, **Redis** for shared backing services, separate **Schedule/Queue/RPC** processes, and **Log** as the first operational signal.
 
@@ -63,7 +63,7 @@ Switon\Http\ServerOptions:
 
 Use `type: fpm` instead when your deployment is built around PHP-FPM.
 The `swoole` block above is one concrete production example, not a required default for every app.
-If you run Swoole behind Nginx, reuse the proxy boundary from [Server & Deployment — Nginx Reverse Proxy](../../packages/http/docs/server.md#nginx) instead of inventing a parallel HTTP shape.
+If you run Swoole behind Nginx, reuse the proxy boundary from [Server & Deployment — Nginx Reverse Proxy](https://github.com/switon-php/http/blob/main/docs/server.md#nginx) instead of inventing a parallel HTTP shape.
 
 ### Keep durable files and Redis clients explicit {#wiring-storage-redis}
 
@@ -114,7 +114,7 @@ Start long-lived processes only when the app actually uses them:
 bash bin/console rpc:daemon
 ```
 
-If your project does not provide `bin/console`, use the fallback entry shape from [CLI Quick Start](../../packages/cli/docs/README.md#fallback-entry).
+If your project does not provide `bin/console`, use the fallback entry shape from [CLI Quick Start](https://github.com/switon-php/cli/blob/main/docs/README.md#fallback-entry).
 For queue workers, keep your chosen consumer loop on the same principle: run it as its own operator-managed process instead of assuming the HTTP runtime will start it.
 
 ## What to avoid first {#pitfalls}
@@ -132,11 +132,11 @@ For queue workers, keep your chosen consumer loop on the same principle: run it 
 
 - **To finish the first JSON request path before go-live detail matters:** [Build an API](build-an-api.md#build-an-api)
 - **To finish the first controller-to-template page path before go-live detail matters:** [Build HTML pages](build-html-pages.md#build-html-pages)
-- **To go deeper on env loading, config merge rules, and app metadata:** [Kernel](../../packages/kernel/docs/README.md) · [Core Package](../../packages/core/docs/README.md#app-metadata-vs-scene)
-- **To choose reverse proxy, adapter tuning, and restart policy in detail:** [HTTP](../../packages/http/docs/README.md) · [Server & Deployment](../../packages/http/docs/server.md#server-deployment)
-- **To keep recurring work in its own production scheduler path:** [Add recurring work](add-recurring-work.md#add-recurring-work) · [Schedule](../../packages/schedule/docs/README.md)
-- **To operate durable background workers and transport boundaries:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](../../packages/queue/docs/README.md)
-- **To run request/reply workers as a separate daemon path:** [Add queue-backed request/reply](add-queue-backed-request-reply.md#add-queue-backed-request-reply) · [RPC](../../packages/rpc/docs/README.md)
-- **To keep uploads and generated files on the right lifecycle path:** [Storage](../../packages/storage/docs/README.md)
-- **To tune shared clients, pooling, and queue-specific Redis traffic:** [Redis](../../packages/redis/docs/README.md)
-- **To choose a safer production log baseline and controlled debugging posture:** [Log](../../packages/log/docs/README.md) · [Inspector](../../packages/inspector/docs/README.md)
+- **To go deeper on env loading, config merge rules, and app metadata:** [Kernel](https://github.com/switon-php/kernel/blob/main/docs/README.md) · [Core Package](https://github.com/switon-php/core/blob/main/docs/README.md#app-metadata-vs-scene)
+- **To choose reverse proxy, adapter tuning, and restart policy in detail:** [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md) · [Server & Deployment](https://github.com/switon-php/http/blob/main/docs/server.md#server-deployment)
+- **To keep recurring work in its own production scheduler path:** [Add recurring work](add-recurring-work.md#add-recurring-work) · [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md)
+- **To operate durable background workers and transport boundaries:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md)
+- **To run request/reply workers as a separate daemon path:** [Add queue-backed request/reply](add-queue-backed-request-reply.md#add-queue-backed-request-reply) · [RPC](https://github.com/switon-php/rpc/blob/main/docs/README.md)
+- **To keep uploads and generated files on the right lifecycle path:** [Storage](https://github.com/switon-php/storage/blob/main/docs/README.md)
+- **To tune shared clients, pooling, and queue-specific Redis traffic:** [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md)
+- **To choose a safer production log baseline and controlled debugging posture:** [Log](https://github.com/switon-php/log/blob/main/docs/README.md) · [Inspector](https://github.com/switon-php/inspector/blob/main/docs/README.md)

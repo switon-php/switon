@@ -93,7 +93,7 @@ Discovery returns a cached name-to-class map and nothing else.
 
 ## Next {#next}
 
-- **To run command classes:** [CLI Package](../../cli/docs/README.md)
-- **To expose actions as AI tools:** [Beacon Package](../../beacon/docs/README.md)
+- **To run command classes:** [CLI Package](https://github.com/switon-php/cli/blob/main/docs/README.md)
+- **To expose actions as AI tools:** [Beacon Package](https://github.com/switon-php/beacon/blob/main/docs/README.md)
 - **For common questions:** [FAQ](faq.md#command-faq)
 - **For trade-offs and rationale:** [Design Rationale](design.md#design-rationale)

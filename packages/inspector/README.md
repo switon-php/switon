@@ -26,7 +26,7 @@ curl -i http://<host>:<port>/api/users
 
 Open the returned `X-Inspector-Link` URL to inspect the captured request.
 
-Docs: https://docs.switon.dev/latest/inspector
+Docs: https://github.com/switon-php/inspector/blob/main/docs/README.md
 
 ## License
 

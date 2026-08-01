@@ -73,7 +73,7 @@ Binding uses the repository `fill()` path, so fillable rules and type hydration 
 For normal request writes, pass the entity directly or use an array when that is more convenient.
 
 See
-also: [Sharding Guide](sharding.md#sharding-guide) · [Validation attributes](#validation) · [ORM Codegen](../../orm-codegen/docs/README.md)
+also: [Sharding Guide](sharding.md#sharding-guide) · [Validation attributes](#validation) · [ORM Codegen](https://github.com/switon-php/orm-codegen/blob/main/docs/README.md)
 
 ---
 
@@ -261,7 +261,7 @@ class User extends Entity
 
 ## Validation Attributes {#validation}
 
-These are the entity-level validation attributes in ORM. The [Validation Package](../../validation/docs/README.md) provides
+These are the entity-level validation attributes in ORM. The [Validation Package](https://github.com/switon-php/validation/blob/main/docs/README.md) provides
 additional rules and extensions.
 
 ### `#[Unique]` {#unique}
@@ -335,9 +335,9 @@ class Order extends Entity
 - [ORM Package](README.md) — first path, repository API, filters, and boundaries
 - [Sharding Guide](sharding.md#sharding-guide) — shard expressions on `#[Connection]` / `#[Table]`
 - [Validation attributes](entity.md#validation) — validation rules on entities
-- [Sharding package](../../sharding/docs/README.md) — rule grammar, manager API, join validation
-- [Query package](../../query/docs/README.md) — repository filter grammar
-- [DB package](../../db/docs/README.md) — clients and transaction pinning
-- [ID package](../../id/docs/README.md) — generator behavior and requirements
+- [Sharding package](https://github.com/switon-php/sharding/blob/main/docs/README.md) — rule grammar, manager API, join validation
+- [Query package](https://github.com/switon-php/query/blob/main/docs/README.md) — repository filter grammar
+- [DB package](https://github.com/switon-php/db/blob/main/docs/README.md) — clients and transaction pinning
+- [ID package](https://github.com/switon-php/id/blob/main/docs/README.md) — generator behavior and requirements
 - [FAQ](faq.md#orm-faq) — common questions and troubleshooting
 - [Design Rationale](design.md#design-rationale) — ORM architecture and trade-offs

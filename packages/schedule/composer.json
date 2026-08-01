@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/schedule",
         "issues": "https://github.com/switon-php/schedule/issues",
-        "docs": "https://docs.switon.dev/latest/schedule"
+        "docs": "https://github.com/switon-php/schedule/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

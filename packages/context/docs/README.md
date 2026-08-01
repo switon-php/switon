@@ -118,7 +118,7 @@ There is no `switon.yml` block for this package.
 
 ## Next {#next}
 
-- **To compare Context with request attributes:** [HTTP Request](../../http/docs/request.md#request)
+- **To compare Context with request attributes:** [HTTP Request](https://github.com/switon-php/http/blob/main/docs/request.md#request)
 - **To understand propagation and isolation details:** [Design Rationale](design.md#design-rationale)
 - **To answer common adoption questions:** [FAQ](faq.md#context-faq)
 - **Implementation walkthrough (coroutine storage evolution):** [Context internals](internals/README.md)

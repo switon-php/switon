@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/rpc",
         "issues": "https://github.com/switon-php/rpc/issues",
-        "docs": "https://docs.switon.dev/latest/rpc"
+        "docs": "https://github.com/switon-php/rpc/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

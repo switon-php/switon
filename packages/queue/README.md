@@ -53,7 +53,7 @@ class SendWelcomeEmail implements RunnerInterface
 }
 ```
 
-Docs: https://docs.switon.dev/latest/queue
+Docs: https://github.com/switon-php/queue/blob/main/docs/README.md
 
 ## License
 

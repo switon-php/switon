@@ -5,7 +5,7 @@
 
 - [Console Package](README.md) — public contract and quick start
 - [FAQ](faq.md#console-faq) — common setup and behavior questions
-- [CLI Package](../../cli/docs/README.md) — the command surface that consumes these primitives
+- [CLI Package](https://github.com/switon-php/cli/blob/main/docs/README.md) — the command surface that consumes these primitives
 
 ---
 

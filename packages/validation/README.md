@@ -43,7 +43,7 @@ final class UserService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/validation
+Docs: https://github.com/switon-php/validation/blob/main/docs/README.md
 
 ## License
 

@@ -8,10 +8,10 @@ Start with the boundary that matches the real integration problem.
 
 | Boundary | Best when | Keep in mind |
 |---|---|---|
-| [HTTP Client](../../packages/http-client/docs/README.md) | one application service can call one upstream directly and the caller can wait for the result | strongest default for the first JSON API integration; typed exceptions already model status and transport failures |
-| [Factory](../../packages/di/docs/factory.md#factory) | different upstreams need different default timeout, pool, proxy, or TLS settings | keep the application service boundary the same; only the client selection changes |
-| [Queue](../../packages/queue/docs/README.md) | user-facing latency, retry needs, or process separation matter more than immediate completion | keep the same application gateway and move only the producer-to-worker handoff |
-| [Log](../../packages/log/docs/README.md) | the call already works and the next problem is visibility into timeout, upstream status, or failure trends | logging and metrics should observe the seam, not replace its failure policy |
+| [HTTP Client](https://github.com/switon-php/http-client/blob/main/docs/README.md) | one application service can call one upstream directly and the caller can wait for the result | strongest default for the first JSON API integration; typed exceptions already model status and transport failures |
+| [Factory](https://github.com/switon-php/di/blob/main/docs/factory.md#factory) | different upstreams need different default timeout, pool, proxy, or TLS settings | keep the application service boundary the same; only the client selection changes |
+| [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) | user-facing latency, retry needs, or process separation matter more than immediate completion | keep the same application gateway and move only the producer-to-worker handoff |
+| [Log](https://github.com/switon-php/log/blob/main/docs/README.md) | the call already works and the next problem is visibility into timeout, upstream status, or failure trends | logging and metrics should observe the seam, not replace its failure policy |
 
 One common application shape is:
 
@@ -182,7 +182,7 @@ Switon\HttpClient\HttpClientInterface:
 ```
 
 Add `proxy` or `cafile` only when the network boundary actually needs them.
-For the full option surface, use [HTTP Client configuration discovery](../../packages/http-client/docs/README.md#option-discovery).
+For the full option surface, use [HTTP Client configuration discovery](https://github.com/switon-php/http-client/blob/main/docs/README.md#option-discovery).
 
 ### Use `request()` only when the upstream contract is not the normal JSON path {#wiring-raw-request}
 
@@ -255,10 +255,10 @@ A beginner should feel this after finishing the first upstream-integration path:
 
 ## Go deeper {#go-deeper}
 
-- **To go deeper on request modes, typed exceptions, uploads, and pooling:** [HTTP Client](../../packages/http-client/docs/README.md)
-- **To split multiple upstreams by config instead of hard-coded transport policy:** [Factory](../../packages/di/docs/factory.md#factory) · [DI](../../packages/di/docs/README.md)
-- **To move slow or retry-sensitive upstream work out of the request path:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](../../packages/queue/docs/README.md)
+- **To go deeper on request modes, typed exceptions, uploads, and pooling:** [HTTP Client](https://github.com/switon-php/http-client/blob/main/docs/README.md)
+- **To split multiple upstreams by config instead of hard-coded transport policy:** [Factory](https://github.com/switon-php/di/blob/main/docs/factory.md#factory) · [DI](https://github.com/switon-php/di/blob/main/docs/README.md)
+- **To move slow or retry-sensitive upstream work out of the request path:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md)
 - **To add one small, trustworthy test slice around the gateway boundary:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)
-- **To observe timeout, status, and transport failures more clearly:** [Log](../../packages/log/docs/README.md)
-- **To build the inbound request path that will call this gateway:** [Build an API](build-an-api.md#build-an-api) · [HTTP](../../packages/http/docs/README.md)
-- **To align your own public API contract after upstream-backed routes stabilize:** [Add API docs](add-api-docs.md#add-api-docs) · [OpenAPI](../../packages/openapi/docs/README.md)
+- **To observe timeout, status, and transport failures more clearly:** [Log](https://github.com/switon-php/log/blob/main/docs/README.md)
+- **To build the inbound request path that will call this gateway:** [Build an API](build-an-api.md#build-an-api) · [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
+- **To align your own public API contract after upstream-backed routes stabilize:** [Add API docs](add-api-docs.md#add-api-docs) · [OpenAPI](https://github.com/switon-php/openapi/blob/main/docs/README.md)

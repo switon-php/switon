@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/storage",
         "issues": "https://github.com/switon-php/storage/issues",
-        "docs": "https://docs.switon.dev/latest/storage"
+        "docs": "https://github.com/switon-php/storage/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

@@ -41,7 +41,7 @@ class AuthService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/jwt
+Docs: https://github.com/switon-php/jwt/blob/main/docs/README.md
 
 ## License
 

@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/sharding",
         "issues": "https://github.com/switon-php/sharding/issues",
-        "docs": "https://docs.switon.dev/latest/sharding"
+        "docs": "https://github.com/switon-php/sharding/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

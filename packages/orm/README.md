@@ -60,7 +60,7 @@ final class UserController
 }
 ```
 
-Docs: https://docs.switon.dev/latest/orm
+Docs: https://github.com/switon-php/orm/blob/main/docs/README.md
 
 ## License
 

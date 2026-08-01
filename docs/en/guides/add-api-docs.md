@@ -35,7 +35,7 @@ First prove that the real HTTP path, request input object shape, and authenticat
 
 ### 2. Initialize the OpenAPI tree, then sync from controllers {#build-init-sync}
 
-Start with [OpenAPI](../../packages/openapi/docs/README.md) in its normal filesystem workflow.
+Start with [OpenAPI](https://github.com/switon-php/openapi/blob/main/docs/README.md) in its normal filesystem workflow.
 Create the `openapi/` tree once, then let `open-api:sync` append missing route stubs from controller mappings.
 
 ### 3. Make the auth transport explicit in the contract {#build-auth-transport}
@@ -116,9 +116,9 @@ If your app exposes the route behind a global prefix such as `/api`, document th
 
 Keep the first contract explicit about which auth shape the client must follow:
 
-- for [Session](../../packages/session/docs/README.md)-style browser flows, describe the cookie-backed login/current-user expectation in operation text and response modeling
-- for [JWT](../../packages/jwt/docs/README.md)-style API flows, describe the bearer-token expectation on the protected operations that require it
-- for [Authz](../../packages/authz/docs/README.md)-protected routes, make deny semantics readable enough that clients know whether to re-authenticate or stop
+- for [Session](https://github.com/switon-php/session/blob/main/docs/README.md)-style browser flows, describe the cookie-backed login/current-user expectation in operation text and response modeling
+- for [JWT](https://github.com/switon-php/jwt/blob/main/docs/README.md)-style API flows, describe the bearer-token expectation on the protected operations that require it
+- for [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md)-protected routes, make deny semantics readable enough that clients know whether to re-authenticate or stop
 
 ## What to avoid first {#pitfalls}
 
@@ -139,13 +139,13 @@ A beginner should feel this after finishing the first API-docs path:
 
 ## Go deeper {#go-deeper}
 
-- **To connect this after the first request path:** [Build an API](build-an-api.md#build-an-api) · [HTTP](../../packages/http/docs/README.md)
+- **To connect this after the first request path:** [Build an API](build-an-api.md#build-an-api) · [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
 - **To settle request-wide hooks, action wrappers, or failure policy before publishing the contract:** [Add cross-cutting HTTP behavior](add-cross-cutting-http-behavior.md#add-cross-cutting-http-behavior)
 - **To connect this after identity and protection are already working:** [Add authentication](add-authentication.md#add-authentication)
-- **To stay on the split-file workflow, export, and lint surface:** [OpenAPI](../../packages/openapi/docs/README.md)
-- **To inspect routes before sync or explain handler-id shapes:** [Router](../../packages/router/docs/README.md)
-- **To align protected operations with permission naming:** [Authz](../../packages/authz/docs/README.md)
-- **To document bearer-token callers precisely:** [JWT](../../packages/jwt/docs/README.md)
-- **To document cookie-backed login and current-user behavior:** [Session](../../packages/session/docs/README.md) · [HTTP cookies](../../packages/http/docs/cookies.md#cookies)
-- **To automate export and lint in scripts or CI:** [CLI](../../packages/cli/docs/README.md)
+- **To stay on the split-file workflow, export, and lint surface:** [OpenAPI](https://github.com/switon-php/openapi/blob/main/docs/README.md)
+- **To inspect routes before sync or explain handler-id shapes:** [Router](https://github.com/switon-php/router/blob/main/docs/README.md)
+- **To align protected operations with permission naming:** [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md)
+- **To document bearer-token callers precisely:** [JWT](https://github.com/switon-php/jwt/blob/main/docs/README.md)
+- **To document cookie-backed login and current-user behavior:** [Session](https://github.com/switon-php/session/blob/main/docs/README.md) · [HTTP cookies](https://github.com/switon-php/http/blob/main/docs/cookies.md#cookies)
+- **To automate export and lint in scripts or CI:** [CLI](https://github.com/switon-php/cli/blob/main/docs/README.md)
 - **To ship the documented API with a stable runtime and worker-process shape:** [Deploy an app to production](deploy-an-app-to-production.md#deploy-an-app-to-production)

@@ -125,5 +125,5 @@ Each discovered class must implement `Switon\Core\RunnerInterface` and carry `#[
 
 - **Common questions:** [FAQ](faq.md#queue-faq)
 - **Design split:** [Design Rationale](design.md#design-rationale)
-- **Parallel execution:** [Executor Package](../../executor/docs/README.md)
-- **Redis transport:** [Redis Package](../../redis/docs/README.md)
+- **Parallel execution:** [Executor Package](https://github.com/switon-php/executor/blob/main/docs/README.md)
+- **Redis transport:** [Redis Package](https://github.com/switon-php/redis/blob/main/docs/README.md)

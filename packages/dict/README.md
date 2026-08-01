@@ -43,7 +43,7 @@ final class OrderController
 }
 ```
 
-Docs: https://docs.switon.dev/latest/dict
+Docs: https://github.com/switon-php/dict/blob/main/docs/README.md
 
 ## License
 

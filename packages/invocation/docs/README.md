@@ -1,6 +1,6 @@
 # Invocation Package {#invocation-package}
 
-`switon/invocation` defines **method-level hook contracts** for guards and interceptors. It ships the attributes and interfaces only; [Invoker](../../invoker/docs/README.md) runs those hooks when you call through `Switon\Invoking\InvokerInterface`.
+`switon/invocation` defines **method-level hook contracts** for guards and interceptors. It ships the attributes and interfaces only; [Invoker](https://github.com/switon-php/invoker/blob/main/docs/README.md) runs those hooks when you call through `Switon\Invoking\InvokerInterface`.
 
 **Key features:**
 
@@ -83,8 +83,8 @@ final class AccountService
 
 This package defines contracts only.
 
-- Hook execution happens through [Invoker](../../invoker/docs/README.md); direct calls such as `$service->deleteAction(1)` bypass guards and interceptors.
-- Argument building from HTTP, CLI, or builders belongs to [Binding](../../binding/docs/README.md), not this package.
+- Hook execution happens through [Invoker](https://github.com/switon-php/invoker/blob/main/docs/README.md); direct calls such as `$service->deleteAction(1)` bypass guards and interceptors.
+- Argument building from HTTP, CLI, or builders belongs to [Binding](https://github.com/switon-php/binding/blob/main/docs/README.md), not this package.
 
 ---
 
@@ -98,5 +98,5 @@ This package defines contracts only.
 
 ## Next {#next}
 
-- **To run guarded and intercepted methods through one entry point:** [Invoker Package](../../invoker/docs/README.md)
-- **To resolve arguments from HTTP, CLI, or builders before `invoke()`:** [Binding Package](../../binding/docs/README.md)
+- **To run guarded and intercepted methods through one entry point:** [Invoker Package](https://github.com/switon-php/invoker/blob/main/docs/README.md)
+- **To resolve arguments from HTTP, CLI, or builders before `invoke()`:** [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md)

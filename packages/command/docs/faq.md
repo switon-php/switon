@@ -43,4 +43,4 @@ No. `CommandDiscoveryInterface::discover()` returns a cached map of names to cla
 
 - **Full command-writing pattern:** [README](README.md)
 - **Design boundary:** [Design Rationale](design.md#design-rationale)
-- **Run commands and inspect help:** [CLI Package](../../cli/docs/README.md)
+- **Run commands and inspect help:** [CLI Package](https://github.com/switon-php/cli/blob/main/docs/README.md)

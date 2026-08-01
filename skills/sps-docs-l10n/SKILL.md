@@ -5,6 +5,8 @@ description: Objective-driven localization for switondown docs. Translate and al
 
 # Switon Docs Localization (Objective-Driven)
 
+**Status: retired for published docs.** `docs/zh-CN` and `docs/ja-JP` are removed; do not recreate locale trees. Use `sps-docs` + `packages/{name}/docs/` instead.
+
 **Core Objective**: Produce translated Markdown documentation (`docs/{locale}/**`) that feels 100% native to the target language, while maintaining absolute semantic, structural, and terminology parity with the authoritative English source (`docs/en/**`).
 
 *Premise: The English docs are the single source of truth for architecture and APIs. The localization's job is not to improve the English logic, but to transfer its meaning flawlessly.*

@@ -39,7 +39,7 @@ class WelcomeService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/i18n
+Docs: https://github.com/switon-php/i18n/blob/main/docs/README.md
 
 ## License
 

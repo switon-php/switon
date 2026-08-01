@@ -181,8 +181,7 @@ bash bin/console config:options 'Switon\Http\Filter\RequestLocaleFilter'
 
 ## Next {#next}
 
-- **To add i18n to an app:** [Add internationalization](../../../docs/en/guides/add-internationalization.md#add-internationalization)
-- **To wire locale from HTTP requests:** [HTTP Package](../../http/docs/README.md)
-- **To understand request-local state:** [Context](../../context/docs/README.md)
+- **To wire locale from HTTP requests:** [HTTP Package](https://github.com/switon-php/http/blob/main/docs/README.md)
+- **To understand request-local state:** [Context](https://github.com/switon-php/context/blob/main/docs/README.md)
 - **To troubleshoot fallback and missing keys:** [FAQ](faq.md#i18n-faq)
 - **To understand the trade-offs:** [Design Rationale](design.md#design-rationale)

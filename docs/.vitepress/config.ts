@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
-import { existsSync, readdirSync, statSync } from 'node:fs'
+import { readdirSync, statSync } from 'node:fs'
 
 import { defineConfig } from 'vitepress'
 
@@ -9,181 +9,14 @@ import { createVersionNav } from './versions'
 
 const docsRoot = fileURLToPath(new URL('..', import.meta.url))
 const englishRoot = join(docsRoot, 'en')
-const zhCnRoot = join(docsRoot, 'zh-CN')
-const ptBrRoot = join(docsRoot, 'pt-BR')
-const jaJpRoot = join(docsRoot, 'ja-JP')
-const enableJaJp = false
 const docsBase = process.env.DOCS_BASE ?? '/latest/'
 const excludedRoots = readdirSync(docsRoot)
-  .filter((entry) => !['.vitepress', 'en', 'zh-CN', 'pt-BR', 'ja-JP'].includes(entry))
+  .filter((entry) => !['.vitepress', 'en'].includes(entry))
   .filter((entry) => statSync(join(docsRoot, entry)).isDirectory())
   .map((entry) => `${entry}/**`)
-const excludedFiles = [
-  'en/README.md',
-  'zh-CN/README.md',
-  'pt-BR/README.md',
-  'ja-JP/README.md'
-]
+const excludedFiles = ['en/README.md']
 
-function createNav(locale: 'en' | 'ja-JP' | 'pt-BR' | 'zh-CN') {
-  if (locale === 'zh-CN') {
-    return [
-      {
-        text: '首页',
-        link: '/zh-CN/'
-      },
-      {
-        text: '入门',
-        link: '/zh-CN/getting-started/'
-      },
-      {
-        text: '概念',
-        link: '/zh-CN/concepts/'
-      },
-      {
-        text: '指南',
-        link: '/zh-CN/guides/'
-      },
-      {
-        text: '教程',
-        link: '/zh-CN/tutorial/'
-      },
-      {
-        text: '包索引',
-        link: '/zh-CN/packages'
-      },
-      ...createVersionNav()
-    ]
-  }
-
-  if (locale === 'ja-JP') {
-    return [
-      {
-        text: 'ホーム',
-        link: '/ja-JP/'
-      },
-      {
-        text: '認可パッケージ',
-        link: '/ja-JP/authz/'
-      },
-      {
-        text: 'Beacon パッケージ',
-        link: '/ja-JP/beacon/'
-      },
-      {
-        text: 'Binding パッケージ',
-        link: '/ja-JP/binding/'
-      },
-      {
-        text: 'Cache パッケージ',
-        link: '/ja-JP/cache/'
-      },
-      {
-        text: 'Captcha パッケージ',
-        link: '/ja-JP/captcha/'
-      },
-      {
-        text: 'CLI パッケージ',
-        link: '/ja-JP/cli/'
-      },
-      {
-        text: 'Command パッケージ',
-        link: '/ja-JP/command/'
-      },
-      {
-        text: 'Composer Extra パッケージ',
-        link: '/ja-JP/composer-extra/'
-      },
-      {
-        text: 'Console パッケージ',
-        link: '/ja-JP/console/'
-      },
-      {
-        text: 'Context パッケージ',
-        link: '/ja-JP/context/'
-      },
-      {
-        text: 'Core パッケージ',
-        link: '/ja-JP/core/'
-      },
-      {
-        text: 'Crypto パッケージ',
-        link: '/ja-JP/crypto/'
-      },
-      {
-        text: 'DB パッケージ',
-        link: '/ja-JP/db/'
-      },
-      {
-        text: 'DI パッケージ',
-        link: '/ja-JP/di/'
-      },
-      {
-        text: 'Dict パッケージ',
-        link: '/ja-JP/dict/'
-      },
-      {
-        text: 'Event パッケージ',
-        link: '/ja-JP/event/'
-      },
-      {
-        text: 'Executor パッケージ',
-        link: '/ja-JP/executor/'
-      },
-      {
-        text: 'HTTP パッケージ',
-        link: '/ja-JP/http/'
-      },
-      {
-        text: 'Invocation パッケージ',
-        link: '/ja-JP/invocation/'
-      },
-      {
-        text: 'Invoker パッケージ',
-        link: '/ja-JP/invoker/'
-      },
-      {
-        text: 'JWT パッケージ',
-        link: '/ja-JP/jwt/'
-      },
-      {
-        text: 'Log パッケージ',
-        link: '/ja-JP/log/'
-      },
-      ...createVersionNav()
-    ]
-  }
-
-  if (locale === 'pt-BR') {
-    return [
-      {
-        text: 'Início',
-        link: '/pt-BR/'
-      },
-      {
-        text: 'Primeiros passos',
-        link: '/pt-BR/getting-started/'
-      },
-      {
-        text: 'Conceitos',
-        link: '/pt-BR/concepts/'
-      },
-      {
-        text: 'Guias',
-        link: '/pt-BR/guides/'
-      },
-      {
-        text: 'Tutorial',
-        link: '/pt-BR/tutorial/'
-      },
-      {
-        text: 'Pacotes',
-        link: '/pt-BR/packages'
-      },
-      ...createVersionNav()
-    ]
-  }
-
+function createNav() {
   return [
     {
       text: 'Home',
@@ -238,8 +71,7 @@ export default defineConfig({
   ],
   srcExclude: [
     ...excludedRoots,
-    ...excludedFiles,
-    ...(enableJaJp ? [] : ['ja-JP/**'])
+    ...excludedFiles
   ],
   rewrites(id) {
     return id.replace(/(^|\/)README\.md$/, '$1index.md')
@@ -302,9 +134,6 @@ export default defineConfig({
       themeConfig: {
         nav: [
           { text: 'English', link: '/en/' },
-          ...(existsSync(zhCnRoot) ? [{ text: '简体中文', link: '/zh-CN/' }] : []),
-          ...(enableJaJp && existsSync(jaJpRoot) ? [{ text: '日本語', link: '/ja-JP/' }] : []),
-          ...(existsSync(ptBrRoot) ? [{ text: 'Português (Brasil)', link: '/pt-BR/' }] : []),
           ...createVersionNav()
         ]
       }
@@ -316,60 +145,15 @@ export default defineConfig({
       title: 'Switon',
       description: 'Switon documentation for the AI-era PHP framework.',
       themeConfig: {
-        nav: createNav('en'),
+        nav: createNav(),
         sidebar: createSidebar(englishRoot, 'en')
       }
-    },
-    ...(existsSync(zhCnRoot)
-      ? {
-          'zh-CN': {
-            label: '简体中文',
-            lang: 'zh-CN',
-            link: '/zh-CN/',
-            title: 'Switon',
-            description: 'Switon 框架的简体中文文档。',
-            themeConfig: {
-              nav: createNav('zh-CN'),
-              sidebar: createSidebar(zhCnRoot, 'zh-CN')
-            }
-          }
-        }
-      : {}),
-    ...(enableJaJp && existsSync(jaJpRoot)
-      ? {
-          'ja-JP': {
-            label: '日本語',
-            lang: 'ja',
-            link: '/ja-JP/',
-            title: 'Switon',
-            description: 'Switon フレームワークの日本語ドキュメント（認可・Beacon〜JWT・Log など）。',
-            themeConfig: {
-              nav: createNav('ja-JP'),
-              sidebar: createSidebar(jaJpRoot, 'ja-JP')
-            }
-          }
-        }
-      : {}),
-    ...(existsSync(ptBrRoot)
-      ? {
-          'pt-BR': {
-            label: 'Português (Brasil)',
-            lang: 'pt-BR',
-            link: '/pt-BR/',
-            title: 'Switon',
-            description: 'Documentação Switon em português do Brasil.',
-            themeConfig: {
-              nav: createNav('pt-BR'),
-              sidebar: createSidebar(ptBrRoot, 'pt-BR')
-            }
-          }
-        }
-      : {})
+    }
   },
   themeConfig: {
     logo: '/brand/switon-mark.png',
     siteTitle: "<span class='switon-nav-brand-left'>Swi</span><span class='switon-nav-brand-right'>ton</span>",
-    nav: createNav('en'),
+    nav: createNav(),
     sidebar: createSidebar(englishRoot, 'en'),
     socialLinks: [
       {

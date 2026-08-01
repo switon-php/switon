@@ -122,6 +122,6 @@ bash bin/console config:options 'Switon\Mail\MailerInterface'
 
 - **To read short answers:** [FAQ](faq.md#mail-faq)
 - **To understand the trade-offs:** [Design Rationale](design.md#design-rationale)
-- **To tune connection reuse:** [Pool Package](../../pool/docs/README.md)
-- **To make mail asynchronous or retryable:** [Queue Package](../../queue/docs/README.md)
-- **To feed delivery lifecycle into logs or side effects:** [Event Package](../../event/docs/README.md)
+- **To tune connection reuse:** [Pool Package](https://github.com/switon-php/pool/blob/main/docs/README.md)
+- **To make mail asynchronous or retryable:** [Queue Package](https://github.com/switon-php/queue/blob/main/docs/README.md)
+- **To feed delivery lifecycle into logs or side effects:** [Event Package](https://github.com/switon-php/event/blob/main/docs/README.md)

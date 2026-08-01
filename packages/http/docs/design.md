@@ -6,9 +6,9 @@
 
 - [HTTP Package](README.md) — main guide and configuration
 - [FAQ](faq.md#http-faq) — common questions and troubleshooting
-- [Context Package](../../context/docs/README.md) — scoped mutable state for long-lived services (contrast with request attributes)
-- [DI Package](../../di/docs/README.md) — autowiring for controller and listener dependencies
-- [Router Package](../../router/docs/README.md) — route mapping attributes used on controllers
+- [Context Package](https://github.com/switon-php/context/blob/main/docs/README.md) — scoped mutable state for long-lived services (contrast with request attributes)
+- [DI Package](https://github.com/switon-php/di/blob/main/docs/README.md) — autowiring for controller and listener dependencies
+- [Router Package](https://github.com/switon-php/router/blob/main/docs/README.md) — route mapping attributes used on controllers
 
 ---
 

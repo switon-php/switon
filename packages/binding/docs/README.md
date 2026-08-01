@@ -158,7 +158,7 @@ bash bin/console config:options 'Switon\Binding\ObjectResolverInterface'
 
 ## Next {#next}
 
-- **After binding, run the callable:** [Invoker Package](../../invoker/docs/README.md)
-- **HTTP payloads into typed input:** [HTTP typed input binding](../../http/docs/typed-input-binding.md#typed-input-binding)
+- **After binding, run the callable:** [Invoker Package](https://github.com/switon-php/invoker/blob/main/docs/README.md)
+- **HTTP payloads into typed input:** [HTTP typed input binding](https://github.com/switon-php/http/blob/main/docs/typed-input-binding.md#typed-input-binding)
 - **FAQ:** [FAQ](faq.md#binding-faq)
 - **Design:** [Design Rationale](design.md#design-rationale)

@@ -73,4 +73,4 @@ JWT exceptions map to HTTP `401`.
 
 ### How do JWT and authorization fit together? {#jwt-and-authz}
 
-Validate the token with JWT, then enforce permissions with [Authorization](../../authz/docs/README.md).
+Validate the token with JWT, then enforce permissions with [Authorization](https://github.com/switon-php/authz/blob/main/docs/README.md).

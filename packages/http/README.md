@@ -55,7 +55,7 @@ final class UserController extends Controller
 }
 ```
 
-Docs: https://docs.switon.dev/latest/http
+Docs: https://github.com/switon-php/http/blob/main/docs/README.md
 
 ## License
 

@@ -41,6 +41,6 @@ Use highlights as a bridge layer: start here from the homepage or a short featur
 
 - [Switon](../README.md) — documentation home
 - [Switon fundamentals](../concepts/README.md#switon-fundamentals) — framework model and placement decisions
-- [HTTP Package](../../packages/http/docs/README.md) — request, controller, and input boundaries
-- [DI Package](../../packages/di/docs/README.md) — dependency injection and named services
-- [Context Package](../../packages/context/docs/README.md) — context objects and runtime-scoped mutable state
+- [HTTP Package](https://github.com/switon-php/http/blob/main/docs/README.md) — request, controller, and input boundaries
+- [DI Package](https://github.com/switon-php/di/blob/main/docs/README.md) — dependency injection and named services
+- [Context Package](https://github.com/switon-php/context/blob/main/docs/README.md) — context objects and runtime-scoped mutable state

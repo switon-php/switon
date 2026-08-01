@@ -55,5 +55,5 @@ final class CreateTicketInput
 
 ## Next {#next}
 
-- **To choose between enum and constant validation:** [Validation Package](../../packages/validation/docs/README.md#built-in-constraints)
-- **To validate HTTP input classes:** [Typed input binding](../../packages/http/docs/typed-input-binding.md#typed-input-binding)
+- **To choose between enum and constant validation:** [Validation Package](https://github.com/switon-php/validation/blob/main/docs/README.md#built-in-constraints)
+- **To validate HTTP input classes:** [Typed input binding](https://github.com/switon-php/http/blob/main/docs/typed-input-binding.md#typed-input-binding)

@@ -50,6 +50,6 @@ This section covers event placement only, not the general logging policy.
 
 - **Interface PHPDoc:** stable API contract, usage constraints, navigation links.
 - **`packages/{name}/README.md`:** lightweight guide page only.
-- **`docs/en/{name}/`:** detailed tutorials, behavior guides, and narrative documentation.
+- **`packages/{name}/docs/`:** component owner docs (`README.md`, `faq.md`, `design.md`). Narrative guides/tutorial stay under `docs/en/**`.
 
 This section assigns doc ownership only; it does not define PHPDoc or Markdown style rules.

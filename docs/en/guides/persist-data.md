@@ -6,9 +6,9 @@ Use this guide when you want to replace in-memory state with durable storage and
 
 | Layer | Best when | Keep in mind |
 |---|---|---|
-| [ORM](../../packages/orm/docs/README.md) | your main application boundary is entities, repositories, and explicit CRUD | best default for stored business data; no hidden flush and no lazy-loaded relation reads |
-| [DB](../../packages/db/docs/README.md) | one fixed SQL statement or one explicit transaction is clearer than a repository abstraction | the injected client is stateless; use `getTransient('default')` when one operation needs a pinned transient handle for a transaction |
-| [Query](../../packages/query/docs/README.md) | dynamic filters, list/search screens, or admin-style query composition are the hard part | best for assembling read-side filtering, sorting, paging, and search rules; not a full replacement for repository-led writes |
+| [ORM](https://github.com/switon-php/orm/blob/main/docs/README.md) | your main application boundary is entities, repositories, and explicit CRUD | best default for stored business data; no hidden flush and no lazy-loaded relation reads |
+| [DB](https://github.com/switon-php/db/blob/main/docs/README.md) | one fixed SQL statement or one explicit transaction is clearer than a repository abstraction | the injected client is stateless; use `getTransient('default')` when one operation needs a pinned transient handle for a transaction |
+| [Query](https://github.com/switon-php/query/blob/main/docs/README.md) | dynamic filters, list/search screens, or admin-style query composition are the hard part | best for assembling read-side filtering, sorting, paging, and search rules; not a full replacement for repository-led writes |
 
 Common shape: **ORM** for normal writes, **Query** for dynamic reads, **DB** for fixed SQL or explicit transactions.
 
@@ -46,7 +46,7 @@ If you use SQLite for the first pass, pick one real file path and keep using tha
 ### Repository-first ORM path {#wiring-orm}
 
 When stored business data should live behind repositories, start here.
-Assume the table or schema already exists before you rely on the entity mapping below; if schema setup is still the missing step, continue with [ORM](../../packages/orm/docs/README.md) and [Entity Guide](../../packages/orm/docs/entity.md#entity) first.
+Assume the table or schema already exists before you rely on the entity mapping below; if schema setup is still the missing step, continue with [ORM](https://github.com/switon-php/orm/blob/main/docs/README.md) and [Entity Guide](https://github.com/switon-php/orm/blob/main/docs/entity.md#entity) first.
 This guide does not introduce one framework-owned migration tool. The practical beginner rule is simpler:
 
 - choose the database through `DATABASE_URL`, for example `mysql://...`, `pgsql://...`, or `sqlite:...`
@@ -110,7 +110,7 @@ Use `#[Column]` only when the database column name differs from the property nam
 
 ### Dynamic read path with Query {#wiring-query}
 
-Add [Query](../../packages/query/docs/README.md) when list and search conditions become the noisy part:
+Add [Query](https://github.com/switon-php/query/blob/main/docs/README.md) when list and search conditions become the noisy part:
 
 ```php
 use Switon\Core\Attribute\Autowired;
@@ -134,11 +134,11 @@ class UserService
 }
 ```
 
-Here, `'name*=' => $keyword` uses the Query filter grammar: `*=` means "contains", so Query compiles it like `LIKE '%keyword%'`. That operator comes from [Query](../../packages/query/docs/README.md), not from PHP itself.
+Here, `'name*=' => $keyword` uses the Query filter grammar: `*=` means "contains", so Query compiles it like `LIKE '%keyword%'`. That operator comes from [Query](https://github.com/switon-php/query/blob/main/docs/README.md), not from PHP itself.
 
 ### Explicit transaction path with DB {#wiring-db}
 
-Drop to [DB](../../packages/db/docs/README.md) when you need one pinned connection and one obvious transaction boundary.
+Drop to [DB](https://github.com/switon-php/db/blob/main/docs/README.md) when you need one pinned connection and one obvious transaction boundary.
 Assume `$this->db` below is an autowired `Switon\Db\ClientInterface`.
 
 ```php
@@ -161,10 +161,10 @@ Keep the transient handle in a local variable. The shared DI-managed client is t
 
 - **Designing every table and relation up front** — prove one stored path before you generalize the model
 - **Using `Query` before read composition is actually hard** — fixed reads should stay fixed
-- **Dropping to raw SQL for normal repository work** — use [ORM](../../packages/orm/docs/README.md) when entities and repositories already express the job well
+- **Dropping to raw SQL for normal repository work** — use [ORM](https://github.com/switon-php/orm/blob/main/docs/README.md) when entities and repositories already express the job well
 - **Assuming repository inference always works across custom naming** — if the repository and entity no longer follow the default naming pair, set `protected string $entityClass = User::class;` explicitly
 - **Keeping transient DB handles on long-lived services** — pinned connections belong to short local transaction scope
-- **Adding sharding, code generation, or cache layers first** — [Sharding](../../packages/sharding/docs/README.md), [ORM Codegen](../../packages/orm-codegen/docs/README.md), and [Cache](../../packages/cache/docs/README.md) come after the first stored path is stable
+- **Adding sharding, code generation, or cache layers first** — [Sharding](https://github.com/switon-php/sharding/blob/main/docs/README.md), [ORM Codegen](https://github.com/switon-php/orm-codegen/blob/main/docs/README.md), and [Cache](https://github.com/switon-php/cache/blob/main/docs/README.md) come after the first stored path is stable
 
 ## Go deeper {#go-deeper}
 
@@ -173,10 +173,10 @@ Keep the transient handle in a local variable. The shared DI-managed client is t
 - **To protect the first stored path before auth, cache, or job growth:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)
 - **To add file metadata plus blob storage without exposing filesystem paths:** [Handle file uploads and downloads](handle-file-uploads-and-downloads.md#handle-file-uploads-and-downloads)
 - **To learn the same move chapter by chapter:** [04 — Stored data](../tutorial/04-data.md#04-data)
-- **To reuse the stored service from the console next:** [Add CLI](add-cli.md#add-cli) · [05 — CLI reuse](../tutorial/05-cli.md#05-cli) · [CLI](../../packages/cli/docs/README.md)
-- **To add login state, bearer tokens, or protected endpoints after storage is stable:** [Add authentication](add-authentication.md#add-authentication) · [Session](../../packages/session/docs/README.md) · [JWT](../../packages/jwt/docs/README.md) · [Authz](../../packages/authz/docs/README.md)
-- **To add cached read paths after storage is stable:** [Add caching](add-caching.md#add-caching) · [Faster list](../tutorial/faster-list.md#faster-list) · [Cache](../../packages/cache/docs/README.md)
-- **To stay on repository-led entities and CRUD:** [ORM](../../packages/orm/docs/README.md) · [Entity Guide](../../packages/orm/docs/entity.md#entity)
-- **To use fixed SQL or explicit transactions:** [DB](../../packages/db/docs/README.md)
-- **To compose dynamic list and search queries:** [Query](../../packages/query/docs/README.md)
-- **To grow into schema-driven helpers or shard-aware data work later:** [ORM Codegen](../../packages/orm-codegen/docs/README.md) · [Sharding](../../packages/sharding/docs/README.md)
+- **To reuse the stored service from the console next:** [Add CLI](add-cli.md#add-cli) · [05 — CLI reuse](../tutorial/05-cli.md#05-cli) · [CLI](https://github.com/switon-php/cli/blob/main/docs/README.md)
+- **To add login state, bearer tokens, or protected endpoints after storage is stable:** [Add authentication](add-authentication.md#add-authentication) · [Session](https://github.com/switon-php/session/blob/main/docs/README.md) · [JWT](https://github.com/switon-php/jwt/blob/main/docs/README.md) · [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md)
+- **To add cached read paths after storage is stable:** [Add caching](add-caching.md#add-caching) · [Faster list](../tutorial/faster-list.md#faster-list) · [Cache](https://github.com/switon-php/cache/blob/main/docs/README.md)
+- **To stay on repository-led entities and CRUD:** [ORM](https://github.com/switon-php/orm/blob/main/docs/README.md) · [Entity Guide](https://github.com/switon-php/orm/blob/main/docs/entity.md#entity)
+- **To use fixed SQL or explicit transactions:** [DB](https://github.com/switon-php/db/blob/main/docs/README.md)
+- **To compose dynamic list and search queries:** [Query](https://github.com/switon-php/query/blob/main/docs/README.md)
+- **To grow into schema-driven helpers or shard-aware data work later:** [ORM Codegen](https://github.com/switon-php/orm-codegen/blob/main/docs/README.md) · [Sharding](https://github.com/switon-php/sharding/blob/main/docs/README.md)

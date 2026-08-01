@@ -55,7 +55,7 @@ report Report commands.
     --shout, -s      Uppercase the output     false
 ```
 
-Docs: https://docs.switon.dev/latest/command
+Docs: https://github.com/switon-php/command/blob/main/docs/README.md
 
 ## License
 
