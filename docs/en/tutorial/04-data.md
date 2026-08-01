@@ -9,7 +9,7 @@ description: Replace fake results with real persistence so tasks survive restart
 
 Replace fake results with repository-backed persistence.
 
-**Primary package:** [ORM](../orm/README.md)
+**Primary package:** [ORM](../../packages/orm/docs/README.md)
 
 ## Code {#shape}
 

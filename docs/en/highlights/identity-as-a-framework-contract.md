@@ -43,6 +43,6 @@ That is why `IdentityInterface` belongs at framework level: it is the common sea
 ## See also {#see-also}
 
 - **To load identity at the request boundary:** [Add authentication](../guides/add-authentication.md#add-authentication)
-- **To use the shared contract in controller and service access rules:** [Authorization Package](../authz/README.md)
+- **To use the shared contract in controller and service access rules:** [Authorization Package](../../packages/authz/docs/README.md)
 - **To see one HTTP ownership boundary that depends on this contract:** [Identity-aware ownership safety](identity-aware-ownership.md#identity-aware-ownership)
-- **To use the owner package for identity and tenant state:** [Principal Package](../principal/README.md)
+- **To use the owner package for identity and tenant state:** [Principal Package](../../packages/principal/docs/README.md)

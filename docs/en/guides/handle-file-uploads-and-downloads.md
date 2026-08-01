@@ -33,7 +33,7 @@ Do not let uploads become the first explanation for routing, typed input binding
 
 ### 2. Keep file bytes and file metadata separate {#build-separate-boundaries}
 
-Store bytes in [Storage](../storage/README.md) under one app-owned key.
+Store bytes in [Storage](../../packages/storage/docs/README.md) under one app-owned key.
 Store owner id, original filename, media type, and any visibility rules in your own repository or data model.
 
 This keeps storage small and keeps file listing or ownership queries out of the blob layer.
@@ -42,7 +42,7 @@ For the first local path, `BlobStoreInterface` is usually backed by the bundled 
 ### 3. Validate uploads at the HTTP edge {#build-validate-edge}
 
 Reject missing files, bad extensions, suspicious media types, or oversized payloads as close to the request boundary as possible.
-Use [Validation](../validation/README.md) for text metadata and `FileInterface` metadata such as `getSize()`, `getType()`, and `getExtension()` for the uploaded file itself.
+Use [Validation](../../packages/validation/docs/README.md) for text metadata and `FileInterface` metadata such as `getSize()`, `getType()`, and `getExtension()` for the uploaded file itself.
 
 ### 4. Generate an application-owned key, then write the blob {#build-key-write}
 
@@ -214,10 +214,10 @@ A beginner should feel this after finishing the first file path:
 
 - **To connect this after the first request path:** [Build an API](build-an-api.md#build-an-api)
 - **To keep file metadata in the same stored-data model:** [Persist data](persist-data.md#persist-data)
-- **To go deeper on upload access and request file metadata:** [Request](../http/request.md#request) · [HTTP](../http/README.md)
-- **To go deeper on download responses and attachments:** [Response](../http/response.md#response)
-- **To keep bytes on app-owned keys and roots:** [Storage](../storage/README.md)
-- **To validate input fields and request metadata more deliberately:** [Validation](../validation/README.md)
+- **To go deeper on upload access and request file metadata:** [Request](../../packages/http/docs/request.md#request) · [HTTP](../../packages/http/docs/README.md)
+- **To go deeper on download responses and attachments:** [Response](../../packages/http/docs/response.md#response)
+- **To keep bytes on app-owned keys and roots:** [Storage](../../packages/storage/docs/README.md)
+- **To validate input fields and request metadata more deliberately:** [Validation](../../packages/validation/docs/README.md)
 - **To move file processing, conversion, or scanning off the request path:** [Add durable background work](add-durable-background-work.md#add-durable-background-work)
 - **To protect the file path with a small, trustworthy test slice:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)
 - **To document stable upload and download contracts for clients:** [Add API docs](add-api-docs.md#add-api-docs)

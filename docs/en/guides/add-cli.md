@@ -8,9 +8,9 @@ Start with the trigger model that matches the job you actually need.
 
 | Boundary | Best when | Keep in mind |
 |---|---|---|
-| [CLI](../cli/README.md) | a human, script, or operator should run one command directly | best default for manual entrypoints; keep business rules in services, not in command methods |
-| [Schedule](../schedule/README.md) | the same work should run at time-based intervals | usually add this only after the command path is already clear and runnable |
-| [Executor](../executor/README.md) | the main problem is runner-style execution, grouping, or runtime-dependent submit behavior | stronger fit for execution orchestration than for the first manual command path |
+| [CLI](../../packages/cli/docs/README.md) | a human, script, or operator should run one command directly | best default for manual entrypoints; keep business rules in services, not in command methods |
+| [Schedule](../../packages/schedule/docs/README.md) | the same work should run at time-based intervals | usually add this only after the command path is already clear and runnable |
+| [Executor](../../packages/executor/docs/README.md) | the main problem is runner-style execution, grouping, or runtime-dependent submit behavior | stronger fit for execution orchestration than for the first manual command path |
 
 Common shape: **CLI** for manual entrypoints, **Schedule** for time-based triggers, **Executor** for runner orchestration.
 
@@ -132,8 +132,8 @@ If the command does not appear, check the class location first (`App\Command` or
 
 - **To connect this after your first API and stored-data paths:** [Build an API](build-an-api.md#build-an-api) · [Persist data](persist-data.md#persist-data)
 - **To learn the same move chapter by chapter:** [05 — CLI reuse](../tutorial/05-cli.md#05-cli)
-- **To go deeper on plain command classes and discovery:** [CLI](../cli/README.md#quick-start) · [Discovery](../cli/README.md#discovery) · [Visibility](../cli/README.md#visibility)
-- **To keep service wiring clean and interface-first:** [DI](../di/README.md#quick-start)
-- **To add minimal visibility for command failures next:** [06 — Logging and failures](../tutorial/06-log.md#06-log) · [Log](../log/README.md#quick-start)
-- **To move from manual commands into recurring work:** [Add recurring work](add-recurring-work.md#add-recurring-work) · [Timed cleanup](../tutorial/timed-cleanup.md#timed-cleanup) · [Schedule](../schedule/README.md)
-- **To orchestrate execution instead of doing work inline:** [Executor](../executor/README.md)
+- **To go deeper on plain command classes and discovery:** [CLI](../../packages/cli/docs/README.md#quick-start) · [Discovery](../../packages/cli/docs/README.md#discovery) · [Visibility](../../packages/cli/docs/README.md#visibility)
+- **To keep service wiring clean and interface-first:** [DI](../../packages/di/docs/README.md#quick-start)
+- **To add minimal visibility for command failures next:** [06 — Logging and failures](../tutorial/06-log.md#06-log) · [Log](../../packages/log/docs/README.md#quick-start)
+- **To move from manual commands into recurring work:** [Add recurring work](add-recurring-work.md#add-recurring-work) · [Timed cleanup](../tutorial/timed-cleanup.md#timed-cleanup) · [Schedule](../../packages/schedule/docs/README.md)
+- **To orchestrate execution instead of doing work inline:** [Executor](../../packages/executor/docs/README.md)

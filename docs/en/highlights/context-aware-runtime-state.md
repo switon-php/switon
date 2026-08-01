@@ -58,6 +58,6 @@ For simple HTTP-only handoff values, request attributes may still be the smaller
 
 ## See also {#see-also}
 
-- **To learn the full app-facing usage model:** [Context Package](../context/README.md)
-- **To see the Core contract boundary:** [Core Package](../core/README.md)
+- **To learn the full app-facing usage model:** [Context Package](../../packages/context/docs/README.md)
+- **To see the Core contract boundary:** [Core Package](../../packages/core/docs/README.md)
 - **To place this rule in the wider runtime model:** [Understand runtime and state](../concepts/runtime-and-state.md#runtime-and-state)
