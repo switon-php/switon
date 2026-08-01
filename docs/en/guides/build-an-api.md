@@ -5,16 +5,16 @@ This is the compressed version of tutorial chapters `01` to `03`: route first, t
 
 ## Components in play {#components-in-play}
 
-- **[Kernel](../kernel/README.md)** — bootstraps env, config, and services before request handling starts
-- **[HTTP](../http/README.md)** — provides the request/response lifecycle for the application
-- **[Router](../router/README.md)** — maps URLs and methods to controller actions
-- **[Invoker](../invoker/README.md)** — binds request data into action arguments or [request input objects](../concepts/glossary.md#core-terms)
-- **[Validation](../validation/README.md)** — validates input before business logic runs
-- **[DI](../di/README.md)** — keeps controllers small and business logic reusable in services
+- **[Kernel](../../packages/kernel/docs/README.md)** — bootstraps env, config, and services before request handling starts
+- **[HTTP](../../packages/http/docs/README.md)** — provides the request/response lifecycle for the application
+- **[Router](../../packages/router/docs/README.md)** — maps URLs and methods to controller actions
+- **[Invoker](../../packages/invoker/docs/README.md)** — binds request data into action arguments or [request input objects](../concepts/glossary.md#core-terms)
+- **[Validation](../../packages/validation/docs/README.md)** — validates input before business logic runs
+- **[DI](../../packages/di/docs/README.md)** — keeps controllers small and business logic reusable in services
 
 ## Recommended build order {#build-order}
 
-1. Start from a normal app bootstrap through [Kernel](../kernel/README.md).
+1. Start from a normal app bootstrap through [Kernel](../../packages/kernel/docs/README.md).
 2. Add one route and one controller action.
 3. Replace raw request reads with typed input binding.
 4. Validate at the input boundary.
@@ -88,7 +88,7 @@ class TaskController extends Controller
 }
 ```
 
-For the slower walkthrough of the same move, see [02 — Clean input](../tutorial/02-input.md#02-input). For the owner docs, see [Typed input binding](../http/typed-input-binding.md#typed-input-binding).
+For the slower walkthrough of the same move, see [02 — Clean input](../tutorial/02-input.md#02-input). For the owner docs, see [Typed input binding](../../packages/http/docs/typed-input-binding.md#typed-input-binding).
 
 ### Service boundary {#wiring-service}
 
@@ -138,10 +138,10 @@ If you are new to the stack, do this check before debugging controller code. A w
 
 ## What to avoid first {#pitfalls}
 
-- **Authentication** — [JWT](../jwt/README.md), [Authz](../authz/README.md), and [Session](../session/README.md) belong to a later path
-- **Persistence design** — choose [ORM](../orm/README.md) or [DB](../db/README.md) in a separate data-focused path
-- **Caching** — [Cache](../cache/README.md), [Redis](../redis/README.md), and [HTTP Cache](../http-cache/README.md) solve a later performance problem
-- **Async work** — [Queue](../queue/README.md) should not shape the first API path
+- **Authentication** — [JWT](../../packages/jwt/docs/README.md), [Authz](../../packages/authz/docs/README.md), and [Session](../../packages/session/docs/README.md) belong to a later path
+- **Persistence design** — choose [ORM](../../packages/orm/docs/README.md) or [DB](../../packages/db/docs/README.md) in a separate data-focused path
+- **Caching** — [Cache](../../packages/cache/docs/README.md), [Redis](../../packages/redis/docs/README.md), and [HTTP Cache](../../packages/http-cache/docs/README.md) solve a later performance problem
+- **Async work** — [Queue](../../packages/queue/docs/README.md) should not shape the first API path
 - **Page rendering concerns** — [Build HTML pages](build-html-pages.md#build-html-pages) is a different path
 - **Documentation tooling** — [Add API docs](add-api-docs.md#add-api-docs) comes after the API shape is stable
 
@@ -149,17 +149,17 @@ If you are new to the stack, do this check before debugging controller code. A w
 
 - **To continue with the ordered tutorial path:** [Tutorial](../tutorial/README.md#tutorial)
 - **To build a controller-to-template page path instead of JSON first:** [Build HTML pages](build-html-pages.md#build-html-pages)
-- **To go deeper on bootstrap and app startup:** [Kernel](../kernel/README.md)
-- **To go deeper on request handling:** [HTTP](../http/README.md) · [Controller](../http/controller.md#controller) · [Router](../router/README.md)
+- **To go deeper on bootstrap and app startup:** [Kernel](../../packages/kernel/docs/README.md)
+- **To go deeper on request handling:** [HTTP](../../packages/http/docs/README.md) · [Controller](../../packages/http/docs/controller.md#controller) · [Router](../../packages/router/docs/README.md)
 - **To place request-wide hooks, action wrappers, or HTTP failure policy before auth and caching:** [Add cross-cutting HTTP behavior](add-cross-cutting-http-behavior.md#add-cross-cutting-http-behavior)
-- **To go deeper on input binding:** [Invoker](../invoker/README.md) · [Typed input binding](../http/typed-input-binding.md#typed-input-binding)
-- **To go deeper on validation rules:** [Validation](../validation/README.md)
-- **To move business logic into reusable services:** [DI](../di/README.md)
+- **To go deeper on input binding:** [Invoker](../../packages/invoker/docs/README.md) · [Typed input binding](../../packages/http/docs/typed-input-binding.md#typed-input-binding)
+- **To go deeper on validation rules:** [Validation](../../packages/validation/docs/README.md)
+- **To move business logic into reusable services:** [DI](../../packages/di/docs/README.md)
 - **To protect the first stable service or request path before broader features land:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)
 - **To add uploads, blob keys, and application-served downloads once HTTP and data boundaries are real:** [Handle file uploads and downloads](handle-file-uploads-and-downloads.md#handle-file-uploads-and-downloads)
-- **To add login state, bearer tokens, or protected endpoints next:** [Add authentication](add-authentication.md#add-authentication) · [Session](../session/README.md) · [JWT](../jwt/README.md) · [Authz](../authz/README.md)
+- **To add login state, bearer tokens, or protected endpoints next:** [Add authentication](add-authentication.md#add-authentication) · [Session](../../packages/session/docs/README.md) · [JWT](../../packages/jwt/docs/README.md) · [Authz](../../packages/authz/docs/README.md)
 - **To protect login or public endpoints once the first routes are real:** [Protect endpoints with rate limits](protect-endpoints-with-rate-limits.md#protect-endpoints-with-rate-limits)
-- **To document the API contract once routes and auth shape are stable:** [Add API docs](add-api-docs.md#add-api-docs) · [OpenAPI](../openapi/README.md)
+- **To document the API contract once routes and auth shape are stable:** [Add API docs](add-api-docs.md#add-api-docs) · [OpenAPI](../../packages/openapi/docs/README.md)
 - **To turn the first real routes into a stable runtime, config, and worker-process shape:** [Deploy an app to production](deploy-an-app-to-production.md#deploy-an-app-to-production)
-- **To reuse the same service from the console next:** [Add CLI](add-cli.md#add-cli) · [05 — CLI reuse](../tutorial/05-cli.md#05-cli) · [CLI](../cli/README.md)
-- **To continue with stored data next:** [Persist data](persist-data.md#persist-data) · [04 — Stored data](../tutorial/04-data.md#04-data) · [ORM](../orm/README.md) · [DB](../db/README.md)
+- **To reuse the same service from the console next:** [Add CLI](add-cli.md#add-cli) · [05 — CLI reuse](../tutorial/05-cli.md#05-cli) · [CLI](../../packages/cli/docs/README.md)
+- **To continue with stored data next:** [Persist data](persist-data.md#persist-data) · [04 — Stored data](../tutorial/04-data.md#04-data) · [ORM](../../packages/orm/docs/README.md) · [DB](../../packages/db/docs/README.md)

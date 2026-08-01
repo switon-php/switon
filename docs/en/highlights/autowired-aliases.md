@@ -85,7 +85,7 @@ If only one instance exists, use plain type injection and let the default resolu
 
 ## See also {#see-also}
 
-- [DI Package](../di/README.md) — DI overview
-- [Autowired](../di/autowired.md#autowired) — resolution order and property injection rules
-- [Factory](../di/factory.md#factory) — named instance registration and aliasing
-- [DI Design Rationale](../di/design.md#design-rationale) — why Switon keeps instance selection explicit
+- [DI Package](../../packages/di/docs/README.md) — DI overview
+- [Autowired](../../packages/di/docs/autowired.md#autowired) — resolution order and property injection rules
+- [Factory](../../packages/di/docs/factory.md#factory) — named instance registration and aliasing
+- [DI Design Rationale](../../packages/di/docs/design.md#design-rationale) — why Switon keeps instance selection explicit

@@ -9,7 +9,7 @@ description: Turn request data into typed input objects and validate it before b
 
 Replace raw request reads with typed input objects and validation.
 
-**Primary packages:** [Typed input binding](../http/typed-input-binding.md#typed-input-binding) · [Validation](../validation/README.md)
+**Primary packages:** [Typed input binding](../../packages/http/docs/typed-input-binding.md#typed-input-binding) · [Validation](../../packages/validation/docs/README.md)
 
 ## Code {#shape}
 
