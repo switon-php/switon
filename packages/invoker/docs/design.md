@@ -7,7 +7,7 @@ the hook path separate.
 
 - [Invoker Package](README.md) — usage, boundaries, and configuration
 - [FAQ](faq.md#invoker-faq) — short answers and troubleshooting
-- [Invocation Package](../../invocation/docs/README.md) — guard and interceptor contracts
+- [Invocation Package](https://github.com/switon-php/invocation/blob/main/docs/README.md) — guard and interceptor contracts
 
 ## Core Problem {#core-problem}
 

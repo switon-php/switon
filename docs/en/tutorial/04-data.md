@@ -9,7 +9,7 @@ description: Replace fake results with real persistence so tasks survive restart
 
 Replace fake results with repository-backed persistence.
 
-**Primary package:** [ORM](../../packages/orm/docs/README.md)
+**Primary package:** [ORM](https://github.com/switon-php/orm/blob/main/docs/README.md)
 
 ## Code {#shape}
 

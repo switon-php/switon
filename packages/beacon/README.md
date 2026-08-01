@@ -29,7 +29,7 @@ bash bin/console config:check switon.yml config
 
 Point your agent or `AGENTS.md` at `vendor/switon/beacon/`.
 
-Docs: https://docs.switon.dev/latest/beacon
+Docs: https://github.com/switon-php/beacon/blob/main/docs/README.md
 
 ## License
 

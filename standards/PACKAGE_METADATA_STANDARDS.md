@@ -25,7 +25,7 @@ For `composer.json` metadata quality, discoverability, and consistency in publis
   - `authors`
   - `support.source`
   - `support.issues`
-- If the package has a published doc entry under `docs/en/{name}/README.md`, it should also define `support.docs`.
+- If the package has `docs/README.md`, `support.docs` must be the split-repo GitHub URL: `https://github.com/switon-php/{name}/blob/main/docs/README.md`.
 
 ## Description rules
 

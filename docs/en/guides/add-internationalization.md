@@ -253,11 +253,11 @@ Avoid these too early:
 
 ## Go deeper {#go-deeper}
 
-- **To add locale-aware pages after the first HTML path already works:** [Build HTML pages](build-html-pages.md#build-html-pages) · [View](../../packages/view/docs/README.md)
-- **To keep locale-aware API output small and explicit:** [Build an API](build-an-api.md#build-an-api) · [HTTP](../../packages/http/docs/README.md)
-- **To go deeper on translation files, fallback, and ICU:** [I18n](../../packages/i18n/docs/README.md)
-- **To keep locale selection request-local and runtime-safe:** [Context](../../packages/context/docs/README.md) · [I18n design rationale](../../packages/i18n/docs/design.md#design-rationale)
-- **To persist, delete, or scope locale cookies correctly:** [Cookies](../../packages/http/docs/cookies.md#cookies)
-- **To make validation errors use the same locale boundary:** [Validation](../../packages/validation/docs/README.md)
-- **To observe content gaps instead of failing requests:** [Event system](../../packages/event/docs/README.md) · [I18n FAQ](../../packages/i18n/docs/faq.md#i18n-faq)
+- **To add locale-aware pages after the first HTML path already works:** [Build HTML pages](build-html-pages.md#build-html-pages) · [View](https://github.com/switon-php/view/blob/main/docs/README.md)
+- **To keep locale-aware API output small and explicit:** [Build an API](build-an-api.md#build-an-api) · [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
+- **To go deeper on translation files, fallback, and ICU:** [I18n](https://github.com/switon-php/i18n/blob/main/docs/README.md)
+- **To keep locale selection request-local and runtime-safe:** [Context](https://github.com/switon-php/context/blob/main/docs/README.md) · [I18n design rationale](https://github.com/switon-php/i18n/blob/main/docs/design.md#design-rationale)
+- **To persist, delete, or scope locale cookies correctly:** [Cookies](https://github.com/switon-php/http/blob/main/docs/cookies.md#cookies)
+- **To make validation errors use the same locale boundary:** [Validation](https://github.com/switon-php/validation/blob/main/docs/README.md)
+- **To observe content gaps instead of failing requests:** [Event system](https://github.com/switon-php/event/blob/main/docs/README.md) · [I18n FAQ](https://github.com/switon-php/i18n/blob/main/docs/faq.md#i18n-faq)
 - **To test locale-driven output before widening the message catalog:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)

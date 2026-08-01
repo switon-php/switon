@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/principal",
         "issues": "https://github.com/switon-php/principal/issues",
-        "docs": "https://docs.switon.dev/latest/principal"
+        "docs": "https://github.com/switon-php/principal/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

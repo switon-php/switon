@@ -10,7 +10,7 @@ Start from the risk that would hurt you most if it silently regressed.
 | First target | Best when | Keep in mind |
 |---|---|---|
 | service behavior | business rules, branching, mapping, or side effects are the part most likely to change | best default first step; keep assertions on observable outcomes such as returned values, thrown exceptions, emitted events, or persisted state and use `Switon\Testing\TestCase` |
-| database behavior | SQL, constraints, repository behavior, or transaction boundaries must be real | use [Testing Database Code](../../packages/db/docs/testing.md#testing-database-code); mocking is fine for service collaborators, but it does **not** prove SQL or constraint behavior |
+| database behavior | SQL, constraints, repository behavior, or transaction boundaries must be real | use [Testing Database Code](https://github.com/switon-php/db/blob/main/docs/testing.md#testing-database-code); mocking is fine for service collaborators, but it does **not** prove SQL or constraint behavior |
 | HTTP-adjacent behavior | request input object shape, authorization markers, or response coordination must stay thin and readable | keep controllers small; if controller tests feel heavy, move behavior down into services first |
 
 A practical first testing slice often includes one service success-path test, one failure-path test, and one database-backed test only where real persistence behavior matters.
@@ -29,12 +29,12 @@ Move business behavior into a service first, then let HTTP or CLI stay as a thin
 
 ### 3. Add one fast test on `Switon\Testing\TestCase` {#build-fast-test}
 
-Use [Testing](../../packages/testing/docs/README.md) as the normal first move.
+Use [Testing](https://github.com/switon-php/testing/blob/main/docs/README.md) as the normal first move.
 Create the subject with `$this->make()`, keep replacements in `setUpContainer()`, and assert behavior that a reader can understand without tracing private state.
 
 ### 4. Add a real database test only where the data boundary is the risk {#build-db-test}
 
-When correctness depends on SQL shape, constraints, or repository behavior, add one focused real-database case through [Testing Database Code](../../packages/db/docs/testing.md#testing-database-code).
+When correctness depends on SQL shape, constraints, or repository behavior, add one focused real-database case through [Testing Database Code](https://github.com/switon-php/db/blob/main/docs/testing.md#testing-database-code).
 Do not turn every test into a database test just because the app eventually stores data.
 
 ### 5. Keep transport-specific tests narrow {#build-transport-narrow}
@@ -115,7 +115,7 @@ That keeps the test close to real DI behavior while making one collaborator pred
 
 ### Real database path when persistence is the thing you must prove {#wiring-db}
 
-Use [Testing Database Code](../../packages/db/docs/testing.md#testing-database-code) when the risk is real storage behavior:
+Use [Testing Database Code](https://github.com/switon-php/db/blob/main/docs/testing.md#testing-database-code) when the risk is real storage behavior:
 
 ```php
 use Switon\Db\ClientInterface;
@@ -162,9 +162,9 @@ A beginner should feel this after finishing the first testing path:
 
 - **To connect this after the first API or page path:** [Build an API](build-an-api.md#build-an-api) · [Build HTML pages](build-html-pages.md#build-html-pages)
 - **To connect this after stored application state becomes real:** [Persist data](persist-data.md#persist-data)
-- **To keep using the shared test container and runner surface:** [Testing](../../packages/testing/docs/README.md)
-- **To prove SQL, repository behavior, or transaction boundaries:** [Testing Database Code](../../packages/db/docs/testing.md#testing-database-code) · [DB](../../packages/db/docs/README.md)
-- **To keep HTTP handlers thin while request behavior grows:** [Add cross-cutting HTTP behavior](add-cross-cutting-http-behavior.md#add-cross-cutting-http-behavior) · [HTTP](../../packages/http/docs/README.md)
+- **To keep using the shared test container and runner surface:** [Testing](https://github.com/switon-php/testing/blob/main/docs/README.md)
+- **To prove SQL, repository behavior, or transaction boundaries:** [Testing Database Code](https://github.com/switon-php/db/blob/main/docs/testing.md#testing-database-code) · [DB](https://github.com/switon-php/db/blob/main/docs/README.md)
+- **To keep HTTP handlers thin while request behavior grows:** [Add cross-cutting HTTP behavior](add-cross-cutting-http-behavior.md#add-cross-cutting-http-behavior) · [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
 - **To add login and protected-endpoint behavior after the base path is already testable:** [Add authentication](add-authentication.md#add-authentication)
 - **To publish stable routes only after behavior is already trusted:** [Add API docs](add-api-docs.md#add-api-docs)
 - **To reuse the same app behavior from the console:** [Add CLI](add-cli.md#add-cli)

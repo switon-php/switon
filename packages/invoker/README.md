@@ -36,7 +36,7 @@ class RequestHandler
 }
 ```
 
-Docs: https://docs.switon.dev/latest/invoker
+Docs: https://github.com/switon-php/invoker/blob/main/docs/README.md
 
 ## License
 

@@ -85,7 +85,7 @@ If only one instance exists, use plain type injection and let the default resolu
 
 ## See also {#see-also}
 
-- [DI Package](../../packages/di/docs/README.md) — DI overview
-- [Autowired](../../packages/di/docs/autowired.md#autowired) — resolution order and property injection rules
-- [Factory](../../packages/di/docs/factory.md#factory) — named instance registration and aliasing
-- [DI Design Rationale](../../packages/di/docs/design.md#design-rationale) — why Switon keeps instance selection explicit
+- [DI Package](https://github.com/switon-php/di/blob/main/docs/README.md) — DI overview
+- [Autowired](https://github.com/switon-php/di/blob/main/docs/autowired.md#autowired) — resolution order and property injection rules
+- [Factory](https://github.com/switon-php/di/blob/main/docs/factory.md#factory) — named instance registration and aliasing
+- [DI Design Rationale](https://github.com/switon-php/di/blob/main/docs/design.md#design-rationale) — why Switon keeps instance selection explicit

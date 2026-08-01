@@ -37,7 +37,6 @@ This repo now has three skill scopes:
 - **Docs user-value audit (whether users will actually like and benefit from the docs)** → `sps-audit-docs-user-value`
 - **Defaults UX audit (first-run defaults and config burden)** → `sps-audit-defaults-ux`
 - **Observability UX audit (diagnostics and troubleshooting speed)** → `sps-audit-observability-ux`
-- **Multilingual docs localization / 多语言文档本地化** → `sps-docs-l10n`
 - **Dual-agent doc review / 双代理文档审查** → `sps-dual-doc-review`
 - **PHPDoc authoring and optimization** → `sps-phpdoc`
 - **`@see` mesh auditing and repair** → `sps-phpdoc-see-mesh` (existence check: `php skills/sps-phpdoc-see-mesh/scripts/validate-see-exists.php` from repo root)

@@ -9,7 +9,7 @@ description: Reuse the same task logic from the console so application code is n
 
 Run the same task logic from CLI to prove entrypoint reuse.
 
-**Primary package:** [CLI](../../packages/cli/docs/README.md#quick-start)
+**Primary package:** [CLI](https://github.com/switon-php/cli/blob/main/docs/README.md#quick-start)
 
 ## Code {#shape}
 

@@ -9,7 +9,7 @@ Short answers for scoped service state, isolation modes, and common coroutine pi
 ### When should I use Context? {#use-context}
 
 Use Context when one long-lived service owns mutable state across multiple methods and that state must follow the current request or coroutine scope. If you only need a one-step handoff, request attributes are usually simpler.
-See [Context Package](README.md) and [HTTP Request](../../http/docs/request.md#request).
+See [Context Package](README.md) and [HTTP Request](https://github.com/switon-php/http/blob/main/docs/request.md#request).
 
 ### Why inject `Switon\Core\ContextManagerInterface`? {#inject-core-interface}
 

@@ -5,13 +5,13 @@ For a first pass, prove one simple `ViewMapping` page before you add layouts, mi
 
 ## Components in play {#components-in-play}
 
-- **[Kernel](../../packages/kernel/docs/README.md)** — bootstraps env, config, and services before request handling starts
-- **[HTTP](../../packages/http/docs/README.md)** — provides the request/response lifecycle for the application
-- **[Controller](../../packages/http/docs/controller.md#controller)** — shows how `RequestMapping`, `ViewMapping`, `ViewGetMapping`, and `ViewPostMapping` work together for controller-facing HTML routes (`RequestMapping` for shared route prefixes, `ViewMapping` for action-run HTML pages, `ViewGetMapping` / `ViewPostMapping` for mode-aware page actions)
-- **[Router](../../packages/router/docs/README.md)** — registers the route shape and view-mapping behavior
-- **[View](../../packages/view/docs/README.md)** — owns page conventions such as template mapping, layout state, widgets, and HTML response integration
-- **[Renderer](../../packages/renderer/docs/README.md)** — owns low-level template execution, `.phtml` / `.sword`, sections, stacks, and partials
-- **[DI](../../packages/di/docs/README.md)** — keeps controllers thin and moves page data loading into services
+- **[Kernel](https://github.com/switon-php/kernel/blob/main/docs/README.md)** — bootstraps env, config, and services before request handling starts
+- **[HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)** — provides the request/response lifecycle for the application
+- **[Controller](https://github.com/switon-php/http/blob/main/docs/controller.md#controller)** — shows how `RequestMapping`, `ViewMapping`, `ViewGetMapping`, and `ViewPostMapping` work together for controller-facing HTML routes (`RequestMapping` for shared route prefixes, `ViewMapping` for action-run HTML pages, `ViewGetMapping` / `ViewPostMapping` for mode-aware page actions)
+- **[Router](https://github.com/switon-php/router/blob/main/docs/README.md)** — registers the route shape and view-mapping behavior
+- **[View](https://github.com/switon-php/view/blob/main/docs/README.md)** — owns page conventions such as template mapping, layout state, widgets, and HTML response integration
+- **[Renderer](https://github.com/switon-php/renderer/blob/main/docs/README.md)** — owns low-level template execution, `.phtml` / `.sword`, sections, stacks, and partials
+- **[DI](https://github.com/switon-php/di/blob/main/docs/README.md)** — keeps controllers thin and moves page data loading into services
 
 Common shape: controller mappings pick the route, `View` owns page conventions, `Renderer` executes templates, and services provide page data.
 
@@ -155,7 +155,7 @@ This pattern is powerful, but it should come **after** one simple `ViewMapping` 
 - **Mixed shell/data routes everywhere** — start with one simple `ViewMapping` page before you optimize with `ViewGetMapping` or `ViewPostMapping`
 - **Business logic in templates** — templates should present data, not decide core application behavior
 - **Renderer as a page-routing layer** — keep `Renderer` for template execution and `View` for page conventions
-- **Identity and access** — add [authentication](add-authentication.md#add-authentication), [Session](../../packages/session/docs/README.md), and [Authz](../../packages/authz/docs/README.md) after the first page route is stable
+- **Identity and access** — add [authentication](add-authentication.md#add-authentication), [Session](https://github.com/switon-php/session/blob/main/docs/README.md), and [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md) after the first page route is stable
 - **Broader frontend concerns** — asset pipelines, theme systems, hydration, and SPA tooling should not shape the first server-rendered page
 - **Performance policy too early** — page caching and deployment tuning matter later, not before the HTML path is correct
 
@@ -163,11 +163,11 @@ This pattern is powerful, but it should come **after** one simple `ViewMapping` 
 
 - **To learn the same path as a framework model first:** [Core concepts](../concepts/README.md#switon-fundamentals) · [Understand the request lifecycle](../concepts/request-lifecycle.md#request-lifecycle)
 - **To build a JSON-first path instead:** [Build an API](build-an-api.md#build-an-api)
-- **To go deeper on controller mappings and request-mode behavior:** [Controller](../../packages/http/docs/controller.md#view-rendering) · [Router](../../packages/router/docs/README.md#view-mappings)
-- **To go deeper on page conventions, layouts, widgets, and request-scoped vars:** [View](../../packages/view/docs/README.md)
-- **To go deeper on `.sword`, `.phtml`, sections, stacks, and partials:** [Renderer](../../packages/renderer/docs/README.md)
-- **To add translated page text, request-scoped locale selection, or persisted language preference next:** [Add internationalization](add-internationalization.md#add-internationalization) · [I18n](../../packages/i18n/docs/README.md)
-- **To keep controllers thin and move page data into services:** [DI](../../packages/di/docs/README.md) · [Understand service boundaries](../concepts/service-boundaries.md#service-boundaries)
-- **To add login, sessions, or protected page routes next:** [Add authentication](add-authentication.md#add-authentication) · [Session](../../packages/session/docs/README.md) · [Authz](../../packages/authz/docs/README.md)
-- **To persist or query the data behind the page next:** [Persist data](persist-data.md#persist-data) · [ORM](../../packages/orm/docs/README.md) · [DB](../../packages/db/docs/README.md)
+- **To go deeper on controller mappings and request-mode behavior:** [Controller](https://github.com/switon-php/http/blob/main/docs/controller.md#view-rendering) · [Router](https://github.com/switon-php/router/blob/main/docs/README.md#view-mappings)
+- **To go deeper on page conventions, layouts, widgets, and request-scoped vars:** [View](https://github.com/switon-php/view/blob/main/docs/README.md)
+- **To go deeper on `.sword`, `.phtml`, sections, stacks, and partials:** [Renderer](https://github.com/switon-php/renderer/blob/main/docs/README.md)
+- **To add translated page text, request-scoped locale selection, or persisted language preference next:** [Add internationalization](add-internationalization.md#add-internationalization) · [I18n](https://github.com/switon-php/i18n/blob/main/docs/README.md)
+- **To keep controllers thin and move page data into services:** [DI](https://github.com/switon-php/di/blob/main/docs/README.md) · [Understand service boundaries](../concepts/service-boundaries.md#service-boundaries)
+- **To add login, sessions, or protected page routes next:** [Add authentication](add-authentication.md#add-authentication) · [Session](https://github.com/switon-php/session/blob/main/docs/README.md) · [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md)
+- **To persist or query the data behind the page next:** [Persist data](persist-data.md#persist-data) · [ORM](https://github.com/switon-php/orm/blob/main/docs/README.md) · [DB](https://github.com/switon-php/db/blob/main/docs/README.md)
 - **To turn the page into a stable production shape:** [Deploy an app to production](deploy-an-app-to-production.md#deploy-an-app-to-production)

@@ -11,7 +11,7 @@ rollback-based cleanup on one pinned client.
 - **Transaction cleanup** — `getTransient()` + `begin()` / `rollback()` for fast rollback-based cleanup on one pinned
   client
 
-> **Prerequisites:** [DB Package](README.md) · [Testing package](../../testing/docs/README.md)
+> **Prerequisites:** [DB Package](README.md) · [Testing package](https://github.com/switon-php/testing/blob/main/docs/README.md)
 
 See also: [DB Package — Quick Start](README.md#quick-start) · [Transient Connections](README.md#transient-connections)
 
@@ -362,7 +362,7 @@ Rebind `ClientInterface` to `$this->tx` in the container before `$this->make(...
 ## Next {#next}
 
 - [DB Package](README.md) — clients, transactions, and safety rules
-- [Testing package](../../testing/docs/README.md) — test harness and conventions
+- [Testing package](https://github.com/switon-php/testing/blob/main/docs/README.md) — test harness and conventions
 - [FAQ](faq.md#db-faq) — common questions and troubleshooting
 - [Design Rationale](design.md#design-rationale) — why the DB boundaries are shaped this way
-- [Tutorial](../../../docs/en/tutorial/README.md#tutorial) — first app path across packages
+- [ORM Package](https://github.com/switon-php/orm/blob/main/docs/README.md) — repositories and entity persistence on top of DB

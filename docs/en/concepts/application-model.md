@@ -44,7 +44,7 @@ This gives you one stable mental model:
 - `switon.yml` describes the normal application shape
 - optional PHP config handles values YAML cannot express cleanly, such as computed values, conditional registration, or small programmatic patches
 
-For the authoritative details, use [Kernel](../../packages/kernel/docs/README.md) and [Core Package](../../packages/core/docs/README.md#core-concepts).
+For the authoritative details, use [Kernel](https://github.com/switon-php/kernel/blob/main/docs/README.md) and [Core Package](https://github.com/switon-php/core/blob/main/docs/README.md#core-concepts).
 
 ## App metadata and runtime scene {#app-runtime-scene}
 
@@ -61,7 +61,7 @@ A practical default:
 - reach for `AppInterface` in normal application code
 - reach for `SceneManagerInterface` only when scene-aware behavior is actually required
 
-See [Core Package](../../packages/core/docs/README.md#app-metadata-vs-scene) for the owner doc.
+See [Core Package](https://github.com/switon-php/core/blob/main/docs/README.md#app-metadata-vs-scene) for the owner doc.
 
 ## Providers versus application code {#providers-application-code}
 
@@ -76,7 +76,7 @@ Use this split:
 That means most app code should not start from provider classes, static container access, or manual bootstrap hooks.
 If the class is normal application behavior, the first question is usually not "which provider should I edit?" but "which service boundary should own this?"
 
-See [Core](../../packages/core/docs/README.md), [DI](../../packages/di/docs/README.md), and [Kernel — service providers](../../packages/kernel/docs/README.md#service-providers).
+See [Core](https://github.com/switon-php/core/blob/main/docs/README.md), [DI](https://github.com/switon-php/di/blob/main/docs/README.md), and [Kernel — service providers](https://github.com/switon-php/kernel/blob/main/docs/README.md#service-providers).
 
 ## Typical application shape {#typical-application-shape}
 

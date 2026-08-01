@@ -36,7 +36,7 @@ class UserService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/log
+Docs: https://github.com/switon-php/log/blob/main/docs/README.md
 
 ## License
 

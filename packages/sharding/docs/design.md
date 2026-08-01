@@ -6,7 +6,7 @@
 
 - [Sharding Package](README.md) — routing rules, configuration, and limits
 - [FAQ](faq.md#sharding-faq) — short answers for setup and common issues
-- [ORM sharding guide](../../orm/docs/sharding.md#sharding-guide) — entity metadata and repository behavior
+- [ORM sharding guide](https://github.com/switon-php/orm/blob/main/docs/sharding.md#sharding-guide) — entity metadata and repository behavior
 
 ---
 

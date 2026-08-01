@@ -8,11 +8,11 @@ Start with the boundary that matches what the caller really needs.
 
 | Boundary | Best when | Keep in mind |
 |---|---|---|
-| [Executor](../../packages/executor/docs/README.md) | the caller wants runner execution in the current runtime without durable transport | strong for shared `RunnerInterface` execution, not for queue-backed reply contracts |
-| [Queue](../../packages/queue/docs/README.md) | the caller can continue after enqueue and does not need a reply now | best default when durable one-way delivery matters more than immediate completion |
-| [RPC](../../packages/rpc/docs/README.md) | the caller must wait for exactly one worker reply | keeps queue transport underneath, but adds timeout, reply matching, and remote-failure semantics |
-| [HTTP](../../packages/http/docs/README.md) | callers are browsers, external systems, or other language stacks | better fit when the protocol boundary is no longer queue-native PHP-to-PHP communication |
-| [Redis](../../packages/redis/docs/README.md) | reply traffic now needs separate clients, databases, or pool policy | tune this only when the backing-client boundary is the real problem |
+| [Executor](https://github.com/switon-php/executor/blob/main/docs/README.md) | the caller wants runner execution in the current runtime without durable transport | strong for shared `RunnerInterface` execution, not for queue-backed reply contracts |
+| [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) | the caller can continue after enqueue and does not need a reply now | best default when durable one-way delivery matters more than immediate completion |
+| [RPC](https://github.com/switon-php/rpc/blob/main/docs/README.md) | the caller must wait for exactly one worker reply | keeps queue transport underneath, but adds timeout, reply matching, and remote-failure semantics |
+| [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md) | callers are browsers, external systems, or other language stacks | better fit when the protocol boundary is no longer queue-native PHP-to-PHP communication |
+| [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) | reply traffic now needs separate clients, databases, or pool policy | tune this only when the backing-client boundary is the real problem |
 
 One common application shape is:
 
@@ -126,7 +126,7 @@ From the app root, keep the first worker path obvious:
 bash bin/console rpc:daemon
 ```
 
-If your project does not provide `bin/console`, follow the fallback entry shape in [CLI Quick Start](../../packages/cli/docs/README.md#fallback-entry).
+If your project does not provide `bin/console`, follow the fallback entry shape in [CLI Quick Start](https://github.com/switon-php/cli/blob/main/docs/README.md#fallback-entry).
 
 The first success line is small:
 
@@ -144,7 +144,7 @@ Avoid these too early:
 - **Starting callers before a daemon reads the same queue** — no worker means the caller eventually times out
 - **Hiding the first contract behind aliases too early** — start with one direct `ClassName::method` target before you add `methods`
 - **Treating timeout as proof the worker never ran** — `Switon\Rpc\Exception\RpcTimeoutException` only proves the caller did not receive a matching reply in time
-- **Using RPC as a public API surface** — move to [HTTP](../../packages/http/docs/README.md) when browsers, external services, or other language stacks are the real boundary
+- **Using RPC as a public API surface** — move to [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md) when browsers, external services, or other language stacks are the real boundary
 - **Designing streaming or service discovery before one reply path is trustworthy** — keep the first queue-backed reply flow readable and testable
 
 A beginner should feel this after finishing the first reply path:
@@ -153,8 +153,8 @@ A beginner should feel this after finishing the first reply path:
 
 ## Go deeper {#go-deeper}
 
-- **To start from one-way durable handoff before the caller waits:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](../../packages/queue/docs/README.md)
-- **To go deeper on reply protocol, aliases, and failure surfaces:** [RPC](../../packages/rpc/docs/README.md)
-- **To understand the transport and execution layers underneath:** [Queue](../../packages/queue/docs/README.md) · [Executor](../../packages/executor/docs/README.md)
-- **To expose browser-facing or public request/response instead:** [HTTP](../../packages/http/docs/README.md)
-- **To tune Redis clients, pools, or key-space policy:** [Redis](../../packages/redis/docs/README.md) · [DI](../../packages/di/docs/README.md#quick-start)
+- **To start from one-way durable handoff before the caller waits:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md)
+- **To go deeper on reply protocol, aliases, and failure surfaces:** [RPC](https://github.com/switon-php/rpc/blob/main/docs/README.md)
+- **To understand the transport and execution layers underneath:** [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) · [Executor](https://github.com/switon-php/executor/blob/main/docs/README.md)
+- **To expose browser-facing or public request/response instead:** [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
+- **To tune Redis clients, pools, or key-space policy:** [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) · [DI](https://github.com/switon-php/di/blob/main/docs/README.md#quick-start)

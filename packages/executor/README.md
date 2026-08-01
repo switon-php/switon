@@ -59,7 +59,7 @@ final class ReportService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/executor
+Docs: https://github.com/switon-php/executor/blob/main/docs/README.md
 
 ## License
 

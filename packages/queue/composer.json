@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/queue",
         "issues": "https://github.com/switon-php/queue/issues",
-        "docs": "https://docs.switon.dev/latest/queue"
+        "docs": "https://github.com/switon-php/queue/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

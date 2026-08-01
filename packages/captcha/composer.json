@@ -20,7 +20,7 @@
     "support": {
         "source": "https://github.com/switon-php/captcha",
         "issues": "https://github.com/switon-php/captcha/issues",
-        "docs": "https://docs.switon.dev/latest/captcha"
+        "docs": "https://github.com/switon-php/captcha/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

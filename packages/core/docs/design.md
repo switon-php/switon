@@ -5,8 +5,8 @@
 
 - [Core Package](README.md) — contracts, conventions, and the main learning path
 - [FAQ](faq.md#core-faq) — short answers for edge cases and first-run confusion
-- [Kernel Package](../../kernel/docs/README.md) — owns executable startup ordering
-- [DI Package](../../di/docs/README.md) — owns container behavior and lazy proxies
+- [Kernel Package](https://github.com/switon-php/kernel/blob/main/docs/README.md) — owns executable startup ordering
+- [DI Package](https://github.com/switon-php/di/blob/main/docs/README.md) — owns container behavior and lazy proxies
 
 ---
 

@@ -39,7 +39,7 @@ final class UserService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/query
+Docs: https://github.com/switon-php/query/blob/main/docs/README.md
 
 ## License
 

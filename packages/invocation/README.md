@@ -54,7 +54,7 @@ final class AccountService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/invocation
+Docs: https://github.com/switon-php/invocation/blob/main/docs/README.md
 
 ## License
 

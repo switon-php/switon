@@ -38,7 +38,7 @@ class UserController
 }
 ```
 
-Docs: https://docs.switon.dev/latest/router
+Docs: https://github.com/switon-php/router/blob/main/docs/README.md
 
 ## License
 

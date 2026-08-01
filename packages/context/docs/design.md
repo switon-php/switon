@@ -7,8 +7,8 @@
 - [Context Package](README.md) — usage, boundaries, and first integration
 - [FAQ](faq.md#context-faq) — common questions and troubleshooting
 - [Context internals](internals/README.md) — evolution notes when you need implementation rationale
-- [HTTP Request](../../http/docs/request.md#request) — request attributes for one-step handoffs
-- [Core Package](../../core/docs/README.md) — `ContextAware`, `ContextManagerInterface`, and `#[Communal]`
+- [HTTP Request](https://github.com/switon-php/http/blob/main/docs/request.md#request) — request attributes for one-step handoffs
+- [Core Package](https://github.com/switon-php/core/blob/main/docs/README.md) — `ContextAware`, `ContextManagerInterface`, and `#[Communal]`
 
 ---
 

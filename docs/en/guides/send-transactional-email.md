@@ -8,9 +8,9 @@ Start with the boundary that matches the real delivery problem.
 
 | Boundary | Best when | Keep in mind |
 |---|---|---|
-| [Mail](../../packages/mail/docs/README.md) | one application service can send immediately after the business action succeeds | strongest default for the first welcome, receipt, or approval email when request latency is acceptable |
-| [Queue](../../packages/queue/docs/README.md) | SMTP latency, retries, or process separation matter more than immediate completion | use this when the user-facing request should finish without waiting on SMTP; keep the mail service the same and change only the producer-to-worker handoff |
-| [Schedule](../../packages/schedule/docs/README.md) | the email should start from a time rule, such as reminder or follow-up delivery | schedule decides **when** to trigger work; it does not replace the mail send boundary |
+| [Mail](https://github.com/switon-php/mail/blob/main/docs/README.md) | one application service can send immediately after the business action succeeds | strongest default for the first welcome, receipt, or approval email when request latency is acceptable |
+| [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) | SMTP latency, retries, or process separation matter more than immediate completion | use this when the user-facing request should finish without waiting on SMTP; keep the mail service the same and change only the producer-to-worker handoff |
+| [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md) | the email should start from a time rule, such as reminder or follow-up delivery | schedule decides **when** to trigger work; it does not replace the mail send boundary |
 | [Add authentication](add-authentication.md#add-authentication) | the email comes from signup, login recovery, or protected account flows | keep identity, token, and access rules separate from the outbound-mail boundary |
 
 One common application shape is:
@@ -47,7 +47,7 @@ Keep delivery in-request when all three are true:
 - a send failure should fail the same request or command
 - you do not need durable handoff yet
 
-Move to [Queue](../../packages/queue/docs/README.md) when signup, checkout, or other user-facing paths should complete without waiting on SMTP success.
+Move to [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) when signup, checkout, or other user-facing paths should complete without waiting on SMTP success.
 
 ### 5. Add one visible success path and one visible failure path {#build-visibility}
 
@@ -55,13 +55,13 @@ Before you scale delivery, confirm two things:
 - one real or test path reaches `MailSent`
 - one bad configuration or delivery failure reaches a visible log or failure surface
 
-If you are not observing `MailSent` yet, add one small listener or log hook first. See [Mail events](../../packages/mail/docs/README.md#events), [Mail failures](../../packages/mail/docs/README.md#failures), [Event](../../packages/event/docs/README.md), and [Log](../../packages/log/docs/README.md#quick-start).
+If you are not observing `MailSent` yet, add one small listener or log hook first. See [Mail events](https://github.com/switon-php/mail/blob/main/docs/README.md#events), [Mail failures](https://github.com/switon-php/mail/blob/main/docs/README.md#failures), [Event](https://github.com/switon-php/event/blob/main/docs/README.md), and [Log](https://github.com/switon-php/log/blob/main/docs/README.md#quick-start).
 
 The first trustworthy mail path needs observability before it needs multiple providers.
 
 ### 6. Add reminders or follow-ups as a separate time-based boundary {#build-schedule}
 
-If the email should go out tomorrow, every week, or after an expiry window, keep that trigger in [Schedule](../../packages/schedule/docs/README.md) or [Add recurring work](add-recurring-work.md#add-recurring-work).
+If the email should go out tomorrow, every week, or after an expiry window, keep that trigger in [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md) or [Add recurring work](add-recurring-work.md#add-recurring-work).
 Do not overload the original signup or checkout request with future-delivery logic.
 
 ### 7. Stop before campaign or provider-platform design {#build-stop}
@@ -92,7 +92,7 @@ Switon\Mail\MailerInterface:
   from_name: Example App
 ```
 
-Use the component guide for deeper SMTP or pool tuning: [Mail](../../packages/mail/docs/README.md#quick-start).
+Use the component guide for deeper SMTP or pool tuning: [Mail](https://github.com/switon-php/mail/blob/main/docs/README.md#quick-start).
 
 ### Keep rendering and sending behind one application service {#wiring-service}
 
@@ -262,9 +262,9 @@ Keep the first transactional-email path intentionally narrow.
 Avoid these too early:
 
 - **Rendering mail bodies inside controllers, jobs, or tasks** — keep one app-owned render boundary before `MailerInterface`
-- **Coupling business success to SMTP by accident** — if request latency or delivery failure should not block the user path, move to [Queue](../../packages/queue/docs/README.md)
+- **Coupling business success to SMTP by accident** — if request latency or delivery failure should not block the user path, move to [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md)
 - **Letting `mail` choose your token or link model** — reset tokens, signed URLs, and account policy belong in application code
-- **Treating scheduled reminders as delayed request logic** — use [Schedule](../../packages/schedule/docs/README.md) when time is the real trigger
+- **Treating scheduled reminders as delayed request logic** — use [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md) when time is the real trigger
 - **Designing multi-provider failover, campaigns, or analytics before one mail path is trustworthy** — make one welcome, reset, or receipt path observable first
 - **Ignoring the failure split between invalid messages and delivery problems** — caller mistakes and SMTP/runtime failures are different boundaries
 
@@ -275,8 +275,8 @@ A beginner should feel this after finishing the first transactional-email path:
 ## Go deeper {#go-deeper}
 
 - **To send this from signup, recovery, or protected account flows:** [Add authentication](add-authentication.md#add-authentication)
-- **To keep delivery in the request and go deeper on SMTP, message building, and failures:** [Mail](../../packages/mail/docs/README.md)
-- **To hand the same mail path to durable workers:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](../../packages/queue/docs/README.md)
-- **To trigger reminders or follow-ups on a time rule:** [Add recurring work](add-recurring-work.md#add-recurring-work) · [Schedule](../../packages/schedule/docs/README.md)
-- **To observe send lifecycle or failure hooks:** [Event](../../packages/event/docs/README.md) · [Log](../../packages/log/docs/README.md)
+- **To keep delivery in the request and go deeper on SMTP, message building, and failures:** [Mail](https://github.com/switon-php/mail/blob/main/docs/README.md)
+- **To hand the same mail path to durable workers:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md)
+- **To trigger reminders or follow-ups on a time rule:** [Add recurring work](add-recurring-work.md#add-recurring-work) · [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md)
+- **To observe send lifecycle or failure hooks:** [Event](https://github.com/switon-php/event/blob/main/docs/README.md) · [Log](https://github.com/switon-php/log/blob/main/docs/README.md)
 - **To protect the first mail-producing path before you widen it:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)

@@ -8,11 +8,11 @@ Start with the boundary that matches the delivery guarantee your application act
 
 | Boundary | Best when | Keep in mind |
 |---|---|---|
-| [Executor](../../packages/executor/docs/README.md) | the caller wants lightweight runner execution in the current runtime, not durable transport | strongest for in-process execution and lifecycle hooks, not for surviving worker/process failure |
-| [Queue](../../packages/queue/docs/README.md) | one-way work should survive process boundaries and be consumed by worker loops later | best default when transport durability matters more than immediate completion |
-| [RPC](../../packages/rpc/docs/README.md) | the caller must wait for one reply from a worker | built on queue transport, but adds a stricter reply contract and timeout surface |
-| [Schedule](../../packages/schedule/docs/README.md) | time rules decide **when** work starts, but the actual handoff may still need durability | pair with queue when a recurring producer should enqueue work instead of finishing it inline |
-| [Redis](../../packages/redis/docs/README.md) | queue traffic now needs separate clients, databases, or pool policy | tune this only when the backing-client boundary is the real problem |
+| [Executor](https://github.com/switon-php/executor/blob/main/docs/README.md) | the caller wants lightweight runner execution in the current runtime, not durable transport | strongest for in-process execution and lifecycle hooks, not for surviving worker/process failure |
+| [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) | one-way work should survive process boundaries and be consumed by worker loops later | best default when transport durability matters more than immediate completion |
+| [RPC](https://github.com/switon-php/rpc/blob/main/docs/README.md) | the caller must wait for one reply from a worker | built on queue transport, but adds a stricter reply contract and timeout surface |
+| [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md) | time rules decide **when** work starts, but the actual handoff may still need durability | pair with queue when a recurring producer should enqueue work instead of finishing it inline |
+| [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) | queue traffic now needs separate clients, databases, or pool policy | tune this only when the backing-client boundary is the real problem |
 
 One common application shape is:
 
@@ -50,7 +50,7 @@ Call `migrateDue()` in the worker loop that owns delayed migration, or keep dela
 Before you add more queues, confirm three things:
 - the producer can push one envelope successfully
 - one worker pass can `pull()` and `consume()` the expected queue
-- `stats('<queue>')` (see [Queue stats](../../packages/queue/docs/README.md#stats)) or your operator-facing queue probe shows that you are looking at the right logical queue
+- `stats('<queue>')` (see [Queue stats](https://github.com/switon-php/queue/blob/main/docs/README.md#stats)) or your operator-facing queue probe shows that you are looking at the right logical queue
 
 ### 6. Add idempotency and minimal failure visibility before scale {#build-idempotency}
 
@@ -106,7 +106,7 @@ final class UserRegistrationService
 
 ### One queued runner owns the worker boundary {#wiring-job}
 
-Use [Queue](../../packages/queue/docs/README.md) to map the logical queue to one runner class:
+Use [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) to map the logical queue to one runner class:
 
 ```php
 namespace App\Job;
@@ -210,7 +210,7 @@ Avoid these too early:
 - **Treating enqueue success as proof that a job is discoverable** — the failure can still appear later at `consume()` time
 - **Expecting `#[Queued(..., concurrency: N)]` to manage workers for you** — that metadata does not become a built-in supervisor or transport throttle by itself
 - **Assuming delayed work appears automatically in `pull()`** — call `migrateDue()` when delays are part of the design
-- **Using queueing when the caller really needs one reply** — move to [RPC](../../packages/rpc/docs/README.md) for request/reply semantics
+- **Using queueing when the caller really needs one reply** — move to [RPC](https://github.com/switon-php/rpc/blob/main/docs/README.md) for request/reply semantics
 - **Designing retries, dead-letter routing, or exactly-once guarantees before one worker path is trustworthy** — keep the first queue win readable and testable
 
 A beginner should feel this after finishing the first durable path:
@@ -221,10 +221,10 @@ A beginner should feel this after finishing the first durable path:
 
 - **To connect this after a recurring producer path:** [Add recurring work](add-recurring-work.md#add-recurring-work) · [Timed cleanup](../tutorial/timed-cleanup.md#timed-cleanup)
 - **To use durable workers for welcome, reset, or receipt mail instead of generic job design:** [Send transactional email](send-transactional-email.md#send-transactional-email)
-- **To go deeper on transport, discovery, and worker topology:** [Queue](../../packages/queue/docs/README.md)
-- **To manage runner execution and lifecycle hooks directly:** [Executor](../../packages/executor/docs/README.md)
-- **To tune Redis clients, pools, or key-space policy:** [Redis](../../packages/redis/docs/README.md) · [DI](../../packages/di/docs/README.md#quick-start)
+- **To go deeper on transport, discovery, and worker topology:** [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md)
+- **To manage runner execution and lifecycle hooks directly:** [Executor](https://github.com/switon-php/executor/blob/main/docs/README.md)
+- **To tune Redis clients, pools, or key-space policy:** [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) · [DI](https://github.com/switon-php/di/blob/main/docs/README.md#quick-start)
 - **To run durable workers alongside HTTP and scheduler processes in one go-live shape:** [Deploy an app to production](deploy-an-app-to-production.md#deploy-an-app-to-production)
-- **To turn one-way delivery into request/reply:** [Add queue-backed request/reply](add-queue-backed-request-reply.md#add-queue-backed-request-reply) · [RPC](../../packages/rpc/docs/README.md)
-- **To keep time rules at the producer boundary:** [Schedule](../../packages/schedule/docs/README.md)
-- **To add lightweight failure visibility:** [Log](../../packages/log/docs/README.md#quick-start)
+- **To turn one-way delivery into request/reply:** [Add queue-backed request/reply](add-queue-backed-request-reply.md#add-queue-backed-request-reply) · [RPC](https://github.com/switon-php/rpc/blob/main/docs/README.md)
+- **To keep time rules at the producer boundary:** [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md)
+- **To add lightweight failure visibility:** [Log](https://github.com/switon-php/log/blob/main/docs/README.md#quick-start)

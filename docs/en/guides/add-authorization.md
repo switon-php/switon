@@ -263,11 +263,11 @@ A beginner should feel this after finishing the first authorization path:
 ## Go deeper {#go-deeper}
 
 - **To finish identity loading before policy design:** [Add authentication](add-authentication.md#add-authentication)
-- **To stay on controller-level or action-level authorization rules:** [Authz](../../packages/authz/docs/README.md) · [Controller](../../packages/http/docs/controller.md#controller)
-- **To keep business permissions explicit in service code:** [Authz programmatic checks](../../packages/authz/docs/README.md#service-checks)
-- **To add config-backed or database-backed permission lookup:** [Authz permission lookup](../../packages/authz/docs/README.md#permission-lookup)
-- **To add contextual ownership, tenant, or IP decisions:** [Authz voters](../../packages/authz/docs/README.md#voters)
-- **To build a permission catalog or RBAC UI view:** [Authz FAQ](../../packages/authz/docs/faq.md#authorization-faq)
+- **To stay on controller-level or action-level authorization rules:** [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md) · [Controller](https://github.com/switon-php/http/blob/main/docs/controller.md#controller)
+- **To keep business permissions explicit in service code:** [Authz programmatic checks](https://github.com/switon-php/authz/blob/main/docs/README.md#service-checks)
+- **To add config-backed or database-backed permission lookup:** [Authz permission lookup](https://github.com/switon-php/authz/blob/main/docs/README.md#permission-lookup)
+- **To add contextual ownership, tenant, or IP decisions:** [Authz voters](https://github.com/switon-php/authz/blob/main/docs/README.md#voters)
+- **To build a permission catalog or RBAC UI view:** [Authz FAQ](https://github.com/switon-php/authz/blob/main/docs/faq.md#authorization-faq)
 - **To test protected handlers and `401` / `403` boundaries:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)
 - **To document protected endpoints and denial behavior for clients:** [Add API docs](add-api-docs.md#add-api-docs)
 - **To protect auth-adjacent endpoints from abuse separately from authz policy:** [Protect endpoints with rate limits](protect-endpoints-with-rate-limits.md#protect-endpoints-with-rate-limits)

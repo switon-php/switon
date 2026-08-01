@@ -40,7 +40,7 @@ class UserRepository
 }
 ```
 
-Docs: https://docs.switon.dev/latest/sharding
+Docs: https://github.com/switon-php/sharding/blob/main/docs/README.md
 
 ## License
 

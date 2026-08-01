@@ -92,5 +92,5 @@ That narrow scope is the point: the contracts stay stable because they describe 
 
 - **To answer common questions:** [FAQ](faq.md#principal-faq)
 - **To understand the design boundary:** [Design Rationale](design.md#design-rationale)
-- **To enforce permissions from roles:** [Authorization Package](../../authz/docs/README.md)
-- **To validate tokens before setting identity:** [JWT Package](../../jwt/docs/README.md)
+- **To enforce permissions from roles:** [Authorization Package](https://github.com/switon-php/authz/blob/main/docs/README.md)
+- **To validate tokens before setting identity:** [JWT Package](https://github.com/switon-php/jwt/blob/main/docs/README.md)

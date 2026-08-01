@@ -8,9 +8,9 @@ Start with the layer that matches the real thing you want to reuse.
 
 | Layer | Best when | Keep in mind |
 |---|---|---|
-| [Cache](../../packages/cache/docs/README.md) | one application read path should reuse JSON-serializable results behind a service boundary | strongest default for read-through caching; source of truth still lives in persistence or other application logic |
-| [HTTP Cache](../../packages/http-cache/docs/README.md) | one public or request-parameter-driven endpoint should reuse the whole response body | correctness is mostly a key-design problem; hidden user/session variance makes this layer unsafe |
-| [Redis](../../packages/redis/docs/README.md) | command-level Redis control, named clients, or connection-bound behavior is the real problem | use it when raw commands or client topology matter; it is not the first abstraction for normal app caching |
+| [Cache](https://github.com/switon-php/cache/blob/main/docs/README.md) | one application read path should reuse JSON-serializable results behind a service boundary | strongest default for read-through caching; source of truth still lives in persistence or other application logic |
+| [HTTP Cache](https://github.com/switon-php/http-cache/blob/main/docs/README.md) | one public or request-parameter-driven endpoint should reuse the whole response body | correctness is mostly a key-design problem; hidden user/session variance makes this layer unsafe |
+| [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) | command-level Redis control, named clients, or connection-bound behavior is the real problem | use it when raw commands or client topology matter; it is not the first abstraction for normal app caching |
 
 Common shape: **Cache** for service-level reads, **HTTP Cache** for whole responses, **Redis** when raw commands or client topology matter.
 
@@ -63,7 +63,7 @@ If you do not need a separate Redis database or pool policy yet, one default Red
 
 ### Application data cache path {#wiring-cache}
 
-Use [Cache](../../packages/cache/docs/README.md) first when one service read path should reuse JSON-serializable results:
+Use [Cache](https://github.com/switon-php/cache/blob/main/docs/README.md) first when one service read path should reuse JSON-serializable results:
 
 ```php
 namespace App\Service;
@@ -105,7 +105,7 @@ Keep the cached value on arrays, scalars, or other JSON-serializable shapes. Do 
 
 ### Public response cache path {#wiring-http-cache}
 
-Use [HTTP Cache](../../packages/http-cache/docs/README.md) when the whole response is safe to reuse for a request-shaped key:
+Use [HTTP Cache](https://github.com/switon-php/http-cache/blob/main/docs/README.md) when the whole response is safe to reuse for a request-shaped key:
 
 ```php
 namespace App\Controller;
@@ -144,7 +144,7 @@ Keep the key aligned with every request input that changes the response.
 
 ### Raw Redis only when the command surface is the hard part {#wiring-raw-redis}
 
-Drop to [Redis](../../packages/redis/docs/README.md) when exact Redis commands or named-client boundaries matter more than cache semantics:
+Drop to [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) when exact Redis commands or named-client boundaries matter more than cache semantics:
 
 ```php
 namespace App\Service;
@@ -163,7 +163,7 @@ class CacheOpsService
 }
 ```
 
-For ordinary application caching, [Cache](../../packages/cache/docs/README.md) is usually the better first boundary.
+For ordinary application caching, [Cache](https://github.com/switon-php/cache/blob/main/docs/README.md) is usually the better first boundary.
 
 ## What to avoid first {#pitfalls}
 
@@ -179,8 +179,8 @@ For ordinary application caching, [Cache](../../packages/cache/docs/README.md) i
 
 - **To connect this after your first API and stored-data paths:** [Build an API](build-an-api.md#build-an-api) · [Persist data](persist-data.md#persist-data)
 - **To learn the same move through the tutorial example:** [Faster list](../tutorial/faster-list.md#faster-list)
-- **To add authentication where hidden current-user state now matters more than public cache reuse:** [Add authentication](add-authentication.md#add-authentication) · [Session](../../packages/session/docs/README.md) · [JWT](../../packages/jwt/docs/README.md)
-- **To stay on application data caching:** [Cache](../../packages/cache/docs/README.md)
-- **To cache full HTTP responses:** [HTTP Cache](../../packages/http-cache/docs/README.md) · [Response caching](../../packages/http/docs/response.md#caching)
-- **To tune Redis clients, pools, or raw commands:** [Redis](../../packages/redis/docs/README.md)
-- **To react to writes or observe cache flows:** [Event](../../packages/event/docs/README.md)
+- **To add authentication where hidden current-user state now matters more than public cache reuse:** [Add authentication](add-authentication.md#add-authentication) · [Session](https://github.com/switon-php/session/blob/main/docs/README.md) · [JWT](https://github.com/switon-php/jwt/blob/main/docs/README.md)
+- **To stay on application data caching:** [Cache](https://github.com/switon-php/cache/blob/main/docs/README.md)
+- **To cache full HTTP responses:** [HTTP Cache](https://github.com/switon-php/http-cache/blob/main/docs/README.md) · [Response caching](https://github.com/switon-php/http/blob/main/docs/response.md#caching)
+- **To tune Redis clients, pools, or raw commands:** [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md)
+- **To react to writes or observe cache flows:** [Event](https://github.com/switon-php/event/blob/main/docs/README.md)

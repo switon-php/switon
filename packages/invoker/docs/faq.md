@@ -12,11 +12,11 @@ Use `Switon\Invoking\InvokerInterface` when the call site wants one managed fina
 interceptors. See [Quick Start](README.md#quick-start).
 
 Use `Switon\Di\InvokerInterface` when you only need the lower-level callable executor without method-level hooks. Guard
-and interceptor contracts live in [Invocation Package](../../invocation/docs/README.md).
+and interceptor contracts live in [Invocation Package](https://github.com/switon-php/invocation/blob/main/docs/README.md).
 
 ### Can the invoker build arguments from request input? {#build-arguments}
 
-No. Use [Binding Package](../../binding/docs/README.md) first when arguments still come from input, typed input, or builders.
+No. Use [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md) first when arguments still come from input, typed input, or builders.
 
 ### Which callable forms work? {#callable-shapes}
 
@@ -29,7 +29,7 @@ See [Callable Boundary](README.md#callable-boundary).
 
 From explicit overrides, then defaults, then type-keyed objects, then DI fallback.
 See [Argument Resolution](README.md#argument-resolution). Transport input belongs
-to [Binding Package](../../binding/docs/README.md).
+to [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md).
 
 ### Why do guards or interceptors not run on direct method calls? {#direct-hooks}
 
@@ -51,7 +51,7 @@ No. Invoker uses the normal DI wiring and adds no option surface of its own.
 ### Why is my object parameter coming from the container? {#object-container}
 
 That is the built-in DI fallback. If you wanted a binding pipeline first, resolve the arguments
-through [Binding Package](../../binding/docs/README.md).
+through [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md).
 
 ### How do I test code that uses invoker? {#testing}
 

@@ -21,7 +21,7 @@
     "support": {
         "source": "https://github.com/switon-php/orm",
         "issues": "https://github.com/switon-php/orm/issues",
-        "docs": "https://docs.switon.dev/latest/orm"
+        "docs": "https://github.com/switon-php/orm/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",
