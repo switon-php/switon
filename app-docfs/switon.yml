@@ -28,3 +28,28 @@ Switon\Http\RequestHandlerInterface:
 
 Psr\Log\LoggerInterface:
   level: ${LOG_LEVEL:-debug}
+
+Switon\Mcp\ServerInfoInterface:
+  name: docfs
+  version: 0.1.0
+
+# MCP tools: default ToolDiscovery scans @app/Mcp/Tool/*Tool.php (abstract DocfsTool skipped).
+
+# Book repos root (one git repo per slug). Override with absolute BOOKS_ROOT.
+Switon\Core\PathAliasInterface:
+  aliases:
+    '@books': ${BOOKS_ROOT:-@runtime/books}
+
+# Credential: JWT from Session (Bearer / access_key); no token → error.
+App\Docfs\CredentialInterface:
+  class: App\Docfs\Credential
+
+# Jwt pulls Cipher at inject time even when a static key is set.
+Switon\Crypto\CipherInterface:
+  secret: ${MASTER_KEY:-dev}
+  method: AES-128-CBC
+
+Switon\Jwt\JwtInterface:
+  alg: HS256
+  key: ${DOCFS_JWT_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+  leeway: 60
