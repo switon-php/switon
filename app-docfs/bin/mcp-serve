@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# MCP stdio entrypoint (cwd-independent).
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT_DIR" || exit 1
+XDEBUG_MODE=${XDEBUG_MODE:-off} exec php "$ROOT_DIR/switon.php" mcp:serve
