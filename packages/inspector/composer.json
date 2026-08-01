@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/inspector",
         "issues": "https://github.com/switon-php/inspector/issues",
-        "docs": "https://docs.switon.dev/latest/inspector"
+        "docs": "https://github.com/switon-php/inspector/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

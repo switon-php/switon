@@ -52,7 +52,7 @@ final class ProfileController
 }
 ```
 
-Docs: https://docs.switon.dev/latest/principal
+Docs: https://github.com/switon-php/principal/blob/main/docs/README.md
 
 ## License
 

@@ -81,7 +81,7 @@ class UserRepository
 - Cross-shard joins are not supported.
 - Distributed transactions are out of scope.
 - Sharding resolves names; it does not create databases or tables.
-- Unsafe sharded joins are validated in the query layer — see [Query package](../../query/docs/README.md#sharding).
+- Unsafe sharded joins are validated in the query layer — see [Query package](https://github.com/switon-php/query/blob/main/docs/README.md#sharding).
 - Some query patterns raise `Switon\Sharding\Exception\ShardingNotSupportedException`.
 
 ---
@@ -127,4 +127,4 @@ bash bin/console config:options 'Switon\Sharding\ShardingManagerInterface'
 
 - **Need setup questions answered quickly:** [FAQ](faq.md#sharding-faq)
 - **Need design trade-offs:** [Design Rationale](design.md#design-rationale)
-- **Need ORM entity mapping:** [ORM sharding guide](../../orm/docs/sharding.md#sharding-guide)
+- **Need ORM entity mapping:** [ORM sharding guide](https://github.com/switon-php/orm/blob/main/docs/sharding.md#sharding-guide)

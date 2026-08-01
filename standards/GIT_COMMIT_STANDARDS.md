@@ -29,15 +29,15 @@ Optional body after a blank line when the subject cannot carry the **why**. Engl
 | Change | Rule |
 |--------|------|
 | `packages/{name}/` code/tests | one component per commit; scope = that component (`core`, not `packages/core`) |
-| same component's docs + code | one commit; do not split `packages/{name}/` from matching `docs/{locale}/{name}/` |
-| cross-component docs, l10n sweeps, `standards/`, CI, shared test runner | group by logical outcome; scope optional |
+| same component's docs + code | one commit; keep `packages/{name}/docs/` with that component's code |
+| cross-component docs, `standards/`, CI, shared test runner | group by logical outcome; scope optional |
 
 Multi-component code commits: avoid. Split unless the tree cannot compile or test between commits.
 
 ```text
 fix(event): fail fast on invalid listener signatures
 feat(core): add PathAlias cascade docs and registration guard
-docs: align event listener fail-fast wording across locales
+docs: align event listener fail-fast wording in package docs
 test: disable xdebug during package phpunit
 ```
 

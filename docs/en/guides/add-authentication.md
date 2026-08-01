@@ -8,9 +8,9 @@ Start with the transport shape that matches the real caller boundary.
 
 | Shape | Best when | Keep in mind |
 |---|---|---|
-| [Session](../../packages/session/docs/README.md) | browser-first login/logout/current-user flows should keep state on the server and move only a session cookie through the client | best default for server-rendered or same-origin app flows; cookie scope and deferred session writes matter |
-| [JWT](../../packages/jwt/docs/README.md) | API clients, mobile apps, or service callers should send a bearer token on every request | `decode()` is the trust boundary; keep claims compact and explicit |
-| [Authz](../../packages/authz/docs/README.md) | the caller identity already exists and endpoints now need access rules | authz does **not** authenticate by itself; it consumes `IdentityInterface` after your auth layer populates it |
+| [Session](https://github.com/switon-php/session/blob/main/docs/README.md) | browser-first login/logout/current-user flows should keep state on the server and move only a session cookie through the client | best default for server-rendered or same-origin app flows; cookie scope and deferred session writes matter |
+| [JWT](https://github.com/switon-php/jwt/blob/main/docs/README.md) | API clients, mobile apps, or service callers should send a bearer token on every request | `decode()` is the trust boundary; keep claims compact and explicit |
+| [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md) | the caller identity already exists and endpoints now need access rules | authz does **not** authenticate by itself; it consumes `IdentityInterface` after your auth layer populates it |
 
 Common shape: **Session** for browser flows, **JWT** for bearer-token clients, **Authz** after either path once `IdentityInterface` is populated.
 
@@ -46,7 +46,7 @@ Request-wide auth belongs in HTTP listener wiring, not repeated controller code.
 
 ### Session-first browser flow {#wiring-session}
 
-Use [Session](../../packages/session/docs/README.md) when login state should stay server-side and travel by cookie:
+Use [Session](https://github.com/switon-php/session/blob/main/docs/README.md) when login state should stay server-side and travel by cookie:
 
 ```php
 namespace App\Listener;
@@ -149,7 +149,7 @@ Keep the login input named as an input object too, so raw `RequestInterface` and
 
 ### JWT-first API flow {#wiring-jwt}
 
-Use [JWT](../../packages/jwt/docs/README.md) when the caller should send a bearer token on every request:
+Use [JWT](https://github.com/switon-php/jwt/blob/main/docs/README.md) when the caller should send a bearer token on every request:
 
 ```yaml
 # switon.yml (project root)
@@ -256,7 +256,7 @@ If your app applies a global router prefix such as `/api`, the public paths beco
 
 ### Authorization after identity exists {#wiring-authz}
 
-Once identity loading works, protect handlers with [Authz](../../packages/authz/docs/README.md):
+Once identity loading works, protect handlers with [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md):
 
 ```yaml
 # switon.yml (project root)
@@ -301,15 +301,15 @@ Keep the first rule small:
 
 ## Go deeper {#go-deeper}
 
-- **To connect this after the first request path:** [Build an API](build-an-api.md#build-an-api) · [HTTP](../../packages/http/docs/README.md)
+- **To connect this after the first request path:** [Build an API](build-an-api.md#build-an-api) · [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
 - **To connect this after stored user or role data is stable:** [Persist data](persist-data.md#persist-data)
-- **To stay on cookie-backed login state:** [Session](../../packages/session/docs/README.md) · [HTTP cookies](../../packages/http/docs/cookies.md#cookies)
-- **To stay on bearer-token validation:** [JWT](../../packages/jwt/docs/README.md)
+- **To stay on cookie-backed login state:** [Session](https://github.com/switon-php/session/blob/main/docs/README.md) · [HTTP cookies](https://github.com/switon-php/http/blob/main/docs/cookies.md#cookies)
+- **To stay on bearer-token validation:** [JWT](https://github.com/switon-php/jwt/blob/main/docs/README.md)
 - **To send welcome, recovery, or account-notice mail from auth flows:** [Send transactional email](send-transactional-email.md#send-transactional-email)
 - **To protect login or public auth-adjacent endpoints against abuse:** [Protect endpoints with rate limits](protect-endpoints-with-rate-limits.md#protect-endpoints-with-rate-limits)
 - **To design roles, permissions, ownership checks, and service-level policy next:** [Add authorization](add-authorization.md#add-authorization)
 - **To protect login, current-user, and protected-endpoint behavior before publishing the contract:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)
-- **To publish login, current-user, and protected endpoint contracts for clients:** [Add API docs](add-api-docs.md#add-api-docs) · [OpenAPI](../../packages/openapi/docs/README.md)
-- **To protect endpoints and service checks:** [Authz](../../packages/authz/docs/README.md)
-- **To place request-wide auth hooks correctly:** [HTTP](../../packages/http/docs/README.md) · [Understand the request lifecycle](../concepts/request-lifecycle.md#request-lifecycle)
-- **To revisit caching after identity variance is explicit:** [Add caching](add-caching.md#add-caching) · [HTTP Cache](../../packages/http-cache/docs/README.md)
+- **To publish login, current-user, and protected endpoint contracts for clients:** [Add API docs](add-api-docs.md#add-api-docs) · [OpenAPI](https://github.com/switon-php/openapi/blob/main/docs/README.md)
+- **To protect endpoints and service checks:** [Authz](https://github.com/switon-php/authz/blob/main/docs/README.md)
+- **To place request-wide auth hooks correctly:** [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md) · [Understand the request lifecycle](../concepts/request-lifecycle.md#request-lifecycle)
+- **To revisit caching after identity variance is explicit:** [Add caching](add-caching.md#add-caching) · [HTTP Cache](https://github.com/switon-php/http-cache/blob/main/docs/README.md)

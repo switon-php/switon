@@ -6,10 +6,7 @@ import type { DefaultTheme } from 'vitepress'
 const SECTION_ORDER = ['getting-started', 'concepts', 'guides', 'tutorial']
 const SECTION_IGNORE = new Set(['.vitepress'])
 const PACKAGE_GROUP_LABELS: Record<string, string> = {
-  en: 'Packages',
-  'zh-CN': '包文档',
-  'ja-JP': 'パッケージ',
-  'pt-BR': 'Pacotes'
+  en: 'Packages'
 }
 const DOC_META_CACHE = new Map<string, Record<string, string>>()
 
@@ -114,47 +111,6 @@ const DOC_SIDEBAR_LABELS: Record<string, Record<string, string>> = {
     '06-log': 'Log',
     'timed-cleanup': 'Timed cleanup',
     'faster-list': 'Faster list'
-  },
-  'zh-CN': {
-    'add-api-docs': 'API 文档',
-    'add-authentication': '认证',
-    'add-authorization': '授权',
-    'add-caching': '缓存',
-    'add-cli': 'CLI',
-    'add-cross-cutting-http-behavior': 'HTTP 横切',
-    'add-durable-background-work': '后台任务',
-    'add-internationalization': '国际化',
-    'add-queue-backed-request-reply': '队列 RPC',
-    'add-recurring-work': '定时任务',
-    'add-testing-to-a-working-app': '测试',
-    'build-an-api': 'API',
-    'build-html-pages': 'HTML 页面',
-    'call-an-upstream-api': 'HTTP 客户端',
-    'deploy-an-app-to-production': '部署',
-    'handle-file-uploads-and-downloads': '文件存储',
-    'persist-data': '持久化',
-    'protect-endpoints-with-rate-limits': '限流',
-    'send-transactional-email': '邮件',
-    'validation-constant-constraints': '校验常量',
-    'application-model': '应用模型',
-    'config-and-conventions': '配置',
-    'framework-methodology': '方法论',
-    'request-lifecycle': '请求生命周期',
-    'runtime-and-state': '运行时状态',
-    'service-boundaries': '边界',
-    glossary: '术语表',
-    modules: '模块',
-    environment: '环境',
-    'first-hello-world': 'Hello World',
-    install: '安装',
-    '01-http': 'HTTP',
-    '02-input': '输入',
-    '03-service': '服务',
-    '04-data': '数据',
-    '05-cli': 'CLI',
-    '06-log': '日志',
-    'timed-cleanup': '定时清理',
-    'faster-list': '更快列表'
   }
 }
 

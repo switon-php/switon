@@ -113,4 +113,4 @@ bash bin/console config:options 'Switon\Jwt\JwtInterface'
 
 - **To read short answers:** [FAQ](faq.md#jwt-faq)
 - **To understand the boundary choice:** [Design Rationale](design.md#design-rationale)
-- **To enforce permissions on validated claims:** [Authorization Package](../../authz/docs/README.md)
+- **To enforce permissions on validated claims:** [Authorization Package](https://github.com/switon-php/authz/blob/main/docs/README.md)

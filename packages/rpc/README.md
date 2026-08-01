@@ -43,7 +43,7 @@ class UserProfileService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/rpc
+Docs: https://github.com/switon-php/rpc/blob/main/docs/README.md
 
 ## License
 

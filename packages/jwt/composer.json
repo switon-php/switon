@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/jwt",
         "issues": "https://github.com/switon-php/jwt/issues",
-        "docs": "https://docs.switon.dev/latest/jwt"
+        "docs": "https://github.com/switon-php/jwt/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

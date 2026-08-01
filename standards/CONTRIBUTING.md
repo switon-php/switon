@@ -7,7 +7,7 @@ Focused changes; follow neighboring package patterns. Commits: `GIT_COMMIT_STAND
 - atomic scope; interface PHPDoc updated when the public contract changes
 - `bash tests/run.sh <package>` for touched components
 - docs/examples match code; identifiers verified against code or discovery commands — do not invent names
-- package README stays lightweight; detailed docs live in `docs/en/{name}/`
+- package README stays lightweight; detailed docs live in `packages/{name}/docs/`
 
 ## Review focus
 

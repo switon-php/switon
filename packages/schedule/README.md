@@ -39,7 +39,7 @@ bash bin/console schedule:list
 bash bin/console schedule:run
 ```
 
-Docs: https://docs.switon.dev/latest/schedule
+Docs: https://github.com/switon-php/schedule/blob/main/docs/README.md
 
 ## License
 

@@ -66,6 +66,6 @@ Keep `RequestInterface` for raw transport cases. Use typed input when the applic
 
 ## See also {#see-also}
 
-- [Typed Input Binding](../../packages/http/docs/typed-input-binding.md#typed-input-binding) — source rules, nested binding, and ownership-aware input behavior
-- [HTTP Package](../../packages/http/docs/README.md) — controller, request, and action-boundary context
-- [Validation Package](../../packages/validation/docs/README.md) — shared validation model and constraint behavior
+- [Typed Input Binding](https://github.com/switon-php/http/blob/main/docs/typed-input-binding.md#typed-input-binding) — source rules, nested binding, and ownership-aware input behavior
+- [HTTP Package](https://github.com/switon-php/http/blob/main/docs/README.md) — controller, request, and action-boundary context
+- [Validation Package](https://github.com/switon-php/validation/blob/main/docs/README.md) — shared validation model and constraint behavior

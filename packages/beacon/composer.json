@@ -20,7 +20,7 @@
     "support": {
         "source": "https://github.com/switon-php/beacon",
         "issues": "https://github.com/switon-php/beacon/issues",
-        "docs": "https://docs.switon.dev/latest/beacon"
+        "docs": "https://github.com/switon-php/beacon/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

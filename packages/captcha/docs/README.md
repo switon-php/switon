@@ -118,4 +118,4 @@ bash bin/console config:options 'Switon\Captcha\StoreInterface'
 
 - **To debug behavior and defaults:** [FAQ](faq.md#captcha-faq)
 - **To understand the trade-offs:** [Design Rationale](design.md#design-rationale)
-- **Related:** [Validation](../../validation/docs/README.md), [Throttle](../../throttle/docs/README.md), [Redis](../../redis/docs/README.md)
+- **Related:** [Validation](https://github.com/switon-php/validation/blob/main/docs/README.md), [Throttle](https://github.com/switon-php/throttle/blob/main/docs/README.md), [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md)

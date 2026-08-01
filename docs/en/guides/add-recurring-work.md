@@ -8,10 +8,10 @@ Start with the trigger model that matches the real job you need.
 
 | Boundary | Best when | Keep in mind |
 |---|---|---|
-| [CLI](../../packages/cli/docs/README.md) | a human, script, or operator still needs to trigger the work directly | keep this path when the manual command is not yet clear enough to automate |
-| [Schedule](../../packages/schedule/docs/README.md) | the same work should run at time-based intervals inside the app boundary | strongest default for recurring work; one task class maps to one schedule, and the scheduler still runs in a separate CLI process |
-| [Executor](../../packages/executor/docs/README.md) | the real problem is runner-style execution, grouping, or runtime-dependent submit behavior | stronger fit for execution orchestration than for the first time-based path |
-| [Queue](../../packages/queue/docs/README.md) | durable transport, delayed delivery, retries, or worker pull loops are the actual requirement | use this when durability and delivery semantics matter more than a simple time rule |
+| [CLI](https://github.com/switon-php/cli/blob/main/docs/README.md) | a human, script, or operator still needs to trigger the work directly | keep this path when the manual command is not yet clear enough to automate |
+| [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md) | the same work should run at time-based intervals inside the app boundary | strongest default for recurring work; one task class maps to one schedule, and the scheduler still runs in a separate CLI process |
+| [Executor](https://github.com/switon-php/executor/blob/main/docs/README.md) | the real problem is runner-style execution, grouping, or runtime-dependent submit behavior | stronger fit for execution orchestration than for the first time-based path |
+| [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md) | durable transport, delayed delivery, retries, or worker pull loops are the actual requirement | use this when durability and delivery semantics matter more than a simple time rule |
 
 Common shape: **CLI** proves the manual path first, **Schedule** adds the time rule, **Executor** handles orchestration, and **Queue** handles durable delivery.
 
@@ -72,7 +72,7 @@ class TaskCleanupCommand
 
 ### Add one scheduled task around the same service {#wiring-task}
 
-Use [Schedule](../../packages/schedule/docs/README.md) when the trigger becomes time-based:
+Use [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md) when the trigger becomes time-based:
 
 ```php
 namespace App\Task;
@@ -118,7 +118,7 @@ Use `schedule:list` first so you can confirm the derived task name and expressio
 Use `schedule:task <name>` as the fastest direct proof that the task body itself works.
 Use `schedule:run` only to execute tasks that are actually due at the current time.
 Adopt `bash bin/console schedule:work` only when you actually need a long-lived scheduler process.
-If your project does not provide `bin/console`, follow the fallback entry shape in [CLI Quick Start](../../packages/cli/docs/README.md#fallback-entry).
+If your project does not provide `bin/console`, follow the fallback entry shape in [CLI Quick Start](https://github.com/switon-php/cli/blob/main/docs/README.md#fallback-entry).
 
 ## What to avoid first {#pitfalls}
 
@@ -134,11 +134,11 @@ If your project does not provide `bin/console`, follow the fallback entry shape 
 
 - **To connect this after your manual command path:** [Add CLI](add-cli.md#add-cli) · [06 — Logging and failures](../tutorial/06-log.md#06-log)
 - **To learn the same move through the tutorial example:** [Timed cleanup](../tutorial/timed-cleanup.md#timed-cleanup)
-- **To go deeper on time rules, task discovery, and scheduler commands:** [Schedule](../../packages/schedule/docs/README.md)
+- **To go deeper on time rules, task discovery, and scheduler commands:** [Schedule](https://github.com/switon-php/schedule/blob/main/docs/README.md)
 - **To turn reminders or follow-ups into outbound mail with the same app service boundary:** [Send transactional email](send-transactional-email.md#send-transactional-email)
-- **To keep the manual operator path clear:** [CLI](../../packages/cli/docs/README.md#quick-start)
-- **To add minimal visibility for recurring runs and failures:** [Log](../../packages/log/docs/README.md#quick-start)
-- **To add Redis-backed exclusivity or lock tuning:** [Redis](../../packages/redis/docs/README.md) · [DI](../../packages/di/docs/README.md#quick-start)
-- **To hand the same work to durable workers next:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](../../packages/queue/docs/README.md)
+- **To keep the manual operator path clear:** [CLI](https://github.com/switon-php/cli/blob/main/docs/README.md#quick-start)
+- **To add minimal visibility for recurring runs and failures:** [Log](https://github.com/switon-php/log/blob/main/docs/README.md#quick-start)
+- **To add Redis-backed exclusivity or lock tuning:** [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md) · [DI](https://github.com/switon-php/di/blob/main/docs/README.md#quick-start)
+- **To hand the same work to durable workers next:** [Add durable background work](add-durable-background-work.md#add-durable-background-work) · [Queue](https://github.com/switon-php/queue/blob/main/docs/README.md)
 - **To run the scheduler alongside HTTP and other workers in one go-live shape:** [Deploy an app to production](deploy-an-app-to-production.md#deploy-an-app-to-production)
-- **To orchestrate runner execution instead of simple time rules:** [Executor](../../packages/executor/docs/README.md)
+- **To orchestrate runner execution instead of simple time rules:** [Executor](https://github.com/switon-php/executor/blob/main/docs/README.md)

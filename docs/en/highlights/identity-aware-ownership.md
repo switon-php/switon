@@ -75,7 +75,7 @@ That is the main safety property: list endpoints and single-record endpoints fol
 
 ## See also {#see-also}
 
-- [Typed Input Binding](../../packages/http/docs/typed-input-binding.md#typed-input-binding) — request input and entity parameter binding
-- [HTTP Package](../../packages/http/docs/README.md) — request, controller, and input boundaries
-- [Authz Package](../../packages/authz/docs/README.md) — authorization beyond ownership scoping
+- [Typed Input Binding](https://github.com/switon-php/http/blob/main/docs/typed-input-binding.md#typed-input-binding) — request input and entity parameter binding
+- [HTTP Package](https://github.com/switon-php/http/blob/main/docs/README.md) — request, controller, and input boundaries
+- [Authz Package](https://github.com/switon-php/authz/blob/main/docs/README.md) — authorization beyond ownership scoping
 - [Switon fundamentals](../concepts/README.md#switon-fundamentals) — framework model and code-placement context

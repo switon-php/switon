@@ -40,7 +40,7 @@ class StatusReporter
 }
 ```
 
-Docs: https://docs.switon.dev/latest/core
+Docs: https://github.com/switon-php/core/blob/main/docs/README.md
 
 ## License
 

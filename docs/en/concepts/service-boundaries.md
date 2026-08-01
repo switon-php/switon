@@ -73,7 +73,7 @@ In normal application code:
 That keeps business code explicit about what it needs and makes transport boundaries thinner.
 If a controller or worker needs many unrelated low-level services plus request parsing and response shaping, the boundary is usually too wide.
 
-Use [DI](../../packages/di/docs/README.md) for the owner guide.
+Use [DI](https://github.com/switon-php/di/blob/main/docs/README.md) for the owner guide.
 
 ## Common boundary mistakes {#common-boundary-mistakes}
 

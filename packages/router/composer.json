@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/router",
         "issues": "https://github.com/switon-php/router/issues",
-        "docs": "https://docs.switon.dev/latest/router"
+        "docs": "https://github.com/switon-php/router/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

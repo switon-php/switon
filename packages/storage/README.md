@@ -35,7 +35,7 @@ class AvatarService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/storage
+Docs: https://github.com/switon-php/storage/blob/main/docs/README.md
 
 ## License
 

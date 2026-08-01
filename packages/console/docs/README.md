@@ -84,6 +84,6 @@ Width is taken from the `COLUMNS` environment variable, which interactive shells
 
 ## Next {#next}
 
-- **To print, prompt, and colorize from commands:** [CLI Package](../../cli/docs/README.md)
+- **To print, prompt, and colorize from commands:** [CLI Package](https://github.com/switon-php/cli/blob/main/docs/README.md)
 - **For common questions:** [FAQ](faq.md#console-faq)
 - **For trade-offs and rationale:** [Design Rationale](design.md#design-rationale)

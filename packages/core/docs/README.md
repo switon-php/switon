@@ -98,5 +98,5 @@ Core ships small utility classes and a few global helpers; both stay framework-c
 
 - **For common questions:** [FAQ](faq.md#core-faq)
 - **For trade-offs and rationale:** [Design Rationale](design.md#design-rationale)
-- **For startup order and provider discovery:** [Kernel Package](../../kernel/docs/README.md)
-- **For the default container behavior:** [DI Package](../../di/docs/README.md)
+- **For startup order and provider discovery:** [Kernel Package](https://github.com/switon-php/kernel/blob/main/docs/README.md)
+- **For the default container behavior:** [DI Package](https://github.com/switon-php/di/blob/main/docs/README.md)

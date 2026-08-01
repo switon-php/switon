@@ -44,7 +44,7 @@ class NotifyService
 }
 ```
 
-Docs: https://docs.switon.dev/latest/mail
+Docs: https://github.com/switon-php/mail/blob/main/docs/README.md
 
 ## License
 

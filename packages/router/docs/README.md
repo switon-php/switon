@@ -116,6 +116,6 @@ bash bin/console router:prefix
 
 ## Next {#next}
 
-- **Request binding or response shaping:** [HTTP Controller Guide](../../http/docs/controller.md#controller)
+- **Request binding or response shaping:** [HTTP Controller Guide](https://github.com/switon-php/http/blob/main/docs/controller.md#controller)
 - **Common questions:** [FAQ](faq.md#router-faq)
 - **Design trade-offs:** [Design Rationale](design.md#design-rationale)

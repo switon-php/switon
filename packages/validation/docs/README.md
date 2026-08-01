@@ -141,4 +141,4 @@ the container.
 
 - **Need setup questions answered quickly:** [FAQ](faq.md#validation-faq)
 - **Need design trade-offs:** [Design Rationale](design.md#design-rationale)
-- **HTTP typed input binding:** [HTTP typed input binding](../../http/docs/typed-input-binding.md#typed-input-binding)
+- **HTTP typed input binding:** [HTTP typed input binding](https://github.com/switon-php/http/blob/main/docs/typed-input-binding.md#typed-input-binding)

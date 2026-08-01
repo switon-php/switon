@@ -42,13 +42,13 @@ Append standards/README.md into the Standards section of AGENTS.md.
 | **Versioning / release strategy** (package releases, framework distribution releases, tags, release-time version records) | `VERSIONING_STANDARDS.md` |
 | **Package metadata** (`composer.json` descriptions, keywords, support links, type, field order) | `PACKAGE_METADATA_STANDARDS.md` |
 | **PHPDoc / @see / Guidance / Road-signs** | `PHPDOC_STANDARDS.md` |
-| **Documentation** (write/edit Markdown docs) | `DOCS_STANDARDS.md` + **sps-docs** for `docs/en/**` (and log alignment); **sps-docs-l10n** only for non-English locales after English baseline |
+| **Documentation** (write/edit Markdown docs) | `DOCS_STANDARDS.md` + **sps-docs** for `packages/{name}/docs/**` (component) and `docs/en/**` (narrative) |
 | **App integration** (use/configure components in apps) | `packages/skeleton/AGENTS.md` — read `Switon package rules` only |
 | **Contributing / PRs** | `CONTRIBUTING.md` + `GIT_COMMIT_STANDARDS.md` |
 
-- Unless explicitly scoped otherwise, requests to optimize component docs default to converging toward the current `docs/en/log/` doc split, weight control, and link style. If that baseline conflicts with `DOCS_STANDARDS.md`, `DOCS_STANDARDS.md` wins.
-- In documentation tasks, unqualified `README.md` defaults to `docs/en/{name}/README.md`. `packages/{name}/README.md` is a separate lightweight package entry; do not apply component-guide rules to it by default.
-- Treat `docs/en/**` as package-facing published docs, not monorepo contributor docs. Do not rewrite examples to monorepo-only entrypoints just to make them runnable from this repository checkout.
+- Unless explicitly scoped otherwise, requests to optimize component docs default to converging toward the current `packages/log/docs/` doc split, weight control, and link style. If that baseline conflicts with `DOCS_STANDARDS.md`, `DOCS_STANDARDS.md` wins.
+- In documentation tasks, unqualified component `README.md` defaults to `packages/{name}/docs/README.md`. `packages/{name}/README.md` is a separate lightweight package entry; do not apply component-guide rules to it by default.
+- Component docs live in `packages/{name}/docs/**` (split-repo GitHub links). Narrative docs stay under `docs/en/**`. Do not rewrite examples to monorepo-only entrypoints just to make them runnable from this repository checkout.
 - In documentation work, every code-like identifier must be verified against the codebase or an authoritative discovery command. Do not invent names, aliases, defaults, classes, methods, config keys, or commands.
 
 ## Docs
@@ -65,6 +65,6 @@ Append standards/README.md into the Standards section of AGENTS.md.
 | `PACKAGE_METADATA_STANDARDS.md` | `composer.json` metadata quality, discoverability, support links, type, and field order |
 | `PHPDOC_STANDARDS.md` | Source-level PHPDoc rules and navigation mesh |
 | `DOCS_STANDARDS.md` | Markdown documentation scope, structure, and style |
-| `DOCS_PLAYBOOK.md` | Repeatable workflow for rewriting `docs/en/{name}/` component docs |
+| `DOCS_PLAYBOOK.md` | Repeatable workflow for rewriting `packages/{name}/docs/` component docs |
 | `CONTRIBUTING.md` | Contributor workflow and submission checklist |
 | `GIT_COMMIT_STANDARDS.md` | Commit message format, scope rules, and history quality bar |

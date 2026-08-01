@@ -242,10 +242,10 @@ A beginner should feel this after finishing the first rate-limit path:
 
 ## Go deeper {#go-deeper}
 
-- **To connect this after the first API or page path:** [Build an API](build-an-api.md#build-an-api) · [Build HTML pages](build-html-pages.md#build-html-pages) · [HTTP](../../packages/http/docs/README.md)
+- **To connect this after the first API or page path:** [Build an API](build-an-api.md#build-an-api) · [Build HTML pages](build-html-pages.md#build-html-pages) · [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
 - **To settle caller identity before keyed authenticated limits matter:** [Add authentication](add-authentication.md#add-authentication)
 - **To place custom 429 failure policy or response hooks on the right HTTP seam:** [Add cross-cutting HTTP behavior](add-cross-cutting-http-behavior.md#add-cross-cutting-http-behavior)
-- **To go deeper on attributes, fallback config, burst, and key composition:** [Throttle](../../packages/throttle/docs/README.md)
-- **To tune Redis topology and shared counters:** [Redis](../../packages/redis/docs/README.md)
+- **To go deeper on attributes, fallback config, burst, and key composition:** [Throttle](https://github.com/switon-php/throttle/blob/main/docs/README.md)
+- **To tune Redis topology and shared counters:** [Redis](https://github.com/switon-php/redis/blob/main/docs/README.md)
 - **To document 429 behavior once public and protected routes are stable:** [Add API docs](add-api-docs.md#add-api-docs)
 - **To protect the first abuse-prone paths before you widen them further:** [Add testing to a working app](add-testing-to-a-working-app.md#add-testing-to-a-working-app)

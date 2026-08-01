@@ -7,9 +7,9 @@
 - [ORM Package](README.md) — usage, concepts, and first integration
 - [FAQ](faq.md#orm-faq) — short answers and common pitfalls
 - [Relation Guide](relations.md#relation-guide) — supported relation shapes and loading examples
-- [DB Package](../../db/docs/README.md) — SQL client, transient pinning, and topology
-- [Query Package](../../query/docs/README.md) — filters and composition without the entity layer
-- [Sharding Package](../../sharding/docs/README.md) — shard rules referenced from entity metadata
+- [DB Package](https://github.com/switon-php/db/blob/main/docs/README.md) — SQL client, transient pinning, and topology
+- [Query Package](https://github.com/switon-php/query/blob/main/docs/README.md) — filters and composition without the entity layer
+- [Sharding Package](https://github.com/switon-php/sharding/blob/main/docs/README.md) — shard rules referenced from entity metadata
 
 ---
 

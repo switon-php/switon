@@ -88,4 +88,4 @@ That keeps route docs, RBAC-style tooling, and lint expectations aligned.
 
 - **To answer common questions:** [FAQ](faq.md#openapi-faq)
 - **To understand the trade-offs:** [Design Rationale](design.md#design-rationale)
-- **To align routes and controller mappings:** [HTTP Package](../../http/docs/README.md)
+- **To align routes and controller mappings:** [HTTP Package](https://github.com/switon-php/http/blob/main/docs/README.md)

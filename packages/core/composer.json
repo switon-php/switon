@@ -20,7 +20,7 @@
     "support": {
         "source": "https://github.com/switon-php/core",
         "issues": "https://github.com/switon-php/core/issues",
-        "docs": "https://docs.switon.dev/latest/core"
+        "docs": "https://github.com/switon-php/core/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

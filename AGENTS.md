@@ -11,7 +11,7 @@ Append standards/README.md into the Standards section of AGENTS.md.
 ```
 
 - **Standards guide / primary index:** `standards/README.md`
-- **Docs optimization baseline:** unless explicitly scoped otherwise, doc-optimization requests default to converging toward the current `docs/en/log/` doc split, weight control, and link style; if that conflicts with `standards/DOCS_STANDARDS.md`, follow `DOCS_STANDARDS.md`
+- **Docs optimization baseline:** unless explicitly scoped otherwise, doc-optimization requests default to converging toward the current `packages/log/docs/` doc split, weight control, and link style; if that conflicts with `standards/DOCS_STANDARDS.md`, follow `DOCS_STANDARDS.md`
 - **Framework development skills:** `skills/README.md`
 - **Beacon app-facing built-in skills:** `packages/beacon/skills/README.md`
 - **Quick routing:** use `standards/README.md` for standards-led work, `skills/README.md` for repo-root framework-development skill routing, and `packages/beacon/skills/README.md` for Beacon app-facing tasks such as config diagnostics.

@@ -119,4 +119,4 @@ bash bin/console config:options 'Switon\Schedule\LockInterface'
 
 - **Common questions:** [FAQ](faq.md#schedule-faq)
 - **Design trade-offs:** [Design Rationale](design.md#design-rationale)
-- **Queue-backed background work:** [Queue Package](../../queue/docs/README.md)
+- **Queue-backed background work:** [Queue Package](https://github.com/switon-php/queue/blob/main/docs/README.md)

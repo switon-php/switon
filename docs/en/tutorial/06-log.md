@@ -9,7 +9,7 @@ description: Add the minimum logging path so failures and key task operations be
 
 Add minimal service-level logs for success and failure paths.
 
-**Primary packages:** [Log](../../packages/log/docs/README.md) · [HTTP](../../packages/http/docs/README.md)
+**Primary packages:** [Log](https://github.com/switon-php/log/blob/main/docs/README.md) · [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md)
 
 ## Code {#shape}
 

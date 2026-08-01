@@ -18,7 +18,7 @@ function isRootLocaleIndex(relativePath: string): boolean {
   return relativePath === 'index.md' || relativePath === 'index.html'
 }
 
-/** Root locale gateway only (docs/index.md), not /en/ or /zh-CN/ home pages. */
+/** Root locale gateway only (docs/index.md), not /en/ home pages. */
 function isRootGateway(
   routePath: string,
   base: string,
@@ -36,18 +36,6 @@ export function detectPreferredLocale(
   locales: Record<string, LocaleConfig>
 ): string {
   const available = Object.keys(locales).filter((key) => key !== 'root')
-  const candidates = [
-    ...(navigator.languages?.length ? navigator.languages : []),
-    navigator.language
-  ].filter(Boolean)
-
-  for (const raw of candidates) {
-    const tag = String(raw).toLowerCase()
-    if (tag.startsWith('zh') && available.includes('zh-CN')) return 'zh-CN'
-    if (tag.startsWith('pt') && available.includes('pt-BR')) return 'pt-BR'
-    if (tag.startsWith('ja') && available.includes('ja-JP')) return 'ja-JP'
-  }
-
   return available.includes('en') ? 'en' : (available[0] ?? 'en')
 }
 

@@ -36,7 +36,7 @@ class WelcomePage
 }
 ```
 
-Docs: https://docs.switon.dev/latest/renderer
+Docs: https://github.com/switon-php/renderer/blob/main/docs/README.md
 
 ## License
 

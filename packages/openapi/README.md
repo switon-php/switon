@@ -27,7 +27,7 @@ bash bin/console open-api:export
 bash bin/console open-api:lint
 ```
 
-Docs: https://docs.switon.dev/latest/openapi
+Docs: https://github.com/switon-php/openapi/blob/main/docs/README.md
 
 ## License
 

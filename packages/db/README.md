@@ -60,7 +60,7 @@ final class UserRepository
 }
 ```
 
-Docs: https://docs.switon.dev/latest/db
+Docs: https://github.com/switon-php/db/blob/main/docs/README.md
 
 ## License
 

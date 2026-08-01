@@ -22,7 +22,7 @@ composer require switon/invoker
 ```
 
 `Switon\Invoking\InvokerInterface` is the hook-aware entry point. The hook contracts themselves live
-in [Invocation Package](../../invocation/docs/README.md).
+in [Invocation Package](https://github.com/switon-php/invocation/blob/main/docs/README.md).
 
 ## Quick Start {#quick-start}
 
@@ -58,7 +58,7 @@ class PostController
 The dispatcher supplies the callable boundary and the explicit `id`. `AppInterface` falls back to DI.
 
 If the argument list still needs to come from request input, typed input, or builders, resolve that first
-in [Binding Package](../../binding/docs/README.md).
+in [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md).
 
 ## Core Concepts {#core-concepts}
 
@@ -81,7 +81,7 @@ knows the final target and wants one consistent execution path.
 Variadic parameters take a named or type-keyed array first, otherwise pick up trailing positional values.
 
 This step only resolves the final callable arguments; input construction belongs
-to [Binding Package](../../binding/docs/README.md).
+to [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md).
 
 ### Invocation Hooks {#invocation-hooks}
 
@@ -112,7 +112,7 @@ does not want hooks.
 
 ## Next {#next}
 
-- **To build arguments before invocation:** [Binding Package](../../binding/docs/README.md)
-- **To define guard and interceptor contracts:** [Invocation Package](../../invocation/docs/README.md)
+- **To build arguments before invocation:** [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md)
+- **To define guard and interceptor contracts:** [Invocation Package](https://github.com/switon-php/invocation/blob/main/docs/README.md)
 - **To answer common questions:** [FAQ](faq.md#invoker-faq)
 - **To understand the split with binding:** [Design Rationale](design.md#design-rationale)

@@ -73,7 +73,7 @@ The public application-facing rule stays small:
 
 When child coroutines need their own temporary state instead of shared inherited state, use `Switon\Core\ContextIsolated`.
 
-For the owner guide, use [Context](../../packages/context/docs/README.md).
+For the owner guide, use [Context](https://github.com/switon-php/context/blob/main/docs/README.md).
 
 ## Safe default rules {#safe-default-rules}
 

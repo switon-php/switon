@@ -20,7 +20,7 @@
     "support": {
         "source": "https://github.com/switon-php/http",
         "issues": "https://github.com/switon-php/http/issues",
-        "docs": "https://docs.switon.dev/latest/http"
+        "docs": "https://github.com/switon-php/http/blob/main/docs/README.md"
     },
     "require": {
         "ext-dom": "*",

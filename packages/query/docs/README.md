@@ -116,6 +116,6 @@ The query layer emits:
 
 - **To read common usage questions:** [FAQ](faq.md#query-faq)
 - **To understand the design trade-offs:** [Design Rationale](design.md#design-rationale)
-- **To run queries through repositories:** [ORM Package](../../orm/docs/README.md)
-- **To use database clients and transactions:** [DB Package](../../db/docs/README.md)
-- **To compare shard rules with the lower-level package:** [Sharding Package](../../sharding/docs/README.md)
+- **To run queries through repositories:** [ORM Package](https://github.com/switon-php/orm/blob/main/docs/README.md)
+- **To use database clients and transactions:** [DB Package](https://github.com/switon-php/db/blob/main/docs/README.md)
+- **To compare shard rules with the lower-level package:** [Sharding Package](https://github.com/switon-php/sharding/blob/main/docs/README.md)

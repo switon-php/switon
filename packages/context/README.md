@@ -46,7 +46,7 @@ final class RequestState implements ContextAware
 }
 ```
 
-Docs: https://docs.switon.dev/latest/context
+Docs: https://github.com/switon-php/context/blob/main/docs/README.md
 
 ## License
 

@@ -47,7 +47,7 @@ class LoginController
 }
 ```
 
-Docs: https://docs.switon.dev/latest/captcha
+Docs: https://github.com/switon-php/captcha/blob/main/docs/README.md
 
 ## License
 

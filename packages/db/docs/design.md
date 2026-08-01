@@ -7,7 +7,7 @@ Why Switon DB keeps raw SQL on explicit boundaries instead of letting each app i
 - [DB Package](README.md) — usage, configuration, and routing
 - [FAQ](faq.md#db-faq) — common questions and troubleshooting
 - [DB internals](internals/README.md) — identifier quoting and transaction error handling
-- [ORM Package](../../orm/docs/README.md) — repository-led writes and `TransactionManagerInterface` scopes
+- [ORM Package](https://github.com/switon-php/orm/blob/main/docs/README.md) — repository-led writes and `TransactionManagerInterface` scopes
 
 ---
 

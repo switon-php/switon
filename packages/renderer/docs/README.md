@@ -99,4 +99,4 @@ Template names can be absolute aliases (`@app/View/home`) or relative to the cur
 
 - **Common questions:** [FAQ](faq.md#renderer-faq)
 - **Trade-offs and boundaries:** [Design Rationale](design.md#design-rationale)
-- **Controller page rendering:** [View Package](../../view/docs/README.md)
+- **Controller page rendering:** [View Package](https://github.com/switon-php/view/blob/main/docs/README.md)

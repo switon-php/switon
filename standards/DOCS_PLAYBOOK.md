@@ -1,10 +1,10 @@
 # Docs Playbook
 
-Repeatable workflow for `docs/en/{name}/` component docs.
+Repeatable workflow for `packages/{name}/docs/` component docs.
 
 ## Intent
 
-Use this playbook when a component doc needs to be rewritten, shortened, or aligned with the current `docs/en/log/`
+Use this playbook when a component doc needs to be rewritten, shortened, or aligned with the current `packages/log/docs/`
 shape.
 
 The goal is not to document everything. The goal is to teach the 80% path clearly, keep stable concepts visible, and

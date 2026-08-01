@@ -19,7 +19,7 @@
     "support": {
         "source": "https://github.com/switon-php/executor",
         "issues": "https://github.com/switon-php/executor/issues",
-        "docs": "https://docs.switon.dev/latest/executor"
+        "docs": "https://github.com/switon-php/executor/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

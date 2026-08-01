@@ -135,5 +135,5 @@ bash bin/console config:options 'Switon\Rpc\RpcInterface'
 
 - **Common questions:** [FAQ](faq.md#rpc-faq)
 - **Design trade-offs:** [Design Rationale](design.md#design-rationale)
-- **Queue transport:** [Queue Package](../../queue/docs/README.md)
-- **Executor behavior:** [Executor Package](../../executor/docs/README.md)
+- **Queue transport:** [Queue Package](https://github.com/switon-php/queue/blob/main/docs/README.md)
+- **Executor behavior:** [Executor Package](https://github.com/switon-php/executor/blob/main/docs/README.md)

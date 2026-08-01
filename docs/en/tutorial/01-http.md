@@ -9,7 +9,7 @@ description: Build the first Switon HTTP endpoints with routes, controllers, and
 
 Build one minimal HTTP path with routes, a controller, and JSON responses.
 
-**Primary packages:** [HTTP](../../packages/http/docs/README.md#quick-start) · [Router](../../packages/router/docs/README.md#quick-start)
+**Primary packages:** [HTTP](https://github.com/switon-php/http/blob/main/docs/README.md#quick-start) · [Router](https://github.com/switon-php/router/blob/main/docs/README.md#quick-start)
 
 ## Code {#shape}
 

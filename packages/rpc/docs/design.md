@@ -6,8 +6,8 @@
 
 - [RPC Package](README.md) — usage, configuration, and worker entrypoint
 - [FAQ](faq.md#rpc-faq) — short answers for setup and common issues
-- [Queue Package](../../queue/docs/README.md) — transport and envelopes
-- [Executor Package](../../executor/docs/README.md) — submitted work and concurrency
+- [Queue Package](https://github.com/switon-php/queue/blob/main/docs/README.md) — transport and envelopes
+- [Executor Package](https://github.com/switon-php/executor/blob/main/docs/README.md) — submitted work and concurrency
 
 ---
 
