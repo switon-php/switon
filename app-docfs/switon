@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+XDEBUG_MODE=${XDEBUG_MODE:-off} php switon.php "$@"

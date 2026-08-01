@@ -1,0 +1,9 @@
+/vendor/
+/runtime/*
+!/runtime/books/
+/runtime/books/*
+!/runtime/books/.gitkeep
+/.env
+/.phpunit.cache
+/tests/.phpunit.cache
+/tests/coverage
