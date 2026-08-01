@@ -9,7 +9,7 @@ description: Add the minimum logging path so failures and key task operations be
 
 Add minimal service-level logs for success and failure paths.
 
-**Primary packages:** [Log](../log/README.md) · [HTTP](../http/README.md)
+**Primary packages:** [Log](../../packages/log/docs/README.md) · [HTTP](../../packages/http/docs/README.md)
 
 ## Code {#shape}
 

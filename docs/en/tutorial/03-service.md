@@ -9,7 +9,7 @@ description: Move task business logic out of controllers and into reusable servi
 
 Move business logic from controllers into a reusable service layer.
 
-**Primary package:** [DI](../di/README.md#quick-start)
+**Primary package:** [DI](../../packages/di/docs/README.md#quick-start)
 
 ## Code {#shape}
 
