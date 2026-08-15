@@ -6,6 +6,7 @@ namespace Switon\Ai\Exception;
 
 use Switon\Ai\Exception as AiException;
 use Throwable;
+use Exception;
 
 /** The call did not run. Stored as {@see \Switon\Ai\ToolResult::$content}. */
 class ToolDeniedException extends AiException
@@ -15,7 +16,7 @@ class ToolDeniedException extends AiException
         string|Throwable $message = 'This tool is not allowed.',
         array $context = [],
         int $code = 0,
-        ?\Exception $previous = null,
+        ?Exception $previous = null,
     ) {
         parent::__construct($message, $context, $code, $previous);
     }

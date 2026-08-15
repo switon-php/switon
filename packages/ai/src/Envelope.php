@@ -6,6 +6,7 @@ namespace Switon\Ai;
 
 use Closure;
 use Switon\Ai\Message\UserMessage;
+use Throwable;
 
 /**
  * Inbox mail: one {@see Letter}, the model id, and the chosen `$effort`.
@@ -15,7 +16,7 @@ use Switon\Ai\Message\UserMessage;
  */
 class Envelope
 {
-    /** @var null|Closure(AgentInterface, Turn|\Throwable): void */
+    /** @var null|Closure(AgentInterface, Turn|Throwable): void */
     public ?Closure $onSettled = null;
 
     public function __construct(

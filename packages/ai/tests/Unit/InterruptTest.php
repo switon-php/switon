@@ -16,6 +16,7 @@ use Switon\Ai\Tests\TestCase;
 use Switon\Ai\Turn;
 use Switon\Ai\TurnStatus;
 use Switon\Core\Json;
+use TypeError;
 
 #[CoversClass(Interrupt::class)]
 #[CoversClass(Turn::class)]
@@ -40,7 +41,7 @@ class InterruptTest extends TestCase
         $turn = Turn::of('t1', status: TurnStatus::Suspended);
         $turn->interrupt = new RetryInterrupt();
 
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         /** @phpstan-ignore-next-line intentional type violation */
         $turn->interrupt->resume(

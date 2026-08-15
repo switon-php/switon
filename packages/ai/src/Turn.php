@@ -10,6 +10,7 @@ use Switon\Ai\Message\AssistantMessage;
 use Switon\Ai\Message\ToolMessage;
 use Switon\Ai\Signal\AssistantSignal;
 use Switon\Ai\Suspension\Interrupt;
+
 use function array_find;
 use function count;
 use function property_exists;
@@ -41,8 +42,7 @@ class Turn implements JsonSerializable
         public float       $openedAt = 0.0,
         public float       $closedAt = 0.0,
         public array       $completions = [],
-    )
-    {
+    ) {
     }
 
     public function __clone(): void
@@ -68,8 +68,7 @@ class Turn implements JsonSerializable
         TurnStatus $status = TurnStatus::Running,
         string     $model = '',
         ?string    $effort = null,
-    ): static
-    {
+    ): static {
         return new static(
             turnId: $turnId,
             status: $status,
@@ -100,7 +99,7 @@ class Turn implements JsonSerializable
         for ($ci = count($this->completions) - 1; $ci >= 0; --$ci) {
             $call = array_find(
                 $this->completions[$ci]->toolCalls(),
-                static fn(ToolCall $call): bool => $call->id === $callId,
+                static fn (ToolCall $call): bool => $call->id === $callId,
             );
             if ($call !== null) {
                 return $call;

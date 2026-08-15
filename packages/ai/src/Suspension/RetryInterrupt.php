@@ -23,8 +23,7 @@ class RetryInterrupt extends Interrupt
     public function __construct(
         public string $reason = self::REASON_LLM_FAILED,
         public string $detail = '',
-    )
-    {
+    ) {
     }
 
     public function resume(AgentInterface $agent, Turn $turn, Continuation $mail, ContainerInterface $container): void
