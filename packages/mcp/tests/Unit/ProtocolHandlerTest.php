@@ -574,7 +574,7 @@ class ProtocolHandlerTest extends TestCase
 
     public function testHandleReturnsServerErrorWhenNotificationThrows(): void
     {
-        $notifications = new class implements NotificationsInterface {
+        $notifications = new class () implements NotificationsInterface {
             public function handle(string $method, array $params): void
             {
                 throw new RuntimeException('notify failed');
@@ -595,7 +595,7 @@ class ProtocolHandlerTest extends TestCase
     public function testToolsListSkipsToolWhoseSchemaIsNull(): void
     {
         $protocolHandler = $this->makeProtocolHandler([]);
-        $tools = new class implements ToolsInterface {
+        $tools = new class () implements ToolsInterface {
             public function all(): array
             {
                 return ['gone' => new DisabledTool()];
@@ -628,7 +628,7 @@ class ProtocolHandlerTest extends TestCase
 
     public function testToolsCallReturnsToolResultWhenSchemaDisappears(): void
     {
-        $tool = new class implements ToolInterface {
+        $tool = new class () implements ToolInterface {
             private int $seen = 0;
 
             public function schema(string $name): ?ToolSchema
