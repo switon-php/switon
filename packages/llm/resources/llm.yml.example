@@ -1,0 +1,46 @@
+# Copy to ~/.switon/llm.yml. `apiKey:` with no value is stored as empty (private hosts).
+# A missing apiKey line is left alone. `apiKey: 'sk-...'` stores that secret.
+#
+# Route id is connection/modelKey. alias is another get() name (string or list).
+# The first declaration of a name wins. An empty name is the first client.
+# An unknown name is rejected.
+#
+# class defaults to Switon\Llm\OpenAi (POST {baseUrl}/chat/completions).
+# Client keys accept camelCase or snake_case. Keys inside extra stay wire names.
+# Omitted passbackReasoning is null (open turn only), except a DeepSeek host, which defaults to true.
+
+openai:
+  apiKey:
+  baseUrl: 'https://api.openai.com/v1'
+  timeout: 60
+  models:
+    default:
+      model: 'gpt-4o-mini'
+      alias: [main, fast, best]
+      window: 128k
+      image: true
+      video: false
+      # efforts: [low, medium, high]
+      # description: ''
+      # timeout: 180
+      # passbackReasoning: null
+      # extra:
+      #   temperature: 0.2
+      #   max_tokens: 8192
+
+# Second connection. Uncomment, set apiKey, and drop `best` from openai if this alias should win.
+# The Messages API requires max_tokens. This client does not add one.
+# anthropic:
+#   class: Switon\Llm\Anthropic
+#   apiKey:
+#   baseUrl: 'https://api.anthropic.com/v1'
+#   timeout: 60
+#   models:
+#     default:
+#       model: 'claude-sonnet-4-20250514'
+#       alias: best
+#       window: 128k
+#       image: true
+#       video: false
+#       extra:
+#         max_tokens: 8192
