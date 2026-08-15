@@ -7,7 +7,10 @@ namespace Switon\Ai\Tests\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Psr\Container\ContainerInterface;
 use Switon\Ai\AgentInterface;
+use Switon\Ai\Completion;
 use Switon\Ai\DiscardTurnLetter;
+use Switon\Ai\Signal\AssistantAbortSignal;
+use Switon\Ai\Message\UserMessage;
 use Switon\Ai\Suspension\Interrupt;
 use Switon\Ai\Suspension\RetryContinuation;
 use Switon\Ai\Suspension\RetryInterrupt;
@@ -16,6 +19,7 @@ use Switon\Ai\Tests\TestCase;
 use Switon\Ai\Turn;
 use Switon\Ai\TurnStatus;
 use Switon\Core\Json;
+use TypeError;
 
 #[CoversClass(Interrupt::class)]
 #[CoversClass(Turn::class)]
@@ -40,7 +44,7 @@ class InterruptTest extends TestCase
         $turn = Turn::of('t1', status: TurnStatus::Suspended);
         $turn->interrupt = new RetryInterrupt();
 
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         /** @phpstan-ignore-next-line intentional type violation */
         $turn->interrupt->resume(
@@ -53,7 +57,7 @@ class InterruptTest extends TestCase
 
     public function testResumePassesPairedMailToTheMechanism(): void
     {
-        $turn = Turn::of('t1', status: TurnStatus::Suspended);
+        $turn = Turn::of('t1', [Completion::of(UserMessage::of('q'))], TurnStatus::Suspended);
         $turn->interrupt = new RetryInterrupt(RetryInterrupt::REASON_LLM_FAILED, 'boom');
 
         $turn->interrupt->resume(
@@ -63,8 +67,9 @@ class InterruptTest extends TestCase
             $this->container,
         );
 
-        $this->assertNull($turn->interrupt);
         $this->assertSame(TurnStatus::Aborted, $turn->status);
+        $this->assertInstanceOf(AssistantAbortSignal::class, $turn->lastCompletion()->output);
+        $this->assertSame('boom', $turn->lastCompletion()->output->body);
     }
 
     public function testSuspendedAtRoundTripsThroughJson(): void
