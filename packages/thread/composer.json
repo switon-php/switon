@@ -1,0 +1,74 @@
+{
+    "name": "switon/thread",
+    "description": "Thread datadir storage (conversation, transcript, compact, state.json, totals.json) \u2014 no agent runtime",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "thread",
+        "conversation",
+        "transcript",
+        "compact",
+        "ai"
+    ],
+    "homepage": "https://github.com/switon-php/thread",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/thread",
+        "issues": "https://github.com/switon-php/thread/issues",
+        "docs": "https://github.com/switon-php/thread/blob/main/docs/README.md"
+    },
+    "require": {
+        "php": ">=8.3",
+        "switon/composer-extra": "^1.0",
+        "switon/ai": "^1.0",
+        "switon/core": "^1.0",
+        "switon/event": "^1.0",
+        "switon/llm": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\Thread\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\Thread\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "switon": {
+            "providers": [
+                "Switon\\Thread\\ServiceProvider"
+            ],
+            "agent": {
+                "extensions": [
+                    "Switon\\Thread\\ExcerptExtension"
+                ]
+            }
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}
