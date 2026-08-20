@@ -66,6 +66,7 @@
     "switon/queue": "^1.0",
     "switon/rpc": "^1.0",
     "switon/view": "^1.0",
+    "switon/llm-html": "^1.0",
     "ext-zlib": "*",
     "ext-sockets": "*",
     "ext-fileinfo": "*",

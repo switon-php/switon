@@ -1,0 +1,68 @@
+{
+    "name": "switon/llm-html",
+    "description": "Main-content extraction that turns noisy HTML into LLM-ready markdown or plain text for Switon Framework",
+    "type": "library",
+    "keywords": [
+        "switon",
+        "html",
+        "markdown",
+        "llm",
+        "extract"
+    ],
+    "homepage": "https://github.com/switon-php/llm-html",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "switon",
+            "email": "admin@switon.dev"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/switon-php/llm-html",
+        "issues": "https://github.com/switon-php/llm-html/issues",
+        "docs": "https://github.com/switon-php/llm-html/blob/main/docs/README.md"
+    },
+    "require": {
+        "php": ">=8.3",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "switon/core": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^12.0",
+        "switon/testing": "^1.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "switon/composer-extra": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Switon\\LlmHtml\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Switon\\LlmHtml\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "phpstan": "@php vendor/bin/phpstan analyse",
+        "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+    },
+    "extra": {
+        "switon": {
+            "providers": [
+                "Switon\\LlmHtml\\ServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-dev": "1.0.x-dev"
+        }
+    }
+}
