@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <title>Docs With Structure</title>
+  <meta name="description" content="Tables and lists matter.">
+</head>
+<body>
+  <div id="site-header" class="masthead">
+    <a href="/">Home</a><a href="/docs">Docs</a>
+  </div>
+  <div class="layout">
+    <div class="sidebar widget">
+      <a href="/w1">Widget A</a><a href="/w2">Widget B</a>
+    </div>
+    <article class="entry-content">
+      <h1>Structured Doc</h1>
+      <p>Intro paragraph that should survive chrome stripping and stay the main root.</p>
+      <blockquote><p>Quoted guidance for the model.</p></blockquote>
+      <ol>
+        <li>First step</li>
+        <li>Second step</li>
+      </ol>
+      <ul>
+        <li>Bullet one</li>
+      </ul>
+      <table>
+        <tr><th>Col A</th><th>Col B</th></tr>
+        <tr><td>1</td><td>2</td></tr>
+      </table>
+      <p>See diagram: <img src="/img.png" alt="flow chart"></p>
+      <div style="display:none">hidden junk</div>
+      <div aria-hidden="true">aria junk</div>
+      <iframe src="/embed"></iframe>
+      <form><input name="q"><button>go</button></form>
+    </article>
+  </div>
+  <div class="comments">
+    <p>Please leave a comment below about this article.</p>
+  </div>
+</body>
+</html>
