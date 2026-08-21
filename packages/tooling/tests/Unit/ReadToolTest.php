@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Switon\Tooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use Switon\Ai\Exception\ToolInvalidArgumentException;
 use Switon\Ai\Part\MediaPart;
 use Switon\Ai\ToolResult;
 use Switon\Tooling\ArgumentBinder;
 use Switon\Tooling\Exception;
 use Switon\Tooling\Exception\ArgumentBindException;
-use Switon\Tooling\Exception\ArgumentInvalidValueException;
 use Switon\Tooling\Tests\ToolTestCase;
 use Switon\Tooling\Tool\ReadTool;
 
@@ -347,7 +347,7 @@ class ReadToolTest extends ToolTestCase
     {
         $file = $this->tempFile("one\ntwo\nthree\nfour\n");
 
-        $this->expectException(ArgumentInvalidValueException::class);
+        $this->expectException(ToolInvalidArgumentException::class);
         $this->expectExceptionMessage('offset value invalid');
 
         $this->callTool($this->make(ReadTool::class), 'read', [
@@ -361,7 +361,7 @@ class ReadToolTest extends ToolTestCase
     {
         $file = $this->tempFile("one\ntwo\n");
 
-        $this->expectException(ArgumentInvalidValueException::class);
+        $this->expectException(ToolInvalidArgumentException::class);
         $this->expectExceptionMessage('offset value invalid');
 
         $this->callTool($this->make(ReadTool::class), 'read', [
@@ -375,7 +375,7 @@ class ReadToolTest extends ToolTestCase
     {
         $file = $this->tempFile("one\ntwo\n");
 
-        $this->expectException(ArgumentInvalidValueException::class);
+        $this->expectException(ToolInvalidArgumentException::class);
         $this->expectExceptionMessage('offset value invalid');
 
         $this->callTool($this->make(ReadTool::class), 'read', [
@@ -388,7 +388,7 @@ class ReadToolTest extends ToolTestCase
     {
         $file = $this->tempFile('');
 
-        $this->expectException(ArgumentInvalidValueException::class);
+        $this->expectException(ToolInvalidArgumentException::class);
         $this->expectExceptionMessage('offset value invalid');
 
         $this->callTool($this->make(ReadTool::class), 'read', [
@@ -402,7 +402,7 @@ class ReadToolTest extends ToolTestCase
     {
         $file = $this->tempFile('');
 
-        $this->expectException(ArgumentInvalidValueException::class);
+        $this->expectException(ToolInvalidArgumentException::class);
         $this->expectExceptionMessage('offset value invalid');
 
         $this->callTool($this->make(ReadTool::class), 'read', [

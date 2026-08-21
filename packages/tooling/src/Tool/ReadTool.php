@@ -6,6 +6,7 @@ namespace Switon\Tooling\Tool;
 
 use Generator;
 use Switon\Ai\AgentInterface;
+use Switon\Ai\Exception\ToolInvalidArgumentException;
 use Switon\Ai\Part\MediaPart;
 use Switon\Ai\ToolCall;
 use Switon\Ai\ToolResult;
@@ -14,7 +15,6 @@ use Switon\Core\Attribute\Autowired;
 use Switon\Core\Path;
 use Switon\Tooling\AbstractTool;
 use Switon\Tooling\Exception;
-use Switon\Tooling\Exception\ArgumentInvalidValueException;
 
 use function array_merge;
 use function array_slice;
@@ -168,7 +168,7 @@ class ReadTool extends AbstractTool
         }
 
         if ($page['total_lines'] === 0 || $offset < 1 || $offset > $page['total_lines']) {
-            ArgumentInvalidValueException::raise('{field} value invalid', ['field' => 'offset']);
+            ToolInvalidArgumentException::raise('{field} value invalid', ['field' => 'offset']);
         }
 
         $result = [
@@ -279,7 +279,7 @@ class ReadTool extends AbstractTool
         }
 
         if ($total === 0 || $tailSize > $total) {
-            ArgumentInvalidValueException::raise('{field} value invalid', ['field' => 'offset']);
+            ToolInvalidArgumentException::raise('{field} value invalid', ['field' => 'offset']);
         }
 
         if ($cursor !== 0) {

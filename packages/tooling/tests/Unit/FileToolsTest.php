@@ -8,10 +8,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
+use Switon\Ai\Exception\ToolInvalidArgumentException;
 use Switon\Tooling\ArgumentBinder;
 use Switon\Tooling\Exception;
 use Switon\Tooling\Exception\ArgumentBindException;
-use Switon\Tooling\Exception\ArgumentInvalidValueException;
 use Switon\Tooling\Tests\ToolTestCase;
 use Switon\Tooling\Tool\EditsTool;
 use Switon\Tooling\Tool\EditTool;
@@ -216,7 +216,7 @@ class FileToolsTest extends ToolTestCase
 
         $read = $this->make(ReadTool::class);
 
-        $this->expectException(ArgumentInvalidValueException::class);
+        $this->expectException(ToolInvalidArgumentException::class);
         $this->expectExceptionMessage('offset value invalid');
 
         $this->callTool($read, 'read', ['path' => $file, 'offset' => 99]);
