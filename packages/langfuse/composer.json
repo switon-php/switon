@@ -1,0 +1,80 @@
+{
+  "name": "switon/langfuse",
+  "description": "Langfuse OTLP export of LLM chat lifecycle events for Switon Framework",
+  "type": "library",
+  "keywords": [
+    "switon",
+    "langfuse",
+    "llm",
+    "observability",
+    "tracing"
+  ],
+  "homepage": "https://github.com/switon-php/langfuse",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "switon",
+      "email": "admin@switon.dev"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/switon-php/langfuse",
+    "issues": "https://github.com/switon-php/langfuse/issues",
+    "docs": "https://github.com/switon-php/langfuse/blob/main/docs/README.md"
+  },
+  "require": {
+    "php": ">=8.3",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "psr/log": "^2.0|^3.0",
+    "switon/ai": "^1.0",
+    "switon/composer-extra": "^1.0",
+    "switon/core": "^1.0",
+    "switon/event": "^1.0",
+    "switon/http-client": "^1.0",
+    "switon/llm": "^1.0",
+    "switon/sync": "^1.0",
+    "switon/tooling": "^1.0"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.0",
+    "phpstan/extension-installer": "^1.4",
+    "psr/event-dispatcher": "^1.0",
+    "switon/di": "^1.0",
+    "switon/testing": "^1.0"
+  },
+  "suggest": {
+    "ext-swoole": "Queues exports through one consumer coroutine so a trace's spans reach Langfuse in order; without it exports are sent inline."
+  },
+  "config": {
+    "allow-plugins": {
+      "switon/composer-extra": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Switon\\Langfuse\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Switon\\Langfuse\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "phpstan": "@php vendor/bin/phpstan analyse",
+    "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+    "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+  },
+  "extra": {
+    "switon": {
+      "providers": [
+        "Switon\\Langfuse\\ServiceProvider"
+      ]
+    },
+    "branch-alias": {
+      "dev-dev": "1.0.x-dev"
+    }
+  }
+}
