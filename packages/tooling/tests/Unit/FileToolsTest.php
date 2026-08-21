@@ -6,12 +6,13 @@ namespace Switon\Tooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Switon\Core\Exception\RuntimeException;
+use Switon\Core\Path;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
+use Switon\Ai\Exception\ToolInvalidArgumentException;
 use Switon\Tooling\ArgumentBinder;
 use Switon\Tooling\Exception;
 use Switon\Tooling\Exception\ArgumentBindException;
-use Switon\Tooling\Exception\ArgumentInvalidValueException;
 use Switon\Tooling\Tests\ToolTestCase;
 use Switon\Tooling\Tool\EditsTool;
 use Switon\Tooling\Tool\EditTool;
@@ -216,7 +217,7 @@ class FileToolsTest extends ToolTestCase
 
         $read = $this->make(ReadTool::class);
 
-        $this->expectException(ArgumentInvalidValueException::class);
+        $this->expectException(ToolInvalidArgumentException::class);
         $this->expectExceptionMessage('offset value invalid');
 
         $this->callTool($read, 'read', ['path' => $file, 'offset' => 99]);
@@ -433,7 +434,7 @@ class FileToolsTest extends ToolTestCase
     public function testEditsInheritsTopLevelPathWhenItemOmitsPath(): void
     {
         $dir = $this->tempDir();
-        $file = $dir . '/same.txt';
+        $file = Path::absolute($dir . '/same.txt');
         file_put_contents($file, "one\ntwo\nthree\n");
 
         $result = $this->callTool($this->make(EditsTool::class), 'edits', [
@@ -540,8 +541,8 @@ class FileToolsTest extends ToolTestCase
     public function testEditsAppliesAcrossFilesAtomically(): void
     {
         $dir = $this->tempDir();
-        $a = $dir . '/a.txt';
-        $b = $dir . '/b.txt';
+        $a = Path::absolute($dir . '/a.txt');
+        $b = Path::absolute($dir . '/b.txt');
         file_put_contents($a, "one\ntwo\n");
         file_put_contents($b, "three\n");
 
@@ -755,6 +756,10 @@ class FileToolsTest extends ToolTestCase
 
     public function testGlobFindMatchesPattern(): void
     {
+        if (!$this->executableOnPath('rg')) {
+            $this->markTestSkipped('rg is not on PATH');
+        }
+
         $dir = $this->tempDir();
         mkdir($dir . '/sub');
         file_put_contents($dir . '/a.php', '<?php');
