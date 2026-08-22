@@ -6,7 +6,6 @@ namespace Switon\Browser\Tests\Live;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use Switon\Cdp\HeadedChrome;
 use Switon\Cdp\Launcher;
 use Switon\Cdp\Paths;
@@ -55,9 +54,13 @@ class BrowserSessionLiveTest extends TestCase
 
         $this->userDataDir = sys_get_temp_dir() . '/switon-browser-session-' . getmypid();
         $this->port = $this->pickFreePort();
-        $this->launcher = new Launcher();
-        $this->inject($this->launcher, 'clock', new Clock());
-        $this->inject($this->launcher, 'filesystem', $this->filesystem());
+        $this->launcher = new class (new Clock(), $this->filesystem()) extends Launcher {
+            public function __construct(Clock $clock, Filesystem $filesystem)
+            {
+                $this->clock = $clock;
+                $this->filesystem = $filesystem;
+            }
+        };
     }
 
     protected function tearDown(): void
@@ -138,31 +141,37 @@ HTML);
 
     protected function makeBrowser(): HeadedBrowser
     {
+        $launcher = $this->launcher;
+        $this->assertInstanceOf(Launcher::class, $launcher);
         $filesystem = $this->filesystem();
-        $chrome = new HeadedChrome();
-        $this->inject($chrome, 'launcher', $this->launcher);
-        $this->inject($chrome, 'clock', new Clock());
-        $this->inject($chrome, 'userDataDir', $this->userDataDir);
-        $this->inject($chrome, 'port', $this->port);
-        $this->inject($chrome, 'autoLaunch', true);
-        $this->inject($chrome, 'timeout', 60.0);
-        // CI and agent sandboxes block Chrome's own sandbox, which kills the GPU process at
-        // startup. The package default stays sandboxed; only this test opts out.
-        $this->inject($chrome, 'args', ['--no-sandbox', '--disable-dev-shm-usage']);
-        $browser = new HeadedBrowser();
-        $this->inject($browser, 'chrome', $chrome);
-        $this->inject($browser, 'filesystem', $filesystem);
-        $this->inject($browser, 'pathAlias', new PathAlias());
-        $this->inject($browser, 'screenshotDir', $this->userDataDir . '/shots');
+        $chrome = new class ($launcher, new Clock(), $this->userDataDir, $this->port) extends HeadedChrome {
+            public function __construct(Launcher $launcher, Clock $clock, string $userDataDir, int $port)
+            {
+                $this->launcher = $launcher;
+                $this->clock = $clock;
+                $this->userDataDir = $userDataDir;
+                $this->port = $port;
+                $this->autoLaunch = true;
+                $this->timeout = 60.0;
+                // CI and agent sandboxes block Chrome's own sandbox, which kills the GPU process at
+                // startup. The package default stays sandboxed; only this test opts out.
+                $this->args = ['--no-sandbox', '--disable-dev-shm-usage'];
+            }
+        };
 
-        return $browser;
-    }
-
-    protected function inject(object $target, string $property, mixed $value): void
-    {
-        $ref = new ReflectionProperty($target, $property);
-        $ref->setAccessible(true);
-        $ref->setValue($target, $value);
+        return new class ($chrome, $filesystem, new PathAlias(), $this->userDataDir . '/shots') extends HeadedBrowser {
+            public function __construct(
+                HeadedChrome $chrome,
+                FilesystemInterface $filesystem,
+                PathAlias $pathAlias,
+                string $screenshotDir,
+            ) {
+                $this->chrome = $chrome;
+                $this->filesystem = $filesystem;
+                $this->pathAlias = $pathAlias;
+                $this->screenshotDir = $screenshotDir;
+            }
+        };
     }
 
     protected function pickFreePort(): int
@@ -182,11 +191,11 @@ HTML);
 
     protected function filesystem(): FilesystemInterface
     {
-        $filesystem = new Filesystem();
-        $alias = new ReflectionProperty(Filesystem::class, 'pathAlias');
-        $alias->setAccessible(true);
-        $alias->setValue($filesystem, new PathAlias());
-
-        return $filesystem;
+        return new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
+        };
     }
 }
