@@ -18,7 +18,8 @@
     ],
     "support": {
         "source": "https://github.com/switon-php/ai",
-        "issues": "https://github.com/switon-php/ai/issues"
+        "issues": "https://github.com/switon-php/ai/issues",
+        "docs": "https://github.com/switon-php/ai/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",

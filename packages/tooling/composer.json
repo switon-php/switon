@@ -5,11 +5,9 @@
     "keywords": [
         "switon",
         "tooling",
-        "tool",
-        "schema",
-        "bash",
-        "grep",
-        "spill"
+        "file",
+        "shell",
+        "search"
     ],
     "homepage": "https://github.com/switon-php/tooling",
     "license": "MIT",

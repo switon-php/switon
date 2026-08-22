@@ -29,6 +29,8 @@ $agent->deliver(Envelope::of('hi', 'main'));
 $turn = $agent->run(Envelope::of('hi', 'main'));
 ```
 
+Docs: https://github.com/switon-php/ai/blob/main/docs/README.md
+
 ## License
 
 MIT.

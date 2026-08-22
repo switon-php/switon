@@ -98,5 +98,7 @@ This package defines contracts only.
 
 ## Next {#next}
 
+- **To debug hook behavior:** [FAQ](faq.md#invocation-faq)
+- **To understand the trade-offs:** [Design Rationale](design.md#design-rationale)
 - **To run guarded and intercepted methods through one entry point:** [Invoker Package](https://github.com/switon-php/invoker/blob/main/docs/README.md)
 - **To resolve arguments from HTTP, CLI, or builders before `invoke()`:** [Binding Package](https://github.com/switon-php/binding/blob/main/docs/README.md)

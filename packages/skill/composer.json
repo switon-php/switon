@@ -1,6 +1,6 @@
 {
   "name": "switon/skill",
-  "description": "Skill catalog: SKILL.md rows, lookup, and path reload",
+  "description": "SKILL.md catalog, lookup, and path reload for Switon Framework",
   "type": "library",
   "keywords": [
     "switon",

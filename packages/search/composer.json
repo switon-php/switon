@@ -1,17 +1,13 @@
 {
   "name": "switon/search",
-  "description": "Lookup for agents: open-web search, URL fetch, and curated site files",
+  "description": "Open-web search, page fetch, and curated site lookup for Switon Framework",
   "type": "library",
   "keywords": [
     "switon",
     "search",
     "web-search",
-    "knowledge-search",
     "fetch",
-    "bing",
-    "baidu",
-    "google",
-    "zhihu"
+    "site-search"
   ],
   "homepage": "https://github.com/switon-php/search",
   "license": "MIT",

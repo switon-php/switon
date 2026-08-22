@@ -1,14 +1,12 @@
 {
     "name": "switon/thread",
-    "description": "Thread datadir storage (conversation, transcript, compact, state.json, totals.json) \u2014 no agent runtime",
+    "description": "Working-conversation and append-only transcript storage for Switon Framework",
     "type": "library",
     "keywords": [
         "switon",
         "thread",
         "conversation",
-        "transcript",
-        "compact",
-        "ai"
+        "transcript"
     ],
     "homepage": "https://github.com/switon-php/thread",
     "license": "MIT",
@@ -54,6 +52,7 @@
     },
     "scripts": {
         "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
         "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
     },
     "extra": {

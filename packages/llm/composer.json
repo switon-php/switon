@@ -19,7 +19,8 @@
     ],
     "support": {
         "source": "https://github.com/switon-php/llm",
-        "issues": "https://github.com/switon-php/llm/issues"
+        "issues": "https://github.com/switon-php/llm/issues",
+        "docs": "https://github.com/switon-php/llm/blob/main/docs/README.md"
     },
     "require": {
         "php": ">=8.3",
@@ -55,6 +56,7 @@
     },
     "scripts": {
         "phpstan": "@php vendor/bin/phpstan analyse",
+        "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
         "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
     },
     "extra": {
