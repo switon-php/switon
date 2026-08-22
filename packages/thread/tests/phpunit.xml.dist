@@ -27,5 +27,9 @@
         <include>
             <directory suffix=".php">../src</directory>
         </include>
+        <exclude>
+            <directory>../src/Event</directory>
+            <directory>../src/Exception</directory>
+        </exclude>
     </source>
 </phpunit>
