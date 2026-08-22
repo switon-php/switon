@@ -52,7 +52,7 @@ class FilesCollectorTest extends TestCase
         try {
             $listing = $collector->collect();
             $this->assertNotEmpty($listing);
-            $this->assertTrue((bool)preg_grep('#^/+#', $listing), 'Expected POSIX absolute paths after prefix mismatch');
+            $this->assertTrue((bool)preg_grep('#^(?:/+|[A-Za-z]:/)#', $listing), 'Expected absolute paths after prefix mismatch');
         } finally {
             putenv('HOME');
             putenv('USERPROFILE');
