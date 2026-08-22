@@ -16,13 +16,18 @@ use Switon\Core\Exception\FileNotFoundException;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\Json;
+use Switon\Core\Path;
+use Switon\Core\Program;
 
 use function getcwd;
 use function implode;
 use function json_decode;
+use function str_contains;
+use function str_replace;
 use function token_get_all;
 use function trim;
 
+use const PHP_BINARY;
 use const T_CLASS;
 use const T_DOC_COMMENT;
 use const T_ENUM;
@@ -59,9 +64,7 @@ class CodeCommand
         $errors = [];
 
         foreach ($files as $file) {
-            $out = [];
-            exec('php -l ' . escapeshellarg($file) . ' 2>&1', $out);
-            $line = implode(' ', $out);
+            $line = trim(Program::run([PHP_BINARY, '-l', $file], true)['output']);
             if (!str_contains($line, 'No syntax errors')) {
                 $errors[] = ['file' => $file, 'message' => $line ?: 'syntax error'];
             }
@@ -77,10 +80,10 @@ class CodeCommand
     protected function resolvePath(string $path): string
     {
         $p = $path !== '' ? $path : self::DEFAULT_PATH;
-        $cwd = getcwd();
-        if (isset($p[0]) && $p[0] === '/') {
+        if (Path::isAbsolute($p)) {
             return $p;
         }
+        $cwd = getcwd();
         return $cwd . '/' . $p;
     }
 
@@ -96,7 +99,7 @@ class CodeCommand
         );
         foreach ($it as $f) {
             if ($f->isFile() && $f->getExtension() === 'php') {
-                $files[] = $f->getPathname();
+                $files[] = str_replace('\\', '/', $f->getPathname());
             }
         }
         return $files;
