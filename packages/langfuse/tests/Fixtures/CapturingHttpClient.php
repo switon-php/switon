@@ -81,4 +81,9 @@ class CapturingHttpClient implements HttpClientInterface
     ): Response {
         throw new LogicException('CapturingHttpClient supports post() only.');
     }
+
+    public function fetch(string $url, string $method = 'GET', array $headers = [], ?string $body = null, array $options = []): array
+    {
+        throw new LogicException('CapturingHttpClient supports post() only.');
+    }
 }

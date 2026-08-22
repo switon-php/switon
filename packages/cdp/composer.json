@@ -1,0 +1,65 @@
+{
+  "name": "switon/cdp",
+  "description": "Headless Chrome for Switon: open a page, wait, read HTML, and send cookie-bearing HTTP",
+  "type": "library",
+  "keywords": [
+    "switon",
+    "cdp",
+    "chrome",
+    "devtools"
+  ],
+  "homepage": "https://github.com/switon-php/cdp",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "switon",
+      "email": "admin@switon.dev"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/switon-php/cdp",
+    "issues": "https://github.com/switon-php/cdp/issues",
+    "docs": "https://github.com/switon-php/cdp/blob/main/docs/README.md"
+  },
+  "require": {
+    "php": ">=8.3",
+    "ext-json": "*",
+    "switon/core": "^1.0"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.0",
+    "switon/testing": "^1.0",
+    "phpstan/extension-installer": "^1.4"
+  },
+  "config": {
+    "allow-plugins": {
+      "switon/composer-extra": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Switon\\Cdp\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Switon\\Cdp\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "phpstan": "@php vendor/bin/phpstan analyse",
+    "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+    "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-dev": "1.0.x-dev"
+    },
+    "switon": {
+      "providers": [
+        "Switon\\Cdp\\ServiceProvider"
+      ]
+    }
+  }
+}
