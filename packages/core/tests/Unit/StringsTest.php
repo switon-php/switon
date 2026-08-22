@@ -492,6 +492,13 @@ class StringsTest extends TestCase
         $this->assertSame('', Strings::cutBytes('abc', 0));
     }
 
+    public function testFileNameKeepsSafeCharactersAndReplacesTheRest(): void
+    {
+        $this->assertSame('call-1.txt', Strings::fileName('call-1.txt'));
+        $this->assertSame('a_b', Strings::fileName('a/b'));
+        $this->assertMatchesRegularExpression('/^[a-f0-9]+$/', Strings::fileName('...'));
+    }
+
     public function testSquishCollapsesWhitespaceAndTrims(): void
     {
         $this->assertSame('hello world', Strings::squish("  hello   \n\t  world  "));
