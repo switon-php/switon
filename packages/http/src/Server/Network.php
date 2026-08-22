@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Switon\Http\Server;
 
+use Switon\Core\Program;
+
 use function base_convert;
 use function current;
-use function exec;
 use function explode;
 use function function_exists;
 use function ip2long;
@@ -126,8 +127,8 @@ class Network
         } elseif (DIRECTORY_SEPARATOR === '\\' || PHP_OS === 'Darwin') {
             return '127.0.0.1';
         } else {
-            $ips = exec('hostname --all-ip-addresses 2>/dev/null');
-            if (!is_string($ips) || $ips === '') {
+            $ips = trim(Program::run(['hostname', '--all-ip-addresses'])['output']);
+            if ($ips === '') {
                 return '127.0.0.1';
             }
 

@@ -515,7 +515,7 @@ class TestablePhpNonCliStart extends Php
 }
 
 /**
- * CLI {@see Php::start()} harness: records {@see shell_exec} command and avoids {@see exit}.
+ * CLI {@see Php::start()} harness: records the server command and avoids {@see exit}.
  */
 class TestablePhpCliHarness extends Php
 {
@@ -526,9 +526,10 @@ class TestablePhpCliHarness extends Php
     {
     }
 
-    protected function runCliCommand(string $command): void
+    /** @param list<string> $command */
+    protected function runCliCommand(array $command): void
     {
-        $this->shellCommands[] = $command;
+        $this->shellCommands[] = implode(' ', $command);
     }
 
     protected function terminateProcess(): never

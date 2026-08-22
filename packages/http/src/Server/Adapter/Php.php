@@ -8,6 +8,7 @@ use Switon\Core\AppInterface;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\Lazy;
 use Switon\Core\PathAliasInterface;
+use Switon\Core\Program;
 use Switon\Http\AbstractServer;
 use Switon\Http\Event\AssetSending;
 use Switon\Http\Event\AssetSent;
@@ -16,13 +17,14 @@ use Switon\Http\Server\Adapter\Native\SenderInterface;
 use Switon\Http\Server\Event\ServerReady;
 use Switon\Http\Server\Network;
 use Switon\Http\Server\StaticHandlerInterface;
-use Throwable;
 
+use function array_map;
 use function console_log;
 use function escapeshellarg;
 use function file_get_contents;
 use function get_included_files;
 use function header;
+use function implode;
 use function putenv;
 use function readfile;
 
@@ -133,12 +135,16 @@ class Php extends AbstractServer
 
         $publicDir = $this->pathAlias->resolve('@public');
         $entryScript = $this->getEntryScript();
-        $command = escapeshellarg(PHP_BINARY)
-            . ' -S ' . $this->serverOptions->host . ':' . $this->serverOptions->port
-            . ' -t ' . escapeshellarg($publicDir)
-            . ' ' . escapeshellarg($entryScript);
+        $command = [
+            PHP_BINARY,
+            '-S',
+            $this->serverOptions->host . ':' . $this->serverOptions->port,
+            '-t',
+            $publicDir,
+            $entryScript,
+        ];
 
-        $this->logCliStart($command);
+        $this->logCliStart(implode(' ', array_map(escapeshellarg(...), $command)));
         $this->runCliCommand($command);
         $this->terminateProcess();
     }
@@ -156,12 +162,12 @@ class Php extends AbstractServer
         console_log('info', "http://127.0.0.1:{$this->serverOptions->port}" . ($prefix ?: '/'));
     }
 
-    protected function runCliCommand(string $command): void
+    /** @param list<string> $command */
+    protected function runCliCommand(array $command): void
     {
-        try {
-            passthru($command, $exitCode);
-        } catch (Throwable $e) {
-            console_log('error', 'Cannot start the built-in PHP server: {error}', ['error' => $e->getMessage()]);
+        $exitCode = Program::passthru($command);
+        if ($exitCode === -1) {
+            console_log('error', 'Cannot start the built-in PHP server: {error}', ['error' => $command[0] ?? '']);
             exit(1);
         }
 

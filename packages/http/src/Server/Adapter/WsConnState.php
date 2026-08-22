@@ -73,7 +73,7 @@ class WsConnState
 
     public function restoreConnContexts(): void
     {
-        if ($this->contextSnapshots === []) {
+        if ($this->contextSnapshots === [] || !extension_loaded('swoole')) {
             return;
         }
 

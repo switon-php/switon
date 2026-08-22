@@ -686,6 +686,7 @@ class SwooleTest extends TestCase
     }
 }
 
+if (extension_loaded('swoole')) {
 class IdleWebSocketServer extends SwooleServer
 {
     public function __construct()
@@ -708,4 +709,5 @@ class IdleWebSocketServer extends SwooleServer
 
         return true;
     }
+}
 }

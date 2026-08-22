@@ -54,9 +54,11 @@ class ServerEventJsonTest extends TestCase
     }
 }
 
-class ServerEventFakeWebSocketServer extends \Swoole\WebSocket\Server
-{
-    public function __construct()
+if (extension_loaded('swoole')) {
+    class ServerEventFakeWebSocketServer extends \Swoole\WebSocket\Server
     {
+        public function __construct()
+        {
+        }
     }
 }
