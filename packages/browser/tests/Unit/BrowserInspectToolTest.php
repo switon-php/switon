@@ -13,7 +13,6 @@ use Switon\Browser\HeadedBrowserInterface;
 use Switon\Browser\Tool\BrowserInspectTool;
 use Switon\Testing\TestCase;
 
-
 /**
  * `browser_inspect` reports computed styles, so an agent can explain "invisible" or "wrong colour".
  */
