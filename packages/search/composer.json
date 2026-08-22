@@ -1,0 +1,93 @@
+{
+  "name": "switon/search",
+  "description": "Lookup for agents: open-web search, URL fetch, and curated site files",
+  "type": "library",
+  "keywords": [
+    "switon",
+    "search",
+    "web-search",
+    "knowledge-search",
+    "fetch",
+    "bing",
+    "baidu",
+    "google",
+    "zhihu"
+  ],
+  "homepage": "https://github.com/switon-php/search",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "switon",
+      "email": "admin@switon.dev"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/switon-php/search",
+    "issues": "https://github.com/switon-php/search/issues",
+    "docs": "https://github.com/switon-php/search/blob/main/docs/README.md"
+  },
+  "require": {
+    "php": ">=8.3",
+    "ext-curl": "*",
+    "ext-dom": "*",
+    "ext-json": "*",
+    "ext-libxml": "*",
+    "ext-mbstring": "*",
+    "switon/ai": "^1.0",
+    "switon/composer-extra": "^1.0",
+    "switon/core": "^1.0",
+    "switon/llm-html": "^1.0",
+    "switon/tooling": "^1.0",
+    "switon/yaml": "^1.0"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.0",
+    "switon/testing": "^1.0",
+    "phpstan/extension-installer": "^1.4"
+  },
+  "suggest": {
+    "switon/cdp": "Provides the Switon\\Core\\WebFetcherInterface implementation these tools drive; without it a browser-backed site or engine cannot run."
+  },
+  "config": {
+    "allow-plugins": {
+      "switon/composer-extra": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Switon\\Search\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Switon\\Search\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "phpstan": "@php vendor/bin/phpstan analyse",
+    "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+    "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+  },
+  "extra": {
+    "switon": {
+      "providers": [
+        "Switon\\Search\\ServiceProvider"
+      ],
+      "tools": {
+        "web_search": "Switon\\Search\\Tool\\WebSearchTool",
+        "web_fetch": "Switon\\Search\\Tool\\WebFetchTool",
+        "site_search": "Switon\\Search\\Tool\\SiteSearchTool",
+        "site_list": "Switon\\Search\\Tool\\SiteListTool"
+      },
+      "prompt": {
+        "variables": [
+          "Switon\\Search\\SitesInterface"
+        ]
+      }
+    },
+    "branch-alias": {
+      "dev-dev": "1.0.x-dev"
+    }
+  }
+}
