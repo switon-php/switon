@@ -91,6 +91,7 @@ class CommandInspectorCoverageTest extends TestCase
                 'unionBuiltin' => $this->assertTrue(CommandInspector::isOptionType($type)),
                 'service' => $this->assertFalse(CommandInspector::isOptionType($type)),
                 'intersection' => $this->assertFalse(CommandInspector::isOptionType($type)),
+                'classUnion' => $this->assertFalse(CommandInspector::isOptionType($type)),
                 default => $this->fail('Unexpected parameter: ' . $name),
             };
             $this->assertIsString(CommandInspector::optionTypeName($type));
@@ -114,6 +115,11 @@ class CommandInspectorCoverageTest extends TestCase
         $inspector = $this->make(CommandInspector::class);
 
         $this->assertSame('', $inspector->getCommandDescription(CommandInspectorEmptyDocLineFixture::class));
+        $this->assertSame('', $inspector->getCommandDescription(CommandInspectorOneLineDocFixture::class));
+        $this->assertNull($inspector->getActionAiDoc('Switon\\Command\\Tests\\Unit\\DoesNotExist', 'missing'));
+        $this->assertTrue($inspector->hasOptions(new ReflectionMethod(CommandInspectorCoverageFixture::class, 'fallbackAction')));
+        $this->assertFalse($inspector->hasOptions(new ReflectionMethod(CommandInspectorCoverageFixture::class, 'toolAction')));
+        $this->assertSame('helper', $inspector->getMethodDescription(new ReflectionMethod(CommandInspectorCoverageFixture::class, 'helper')));
     }
 }
 
@@ -125,6 +131,7 @@ class CommandInspectorOptionTypeFixture
         int|string $unionBuiltin,
         DateTimeImmutable $service,
         Countable&IteratorAggregate $intersection,
+        DateTimeImmutable|string $classUnion,
     ): void {
     }
 }
@@ -142,6 +149,11 @@ class CommandInspectorNoisyDocFixture
 }
 
 class CommandInspectorEmptyDocLineFixture
+{
+}
+
+/** One line, so there is no summary line to read. */
+class CommandInspectorOneLineDocFixture
 {
 }
 
