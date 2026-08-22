@@ -6,6 +6,7 @@ namespace Switon\Core\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Switon\Core\ProcessTree;
+use Switon\Core\Program;
 use Switon\Core\Tests\TestCase;
 
 use function bin2hex;
@@ -20,15 +21,12 @@ use function mkdir;
 use function proc_close;
 use function proc_get_status;
 use function proc_open;
+use function proc_terminate;
 use function random_bytes;
 use function rmdir;
+use function extension_loaded;
 use function scandir;
-use function shell_exec;
-use function stream_get_contents;
-use function stream_set_blocking;
-use function str_contains;
 use function sys_get_temp_dir;
-use function trim;
 use function unlink;
 use function usleep;
 
@@ -138,7 +136,6 @@ $deadline = microtime(true) + 5;
 while (microtime(true) < $deadline && !(is_file($grandFile) && is_file($childFile))) {
     usleep(10000);
 }
-echo "ready\n";
 while (true) {
     sleep(30);
 }
@@ -152,18 +149,21 @@ PHP);
         );
         $this->assertTrue(is_resource($process));
         fclose($pipes[0]);
-        stream_set_blocking($pipes[1], false);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
         $root = 0;
         $childPid = 0;
         $grandPid = 0;
         try {
-            $stdout = '';
+            // Windows pipes ignore non-blocking reads. The pid files are the ready signal.
+            // The parent script must not write stdout: this test closes that pipe, and the
+            // write aborts the process on Windows.
             $deadline = microtime(true) + 5;
-            while (microtime(true) < $deadline && !str_contains($stdout, 'ready')) {
-                $stdout .= stream_get_contents($pipes[1]) ?: '';
+            while (microtime(true) < $deadline && !(is_file($grandFile) && is_file($childFile))) {
                 usleep(10000);
             }
-            $this->assertStringContainsString('ready', $stdout);
+            $this->assertFileExists($grandFile);
+            $this->assertFileExists($childFile);
 
             $status = proc_get_status($process);
             $root = is_int($status['pid'] ?? null) ? $status['pid'] : 0;
@@ -186,8 +186,7 @@ PHP);
             });
             $this->assertGreaterThan(0, $polls);
 
-            fclose($pipes[1]);
-            fclose($pipes[2]);
+            proc_terminate($process);
             proc_close($process);
             $process = null;
             usleep(200000);
@@ -208,6 +207,7 @@ PHP);
                 fclose($pipes[2]);
             }
             if (is_resource($process)) {
+                proc_terminate($process);
                 proc_close($process);
             }
         }
@@ -220,7 +220,7 @@ PHP);
         }
 
         // A cooperative process dies on SIGTERM, so the grace window must not be slept out.
-        $pid = (int) trim((string) shell_exec('sleep 30 >/dev/null 2>&1 & echo $!'));
+        $pid = Program::start([PHP_BINARY, '-r', 'sleep(30);']);
 
         try {
             $this->assertTrue(ProcessTree::alive($pid));
@@ -241,11 +241,29 @@ PHP);
     public function testTerminateStillKillsAnUncooperativeTree(): void
     {
         if (PHP_OS_FAMILY === 'Windows') {
-            $this->markTestSkipped('Uses a Unix shell to trap SIGTERM.');
+            $this->markTestSkipped('Uses a Unix signal to trap SIGTERM.');
+        }
+        if (!extension_loaded('pcntl')) {
+            $this->markTestSkipped('Needs pcntl to ignore SIGTERM.');
         }
 
         // Ignores SIGTERM, so only the forced signal can stop it.
-        $pid = (int) trim((string) shell_exec("sh -c 'trap \"\" TERM; sleep 30' >/dev/null 2>&1 & echo \$!"));
+        $dir = $this->tempDir();
+        $ready = $dir . '/ready';
+        $script = $dir . '/ignore.php';
+        file_put_contents($script, <<<'PHP'
+<?php
+pcntl_async_signals(true);
+pcntl_signal(SIGTERM, SIG_IGN);
+file_put_contents($argv[1], '1');
+sleep(30);
+PHP);
+        $pid = Program::start([PHP_BINARY, $script, $ready]);
+        $readyDeadline = microtime(true) + 2;
+        while (microtime(true) < $readyDeadline && !is_file($ready)) {
+            usleep(10000);
+        }
+        $this->assertFileExists($ready);
 
         try {
             $this->assertTrue(ProcessTree::alive($pid));

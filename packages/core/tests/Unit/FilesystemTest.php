@@ -69,7 +69,9 @@ class FilesystemTest extends TestCase
 
     public function testResolveExpandsAliasAndHomeAndLeavesRelative(): void
     {
-        $this->assertSame($this->testDir . '/a.txt', $this->filesystem->resolve('@test/a.txt'));
+        $root = $this->pathAlias->get('@test');
+        $this->assertIsString($root);
+        $this->assertSame($root . '/a.txt', $this->filesystem->resolve('@test/a.txt'));
         $this->assertSame('note.txt', $this->filesystem->resolve('note.txt'));
 
         $home = getenv('HOME');
@@ -313,8 +315,8 @@ class FilesystemTest extends TestCase
     public function testRealpathCanonicalizesAliasAndResolvesSymlink(): void
     {
         $this->filesystem->write('@test/target.txt', 'x');
-        $target = realpath($this->testDir . '/target.txt');
-        $this->assertIsString($target);
+        $target = strtr((string) realpath($this->testDir . '/target.txt'), '\\', '/');
+        $this->assertNotSame('', $target);
         $this->assertSame($target, $this->filesystem->realpath('@test/target.txt'));
         $this->assertNull($this->filesystem->realpath('@test/missing.txt'));
 
@@ -887,8 +889,10 @@ class FilesystemTest extends TestCase
 
     protected function pharRoot(): string
     {
-        $this->pharRoot = 'phar://' . dirname(__DIR__) . '/Fixtures/filesystem.phar';
-        $this->pathAlias->set('@phar', $this->pharRoot);
+        $this->pharRoot = $this->pathAlias->set(
+            '@phar',
+            'phar://' . dirname(__DIR__) . '/Fixtures/filesystem.phar',
+        );
 
         return $this->pharRoot;
     }

@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Switon\Core;
 
 use function ctype_digit;
-use function exec;
+use function defined;
+use function explode;
 use function function_exists;
-use function implode;
+use function pcntl_waitpid;
 use function microtime;
 use function min;
 use function posix_kill;
@@ -58,15 +59,13 @@ class ProcessTree
         };
 
         if (PHP_OS_FAMILY === 'Windows') {
-            if (!function_exists('exec')) {
-                return;
-            }
-            @exec('taskkill /T /PID ' . $pid . ' 2>NUL');
+            // A taskkill without /F waits until the process exits. sleep() never does,
+            // so the only kill that returns is the forced one, after the grace poll.
             if ($graceSeconds > 0) {
                 self::awaitExit([$pid], $graceSeconds, $sleep);
             }
             if (self::alive($pid)) {
-                @exec('taskkill /F /T /PID ' . $pid . ' 2>NUL');
+                Program::run(['taskkill', '/F', '/T', '/PID', (string) $pid]);
             }
 
             return;
@@ -132,27 +131,32 @@ class ProcessTree
         }
 
         if (PHP_OS_FAMILY === 'Windows') {
-            if (!function_exists('exec')) {
+            $result = Program::run(['tasklist', '/FI', 'PID eq ' . $pid, '/NH']);
+            if ($result['code'] === -1) {
                 return true;
             }
-            $output = [];
-            exec('tasklist /FI "PID eq ' . $pid . '" /NH', $output);
 
-            return str_contains(implode("\n", $output), (string) $pid);
+            return str_contains($result['output'], (string) $pid);
+        }
+
+        if (function_exists('pcntl_waitpid') && defined('WNOHANG')) {
+            // A child started here becomes a zombie after it exits, and posix_kill(pid, 0) is still true.
+            $reaped = @pcntl_waitpid($pid, $status, WNOHANG);
+            if ($reaped === $pid) {
+                return false;
+            }
         }
 
         if (function_exists('posix_kill')) {
             return @posix_kill($pid, 0);
         }
 
-        if (!function_exists('exec')) {
+        $result = Program::run(['ps', '-p', (string) $pid]);
+        if ($result['code'] === -1) {
             return true;
         }
 
-        $output = [];
-        exec('ps -p ' . $pid . ' >/dev/null 2>&1', $output, $code);
-
-        return $code === 0;
+        return $result['code'] === 0;
     }
 
     /**
@@ -196,15 +200,10 @@ class ProcessTree
      */
     protected static function childPids(int $pid): array
     {
-        if (!function_exists('exec')) {
-            return [];
-        }
-
-        $output = [];
-        @exec('pgrep -P ' . $pid . ' 2>/dev/null', $output);
+        $result = Program::run(['pgrep', '-P', (string) $pid]);
 
         $children = [];
-        foreach ($output as $line) {
+        foreach (explode("\n", $result['output']) as $line) {
             $line = trim($line);
             if ($line !== '' && ctype_digit($line)) {
                 $children[] = (int) $line;
@@ -225,9 +224,7 @@ class ProcessTree
                 continue;
             }
 
-            if (function_exists('exec')) {
-                @exec('kill -' . $signal . ' ' . $pid . ' 2>/dev/null');
-            }
+            Program::run(['kill', '-' . $signal, (string) $pid]);
         }
     }
 }

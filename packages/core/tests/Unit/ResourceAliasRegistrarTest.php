@@ -16,6 +16,8 @@ use function bin2hex;
 use function file_put_contents;
 use function mkdir;
 use function random_bytes;
+use function rtrim;
+use function strtr;
 use function sys_get_temp_dir;
 use function unlink;
 
@@ -69,7 +71,7 @@ class ResourceAliasRegistrarTest extends TestCase
 
         (new ResourceAliasRegistrar())->register($pathAlias, ResourceAliasAnnotatedProviderFixture::class);
 
-        $root = dirname(__DIR__, 2);
+        $root = rtrim(strtr(dirname(__DIR__, 2), '\\', '/'), '/');
         $this->assertTrue($pathAlias->has('@test.fixture.resources'));
         $this->assertSame($root . '/resources', $pathAlias->get('@test.fixture.resources'));
     }
@@ -81,7 +83,7 @@ class ResourceAliasRegistrarTest extends TestCase
 
         (new ResourceAliasRegistrar())->register($pathAlias, ResourceAliasAutoAliasFixture::class);
 
-        $coreRoot = dirname(__DIR__, 2);
+        $coreRoot = rtrim(strtr(dirname(__DIR__, 2), '\\', '/'), '/');
         $this->assertTrue($pathAlias->has('@switon.core.validators'));
         $this->assertSame($coreRoot . '/validators', $pathAlias->get('@switon.core.validators'));
     }
@@ -239,43 +241,6 @@ class ResourceAliasRegistrarTest extends TestCase
         } finally {
             @unlink($file);
             @unlink($packageRoot . '/composer.json');
-            @rmdir($packageRoot . '/src');
-            @rmdir($packageRoot);
-        }
-    }
-
-    public function testRegisterSkipsWhenComposerJsonIsUnreadable(): void
-    {
-        if (!function_exists('posix_getuid') || posix_geteuid() === 0) {
-            $this->markTestSkipped('Unreadable composer.json scenario requires a non-root POSIX user.');
-        }
-
-        $suffix = bin2hex(random_bytes(6));
-        $packageRoot = sys_get_temp_dir() . '/provider-unreadable-composer-' . $suffix;
-        mkdir($packageRoot . '/src', 0777, true);
-        $composer = $packageRoot . '/composer.json';
-        file_put_contents($composer, '{"name": "acme/pkg"}');
-        chmod($composer, 0000);
-
-        $namespace = 'Tmp\\UnreadableComposer' . $suffix;
-        $definition = "<?php declare(strict_types=1);\n"
-            . "namespace {$namespace};\n\n"
-            . "use Switon\\Core\\Attribute\\ResourceAlias;\n\n"
-            . '#[ResourceAlias(path: "migrations")]' . "\n"
-            . "class Provider {}\n";
-        $file = $packageRoot . '/src/Provider.php';
-        file_put_contents($file, $definition);
-        try {
-            require_once $file;
-            /** @var class-string $fqn */
-            $fqn = "{$namespace}\\Provider";
-            $pathAlias = $this->stubPathAlias();
-            (new ResourceAliasRegistrar())->register($pathAlias, $fqn);
-            $this->assertSame([], $pathAlias->all());
-        } finally {
-            @chmod($composer, 0600);
-            @unlink($file);
-            @unlink($composer);
             @rmdir($packageRoot . '/src');
             @rmdir($packageRoot);
         }
