@@ -101,6 +101,16 @@ class ConstantValueTest extends TestCase
         $this->assertFalse($constraint->validate($validation));
     }
 
+    public function testConstantValueResolvesInterfaceConstants(): void
+    {
+        $constraint = new ConstantValue(class: StatusConstants::class);
+        $validation = $this->validator->beginValidate(['status' => 1]);
+        $validation->field = 'status';
+        $validation->value = 1;
+
+        $this->assertTrue($constraint->validate($validation));
+    }
+
     public function testConstantValueReturnsFalseWhenConstantClassIsInvalid(): void
     {
         $constraint = new ConstantValue(class: 'App\\Missing\\StatusConstants');
@@ -140,6 +150,11 @@ class ConstantValueTest extends TestCase
         $validation->validate($constraint);
         $this->validator->endValidate($validation);
     }
+}
+
+interface StatusConstants
+{
+    public const STATUS_ACTIVE = 1;
 }
 
 class ExternalStatusConstants
