@@ -1,0 +1,9 @@
+id: extra-stub
+description: Directory registered through extra.switon.sites.
+request: https://example.com/search?q={keyword}
+response:
+  kind: html
+  each: a
+  item:
+    title: a
+    url: a
