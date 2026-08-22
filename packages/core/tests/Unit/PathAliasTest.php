@@ -633,10 +633,10 @@ class PathAliasTest extends TestCase
         $prevHome = getenv('HOME');
         $prevProfile = getenv('USERPROFILE');
         putenv('HOME');
-        putenv('USERPROFILE=C:\\Users\\mark');
+        putenv('USERPROFILE=C:\\Users\\dev');
 
         try {
-            $this->assertSame('C:/Users/mark/notes', $this->pathAlias->resolve('~/notes'));
+            $this->assertSame('C:/Users/dev/notes', $this->pathAlias->resolve('~/notes'));
         } finally {
             $prevHome === false ? putenv('HOME') : putenv('HOME=' . $prevHome);
             $prevProfile === false ? putenv('USERPROFILE') : putenv('USERPROFILE=' . $prevProfile);
@@ -669,13 +669,13 @@ class PathAliasTest extends TestCase
     {
         $prevHome = getenv('HOME');
         $prevProfile = getenv('USERPROFILE');
-        putenv('HOME=/home/mark');
+        putenv('HOME=/home/dev');
         putenv('USERPROFILE');
 
         try {
             $result = $this->pathAlias->set('@cache', '~/cache');
-            $this->assertSame('/home/mark/cache', $result);
-            $this->assertSame('/home/mark/cache', $this->pathAlias->get('@cache'));
+            $this->assertSame('/home/dev/cache', $result);
+            $this->assertSame('/home/dev/cache', $this->pathAlias->get('@cache'));
         } finally {
             $prevHome === false ? putenv('HOME') : putenv('HOME=' . $prevHome);
             $prevProfile === false ? putenv('USERPROFILE') : putenv('USERPROFILE=' . $prevProfile);

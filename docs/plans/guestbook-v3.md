@@ -69,7 +69,7 @@ arcus 是 Switon 框架的应用骨架，已有 TimeController 和 IndexControll
 ### 前置准备
 
 ```bash
-cd /Users/mark/www/switon/arcus
+cd arcus
 ```
 
 1. `bash bin/init-db`
