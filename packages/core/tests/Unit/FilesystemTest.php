@@ -13,6 +13,8 @@ use Switon\Core\Filesystem;
 use Switon\Core\PathAliasInterface;
 use Switon\Core\Tests\TestCase;
 
+use const PHP_OS_FAMILY;
+
 /**
  * Filesystem behaviour (real temp dirs + {@see PathAliasInterface}); runs under unit suite for coverage.
  */
@@ -463,6 +465,16 @@ class FilesystemTest extends TestCase
 
     public function testChmodChangesFilePermissions(): void
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            // Windows has no POSIX permission bits: `chmod` only toggles the read-only flag, so a
+            // `0644` readback cannot hold. The call still has to succeed.
+            $this->filesystem->write('@test/file.txt', 'content');
+            $this->filesystem->chmod('@test/file.txt', 0644);
+            $this->assertTrue($this->filesystem->isFile('@test/file.txt'));
+
+            return;
+        }
+
         $this->filesystem->write('@test/file.txt', 'content');
         $this->filesystem->chmod('@test/file.txt', 0644);
 
