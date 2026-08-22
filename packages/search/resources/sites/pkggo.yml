@@ -1,0 +1,16 @@
+id: pkggo
+description: pkg.go.dev package search.
+request: https://pkg.go.dev/search?q={keyword}&m=package
+response:
+  kind: html
+  each: .SearchSnippet
+  item:
+    title:
+      - a.SearchSnippet-header-path
+      - h2 a
+      - a
+    url:
+      - a.SearchSnippet-header-path@href
+      - h2 a@href
+      - a@href
+    snippet: .SearchSnippet-synopsis

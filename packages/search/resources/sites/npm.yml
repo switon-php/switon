@@ -1,0 +1,12 @@
+id: npm
+description: npm package search.
+request: https://registry.npmjs.org/-/v1/search?text={keyword}&size=10
+response:
+  kind: json
+  each: objects
+  item:
+    title: package.name
+    url:
+      - package.links.npm
+      - https://www.npmjs.com/package/{package.name}
+    snippet: package.description

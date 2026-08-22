@@ -1,0 +1,12 @@
+id: gitlab
+description: GitLab project search.
+request: https://gitlab.com/api/v4/projects?search={keyword}&per_page=10&order_by=last_activity_at&simple=true
+response:
+  kind: json
+  each: .
+  item:
+    title:
+      - path_with_namespace
+      - name
+    url: web_url
+    snippet: description

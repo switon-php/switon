@@ -1,0 +1,12 @@
+id: wikipedia
+description: English Wikipedia search.
+request: https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&utf8=1&srlimit=10&srsearch={keyword}
+response:
+  kind: json
+  each: query.search
+  item:
+    title: title
+    url:
+      - https://en.wikipedia.org/?curid={pageid}
+      - https://en.wikipedia.org/wiki/{title}
+    snippet: snippet

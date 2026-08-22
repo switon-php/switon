@@ -1,0 +1,27 @@
+# site_search keeps people rows. web_search uses ZhihuEngine and drops them.
+id: zhihu
+description: Zhihu content search.
+request: https://www.zhihu.com/api/v4/search_v3?gk_version=gz-gaokao&t=general&q={keyword}&correction=1&offset={offset}&limit={limit}&filter_fields=&lc_idx=0&show_all_topics=0&search_source=Normal
+referer: https://www.zhihu.com/search?type=content&q={keyword}
+fetch: browser
+size: 20
+response:
+  kind: json
+  each: data
+  item:
+    title:
+      - object.question.title
+      - object.title
+      - object.name
+    url:
+      by: object.type
+      article: https://zhuanlan.zhihu.com/p/{object.id}
+      answer: https://www.zhihu.com/question/{object.question.id}/answer/{object.id}
+      question: https://www.zhihu.com/question/{object.id}
+      people: https://www.zhihu.com/people/{object.url_token}
+      _: "{object.url}"
+    snippet:
+      - object.excerpt
+      - object.excerpt_new
+      - highlight.description
+      - object.headline

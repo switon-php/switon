@@ -1,0 +1,10 @@
+id: maven
+description: Maven Central search.
+request: https://central.sonatype.com/solrsearch/select?q={keyword}&rows=10&wt=json
+response:
+  kind: json
+  each: response.docs
+  item:
+    title: "{g}:{a}"
+    url: https://central.sonatype.com/artifact/{g}/{a}
+    snippet: "latest: {latestVersion}"

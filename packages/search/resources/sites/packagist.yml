@@ -1,0 +1,10 @@
+id: packagist
+description: Packagist package search.
+request: https://packagist.org/search.json?q={keyword}&per_page=10
+response:
+  kind: json
+  each: results
+  item:
+    title: name
+    url: url
+    snippet: description

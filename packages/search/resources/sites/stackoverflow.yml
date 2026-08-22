@@ -1,0 +1,9 @@
+id: stackoverflow
+description: Stack Overflow question search.
+request: https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=relevance&site=stackoverflow&pagesize=10&q={keyword}
+response:
+  kind: json
+  each: items
+  item:
+    title: title
+    url: link
