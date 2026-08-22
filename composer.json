@@ -70,6 +70,7 @@
     "switon/browser": "^1.0",
     "switon/cdp": "^1.0",
     "switon/llm-html": "^1.0",
+    "switon/search": "^1.0",
     "ext-zlib": "*",
     "ext-sockets": "*",
     "ext-fileinfo": "*",
