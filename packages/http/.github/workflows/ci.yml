@@ -13,8 +13,19 @@ concurrency:
 jobs:
   # No Swoole: Swoole-only tests must be skipped or not load ext; core HTTP unit tests pass.
   phpunit-without-swoole:
-    name: PHPUnit (no Swoole)
-    runs-on: ubuntu-latest
+    name: PHP ${{ matrix.php }} / ${{ matrix.os }} (no Swoole)
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, php: '8.3' }
+          - { os: ubuntu-latest, php: '8.4' }
+          - { os: ubuntu-latest, php: '8.5' }
+          - { os: macos-15, php: '8.5' }
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
@@ -22,7 +33,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ matrix.php }}
           coverage: none
 
       - name: Confirm Swoole is not loaded
@@ -41,9 +52,21 @@ jobs:
       - name: Run fast package tests
         run: composer run test:unit
 
+  # This release tests Swoole 6.2. The Windows server runtime is swoole-cli 6.2, which setup-php does not install.
   phpunit-with-swoole:
-    name: PHPUnit (ext-swoole)
-    runs-on: ubuntu-latest
+    name: PHP ${{ matrix.php }} / ${{ matrix.os }} (ext-swoole)
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, php: '8.3' }
+          - { os: ubuntu-latest, php: '8.4' }
+          - { os: ubuntu-latest, php: '8.5' }
+          - { os: macos-15, php: '8.5' }
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
@@ -51,13 +74,13 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          extensions: swoole
+          php-version: ${{ matrix.php }}
+          extensions: swoole-6.2.6
           coverage: none
 
       - name: Confirm Swoole is loaded
         run: |
-          php -r 'exit(extension_loaded("swoole") ? 0 : 1);'
+          php -r 'exit(extension_loaded("swoole") && defined("SWOOLE_VERSION") && version_compare(SWOOLE_VERSION, "6.2", ">=") && version_compare(SWOOLE_VERSION, "6.3", "<") ? 0 : 1);'
 
       - name: Install package dependencies
         run: composer install --no-interaction --prefer-dist

@@ -43,14 +43,18 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v5
 
+      - name: Name the checkout dev
+        run: git checkout -B dev
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           coverage: none
+          extensions: redis, sockets, fileinfo
 
       - name: Setup Composer cache
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: --no-interaction --prefer-dist
 
@@ -92,25 +96,71 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v5
 
+      - name: Name the checkout dev
+        run: git checkout -B dev
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           coverage: none
+          extensions: redis, sockets, fileinfo
 
       - name: Install monorepo dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: --no-interaction --prefer-dist
 
       - name: Install shared test dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: packages/testing
           composer-options: --no-interaction --prefer-dist
 
       - name: Run release check
         run: bash build/release-check.sh "${{ matrix.package }}" --fast
+
+  core:
+    name: Core / ${{ matrix.os }} / PHP ${{ matrix.php }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-24.04, php: "8.3" }
+          - { os: ubuntu-24.04, php: "8.4" }
+          - { os: ubuntu-24.04, php: "8.5" }
+          - { os: macos-15, php: "8.5" }
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Name the checkout dev
+        run: git checkout -B dev
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          extensions: redis, sockets, fileinfo
+
+      - name: Install monorepo dependencies
+        uses: ramsey/composer-install@v4
+        with:
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Install shared test dependencies
+        uses: ramsey/composer-install@v4
+        with:
+          working-directory: packages/testing
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Run release check
+        run: bash build/release-check.sh core --fast
 
   skeleton:
     name: Package / skeleton
@@ -119,11 +169,15 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v5
 
+      - name: Name the checkout dev
+        run: git checkout -B dev
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           coverage: none
+          extensions: redis, sockets, fileinfo
 
       - name: Run skeleton distribution release check
         run: bash build/release-check.sh skeleton
