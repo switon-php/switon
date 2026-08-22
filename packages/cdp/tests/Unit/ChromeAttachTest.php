@@ -10,6 +10,7 @@ use Switon\Cdp\Exception;
 use Switon\Cdp\HeadlessChrome;
 use Switon\Cdp\Launcher;
 use Switon\Cdp\Session;
+use RuntimeException;
 
 use function fclose;
 use function file_get_contents;
@@ -209,7 +210,7 @@ final class DiscardingChrome extends HeadlessChrome
     public function runSession(string $url): void
     {
         $this->withDebuggerSession($url, 0.2, static function (): void {
-            throw new \RuntimeException('ignored');
+            throw new RuntimeException('ignored');
         });
     }
 

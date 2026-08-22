@@ -35,7 +35,6 @@ use function unlink;
 use function usleep;
 
 use const PHP_BINARY;
-
 use const STREAM_IPPROTO_IP;
 use const STREAM_PF_UNIX;
 use const STREAM_SOCK_STREAM;

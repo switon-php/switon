@@ -620,7 +620,8 @@ class HeadlessChromeLiveTest extends TestCase
     }
 
     #[Test]
-    public function clickFillAndScreenshotTheLocalForm(): void    {
+    public function clickFillAndScreenshotTheLocalForm(): void
+    {
         $chrome = $this->chrome();
         $page = $chrome->open($this->baseUrl . 'form');
         try {

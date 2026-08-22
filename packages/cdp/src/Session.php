@@ -97,7 +97,7 @@ class Session
     /** HTTP status of the document response for the last navigation. `0` when none arrived. */
     protected int $navigationStatus = 0;
 
-    /** @var array<string, string> Response headers of the document captured with {@see $navigationStatus}. */
+    /** @var array<string, string> Response headers of the document captured with {@see}. */
     protected array $navigationHeaders = [];
 
     /**
