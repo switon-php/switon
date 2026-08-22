@@ -27,6 +27,7 @@
         "switon/core": "^1.0",
         "switon/db": "^1.0",
         "switon/di": "^1.0",
+        "switon/event": "^1.0",
         "switon/sharding": "^1.0"
     },
     "require-dev": {
