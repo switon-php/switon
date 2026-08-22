@@ -38,6 +38,7 @@ class ServiceProviderTest extends TestCase
         ]);
 
         $provider = new ServiceProvider();
+        $provider->register($this->container);
         $this->injector->inject($provider);
         $provider->boot();
 

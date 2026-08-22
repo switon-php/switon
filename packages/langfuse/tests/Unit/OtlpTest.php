@@ -45,6 +45,8 @@ class OtlpTest extends \PHPUnit\Framework\TestCase
 
         // A float that rounds to a whole extra second must carry into the seconds digits.
         $this->assertSame('1700000002000000000', Otlp::unixNano(1_700_000_001.9999999999));
+        $this->assertSame('1700000001000000000', Otlp::unixNano(1_700_000_000.9999995));
+        $this->assertSame('2023-11-14T22:13:21.000Z', Otlp::isoFromUnix(1_700_000_000.9996));
     }
 
     public function testPayloadEncodesSpansWithParentAndErrorStatus(): void

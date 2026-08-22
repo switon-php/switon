@@ -96,6 +96,33 @@ class ClientTest extends TestCase
         $this->assertStringContainsString('Langfuse export rejected', $this->logger->logs[0]['message']);
     }
 
+    public function testIngestIgnoresABodyThatIsNotAPartialSuccess(): void
+    {
+        $client = $this->clientWithBody('not-json');
+        $client->ingest([$this->span()]);
+        $client = $this->clientWithBody('{"ok":true}');
+        $client->ingest([$this->span()]);
+        $client = $this->clientWithBody('{"partialSuccess":{"rejectedSpans":0}}');
+        $client->ingest([$this->span()]);
+
+        $this->assertSame([], $this->logger->logs);
+    }
+
+    public function testShutdownBeforeAnyExportDoesNothing(): void
+    {
+        $client = $this->make(Client::class, [
+            'publicKey' => 'pk-test',
+            'secretKey' => 'sk-test',
+            'baseUrl' => 'https://cloud.langfuse.com',
+            'httpClient' => $this->httpClient,
+            'logger' => $this->logger,
+        ]);
+
+        $client->shutdown();
+
+        $this->assertSame([], $this->httpClient->posts);
+    }
+
     public function testIngestSwallowsTransportErrors(): void
     {
         $this->httpClient->throwOnPost = new RuntimeException('network down');
@@ -142,6 +169,25 @@ class ClientTest extends TestCase
         $client->ingest([$this->span()]);
 
         $this->assertSame('https://us.cloud.langfuse.com/api/public/otel/v1/traces', $this->httpClient->posts[0]['url']);
+    }
+
+    protected function clientWithBody(string $body): Client
+    {
+        $response = new Response(
+            new Request('POST', 'https://cloud.langfuse.com/api/public/otel/v1/traces', '{}', [], []),
+            ['HTTP/1.1 200 OK', 'Content-Type: application/json'],
+            $body,
+        );
+        $http = $this->createMock(HttpClientInterface::class);
+        $http->expects($this->once())->method('post')->willReturn($response);
+
+        return $this->make(Client::class, [
+            'publicKey' => 'pk-test',
+            'secretKey' => 'sk-test',
+            'baseUrl' => 'https://cloud.langfuse.com',
+            'httpClient' => $http,
+            'logger' => $this->logger,
+        ]);
     }
 
     protected function span(string $traceSeed = 'trace-1'): Span
