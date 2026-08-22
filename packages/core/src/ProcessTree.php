@@ -8,6 +8,8 @@ use function ctype_digit;
 use function exec;
 use function function_exists;
 use function implode;
+use function microtime;
+use function min;
 use function posix_kill;
 use function str_contains;
 use function trim;
@@ -22,11 +24,24 @@ use const PHP_OS_FAMILY;
  */
 class ProcessTree
 {
+    /** First poll spacing while a signaled process tree is given time to exit. */
+    protected const float POLL_SECONDS = 0.02;
+
+    /**
+     * Upper bound for one poll pause.
+     *
+     * Role: the liveness probe is not free on every OS — Windows runs `tasklist` per check — so a
+     * fixed 20ms interval would spawn dozens of them over a three-second grace window. Backing off
+     * keeps the fast path fast and the slow path cheap.
+     */
+    protected const float POLL_MAX_SECONDS = 0.25;
+
     /**
      * Stop `$pid` and its descendants.
      *
-     * `$sleep` is the pause between the graceful signal and the forced kill. Callers inside a
-     * Swoole coroutine pass their coroutine sleep so the worker is not blocked.
+     * `$sleep` is the pause between polls for "did it exit", and the caller's own sleep so a
+     * Swoole coroutine does not block the worker. Polling stops as soon as the tree is gone, so a
+     * process that exits promptly costs a poll instead of the whole grace window.
      *
      * @param null|callable(float): void $sleep
      */
@@ -47,8 +62,8 @@ class ProcessTree
                 return;
             }
             @exec('taskkill /T /PID ' . $pid . ' 2>NUL');
-            if ($graceSeconds > 0 && self::alive($pid)) {
-                $sleep($graceSeconds);
+            if ($graceSeconds > 0) {
+                self::awaitExit([$pid], $graceSeconds, $sleep);
             }
             if (self::alive($pid)) {
                 @exec('taskkill /F /T /PID ' . $pid . ' 2>NUL');
@@ -61,9 +76,47 @@ class ProcessTree
         $pids[] = $pid;
         self::signal($pids, 15);
         if ($graceSeconds > 0) {
-            $sleep($graceSeconds);
+            self::awaitExit($pids, $graceSeconds, $sleep);
         }
         self::signal($pids, 9);
+    }
+
+    /**
+     * Wait until every pid in `$pids` exited, or `$graceSeconds` ran out.
+     *
+     * Role: the graceful signal usually lands in milliseconds, and the forced kill should only
+     * follow a process that actually ignored it. Sleeping the whole window regardless turns every
+     * teardown into a fixed delay — on a Chrome that is already gone, three seconds of nothing.
+     *
+     * @param list<int> $pids
+     * @param callable(float): void $sleep
+     */
+    protected static function awaitExit(array $pids, float $graceSeconds, callable $sleep): void
+    {
+        $deadline = microtime(true) + $graceSeconds;
+        $poll = self::POLL_SECONDS;
+        while (true) {
+            $alive = false;
+            foreach ($pids as $pid) {
+                if (self::alive($pid)) {
+                    $alive = true;
+                    break;
+                }
+            }
+            if (!$alive) {
+                return;
+            }
+
+            $remaining = $deadline - microtime(true);
+            if ($remaining <= 0) {
+                return;
+            }
+            $pause = min($poll, $remaining);
+            $sleep($pause);
+            // Back off so a process that genuinely takes the whole window does not cost a probe
+            // every 20ms.
+            $poll = min(self::POLL_MAX_SECONDS, max(self::POLL_SECONDS, $pause * 2));
+        }
     }
 
     /**

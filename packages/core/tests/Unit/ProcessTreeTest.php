@@ -12,22 +12,28 @@ use function bin2hex;
 use function fclose;
 use function file_get_contents;
 use function file_put_contents;
+use function is_dir;
 use function is_file;
 use function is_resource;
+use function microtime;
 use function mkdir;
 use function proc_close;
 use function proc_get_status;
 use function proc_open;
 use function random_bytes;
 use function rmdir;
+use function scandir;
+use function shell_exec;
 use function stream_get_contents;
 use function stream_set_blocking;
 use function str_contains;
 use function sys_get_temp_dir;
+use function trim;
 use function unlink;
 use function usleep;
 
 use const PHP_BINARY;
+use const PHP_OS_FAMILY;
 
 #[CoversClass(ProcessTree::class)]
 class ProcessTreeTest extends TestCase
@@ -170,13 +176,15 @@ PHP);
             $this->assertTrue(ProcessTree::alive($childPid));
             $this->assertTrue(ProcessTree::alive($grandPid));
 
-            $slept = 0;
-            ProcessTree::terminate($root, 0.1, function (float $seconds) use (&$slept): void {
-                $slept++;
+            $polls = 0;
+            ProcessTree::terminate($root, 0.1, function (float $seconds) use (&$polls): void {
+                $polls++;
+                // Each pause is one poll step, never the whole grace window in one go.
                 $this->assertGreaterThan(0, $seconds);
+                $this->assertLessThanOrEqual(0.1, $seconds);
                 usleep((int) ($seconds * 1_000_000));
             });
-            $this->assertSame(1, $slept);
+            $this->assertGreaterThan(0, $polls);
 
             fclose($pipes[1]);
             fclose($pipes[2]);
@@ -201,6 +209,63 @@ PHP);
             }
             if (is_resource($process)) {
                 proc_close($process);
+            }
+        }
+    }
+
+    public function testTerminateReturnsAsSoonAsTheTreeExits(): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('Uses a Unix shell to spawn a cooperative process.');
+        }
+
+        // A cooperative process dies on SIGTERM, so the grace window must not be slept out.
+        $pid = (int) trim((string) shell_exec('sleep 30 >/dev/null 2>&1 & echo $!'));
+
+        try {
+            $this->assertTrue(ProcessTree::alive($pid));
+
+            $start = microtime(true);
+            ProcessTree::terminate($pid, 3.0);
+            $elapsed = microtime(true) - $start;
+
+            $this->assertLessThan(1.0, $elapsed, 'grace must not be slept once the process is gone');
+            $this->assertFalse(ProcessTree::alive($pid));
+        } finally {
+            if (ProcessTree::alive($pid)) {
+                ProcessTree::terminate($pid, 0.0);
+            }
+        }
+    }
+
+    public function testTerminateStillKillsAnUncooperativeTree(): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('Uses a Unix shell to trap SIGTERM.');
+        }
+
+        // Ignores SIGTERM, so only the forced signal can stop it.
+        $pid = (int) trim((string) shell_exec("sh -c 'trap \"\" TERM; sleep 30' >/dev/null 2>&1 & echo \$!"));
+
+        try {
+            $this->assertTrue(ProcessTree::alive($pid));
+
+            $start = microtime(true);
+            ProcessTree::terminate($pid, 0.3);
+            $elapsed = microtime(true) - $start;
+
+            $this->assertGreaterThanOrEqual(0.25, $elapsed, 'the grace window is still honoured');
+
+            // The forced signal is delivered, but a killed pid stays visible until its new parent
+            // reaps it, so give the reaper a moment instead of sampling once.
+            $deadline = microtime(true) + 2.0;
+            while (microtime(true) < $deadline && ProcessTree::alive($pid)) {
+                usleep(20_000);
+            }
+            $this->assertFalse(ProcessTree::alive($pid), 'the forced signal must land');
+        } finally {
+            if (ProcessTree::alive($pid)) {
+                ProcessTree::terminate($pid, 0.0);
             }
         }
     }
