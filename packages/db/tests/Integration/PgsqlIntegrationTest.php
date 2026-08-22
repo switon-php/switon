@@ -51,6 +51,13 @@ class PgsqlIntegrationTest extends TestCase
             ['host' => 'localhost', 'user' => 'postgres', 'pass' => 'postgres'],
         ];
 
+        if (self::tcpTimedOut('127.0.0.1', 5432)) {
+            self::$skipTests = true;
+            self::$skipReason = 'PostgreSQL not available. Please create switon_test database.';
+
+            return;
+        }
+
         $connected = false;
         foreach ($configs as $config) {
             try {
@@ -84,6 +91,11 @@ class PgsqlIntegrationTest extends TestCase
         }
 
         $host = $parts['host'] ?? 'localhost';
+        $portNumber = isset($parts['port']) ? (int) $parts['port'] : 5432;
+        if (self::tcpTimedOut($host === 'localhost' ? '127.0.0.1' : $host, $portNumber)) {
+            return false;
+        }
+
         $port = isset($parts['port']) ? ';port=' . $parts['port'] : '';
         $db = trim($parts['path'] ?? '/switon_test', '/');
         if ($db === '') {
@@ -103,6 +115,20 @@ class PgsqlIntegrationTest extends TestCase
         } catch (Exception) {
             return false;
         }
+    }
+
+    protected static function tcpTimedOut(string $host, int $port): bool
+    {
+        $errno = 0;
+        $errstr = '';
+        $socket = @fsockopen($host, $port, $errno, $errstr, 1.0);
+        if (is_resource($socket)) {
+            fclose($socket);
+
+            return false;
+        }
+
+        return in_array($errno, [110, 116, 10060], true) || str_contains(strtolower($errstr), 'timed out');
     }
 
     protected static function resolveUri(): string

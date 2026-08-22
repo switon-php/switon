@@ -69,8 +69,13 @@ class Pgsql extends AbstractConnection
             }
         }
 
+        $timeout = 3;
         if (isset($parts['query'])) {
             parse_str($parts['query'], $query);
+
+            if (isset($query['timeout'])) {
+                $timeout = (int) $query['timeout'];
+            }
 
             if (!Runtime::isCoroutineEnabled() && isset($query['persistent'])) {
                 $this->options[PDO::ATTR_PERSISTENT] = $query['persistent'] === '1';
@@ -102,6 +107,8 @@ class Pgsql extends AbstractConnection
             $dsn_parts[] = $k . '=' . $v;
         }
         $this->dsn = 'pgsql:' . implode(';', $dsn_parts);
+        // pdo_pgsql defaults connect_timeout to 30 when this attribute is absent.
+        $this->options[PDO::ATTR_TIMEOUT] = $timeout > 0 ? $timeout : 1;
 
         parent::__construct();
     }

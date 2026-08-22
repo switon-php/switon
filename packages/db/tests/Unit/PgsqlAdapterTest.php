@@ -6,6 +6,7 @@ namespace Switon\Db\Tests\Unit;
 
 use PDO;
 use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionProperty;
 use Switon\Core\Exception\DsnFormatException;
 use Switon\Db\Connection\Adapter\Pgsql;
 use Switon\Db\Tests\TestCase;
@@ -379,6 +380,22 @@ class PgsqlAdapterTest extends TestCase
     {
         $adapter = $this->createAdapter('pgsql://user:pass@localhost:5432/testdb');
         $this->assertInstanceOf(Pgsql::class, $adapter);
+    }
+
+    public function testConstructorSetsDefaultConnectTimeout(): void
+    {
+        $adapter = $this->createAdapter('pgsql://localhost/testdb');
+        $options = (new ReflectionProperty($adapter, 'options'))->getValue($adapter);
+
+        $this->assertSame(3, $options[PDO::ATTR_TIMEOUT]);
+    }
+
+    public function testConstructorUsesUriConnectTimeout(): void
+    {
+        $adapter = $this->createAdapter('pgsql://localhost/testdb?timeout=2');
+        $options = (new ReflectionProperty($adapter, 'options'))->getValue($adapter);
+
+        $this->assertSame(2, $options[PDO::ATTR_TIMEOUT]);
     }
 
     /**

@@ -51,6 +51,13 @@ class MysqlIntegrationTest extends TestCase
             ['host' => '127.0.0.1', 'user' => 'root', 'pass' => 'root'],
         ];
 
+        if (self::tcpTimedOut('127.0.0.1', 3306)) {
+            self::$skipTests = true;
+            self::$skipReason = 'MySQL not available. Please create switon_test database.';
+
+            return;
+        }
+
         $connected = false;
         foreach ($configs as $config) {
             try {
@@ -83,6 +90,11 @@ class MysqlIntegrationTest extends TestCase
         }
 
         $host = $parts['host'] ?? '127.0.0.1';
+        $portNumber = isset($parts['port']) ? (int) $parts['port'] : 3306;
+        if (self::tcpTimedOut($host === 'localhost' ? '127.0.0.1' : $host, $portNumber)) {
+            return false;
+        }
+
         $port = isset($parts['port']) ? ';port=' . $parts['port'] : '';
         $db = trim($parts['path'] ?? '/switon_test', '/');
         if ($db === '') {
@@ -104,6 +116,20 @@ class MysqlIntegrationTest extends TestCase
         } catch (Exception) {
             return false;
         }
+    }
+
+    protected static function tcpTimedOut(string $host, int $port): bool
+    {
+        $errno = 0;
+        $errstr = '';
+        $socket = @fsockopen($host, $port, $errno, $errstr, 1.0);
+        if (is_resource($socket)) {
+            fclose($socket);
+
+            return false;
+        }
+
+        return in_array($errno, [110, 116, 10060], true) || str_contains(strtolower($errstr), 'timed out');
     }
 
     protected static function resolveUri(): string
