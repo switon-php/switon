@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace Switon\Ai\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use Switon\Ai\AsToolCall;
+use Switon\Ai\AsToolResult;
+use Switon\Ai\Exception;
+use Switon\Ai\LlmTiming;
 use Switon\Ai\Signal\AssistantAbortSignal;
 use Switon\Ai\Tests\TestCase;
+use Switon\Ai\UsageTotals;
 use Switon\Ai\ToolResult;
 use Switon\Ai\TurnStatus;
 use Switon\Core\Json;
@@ -135,6 +140,46 @@ class TurnTest extends TestCase
         $this->expectException(ValueError::class);
 
         Turn::decode($bag);
+    }
+
+    public function testUsageTotalsFoldLlmStepsToolsAndNestedRuns(): void
+    {
+        $call = new ToolCall('call_1', 'echo');
+        $assistant = Completion::of(UserMessage::of('go'), new AssistantMessage('done', [$call]));
+        $assistant->usage = new TokenUsage(10, 4);
+        $assistant->timing = LlmTiming::of(wall: 1.25);
+
+        $child = Turn::of('child');
+        $child->totals = new UsageTotals(usage: new TokenUsage(3, 1), llmCalls: 2);
+        $tools = Completion::of(ToolMessage::of([
+            ToolResult::of($call, 'ok'),
+            new AsToolResult(new AsToolCall('call_2', 'worker'), $child),
+        ]));
+        $turn = Turn::of('t1', [$assistant, $tools], TurnStatus::Completed);
+
+        $folded = $turn->usageTotals();
+        $own = $turn->usageTotals(false);
+
+        $this->assertSame(1, $folded->llmCalls - $child->totals->llmCalls);
+        $this->assertSame(3, $folded->llmCalls);
+        $this->assertSame(1, $own->llmCalls);
+        $this->assertSame(1, $folded->toolCalls);
+        $this->assertSame(13, $folded->usage?->input);
+        $this->assertSame(10, $own->usage?->input);
+        $this->assertSame(1.25, $folded->llmWall);
+        $this->assertSame($call, $turn->toolCall('call_1'));
+    }
+
+    public function testToolCallRejectsAnUnknownId(): void
+    {
+        $turn = Turn::of('t1', [
+            Completion::of(UserMessage::of('go'), new AssistantMessage('', [new ToolCall('call_1', 'echo')])),
+        ]);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('call_missing');
+
+        $turn->toolCall('call_missing');
     }
 
     public function testCloseLandsTheSignalOnTheAbortedToolRow(): void
