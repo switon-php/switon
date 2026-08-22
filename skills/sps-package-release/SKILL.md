@@ -8,6 +8,16 @@ description: Use for releasing one Switon framework package from the monorepo. A
 Use this skill for framework package releases under `packages/*`.
 Do not use it for app releases or broad monorepo-wide versioning.
 
+## Before a release
+
+```bash
+php scripts/check-internal-deps.php
+php scripts/package-deps.php
+php scripts/package-deps.php --dev
+```
+
+Waves from `package-deps.php` are the split order.
+
 ## Release model
 
 - One release target at a time.

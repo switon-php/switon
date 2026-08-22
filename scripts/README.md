@@ -117,6 +117,23 @@ python3 scripts/docs/markdown_link_audit.py --tree docs --check-external
 - Cross-file anchors such as `README.md#quick-start`
 - Optional external HTTP(S) links when `--check-external` is enabled
 
+## check-internal-deps.php
+
+Compare each package's `src/` `use Switon\...` with its `require`. Exits with status 1 when a require is missing or unused.
+
+```bash
+php scripts/check-internal-deps.php
+```
+
+## package-deps.php
+
+List each package's `switon/*` dependencies and print them in waves. Exits with status 1 on a cycle. `--dev` includes `require-dev`.
+
+```bash
+php scripts/package-deps.php
+php scripts/package-deps.php --dev
+```
+
 ## sync-framework-links.sh
 
 Build `framework/` for PhpStorm inspection: `framework/Switon/{Segment}` symlinks, generated `composer.json` + `phpstan.neon`, then `composer install` in `framework/`.

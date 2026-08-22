@@ -2,7 +2,7 @@
 <?php
 
 /**
- * Infer missing internal (Switon monorepo) composer dependencies by scanning PHP files for Switon\... usages.
+ * Infer missing and extra internal composer dependencies by scanning PHP files for Switon\... usages.
  *
  * Logic:
  * - Build a namespace-prefix -> package-name map from packages/<package>/composer.json (autoload.psr-4)
