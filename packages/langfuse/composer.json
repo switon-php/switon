@@ -28,7 +28,6 @@
     "ext-mbstring": "*",
     "psr/log": "^2.0|^3.0",
     "switon/ai": "^1.0",
-    "switon/composer-extra": "^1.0",
     "switon/core": "^1.0",
     "switon/event": "^1.0",
     "switon/http-client": "^1.0",

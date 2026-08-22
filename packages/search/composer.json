@@ -30,7 +30,6 @@
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "switon/ai": "^1.0",
-    "switon/composer-extra": "^1.0",
     "switon/core": "^1.0",
     "switon/llm-html": "^1.0",
     "switon/tooling": "^1.0",

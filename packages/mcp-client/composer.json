@@ -27,7 +27,6 @@
     "psr/event-dispatcher": "^1.0",
     "psr/log": "^2.0",
     "switon/ai": "^1.0",
-    "switon/composer-extra": "^1.0",
     "switon/core": "^1.0",
     "switon/di": "^1.0",
     "switon/event": "^1.0",
