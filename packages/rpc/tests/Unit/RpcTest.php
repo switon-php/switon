@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Switon\Rpc\Tests\Unit;
 
-use Closure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Switon\Core\ContainerInterface;
@@ -35,16 +34,15 @@ class RpcTest extends TestCase
         $transport->pullResponses = [$reply];
 
         $events = new FakeRpcEventDispatcher();
-        $rpc = $this->makeRpc(transport: $transport, eventDispatcher: $events);
+        $rpc = $this->makeRpc(transport: $transport, eventDispatcher: $events, class: ProbeRpc::class);
 
         $result = $rpc->call(TestRpcService::class . '::sum', [1, 2], 3.5);
 
         $this->assertSame(3, $result);
         $this->assertCount(1, $transport->pushes);
         $this->assertSame('rpc', $transport->pushes[0]['queue']);
-        $replyQueue = $this->getRpcProperty($rpc, 'replyQueue');
         $this->assertCount(1, $transport->pullCalls);
-        $this->assertSame($replyQueue, $transport->pullCalls[0]['queues']);
+        $this->assertSame($transport->pushes[0]['envelope']->reply_to, $transport->pullCalls[0]['queues']);
         $this->assertIsFloat($transport->pullCalls[0]['timeout']);
         $this->assertGreaterThan(0.0, $transport->pullCalls[0]['timeout']);
         $this->assertSame(
@@ -59,7 +57,7 @@ class RpcTest extends TestCase
         $this->assertSame([1, 2], $events->events[0]->params);
         $this->assertSame('1', $events->events[0]->correlationId);
         $this->assertSame(3.5, $events->events[0]->timeout);
-        $this->assertSame([], $this->getRpcProperty($rpc, 'replies'));
+        $this->assertSame([], $rpc->replies());
     }
 
     public function testCallPushesToConfiguredRpcQueue(): void
@@ -120,13 +118,13 @@ class RpcTest extends TestCase
 
         $transport->pullResponses = [$otherReply, $reply];
 
-        $rpc = $this->makeRpc(transport: $transport);
-        $this->setRpcProperty($rpc, 'replies', ['2' => $rpc]);
+        $rpc = $this->makeRpc(transport: $transport, class: ProbeRpc::class);
+        $rpc->pendOther();
 
         $result = $rpc->call(TestRpcService::class . '::sum');
 
         $this->assertSame('mine', $result);
-        $this->assertSame($otherReply, $this->getRpcProperty($rpc, 'replies')['2']);
+        $this->assertSame($otherReply, $rpc->replies()['2']);
     }
 
     public function testCallThrowsRemoteExceptionForErrorReply(): void
@@ -142,7 +140,7 @@ class RpcTest extends TestCase
         $reply->correlation_id = '1';
         $transport->pullResponses = [$reply];
 
-        $rpc = $this->makeRpc(transport: $transport);
+        $rpc = $this->makeRpc(transport: $transport, class: ProbeRpc::class);
 
         try {
             $rpc->call('bad::method');
@@ -154,7 +152,7 @@ class RpcTest extends TestCase
             $this->assertStringContainsString(RpcMethodException::class, $e->getMessage());
         }
 
-        $this->assertSame([], $this->getRpcProperty($rpc, 'replies'));
+        $this->assertSame([], $rpc->replies());
     }
 
     public function testCallTimesOutAndClearsPendingReply(): void
@@ -162,14 +160,14 @@ class RpcTest extends TestCase
         $transport = new FakeQueueTransport();
         $transport->pullResponses = [null];
 
-        $rpc = $this->makeRpc(transport: $transport);
+        $rpc = $this->makeRpc(transport: $transport, class: ProbeRpc::class);
 
         $this->expectException(RpcTimeoutException::class);
 
         try {
             $rpc->call(TestRpcService::class . '::sum', [], 0.000001);
         } finally {
-            $this->assertSame([], $this->getRpcProperty($rpc, 'replies'));
+            $this->assertSame([], $rpc->replies());
         }
     }
 
@@ -196,14 +194,14 @@ class RpcTest extends TestCase
         $transport = new FakeQueueTransport();
         $transport->pushException = RuntimeException::of('push failed');
 
-        $rpc = $this->makeRpc(transport: $transport);
+        $rpc = $this->makeRpc(transport: $transport, class: ProbeRpc::class);
 
         $this->expectException(RuntimeException::class);
 
         try {
             $rpc->call(TestRpcService::class . '::sum');
         } finally {
-            $this->assertSame([], $this->getRpcProperty($rpc, 'replies'));
+            $this->assertSame([], $rpc->replies());
         }
     }
 
@@ -288,14 +286,14 @@ class RpcTest extends TestCase
         $reply->correlation_id = '1';
         $transport->pullResponses = [$reply];
 
-        $rpc = $this->makeRpc(transport: $transport);
+        $rpc = $this->makeRpc(transport: $transport, class: ProbeRpc::class);
 
         $this->expectException(RpcProtocolException::class);
 
         try {
             $rpc->call(TestRpcService::class . '::sum');
         } finally {
-            $this->assertSame([], $this->getRpcProperty($rpc, 'replies'));
+            $this->assertSame([], $rpc->replies());
         }
     }
 
@@ -310,14 +308,14 @@ class RpcTest extends TestCase
         $reply->correlation_id = '1';
         $transport->pullResponses = [$reply];
 
-        $rpc = $this->makeRpc(transport: $transport);
+        $rpc = $this->makeRpc(transport: $transport, class: ProbeRpc::class);
 
         $this->expectException(RpcProtocolException::class);
 
         try {
             $rpc->call(TestRpcService::class . '::sum');
         } finally {
-            $this->assertSame([], $this->getRpcProperty($rpc, 'replies'));
+            $this->assertSame([], $rpc->replies());
         }
     }
 
@@ -704,9 +702,16 @@ class RpcTest extends TestCase
         $random = $this->createStub(RandomInterface::class);
         $random->method('uuid')->willReturn('fixed-uuid');
 
-        $rpc = $this->makeRpc(random: $random);
+        $transport = new FakeQueueTransport();
+        $reply = QueueEnvelope::of(['result' => 1]);
+        $reply->correlation_id = '1';
+        $transport->pullResponses = [$reply];
+        $rpc = $this->makeRpc(random: $random, transport: $transport);
 
-        $this->assertSame('.rpc.reply.fixed-uuid', $this->getRpcProperty($rpc, 'replyQueue'));
+        $rpc->call('Svc::x');
+
+        $this->assertSame('.rpc.reply.fixed-uuid', $transport->pushes[0]['envelope']->reply_to);
+        $this->assertSame('.rpc.reply.fixed-uuid', $transport->pullCalls[0]['queues']);
     }
 
     protected function makeRpc(
@@ -719,13 +724,14 @@ class RpcTest extends TestCase
         array                     $methods = [],
         int                       $concurrency = 8192,
         string                    $queue = 'rpc',
+        string                    $class = Rpc::class,
     ): Rpc {
         if ($random === null) {
             $random = $this->createStub(RandomInterface::class);
             $random->method('uuid')->willReturn('reply-uuid');
         }
 
-        return $this->make(Rpc::class, [
+        return $this->make($class, [
             'random' => $random,
             'transport' => $transport ?? new FakeQueueTransport(),
             'eventDispatcher' => $eventDispatcher ?? new FakeRpcEventDispatcher(),
@@ -738,18 +744,19 @@ class RpcTest extends TestCase
         ]);
     }
 
-    protected function getRpcProperty(Rpc $rpc, string $property): mixed
+}
+
+class ProbeRpc extends Rpc
+{
+    /** @return array<string, QueueEnvelope|Rpc> */
+    public function replies(): array
     {
-        return (Closure::bind(static function (Rpc $rpc, string $property): mixed {
-            return $rpc->{$property};
-        }, null, Rpc::class))($rpc, $property);
+        return $this->replies;
     }
 
-    protected function setRpcProperty(Rpc $rpc, string $property, mixed $value): void
+    public function pendOther(): void
     {
-        (Closure::bind(static function (Rpc $rpc, string $property, mixed $value): void {
-            $rpc->{$property} = $value;
-        }, null, Rpc::class))($rpc, $property, $value);
+        $this->replies['2'] = $this;
     }
 }
 
