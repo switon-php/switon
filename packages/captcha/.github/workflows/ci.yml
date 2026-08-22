@@ -34,7 +34,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
-          extensions: gd, imagick
+          extensions: gd, imagick, redis
 
       - name: Install package dependencies
         run: composer install --no-interaction --prefer-dist
