@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Switon\Search\Tests\Unit\Web;
 
 use ArrayObject;
-use Closure;
 use PHPUnit\Framework\Attributes\CoversClass;
-use ReflectionProperty;
 use RuntimeException;
 use stdClass;
+use Switon\Core\WebFetcherInterface;
 use Switon\Search\Exception;
 use Switon\Search\Web\Engine\BaiduEngine;
 use Switon\Search\Web\Engine\BingEngine;
 use Switon\Search\Web\Engine\GoogleEngine;
+use Switon\Search\Web\EngineInterface;
 use Switon\Search\WebSearch;
 use Switon\Testing\TestCase;
 
@@ -61,31 +61,24 @@ class WebSearchTest extends TestCase
 
     public function testMergeRoundRobinDedupesNormalizedUrls(): void
     {
-        $search = $this->make(WebSearch::class);
-        $call = Closure::bind(
-            function (array $byEngine, int $maxResults): array {
-                return $this->merge($byEngine, $maxResults);
-            },
-            $search,
-            WebSearch::class,
-        );
-
-        $merged = $call([
-            'baidu' => [
+        $search = new ProbeWebSearch([
+            'baidu' => new HitEngine([
                 ['title' => 'A', 'url' => 'https://www.example.com/a/', 'snippet' => 'a1'],
                 ['title' => 'B', 'url' => 'https://example.com/b', 'snippet' => 'b1'],
-            ],
-            'google' => [
+            ]),
+            'google' => new HitEngine([
                 ['title' => 'A again', 'url' => 'https://example.com/a?utm_source=g', 'snippet' => 'a2'],
                 ['title' => 'C', 'url' => 'https://example.com/c', 'snippet' => 'c1'],
-            ],
-            'bing' => [
+            ]),
+            'bing' => new HitEngine([
                 ['title' => 'D', 'url' => 'https://example.com/d', 'snippet' => 'd1'],
-            ],
-            'extra' => [
+            ]),
+            'extra' => new HitEngine([
                 ['title' => 'E', 'url' => 'https://www.example.com/e', 'snippet' => 'e1'],
-            ],
-        ], 10);
+            ]),
+        ], new PageFetcher());
+
+        $merged = $search->search('php', 10, static fn (): bool => false);
 
         $this->assertSame([
             ['url' => 'https://www.example.com/a/', 'engine' => 'baidu'],
@@ -128,43 +121,19 @@ class WebSearchTest extends TestCase
     public function testSiteQueryAppendedOnlyWhenEngineSupportsIt(): void
     {
         $recorded = new ArrayObject();
-        $search = $this->make(WebSearch::class);
-        $engines = [
+        $search = new ProbeWebSearch([
             'baidu' => new RecordingEngine(true, $recorded, 'baidu'),
             'nosite' => new RecordingEngine(false, $recorded, 'nosite'),
             'bing' => new RecordingEngine(true, $recorded, 'bing'),
-        ];
-        $prop = new ReflectionProperty(WebSearch::class, 'engines');
-        $prop->setAccessible(true);
-        $prop->setValue($search, $engines);
+        ], new PageFetcher());
 
-        $call = Closure::bind(
-            function (string $query, string $siteHost): array {
-                $out = [];
-                foreach ($this->engines as $id => $engine) {
-                    $engineQuery = $engine->supportsSiteQuery()
-                        ? $this->applySiteFilter($query, $siteHost)
-                        : $query;
-                    $out[$id] = $engineQuery;
-                    $engine->buildUrl($engineQuery, 5, null);
-                }
-
-                return $out;
-            },
-            $search,
-            WebSearch::class,
-        );
-
-        $queries = $call('malloc', 'csdn.net');
-        $this->assertSame('malloc site:csdn.net', $queries['baidu']);
-        $this->assertSame('malloc', $queries['nosite']);
-        $this->assertSame('malloc site:csdn.net', $queries['bing']);
+        $search->search('malloc', 5, static fn (): bool => false, null, 'csdn.net');
         $this->assertSame('malloc site:csdn.net', $recorded['baidu']);
         $this->assertSame('malloc', $recorded['nosite']);
         $this->assertSame('malloc site:csdn.net', $recorded['bing']);
 
-        $suffix = $call('malloc site:csdn.net.evil', 'csdn.net');
-        $this->assertSame('malloc site:csdn.net.evil site:csdn.net', $suffix['baidu']);
+        $search->search('malloc site:csdn.net.evil', 5, static fn (): bool => false, null, 'csdn.net');
+        $this->assertSame('malloc site:csdn.net.evil site:csdn.net', $recorded['baidu']);
     }
 
     public function testHttpErrorAndChallengeDoNotBecomeHits(): void
@@ -329,5 +298,57 @@ class RecordingEngine implements \Switon\Search\Web\EngineInterface
     public function parse(string $body, int $maxResults): array
     {
         return [];
+    }
+}
+
+/** Object engines cannot go through `#[Autowired(instances: true)]`, which accepts service ids only. */
+class ProbeWebSearch extends WebSearch
+{
+    /** @param array<string, EngineInterface> $engines */
+    public function __construct(array $engines, WebFetcherInterface $chrome)
+    {
+        $this->engines = $engines;
+        $this->chrome = $chrome;
+    }
+}
+
+class PageFetcher implements WebFetcherInterface
+{
+    public function fetch(
+        string $url,
+        string $method = 'GET',
+        array $headers = [],
+        ?string $body = null,
+        array $options = [],
+    ): array {
+        return ['status' => 200, 'headers' => [], 'body' => '<html>ok</html>'];
+    }
+}
+
+class HitEngine implements EngineInterface
+{
+    /** @param list<array{title: string, url: string, snippet: string}> $hits */
+    public function __construct(protected array $hits)
+    {
+    }
+
+    public function supportsSiteQuery(): bool
+    {
+        return false;
+    }
+
+    public function pageSize(): int
+    {
+        return 10;
+    }
+
+    public function buildUrl(string $query, int $maxResults, ?string $lang): string
+    {
+        return 'https://example.test/hits';
+    }
+
+    public function parse(string $body, int $maxResults): array
+    {
+        return $this->hits;
     }
 }

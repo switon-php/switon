@@ -6,7 +6,6 @@ namespace Switon\Search\Tests\Unit;
 
 use ArrayIterator;
 use PHPUnit\Framework\Attributes\CoversClass;
-use ReflectionProperty;
 use Switon\Ai\AgentInterface;
 use Switon\Search\Exception;
 use Switon\Search\Sites;
@@ -189,7 +188,7 @@ class SiteSearchTest extends ToolTestCase
         $this->assertArrayNotHasKey('type', $properties, 'a site file declares no facets');
         $this->assertTrue($tool->isReadonly('site_search', []));
 
-        $sites = (new ReflectionProperty(SiteSearchTool::class, 'sites'))->getValue($tool);
+        $sites = $this->container->get(SitesInterface::class);
         $sites->set(\Switon\Search\Site::of([
             'id' => 'desk.extra',
             'description' => 'Extra',

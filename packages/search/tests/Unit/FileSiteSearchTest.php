@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Switon\Search\Tests\Unit;
 
+use ArrayObject;
 use PHPUnit\Framework\Attributes\CoversClass;
-use ReflectionMethod;
 use Switon\Core\WebFetcherInterface;
 use Switon\Search\Exception;
+use Switon\Search\Site;
+use Switon\Search\SiteExtractorInterface;
 use Switon\Search\Sites;
 use Switon\Search\SiteSearch;
 use Switon\Search\Tests\ToolTestCase;
@@ -183,17 +185,27 @@ HTML;
         );
     }
 
+    public function testBrowserFetchesASameOriginApiAsAPath(): void
+    {
+        $site = $this->site('zhihu');
+        $site->request = 'https://example.com:8443/api?q=1';
+        $this->assertSame(['/api?q=1'], $this->fetchedUrls($site, '{"items":[]}'));
+
+        $root = $this->site('zhihu');
+        $root->request = 'https://example.com';
+        $this->assertSame(['/'], $this->fetchedUrls($root, '{"items":[]}'));
+    }
+
     public function testSameOriginPathKeepsAForeignHost(): void
     {
-        $search = $this->make(SiteSearch::class);
-        $path = new ReflectionMethod(SiteSearch::class, 'sameOriginPath');
-        $text = new ReflectionMethod(SiteSearch::class, 'jsonText');
+        $search = new ProbeSiteSearch();
 
-        $this->assertSame('https://example.com/a', $path->invoke($search, 'https://example.com/a', ''));
-        $this->assertSame('https://other.test/a', $path->invoke($search, 'https://other.test/a', 'https://example.com'));
-        $this->assertSame('/', $path->invoke($search, 'https://example.com', 'https://example.com'));
-        $this->assertSame('{"a":1}', $text->invoke($search, '{"a":1}'));
-        $this->assertSame('<html></html>', $text->invoke($search, '<html></html>'));
+        $this->assertSame('https://example.com/a', $search->originPath('https://example.com/a', ''));
+        $this->assertSame('https://other.test/a', $search->originPath('https://other.test/a', 'https://example.com'));
+        $this->assertSame(
+            'https://example.com:8443/api',
+            $search->originPath('https://example.com:8443/api', 'https://example.com/'),
+        );
     }
 
     public function testBrowserNon200ReturnsStatus(): void
@@ -236,47 +248,85 @@ PHP],
         );
         $this->assertIsResource($proc);
         $addr = trim((string) fgets($pipes[1]));
-        $search = $this->make(SiteSearch::class);
-        $fetch = new ReflectionMethod(SiteSearch::class, 'fetchWithCurl');
+        $site = $this->site('github');
+        $site->request = 'http://' . $addr . '/';
 
-        $page = $fetch->invoke($search, 'http://' . $addr . '/', 'application/json', static fn (): bool => false);
+        $page = $this->make(SiteSearch::class)->search($site, 'php', 1, static fn (): bool => false);
 
-        $this->assertSame(401, $page['status']);
+        $this->assertSame(['results' => [], 'status' => 401], $page);
         proc_close($proc);
     }
 
     public function testCurlFailureStillRaises(): void
     {
-        $search = $this->make(SiteSearch::class);
-        $fetch = new ReflectionMethod(SiteSearch::class, 'fetchWithCurl');
+        $site = $this->site('github');
+        $site->request = 'http://127.0.0.1:1/';
 
         $this->expectException(Exception::class);
-        $fetch->invoke($search, 'http://127.0.0.1:1/', 'text/html', static fn (): bool => false);
-    }
-
-    public function testSameOriginPathKeepsANonDefaultPort(): void
-    {
-        $search = $this->make(SiteSearch::class);
-        $path = new ReflectionMethod(SiteSearch::class, 'sameOriginPath');
-
-        $this->assertSame(
-            '/api?q=1',
-            $path->invoke($search, 'https://example.com:8443/api?q=1', 'https://example.com:8443/'),
-        );
-        $this->assertSame(
-            'https://example.com:8443/api',
-            $path->invoke($search, 'https://example.com:8443/api', 'https://example.com/'),
-        );
+        $this->make(SiteSearch::class)->search($site, 'php', 1, static fn (): bool => false);
     }
 
     public function testJsonTextKeepsUtf8InsidePre(): void
     {
-        $search = $this->make(SiteSearch::class);
-        $json = new ReflectionMethod(SiteSearch::class, 'jsonText');
+        $site = $this->site('zhihu');
 
+        $this->assertSame('{"a":1}', $this->extractedDocument($site, '{"a":1}'));
+        $this->assertSame('<html></html>', $this->extractedDocument($site, '<html></html>'));
         $this->assertSame(
             '{"t":"知乎"}',
-            $json->invoke($search, '<html><body><pre>{"t":"知乎"}</pre></body></html>'),
+            $this->extractedDocument($site, '<html><body><pre>{"t":"知乎"}</pre></body></html>'),
         );
+    }
+
+    /** @return list<string> */
+    protected function fetchedUrls(Site $site, string $body, ?SiteExtractorInterface $extractor = null): array
+    {
+        $urls = new ArrayObject();
+        $chrome = $this->createStub(WebFetcherInterface::class);
+        $chrome->method('fetch')->willReturnCallback(static function (string $url) use ($urls, $body): array {
+            $urls[] = $url;
+
+            return ['status' => 200, 'headers' => [], 'body' => $body];
+        });
+        $parameters = ['chrome' => $chrome];
+        if ($extractor !== null) {
+            $parameters['extractor'] = $extractor;
+        }
+        $this->make(SiteSearch::class, $parameters)->search($site, 'php', 1, static fn (): bool => false);
+
+        return $urls->getArrayCopy();
+    }
+
+    protected function extractedDocument(Site $site, string $body): string
+    {
+        $seen = new ArrayObject();
+        $extractor = new class ($seen) implements SiteExtractorInterface {
+            public function __construct(private ArrayObject $seen)
+            {
+            }
+
+            public function extract(Site $site, string $document, string $documentUrl): array
+            {
+                $this->seen[] = $document;
+
+                return [];
+            }
+        };
+        $this->fetchedUrls($site, $body, $extractor);
+
+        return (string) ($seen[0] ?? '');
+    }
+}
+
+/** The public search always derives the origin from the request URL. These inputs are the other branches. */
+class ProbeSiteSearch extends SiteSearch
+{
+    public function __construct()
+    {
+    }
+
+    public function originPath(string $url, ?string $origin): string
+    {
+        return $this->sameOriginPath($url, $origin);
     }
 }

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Switon\Search\Tests\Unit\Fetch;
 
-use Closure;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Switon\Core\WebFetcherInterface;
 use Switon\Search\WebFetch;
 use Switon\Testing\TestCase;
+use Switon\Tooling\Spiller;
 
 #[CoversClass(WebFetch::class)]
 class WebFetchTest extends TestCase
@@ -91,18 +92,20 @@ HTML);
 
     public function testNormalizeEncodingConvertsLatin1(): void
     {
-        $fetch = $this->make(WebFetch::class);
         $latin1 = mb_convert_encoding('café', 'ISO-8859-1', 'UTF-8');
-        $call = Closure::bind(
-            function (string $body, string $contentType): string {
-                return $this->normalizeEncoding($body, $contentType);
-            },
-            $fetch,
-            WebFetch::class,
-        );
+        $converted = $this->extract('https://example.com/latin1', $latin1, [
+            'body' => $latin1,
+            'status_code' => 200,
+            'content_type' => 'application/pdf; charset="ISO-8859-1"',
+        ]);
+        $unchanged = $this->extract('https://example.com/latin1', $latin1, [
+            'body' => $latin1,
+            'status_code' => 200,
+            'content_type' => 'application/pdf; charset=not-a-charset',
+        ]);
 
-        $this->assertSame('café', $call($latin1, 'text/html; charset="ISO-8859-1"'));
-        $this->assertSame($latin1, $call($latin1, 'text/html; charset=not-a-charset'));
+        $this->assertSame('café', $converted['content']);
+        $this->assertSame($latin1, $unchanged['content']);
     }
 
     public function testPreservesLineBreaksInPreformattedText(): void
@@ -328,31 +331,21 @@ HTML);
 
     public function testTruncateAndHardCut(): void
     {
-        $fetch = $this->make(WebFetch::class);
-        $truncate = Closure::bind(
-            fn (string $body, int $max): string => $this->truncateUtf8($body, $max),
-            $fetch,
-            WebFetch::class,
-        );
-        $this->assertSame('hel', $truncate('hello', 3));
-        $this->assertSame('', $truncate('你好', 1));
+        $cut = new ProbeWebFetch();
+        $this->assertSame('hel', $cut->cut('hello', 3));
+        $this->assertSame('', $cut->cut('你好', 1));
 
-        $bytes = Closure::bind(fn (): int => $this->ceilingBytes(), $fetch, WebFetch::class);
-        $marker = \Switon\Tooling\Spiller::ceilingExceeded($bytes());
-        $keep = Closure::bind(
-            fn (string $source, string $content): string => $this->keepHardCut($source, $content),
-            $fetch,
-            WebFetch::class,
-        );
-        $this->assertStringContainsString('ceiling', $keep('body' . $marker, 'body'));
+        $oversized = '<html><body><article><p>' . str_repeat('a', 1024 * 1024) . '</p></article></body></html>';
+        $hard = $this->fetchBody('https://example.com/big', $oversized, 'text/html', 1);
+        $this->assertStringContainsString(Spiller::ceilingExceeded(1024 * 1024), $hard['content']);
 
-        $encoding = Closure::bind(
-            fn (string $body, string $type): string => $this->normalizeEncoding($body, $type),
-            $fetch,
-            WebFetch::class,
-        );
         $latin1 = mb_convert_encoding('café', 'ISO-8859-1', 'UTF-8');
-        $this->assertStringContainsString('café', $encoding('<meta charset="ISO-8859-1">' . $latin1, ''));
+        $meta = $this->extract('https://example.com/meta', '<meta charset="ISO-8859-1">' . $latin1, [
+            'body' => '<meta charset="ISO-8859-1">' . $latin1,
+            'status_code' => 200,
+            'content_type' => '',
+        ]);
+        $this->assertStringContainsString('café', $meta['content']);
     }
 
     public function testRejectsNonHttpUrl(): void
@@ -387,42 +380,76 @@ HTML);
             }
         };
 
-        $this->container->set(\Switon\Core\WebFetcherInterface::class, $chrome);
-        $webFetch = $this->make(WebFetch::class);
-        $download = Closure::bind(
-            fn (string $url): array => $this->download($url, static fn (): bool => false),
-            $webFetch,
-            WebFetch::class,
-        );
+        $this->container->set(WebFetcherInterface::class, $chrome);
+        $result = $this->make(WebFetch::class)->fetch('https://example.com/docs', static fn (): bool => false);
 
-        $result = $download('https://example.com/docs');
         $this->assertSame('https://example.com/docs', $chrome->seen);
-        $this->assertSame(15.0, $chrome->options[\Switon\Core\WebFetcherInterface::TIMEOUT]);
+        $this->assertSame(15.0, $chrome->options[WebFetcherInterface::TIMEOUT]);
         $this->assertSame(200, $result['status_code']);
-        $this->assertStringContainsString('zhihu body', $result['body']);
+        $this->assertStringContainsString('zhihu body', $result['content']);
         $this->assertSame('text/html; charset=utf-8', $result['content_type']);
     }
 
     /** @return array<string, mixed> */
     protected function extract(string $url, string $body, ?array $fetch = null, bool $raw = false): array
     {
-        $webFetch = $this->make(WebFetch::class);
-
         $fetch ??= [
             'body' => $body,
             'status_code' => 200,
             'content_type' => 'text/html',
-            'download_truncated' => false,
         ];
 
-        $call = Closure::bind(
-            function (string $url, string $body, array $fetch, bool $raw): array {
-                return $this->extract($url, $body, $fetch, $raw);
-            },
-            $webFetch,
-            WebFetch::class,
-        );
+        return $this->fetchBody($url, (string) $fetch['body'], (string) $fetch['content_type'], 32, (int) $fetch['status_code'], $raw);
+    }
 
-        return $call($url, $body, $fetch, $raw);
+    /** @return array<string, mixed> */
+    protected function fetchBody(
+        string $url,
+        string $body,
+        string $contentType,
+        int $ceiling = 32,
+        int $status = 200,
+        bool $raw = false,
+    ): array {
+        $chrome = new class ($body, $status, $contentType) implements WebFetcherInterface {
+            public function __construct(
+                private string $body,
+                private int $status,
+                private string $contentType,
+            ) {
+            }
+
+            public function fetch(
+                string $url,
+                string $method = 'GET',
+                array $headers = [],
+                ?string $body = null,
+                array $options = [],
+            ): array {
+                return [
+                    'status' => $this->status,
+                    'headers' => ['content-type' => $this->contentType],
+                    'body' => $this->body,
+                ];
+            }
+        };
+
+        return $this->make(WebFetch::class, [
+            'chrome' => $chrome,
+            'ceiling' => $ceiling,
+        ])->fetch($url, static fn (): bool => false, $raw);
+    }
+}
+
+/** The public ceiling is whole mebibytes, so a 3-byte and 1-byte cut stay on the helper. */
+class ProbeWebFetch extends WebFetch
+{
+    public function __construct()
+    {
+    }
+
+    public function cut(string $body, int $max): string
+    {
+        return $this->truncateUtf8($body, $max);
     }
 }
