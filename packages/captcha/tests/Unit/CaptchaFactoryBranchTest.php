@@ -72,6 +72,23 @@ class CaptchaFactoryBranchTest extends TestCase
 
         $captcha([]);
     }
+
+    public function testGdProbeReadsTheLoadedExtension(): void
+    {
+        $captcha = new class($this->createStub(MakerInterface::class)) extends Captcha {
+            public function __construct(MakerInterface $maker)
+            {
+                $this->maker = $maker;
+            }
+
+            public function gdLoaded(): bool
+            {
+                return $this->hasGdExtension();
+            }
+        };
+
+        $this->assertTrue($captcha->gdLoaded());
+    }
 }
 
 class CaptchaFactoryBranchFixture extends Captcha
