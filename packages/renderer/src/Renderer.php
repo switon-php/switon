@@ -28,6 +28,7 @@ use function ob_get_clean;
 use function ob_start;
 use function str_contains;
 use function str_replace;
+use function strcasecmp;
 use function strtr;
 use function trigger_error;
 
@@ -224,7 +225,9 @@ class Renderer implements RendererInterface
             $realPath = $this->filesystem->realpath($file);
             if ($realPath !== null) {
                 $realPath = strtr($realPath, '\\', '/');
-                if ($file !== $realPath) {
+                $requested = strtr($file, '\\', '/');
+                // realpath rewrites separators and 8.3 names. Only a same-path case change is a mismatch.
+                if ($requested !== $realPath && strcasecmp($requested, $realPath) === 0) {
                     trigger_error("File name ($realPath) case mismatch for $file", E_USER_ERROR);
                 }
             }
