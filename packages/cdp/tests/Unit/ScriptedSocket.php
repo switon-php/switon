@@ -33,7 +33,7 @@ final class ScriptedSocket extends WebSocket
      */
     public array $results = [];
 
-    /** @var array<string, string> Method name to a CDP error message. */
+    /** @var array<string, mixed> Method name to an error message, or a function of the sent message. */
     public array $failures = [];
 
     /**
@@ -55,10 +55,14 @@ final class ScriptedSocket extends WebSocket
         /** @var array{id: int, method: string} $message */
         $message = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
         $method = $message['method'];
-        if (isset($this->failures[$method])) {
+        $failure = $this->failures[$method] ?? null;
+        if (is_callable($failure)) {
+            $failure = $failure($message);
+        }
+        if (is_string($failure) && $failure !== '') {
             $this->inbox[] = json_encode([
                 'id' => $message['id'],
-                'error' => ['message' => $this->failures[$method]],
+                'error' => ['message' => $failure],
             ], JSON_THROW_ON_ERROR);
 
             return;

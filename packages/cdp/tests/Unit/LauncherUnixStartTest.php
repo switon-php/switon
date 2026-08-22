@@ -6,9 +6,14 @@ namespace Switon\Cdp\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Switon\Cdp\Exception;
 use Switon\Cdp\Launcher;
+use Switon\Core\Exception\CreateDirectoryFailedException;
+use Switon\Core\Filesystem;
+use Switon\Core\PathAlias;
 use Switon\Core\Clock;
 use Switon\Core\ProcessTree;
+use RuntimeException;
 
 use function bin2hex;
 use function file_get_contents;
@@ -161,6 +166,145 @@ PHP);
             @unlink($child);
             @unlink($parent);
             @unlink($pidFile);
+            @rmdir($dir);
+        }
+    }
+
+    public function testEnsureReturnsWhenThePortOpensWhileWaitingForTheLock(): void
+    {
+        $launcher = new class () extends Launcher {
+            public int $checks = 0;
+
+            public function __construct()
+            {
+                $this->clock = new Clock();
+            }
+
+            public function portOpen(int $port): bool
+            {
+                return ++$this->checks >= 2;
+            }
+
+            public function go(): void
+            {
+                $this->ensure(9, '/tmp', true, '/bin/echo', 0.1);
+            }
+        };
+
+        $launcher->go();
+
+        $this->assertSame(2, $launcher->checks);
+    }
+
+    public function testAFailedDetachAndADeadPidDoNotStartChrome(): void
+    {
+        $launcher = new class () extends Launcher {
+            public function __construct()
+            {
+                $this->clock = new Clock();
+            }
+
+            public function detach(): int
+            {
+                return $this->launchDetached(['/bin/echo'], true);
+            }
+
+            public function signal(int $pid): void
+            {
+                $this->signalPid($pid);
+            }
+
+            protected function startOnUnix(array $args): ?string
+            {
+                throw new RuntimeException('detach failed');
+            }
+        };
+
+        $this->assertSame(0, $launcher->detach());
+        $launcher->signal(0);
+        $this->addToAssertionCount(1);
+    }
+
+    public function testLaunchRejectsAnEmptyProfileAndAProfileThatCannotBeCreated(): void
+    {
+        $launcher = new class () extends Launcher {
+            public function __construct()
+            {
+                $this->clock = new Clock();
+                $this->filesystem = new class () extends Filesystem {
+                    public function __construct()
+                    {
+                        $this->pathAlias = new PathAlias();
+                    }
+
+                    public function isDir(string $dir): bool
+                    {
+                        return false;
+                    }
+
+                    public function mkdir(string $dir, int $mode = 0755): void
+                    {
+                        CreateDirectoryFailedException::raise('denied');
+                    }
+                };
+            }
+
+            public function go(string $dir): void
+            {
+                $this->launchProcess(9, $dir, true, '/bin/echo', 0.2, []);
+            }
+        };
+
+        try {
+            $launcher->go('');
+            $this->fail('An empty profile must be rejected.');
+        } catch (Exception $e) {
+            $this->assertStringContainsString('userDataDir', $e->getMessage());
+        }
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('user-data-dir');
+        $launcher->go('/no/such/profile');
+    }
+
+    public function testLaunchReportsAStartThatReturnsNoPid(): void
+    {
+        $launcher = new class () extends Launcher {
+            public function __construct()
+            {
+                $this->clock = new Clock();
+                $this->filesystem = new class () extends Filesystem {
+                    public function __construct()
+                    {
+                        $this->pathAlias = new PathAlias();
+                    }
+                };
+            }
+
+            public function go(string $dir): void
+            {
+                $this->launchProcess(9, $dir, true, '/bin/echo', 0.2, ['', '--no-sandbox']);
+            }
+
+            protected function launchDetached(array $args, bool $headless): int
+            {
+                return 0;
+            }
+
+            public function raise(int $pid): void
+            {
+                $this->raiseProcess($pid);
+            }
+        };
+
+        $dir = sys_get_temp_dir() . '/switon-cdp-launch-' . bin2hex(random_bytes(4));
+        mkdir($dir, 0700, true);
+        try {
+            $launcher->raise(0);
+            $this->expectException(Exception::class);
+            $this->expectExceptionMessage('Failed to start Chrome');
+            $launcher->go($dir);
+        } finally {
             @rmdir($dir);
         }
     }

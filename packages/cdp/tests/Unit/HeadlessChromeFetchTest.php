@@ -59,6 +59,10 @@ class HeadlessChromeFetchTest extends TestCase
             WebFetcherInterface::READY => 'main',
             WebFetcherInterface::TIMEOUT => 0.4,
         ]);
+        $posted = $chrome->fetch('https://example.com/api', 'POST', ['X-A' => '1'], '{"q":1}', [
+            WebFetcherInterface::ORIGIN => 'https://example.com/',
+        ]);
+        $this->assertSame(201, $posted['status']);
         $this->assertSame('<html></html>', $ready['body']);
 
         $this->expectException(Exception::class);
@@ -110,6 +114,46 @@ PHP);
 
             $this->assertSame(['ok' => true], $chrome->read('http://' . $endpoint . '/json/version', 2.0, 'GET'));
             $this->assertNull($chrome->read('http://' . $endpoint . '/bad', 2.0));
+            $this->assertNull($chrome->read('http://127.0.0.1:1/json/version', 0.2));
+        } finally {
+            proc_close($proc);
+            @unlink($script);
+            @unlink($address);
+        }
+    }
+
+    #[Test]
+    public function httpJsonDropsAClosedSocketAndAReplyThatIsNotHttp(): void
+    {
+        $chrome = new HttpProbe();
+        $address = sys_get_temp_dir() . '/switon-cdp-http-bad-' . bin2hex(random_bytes(4));
+        $script = $address . '.php';
+        file_put_contents($script, <<<'PHP'
+<?php
+$server = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
+file_put_contents($argv[1], (string) stream_socket_get_name($server, false));
+for ($i = 0; $i < 2; $i++) {
+    $client = stream_socket_accept($server, 3);
+    if ($client === false) {
+        break;
+    }
+    if ($i === 1) {
+        fwrite($client, 'not-http');
+    }
+    fclose($client);
+}
+PHP);
+        $proc = proc_open([PHP_BINARY, $script, $address], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        $this->assertIsResource($proc);
+        try {
+            $deadline = microtime(true) + 2;
+            while (microtime(true) < $deadline && !is_file($address)) {
+                usleep(1000);
+            }
+            $endpoint = trim((string) file_get_contents($address));
+
+            $this->assertNull($chrome->read('http://' . $endpoint . '/empty', 1.0));
+            $this->assertNull($chrome->read('http://' . $endpoint . '/garbage', 1.0));
         } finally {
             proc_close($proc);
             @unlink($script);

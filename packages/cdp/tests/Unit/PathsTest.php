@@ -6,9 +6,10 @@ namespace Switon\Cdp\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use Switon\Cdp\Paths;
 use Switon\Core\Exception\CreateDirectoryFailedException;
+use Switon\Core\Exception\FileNotFoundException;
+use Switon\Core\Exception\RuntimeException;
 use Switon\Core\Filesystem;
 use Switon\Core\PathAlias;
 
@@ -113,7 +114,6 @@ class PathsTest extends TestCase
     #[Test]
     public function ensureStartScriptReturnsEmptyWhenTheProfileCannotBeCreated(): void
     {
-        $paths = $this->paths();
         $filesystem = new class () extends Filesystem {
             public function __construct()
             {
@@ -130,11 +130,113 @@ class PathsTest extends TestCase
                 CreateDirectoryFailedException::raise('denied');
             }
         };
-        $property = new ReflectionProperty(Paths::class, 'filesystem');
-        $property->setAccessible(true);
-        $property->setValue($paths, $filesystem);
 
-        $this->assertSame('', $paths->ensureStartScript(sys_get_temp_dir() . '/switon-cdp-denied-profile'));
+        $this->assertSame('', $this->paths($filesystem)->ensureStartScript(sys_get_temp_dir() . '/switon-cdp-denied-profile'));
+    }
+
+    #[Test]
+    public function ensureStartScriptGivesUpWhenTheTemplateCannotBeRead(): void
+    {
+        $missing = new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
+
+            public function isDir(string $dir): bool
+            {
+                return true;
+            }
+
+            public function isFile(string $file): bool
+            {
+                return false;
+            }
+        };
+        $this->assertSame('', $this->paths($missing)->ensureStartScript('/profile'));
+
+        $unread = new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
+
+            public function isDir(string $dir): bool
+            {
+                return true;
+            }
+
+            public function isFile(string $file): bool
+            {
+                return true;
+            }
+
+            public function read(string $file): string
+            {
+                FileNotFoundException::raise($file);
+            }
+        };
+        $this->assertSame('', $this->paths($unread)->ensureStartScript('/profile'));
+    }
+
+    #[Test]
+    public function ensureStartScriptKeepsTheScriptWhenTheWriteFails(): void
+    {
+        $dir = sys_get_temp_dir() . '/switon-cdp-script-write-' . bin2hex(random_bytes(4));
+        mkdir($dir, 0700, true);
+        $dest = Paths::startScriptPath($dir);
+        file_put_contents($dest, 'old');
+
+        $filesystem = new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
+
+            public function isDir(string $dir): bool
+            {
+                return true;
+            }
+
+            public function isFile(string $file): bool
+            {
+                return true;
+            }
+
+            public function read(string $file): string
+            {
+                return str_contains($file, 'bin') ? 'template' : 'old';
+            }
+
+            public function write(string $file, string $content): void
+            {
+                RuntimeException::raise('denied');
+            }
+        };
+
+        try {
+            $this->assertSame($dest, $this->paths($filesystem)->ensureStartScript($dir));
+        } finally {
+            @unlink($dest);
+            @rmdir($dir);
+        }
+    }
+
+    #[Test]
+    public function systemUserDataDirIsEmptyWithoutAHome(): void
+    {
+        $key = PHP_OS_FAMILY === 'Windows' ? 'LOCALAPPDATA' : 'HOME';
+        $previous = getenv($key);
+        putenv($key);
+        try {
+            $this->assertSame('', Paths::systemUserDataDir());
+        } finally {
+            if ($previous === false) {
+                putenv($key);
+            } else {
+                putenv("{$key}={$previous}");
+            }
+        }
     }
 
     #[Test]
@@ -174,17 +276,96 @@ class PathsTest extends TestCase
         $this->assertFileExists($path);
     }
 
-    protected function paths(): Paths
+    #[Test]
+    public function ensureStartScriptUsesTheDefaultDirAndKeepsGoingWhenTheOldCopyIsUnreadable(): void
     {
-        $filesystem = new Filesystem();
-        $alias = new ReflectionProperty(Filesystem::class, 'pathAlias');
-        $alias->setAccessible(true);
-        $alias->setValue($filesystem, new PathAlias());
-        $paths = new Paths();
-        $property = new ReflectionProperty(Paths::class, 'filesystem');
-        $property->setAccessible(true);
-        $property->setValue($paths, $filesystem);
+        $absent = new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
 
-        return $paths;
+            public function isDir(string $path): bool
+            {
+                return true;
+            }
+
+            public function isFile(string $path): bool
+            {
+                return false;
+            }
+        };
+        $this->assertSame('', $this->paths($absent)->ensureStartScript(''));
+
+        $dir = sys_get_temp_dir() . '/switon-paths-' . uniqid('', true);
+        mkdir($dir);
+        $dest = Paths::startScriptPath($dir);
+        touch($dest);
+        $unreadable = new class ($dest) extends Filesystem {
+            public function __construct(private string $dest)
+            {
+                $this->pathAlias = new PathAlias();
+            }
+
+            public function isDir(string $path): bool
+            {
+                return true;
+            }
+
+            public function isFile(string $path): bool
+            {
+                return true;
+            }
+
+            public function read(string $path): string
+            {
+                if ($path === $this->dest) {
+                    FileNotFoundException::raise($path);
+                }
+
+                return 'template';
+            }
+        };
+        try {
+            $this->assertSame($dest, $this->paths($unreadable)->ensureStartScript($dir));
+        } finally {
+            @unlink($dest);
+            @rmdir($dir);
+        }
+    }
+
+    #[Test]
+    public function pathsWithoutAHomeDoNotUseTheLoginDirectory(): void
+    {
+        $previous = getenv('HOME');
+        putenv('HOME');
+        try {
+            $this->assertSame('/tmp/file', Paths::displayPath('/tmp/file'));
+            $this->assertStringEndsWith('switon-chrome', Paths::chromeRoot());
+            $this->assertStringContainsString('start-cdp', Paths::startScriptPath(''));
+        } finally {
+            if ($previous === false) {
+                putenv('HOME');
+            } else {
+                putenv('HOME=' . $previous);
+            }
+        }
+    }
+
+    protected function paths(?Filesystem $filesystem = null): Paths
+    {
+        $filesystem ??= new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
+        };
+
+        return new class ($filesystem) extends Paths {
+            public function __construct(Filesystem $filesystem)
+            {
+                $this->filesystem = $filesystem;
+            }
+        };
     }
 }

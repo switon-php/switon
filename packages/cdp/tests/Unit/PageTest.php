@@ -11,6 +11,8 @@ use Switon\Cdp\Exception;
 use Switon\Cdp\HeadlessChrome;
 use Switon\Cdp\Page;
 use Switon\Cdp\Session;
+use Switon\Cdp\WebSocket;
+use RuntimeException;
 
 #[CoversClass(Page::class)]
 class PageTest extends TestCase
@@ -529,6 +531,58 @@ class PageTest extends TestCase
     }
 
     #[Test]
+    public function fetchReportsABlankFailureAndABodyThatIsNotAResponse(): void
+    {
+        $blank = $this->socket();
+        $blank->results['Runtime.evaluate'] = ['exceptionDetails' => []];
+        try {
+            $this->page($blank)->fetch('GET', 'https://example.com/api');
+            $this->fail('A page exception must be reported.');
+        } catch (Exception $e) {
+            $this->assertStringContainsString('page fetch failed', $e->getMessage());
+        }
+
+        $body = $this->socket();
+        $body->results['Runtime.evaluate'] = ['result' => ['value' => 'nope']];
+        try {
+            $this->page($body)->fetch('GET', 'https://example.com/api');
+            $this->fail('A non-response body must be reported.');
+        } catch (Exception $e) {
+            $this->assertStringContainsString('failed', $e->getMessage());
+        }
+
+        $headers = $this->socket();
+        $headers->results['Runtime.evaluate'] = ['result' => ['value' => [
+            'status' => 204,
+            'body' => '',
+            'headers' => 'bad',
+        ]]];
+        $this->assertSame([], $this->page($headers)->fetch('GET', 'https://example.com/api')['headers']);
+
+        $socket = new class () extends WebSocket {
+            public function __construct()
+            {
+            }
+
+            public function sendText(string $payload): void
+            {
+            }
+
+            public function tryReceiveText(float $timeout): ?string
+            {
+                return null;
+            }
+
+            public function close(): void
+            {
+                throw new RuntimeException('closed');
+            }
+        };
+        $this->page($socket)->close();
+        $this->addToAssertionCount(1);
+    }
+
+    #[Test]
     public function fetchReportsAPageFailure(): void
     {
         $socket = $this->socket();
@@ -613,6 +667,144 @@ class PageTest extends TestCase
         );
     }
 
+    #[Test]
+    public function assertReadsAFrameNodeAndReportsAMissingOne(): void
+    {
+        $socket = $this->socket();
+        $socket->results['DOM.resolveNode'] = ['object' => ['objectId' => 'obj']];
+        $socket->results['Runtime.callFunctionOn'] = ['result' => ['value' => ['ok' => true, 'actual' => 'in-frame']]];
+        $held = $this->page($socket, 0.4)->assert('#9:child/4', 'visible', '', 0.2);
+
+        $this->assertTrue($held['ok']);
+        $this->assertSame('in-frame', $held['actual']);
+
+        $missing = $this->socket();
+        $missing->results['DOM.resolveNode'] = ['object' => []];
+        $absent = $this->page($missing, 0.4)->assert('#9:child/4', 'visible', '', 0.2);
+
+        $this->assertFalse($absent['ok']);
+        $this->assertSame('element not in that frame', $absent['actual']);
+    }
+
+    #[Test]
+    public function assertReportsANodeThePageNoLongerHas(): void
+    {
+        $socket = $this->socket();
+        $socket->failures['DOM.resolveNode'] = 'gone';
+        $gone = $this->page($socket, 0.4)->assert('#5', 'visible', '', 0.2);
+
+        $this->assertFalse($gone['ok']);
+        $this->assertSame('element not on this page', $gone['actual']);
+
+        $empty = $this->socket();
+        $empty->results['DOM.resolveNode'] = ['object' => ['objectId' => '']];
+        $blank = $this->page($empty, 0.4)->assert('#5', 'visible', '', 0.2);
+
+        $this->assertFalse($blank['ok']);
+        $this->assertSame('element not on this page', $blank['actual']);
+    }
+
+    #[Test]
+    public function assertTreatsANonObjectConditionAsAMiss(): void
+    {
+        $socket = $this->socket();
+        $socket->results['Runtime.evaluate'] = ['result' => ['value' => 'nope']];
+
+        $miss = $this->page($socket, 0.4)->assert('main', 'visible', '', 0.2);
+
+        $this->assertFalse($miss['ok']);
+        $this->assertSame('no element matches', $miss['actual']);
+    }
+
+    #[Test]
+    public function fillTypesIntoANodeAndRejectsOneThatDoesNotResolve(): void
+    {
+        $socket = $this->socket();
+        $socket->results['DOM.getContentQuads'] = ['quads' => [[0, 0, 20, 0, 20, 10, 0, 10]]];
+        $socket->results['DOM.resolveNode'] = ['object' => ['objectId' => 'field']];
+        $socket->results['Runtime.callFunctionOn'] = ['result' => ['value' => true]];
+        $page = $this->page($socket);
+
+        $page->fill('#5', 'hi');
+        $page->fill('#9:child/4', 'yo');
+
+        $sent = implode("\n", $socket->sent);
+        $this->assertStringContainsString('hi', $sent);
+        $this->assertStringContainsString('yo', $sent);
+
+        $unresolved = $this->socket();
+        $unresolved->results['DOM.getContentQuads'] = ['quads' => [[0, 0, 20, 0, 20, 10, 0, 10]]];
+        $unresolved->results['DOM.resolveNode'] = ['object' => []];
+
+        $this->expectException(Exception::class);
+        $this->page($unresolved)->fill('#5', 'hi');
+    }
+
+    #[Test]
+    public function layoutIsEmptyWithoutADocumentOrUsableBoxes(): void
+    {
+        $socket = $this->socket();
+        $socket->results['DOMSnapshot.captureSnapshot'] = ['documents' => []];
+        $page = $this->page($socket);
+        $this->assertSame([], $page->layout());
+
+        $socket->results['DOMSnapshot.captureSnapshot'] = ['documents' => [['layout' => null]]];
+        $this->assertSame([], $page->layout());
+
+        $socket->results['DOMSnapshot.captureSnapshot'] = ['documents' => [[
+            'layout' => ['nodeIndex' => 'bad', 'bounds' => []],
+            'nodes' => ['backendNodeId' => []],
+        ]]];
+        $this->assertSame([], $page->layout());
+
+        $socket->results['DOMSnapshot.captureSnapshot'] = ['documents' => [[
+            'layout' => [
+                'nodeIndex' => ['x', 0],
+                'bounds' => [[0, 0, 2, 2], [0, 0, 2, 2]],
+            ],
+            'nodes' => ['backendNodeId' => ['nope']],
+        ]]];
+        $this->assertSame([], $page->layout());
+    }
+
+    #[Test]
+    public function screenshotReportsABrowserError(): void
+    {
+        $socket = $this->socket();
+        $socket->failures['Page.captureScreenshot'] = 'no screen';
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('no screen');
+        $this->page($socket)->screenshot();
+    }
+
+    #[Test]
+    public function contentTimesOutWhenTheBrowserNeverReplies(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('timed out');
+
+        $this->page(new QuietSocket(), 0.4)->content();
+    }
+
+    #[Test]
+    public function diagnosticsKeepsObjectAndUnserializableConsoleArgs(): void
+    {
+        $socket = $this->socket();
+        $socket->inbox[] = json_encode([
+            'method' => 'Runtime.consoleAPICalled',
+            'params' => ['type' => 'log', 'args' => [
+                'skip',
+                ['description' => 'Error: boom'],
+                ['unserializableValue' => 'Infinity'],
+            ]],
+        ], JSON_THROW_ON_ERROR);
+
+        $lines = $this->page($socket)->diagnostics();
+
+        $this->assertSame('Error: boom Infinity', $lines[0]['text']);
+    }
+
     private function socket(): ScriptedSocket
     {
         $socket = new ScriptedSocket();
@@ -666,7 +858,7 @@ class PageTest extends TestCase
         return $socket;
     }
 
-    private function page(ScriptedSocket $socket, float $timeout = 2.0): Page
+    private function page(WebSocket $socket, float $timeout = 2.0): Page
     {
         $chrome = new class () extends HeadlessChrome {
             public function focusTarget(string $targetId): void
@@ -698,5 +890,25 @@ class PageTest extends TestCase
         }
 
         $this->fail("No {$method} {$type} was sent.");
+    }
+}
+
+final class QuietSocket extends WebSocket
+{
+    public function __construct()
+    {
+    }
+
+    public function sendText(string $payload): void
+    {
+    }
+
+    public function tryReceiveText(float $timeout): ?string
+    {
+        return null;
+    }
+
+    public function close(): void
+    {
     }
 }

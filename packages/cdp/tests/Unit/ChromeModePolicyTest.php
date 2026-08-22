@@ -7,8 +7,6 @@ namespace Switon\Cdp\Tests\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
-use ReflectionProperty;
 use Switon\Cdp\Chrome;
 use Switon\Cdp\HeadedChrome;
 use Switon\Cdp\HeadlessChrome;
@@ -30,7 +28,7 @@ class ChromeModePolicyTest extends TestCase
     {
         $chrome = $this->headless();
 
-        $this->assertSame('previous', $this->focusTarget($chrome, 'previous', 'opened'));
+        $this->assertSame('previous', $chrome->tabAfterOpen('previous', 'opened'));
     }
 
     #[Test]
@@ -38,8 +36,8 @@ class ChromeModePolicyTest extends TestCase
     {
         $chrome = $this->headless();
 
-        $this->assertSame('', $this->focusTarget($chrome, '', 'opened'));
-        $this->assertSame('', $this->focusTarget($chrome, 'opened', 'opened'));
+        $this->assertSame('', $chrome->tabAfterOpen('', 'opened'));
+        $this->assertSame('', $chrome->tabAfterOpen('opened', 'opened'));
     }
 
     #[Test]
@@ -47,8 +45,8 @@ class ChromeModePolicyTest extends TestCase
     {
         $chrome = $this->headed();
 
-        $this->assertSame('opened', $this->focusTarget($chrome, 'previous', 'opened'));
-        $this->assertSame('opened', $this->focusTarget($chrome, '', 'opened'));
+        $this->assertSame('opened', $chrome->tabAfterOpen('previous', 'opened'));
+        $this->assertSame('opened', $chrome->tabAfterOpen('', 'opened'));
     }
 
     #[Test]
@@ -57,7 +55,7 @@ class ChromeModePolicyTest extends TestCase
         $launcher = $this->launcher();
         $chrome = $this->headed($launcher);
 
-        $this->assertFalse($this->reclaim($chrome));
+        $this->assertFalse($chrome->reclaimListener());
         $this->assertSame([], $launcher->calls, 'headed must not inspect or quit a window it did not open');
     }
 
@@ -133,7 +131,7 @@ class ChromeModePolicyTest extends TestCase
         $launcher->listenerHeadless = null;
         $chrome = $this->headless($launcher);
 
-        $this->assertFalse($this->reclaim($chrome));
+        $this->assertFalse($chrome->reclaimListener());
         $this->assertSame([], $chrome->requests, 'an unreadable command line must not be treated as headed');
     }
 
@@ -144,7 +142,7 @@ class ChromeModePolicyTest extends TestCase
         $launcher->listenerHeadless = true;
         $chrome = $this->headless($launcher);
 
-        $this->assertFalse($this->reclaim($chrome));
+        $this->assertFalse($chrome->reclaimListener());
         $this->assertSame([], $chrome->requests);
     }
 
@@ -157,7 +155,7 @@ class ChromeModePolicyTest extends TestCase
             ['type' => 'page', 'id' => 'login-tab', 'url' => 'https://example.com/account'],
         ]);
 
-        $this->assertFalse($this->reclaim($chrome), 'a window on a real page is the login-reuse path');
+        $this->assertFalse($chrome->reclaimListener(), 'a window on a real page is the login-reuse path');
         $this->assertNotContains('GET http://127.0.0.1:59222/json/version', $chrome->requests);
     }
 
@@ -172,7 +170,7 @@ class ChromeModePolicyTest extends TestCase
             ? [['type' => 'page', 'id' => 'blank', 'url' => 'about:blank']]
             : null);
 
-        $this->assertTrue($this->reclaim($chrome));
+        $this->assertTrue($chrome->reclaimListener());
         $this->assertContains('GET http://127.0.0.1:59222/json/version', $chrome->requests);
     }
 
@@ -183,7 +181,7 @@ class ChromeModePolicyTest extends TestCase
         $launcher->listenerHeadless = false;
         $chrome = $this->headless($launcher, static fn (): ?array => null);
 
-        $this->assertFalse($this->reclaim($chrome), 'an unknown state must not cost someone their window');
+        $this->assertFalse($chrome->reclaimListener(), 'an unknown state must not cost someone their window');
         $this->assertNotContains('GET http://127.0.0.1:59222/json/version', $chrome->requests);
     }
 
@@ -214,66 +212,20 @@ class ChromeModePolicyTest extends TestCase
         $this->assertContains('stopOwnedProcess', $launcher->calls);
     }
 
-    protected function focusTarget(Chrome $chrome, string $previousId, string $targetId): string
-    {
-        $method = new ReflectionMethod($chrome, 'tabToFocusAfterOpen');
-        $method->setAccessible(true);
-
-        return (string) $method->invoke($chrome, $previousId, $targetId);
-    }
-
-    protected function reclaim(Chrome $chrome): bool
-    {
-        $method = new ReflectionMethod($chrome, 'reclaimForeignListener');
-        $method->setAccessible(true);
-
-        return (bool) $method->invoke($chrome);
-    }
-
     /**
      * @param null|callable(string): ?array $responder
      */
-    protected function headless(?Launcher $launcher = null, ?callable $responder = null): HeadlessChrome
+    protected function headless(?Launcher $launcher = null, ?callable $responder = null): PolicyHeadless
     {
-        $chrome = new class () extends HeadlessChrome {
-            /** @var list<string> */
-            public array $requests = [];
-
-            /** @var null|callable(string): ?array */
-            public $responder = null;
-
-            protected function httpJson(string $url, float $timeout, string $method = 'GET'): ?array
-            {
-                $this->requests[] = $method . ' ' . $url;
-                $responder = $this->responder;
-
-                return $responder === null ? null : $responder($url);
-            }
-        };
+        $chrome = new PolicyHeadless($launcher ?? $this->launcher(), new Clock());
         $chrome->responder = $responder;
-        $this->inject($chrome, 'launcher', $launcher ?? $this->launcher());
-        $this->inject($chrome, 'clock', new Clock());
 
         return $chrome;
     }
 
-    protected function headed(?Launcher $launcher = null): HeadedChrome
+    protected function headed(?Launcher $launcher = null): PolicyHeaded
     {
-        $chrome = new class () extends HeadedChrome {
-            /** @var list<string> */
-            public array $requests = [];
-
-            protected function httpJson(string $url, float $timeout, string $method = 'GET'): ?array
-            {
-                $this->requests[] = $method . ' ' . $url;
-
-                return null;
-            }
-        };
-        $this->inject($chrome, 'launcher', $launcher ?? $this->launcher());
-        $this->inject($chrome, 'clock', new Clock());
-
-        return $chrome;
+        return new PolicyHeaded($launcher ?? $this->launcher(), new Clock());
     }
 
     protected function launcher(): Launcher
@@ -322,13 +274,156 @@ class ChromeModePolicyTest extends TestCase
             {
                 $this->calls[] = 'foreground:' . $port;
             }
+
+            public function ensure(
+                int $port,
+                string $userDataDir,
+                bool $headless,
+                string $executable,
+                float $startupTimeout = 15.0,
+                array $extraArgs = [],
+            ): void {
+                $this->calls[] = 'ensure:' . ($headless ? 'headless' : 'headed');
+            }
         };
     }
 
-    protected function inject(object $target, string $property, mixed $value): void
+    #[Test]
+    public function aClosedPortWithoutAutoLaunchNamesHowToStartChrome(): void
     {
-        $ref = new ReflectionProperty($target, $property);
-        $ref->setAccessible(true);
-        $ref->setValue($target, $value);
+        $headlessLauncher = $this->launcher();
+        $headlessLauncher->open = false;
+        $headless = $this->headless($headlessLauncher);
+        $headless->setAutoLaunch(false);
+
+        try {
+            $headless->ensureListening();
+            $this->fail('A closed port must be reported.');
+        } catch (\Switon\Cdp\Exception $e) {
+            $this->assertStringContainsString('headless profile', $e->getMessage());
+        }
+
+        $headedLauncher = $this->launcher();
+        $headedLauncher->open = false;
+        $headed = $this->headed($headedLauncher);
+        $headed->setAutoLaunch(false);
+
+        try {
+            $headed->ensureListening();
+            $this->fail('A closed port must be reported.');
+        } catch (\Switon\Cdp\Exception $e) {
+            $this->assertStringContainsString('start-cdp', $e->getMessage());
+        }
+    }
+
+    #[Test]
+    public function openReportsAPageTargetThatHasNoId(): void
+    {
+        $chrome = $this->headless(null, static function (string $url): ?array {
+            if (str_contains($url, '/json/list')) {
+                return ['skip', ['type' => 'browser']];
+            }
+
+            return ['webSocketDebuggerUrl' => 'ws://127.0.0.1/devtools/page/x'];
+        });
+
+        $this->expectException(\Switon\Cdp\Exception::class);
+        $this->expectExceptionMessage('without an id');
+        $chrome->open('about:blank');
+    }
+
+    #[Test]
+    public function aClosedPortWithAutoLaunchAsksTheLauncherToStart(): void
+    {
+        $launcher = $this->launcher();
+        $launcher->open = false;
+        $chrome = $this->headless($launcher);
+
+        $chrome->ensureListening();
+
+        $this->assertContains('ensure:headless', $launcher->calls);
+    }
+
+}
+
+class PolicyHeadless extends HeadlessChrome
+{
+    /** @var list<string> */
+    public array $requests = [];
+
+    /** @var null|callable(string): ?array */
+    public $responder = null;
+
+    public function __construct(Launcher $launcher, Clock $clock)
+    {
+        $this->launcher = $launcher;
+        $this->clock = $clock;
+    }
+
+    public function tabAfterOpen(string $previousId, string $targetId): string
+    {
+        return $this->tabToFocusAfterOpen($previousId, $targetId);
+    }
+
+    public function reclaimListener(): bool
+    {
+        return $this->reclaimForeignListener();
+    }
+
+    public function setAutoLaunch(bool $enabled): void
+    {
+        $this->autoLaunch = $enabled;
+    }
+
+    public function ensureListening(): void
+    {
+        $this->ensure();
+    }
+
+    protected function httpJson(string $url, float $timeout, string $method = 'GET'): ?array
+    {
+        $this->requests[] = $method . ' ' . $url;
+        $responder = $this->responder;
+
+        return $responder === null ? null : $responder($url);
+    }
+}
+
+class PolicyHeaded extends HeadedChrome
+{
+    /** @var list<string> */
+    public array $requests = [];
+
+    public function __construct(Launcher $launcher, Clock $clock)
+    {
+        $this->launcher = $launcher;
+        $this->clock = $clock;
+    }
+
+    public function tabAfterOpen(string $previousId, string $targetId): string
+    {
+        return $this->tabToFocusAfterOpen($previousId, $targetId);
+    }
+
+    public function reclaimListener(): bool
+    {
+        return $this->reclaimForeignListener();
+    }
+
+    public function setAutoLaunch(bool $enabled): void
+    {
+        $this->autoLaunch = $enabled;
+    }
+
+    public function ensureListening(): void
+    {
+        $this->ensure();
+    }
+
+    protected function httpJson(string $url, float $timeout, string $method = 'GET'): ?array
+    {
+        $this->requests[] = $method . ' ' . $url;
+
+        return null;
     }
 }

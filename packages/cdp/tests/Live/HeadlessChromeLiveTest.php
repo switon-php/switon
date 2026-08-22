@@ -6,7 +6,6 @@ namespace Switon\Cdp\Tests\Live;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use RuntimeException;
 use Switon\Cdp\Exception;
 use Switon\Cdp\HeadlessChrome;
@@ -88,9 +87,7 @@ class HeadlessChromeLiveTest extends TestCase
 
         self::$sharedUserDataDir = sys_get_temp_dir() . '/switon-cdp-headless-' . getmypid();
         self::$sharedPort = self::pickFreePort();
-        self::$sharedLauncher = new Launcher();
-        self::inject(self::$sharedLauncher, 'clock', new Clock());
-        self::inject(self::$sharedLauncher, 'filesystem', self::newFilesystem());
+        self::$sharedLauncher = self::bootLauncher();
         self::$sharedBaseUrl = self::startSharedServer();
 
         // Launch here, so the cost lands on the class instead of on whichever test runs first.
@@ -754,9 +751,7 @@ class HeadlessChromeLiveTest extends TestCase
         // one would pull the browser out from under every later test in the class.
         $port = self::pickFreePort();
         $dir = $this->userDataDir . '-close';
-        $launcher = new Launcher();
-        self::inject($launcher, 'clock', new Clock());
-        self::inject($launcher, 'filesystem', self::newFilesystem());
+        $launcher = self::bootLauncher();
 
         try {
             $chrome = self::makeChrome($launcher, $dir, $port);
@@ -783,23 +778,30 @@ class HeadlessChromeLiveTest extends TestCase
 
     protected function chrome(): HeadlessChrome
     {
-        return self::makeChrome($this->launcher, $this->userDataDir, $this->port);
+        $launcher = $this->launcher;
+        if (!$launcher instanceof Launcher) {
+            $this->fail('Shared launcher is missing.');
+        }
+
+        return self::makeChrome($launcher, $this->userDataDir, $this->port);
     }
 
-    protected static function makeChrome(?Launcher $launcher, string $userDataDir, int $port): HeadlessChrome
+    protected static function makeChrome(Launcher $launcher, string $userDataDir, int $port): HeadlessChrome
     {
-        $chrome = new HeadlessChrome();
-        self::inject($chrome, 'launcher', $launcher);
-        self::inject($chrome, 'clock', new Clock());
-        self::inject($chrome, 'userDataDir', $userDataDir);
-        self::inject($chrome, 'port', $port);
-        self::inject($chrome, 'autoLaunch', true);
-        self::inject($chrome, 'timeout', 30.0);
-        // CI and agent sandboxes block Chrome's own sandbox, which kills the GPU process at
-        // startup. The package default stays sandboxed; only these tests opt out.
-        self::inject($chrome, 'args', ['--no-sandbox', '--disable-dev-shm-usage']);
-
-        return $chrome;
+        return new class ($launcher, new Clock(), $userDataDir, $port) extends HeadlessChrome {
+            public function __construct(Launcher $launcher, Clock $clock, string $userDataDir, int $port)
+            {
+                $this->launcher = $launcher;
+                $this->clock = $clock;
+                $this->userDataDir = $userDataDir;
+                $this->port = $port;
+                $this->autoLaunch = true;
+                $this->timeout = 30.0;
+                // CI and agent sandboxes block Chrome's own sandbox, which kills the GPU process at
+                // startup. The package default stays sandboxed; only these tests opt out.
+                $this->args = ['--no-sandbox', '--disable-dev-shm-usage'];
+            }
+        };
     }
 
     protected static function startSharedServer(): string
@@ -1051,12 +1053,6 @@ PHP);
         throw new RuntimeException('Local page server did not accept connections.');
     }
 
-    protected static function inject(object $target, string $property, mixed $value): void
-    {
-        $ref = new ReflectionProperty($target, $property);
-        $ref->setValue($target, $value);
-    }
-
     protected static function pickFreePort(): int
     {
         $sock = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
@@ -1072,12 +1068,24 @@ PHP);
         return (int) substr($name, (int) strrpos($name, ':') + 1);
     }
 
+    protected static function bootLauncher(): Launcher
+    {
+        return new class (new Clock(), self::newFilesystem()) extends Launcher {
+            public function __construct(Clock $clock, Filesystem $filesystem)
+            {
+                $this->clock = $clock;
+                $this->filesystem = $filesystem;
+            }
+        };
+    }
+
     protected static function newFilesystem(): Filesystem
     {
-        $filesystem = new Filesystem();
-        $alias = new ReflectionProperty(Filesystem::class, 'pathAlias');
-        $alias->setValue($filesystem, new PathAlias());
-
-        return $filesystem;
+        return new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
+        };
     }
 }

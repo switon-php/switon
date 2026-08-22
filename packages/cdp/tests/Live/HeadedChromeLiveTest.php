@@ -6,7 +6,6 @@ namespace Switon\Cdp\Tests\Live;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use Switon\Cdp\HeadedChrome;
 use Switon\Cdp\Launcher;
 use Switon\Cdp\Paths;
@@ -59,9 +58,7 @@ class HeadedChromeLiveTest extends TestCase
 
         $this->userDataDir = sys_get_temp_dir() . '/switon-cdp-headed-' . getmypid();
         $this->port = $this->pickFreePort();
-        $this->launcher = new Launcher();
-        $this->inject($this->launcher, 'clock', new Clock());
-        $this->inject($this->launcher, 'filesystem', $this->filesystem());
+        $this->launcher = $this->bootLauncher();
     }
 
     protected function tearDown(): void
@@ -97,18 +94,23 @@ class HeadedChromeLiveTest extends TestCase
 
     protected function chrome(): HeadedChrome
     {
-        $chrome = new HeadedChrome();
-        $this->inject($chrome, 'launcher', $this->launcher);
-        $this->inject($chrome, 'clock', new Clock());
-        $this->inject($chrome, 'userDataDir', $this->userDataDir);
-        $this->inject($chrome, 'port', $this->port);
-        $this->inject($chrome, 'autoLaunch', true);
-        $this->inject($chrome, 'timeout', 30.0);
-        // CI and agent sandboxes block Chrome's own sandbox, which kills the GPU process at
-        // startup. The package default stays sandboxed; only this test opts out.
-        $this->inject($chrome, 'args', ['--no-sandbox', '--disable-dev-shm-usage']);
+        $launcher = $this->launcher;
+        $this->assertInstanceOf(Launcher::class, $launcher);
 
-        return $chrome;
+        return new class ($launcher, new Clock(), $this->userDataDir, $this->port) extends HeadedChrome {
+            public function __construct(Launcher $launcher, Clock $clock, string $userDataDir, int $port)
+            {
+                $this->launcher = $launcher;
+                $this->clock = $clock;
+                $this->userDataDir = $userDataDir;
+                $this->port = $port;
+                $this->autoLaunch = true;
+                $this->timeout = 30.0;
+                // CI and agent sandboxes block Chrome's own sandbox, which kills the GPU process at
+                // startup. The package default stays sandboxed; only this test opts out.
+                $this->args = ['--no-sandbox', '--disable-dev-shm-usage'];
+            }
+        };
     }
 
     /**
@@ -266,12 +268,6 @@ class HeadedChromeLiveTest extends TestCase
         return is_array($decoded) ? $decoded : null;
     }
 
-    protected function inject(object $target, string $property, mixed $value): void
-    {
-        $ref = new ReflectionProperty($target, $property);
-        $ref->setValue($target, $value);
-    }
-
     protected function pickFreePort(): int
     {
         $sock = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
@@ -287,12 +283,24 @@ class HeadedChromeLiveTest extends TestCase
         return (int) substr($name, (int) strrpos($name, ':') + 1);
     }
 
+    protected function bootLauncher(): Launcher
+    {
+        return new class (new Clock(), $this->filesystem()) extends Launcher {
+            public function __construct(Clock $clock, Filesystem $filesystem)
+            {
+                $this->clock = $clock;
+                $this->filesystem = $filesystem;
+            }
+        };
+    }
+
     protected function filesystem(): Filesystem
     {
-        $filesystem = new Filesystem();
-        $alias = new ReflectionProperty(Filesystem::class, 'pathAlias');
-        $alias->setValue($filesystem, new PathAlias());
-
-        return $filesystem;
+        return new class () extends Filesystem {
+            public function __construct()
+            {
+                $this->pathAlias = new PathAlias();
+            }
+        };
     }
 }
