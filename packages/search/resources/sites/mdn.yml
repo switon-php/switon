@@ -1,0 +1,10 @@
+id: mdn
+description: MDN document search.
+request: https://developer.mozilla.org/api/v1/search?q={keyword}&locale=en-US
+response:
+  kind: json
+  each: documents
+  item:
+    title: title
+    url: mdn_url
+    snippet: summary

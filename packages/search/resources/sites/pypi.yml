@@ -1,0 +1,13 @@
+id: pypi
+description: PyPI package search.
+request: https://pypi.org/search/?q={keyword}
+ready: a.package-snippet
+response:
+  kind: html
+  each: a.package-snippet
+  item:
+    title: .package-snippet__name
+    url:
+      - "@href"
+      - https://pypi.org/project/{.package-snippet__name}/
+    snippet: .package-snippet__description

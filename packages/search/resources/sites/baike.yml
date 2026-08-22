@@ -1,0 +1,12 @@
+id: baike
+description: Baidu Baike suggestions.
+request: https://baike.baidu.com/api/searchui/suggest?wd={keyword}&limit=10
+response:
+  kind: json
+  each: list
+  item:
+    title: lemmaTitle
+    url:
+      - https://baike.baidu.com/item/{lemmaTitle}/{lemmaId}
+      - https://baike.baidu.com/item/{lemmaTitle}
+    snippet: lemmaDesc
