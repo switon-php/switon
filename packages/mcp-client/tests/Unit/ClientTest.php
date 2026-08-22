@@ -6,7 +6,6 @@ namespace Switon\McpClient\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use ReflectionProperty;
 use stdClass;
 use Switon\Eventing\ListenerProviderInterface;
 use Switon\McpClient\Client;
@@ -193,12 +192,11 @@ class ClientTest extends TestCase
             ],
         ];
 
-        $client = $this->makeClient($transport, ClientInfo::of('my-app', '2.0.0'));
+        $info = ClientInfo::of('my-app', '2.0.0');
+        $client = $this->makeClient($transport, $info);
         $client->initialize();
 
         $this->assertSame('2025-03-26', $transport->sent[0]['params']['protocolVersion']);
-        $info = (new ReflectionProperty(Client::class, 'clientInfo'))->getValue($client);
-        $this->assertInstanceOf(ClientInfo::class, $info);
         $this->assertSame('2024-11-05', $info->negotiatedProtocol);
         $this->assertSame('my-app', $transport->sent[0]['params']['clientInfo']['name']);
         $this->assertSame('2.0.0', $transport->sent[0]['params']['clientInfo']['version']);
@@ -217,11 +215,10 @@ class ClientTest extends TestCase
             'result' => ['protocolVersion' => ' 2025-11-25 '],
         ];
 
-        $client = $this->makeClient($transport);
+        $info = ClientInfo::of('test-client');
+        $client = $this->makeClient($transport, $info);
         $client->initialize();
 
-        $info = (new ReflectionProperty(Client::class, 'clientInfo'))->getValue($client);
-        $this->assertInstanceOf(ClientInfo::class, $info);
         $this->assertSame('2025-11-25', $info->negotiatedProtocol);
         $this->assertSame('notifications/initialized', $transport->sent[1]['method']);
         $this->assertSame(0, $transport->closeCount);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Switon\McpClient\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use ReflectionProperty;
 use stdClass;
 use Switon\Ai\ToolCall;
 use Switon\Ai\ToolSchema;
@@ -38,6 +37,14 @@ use function uniqid;
 #[CoversClass(McpSchemaTool::class)]
 class ClientDiscoveryTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->container->set(YamlReaderInterface::class, [
+            'class' => YamlReader::class,
+        ]);
+    }
+
     public function testLoadFromUrlConfig(): void
     {
         $this->stubClient($this->emptyClient());
@@ -119,12 +126,10 @@ class ClientDiscoveryTest extends TestCase
         $second = $this->writeConfig("new:\n  command: php\n  args: [noop.php]\n");
 
         try {
-            [$discovery, $clients] = $this->load($first);
+            [, $clients] = $this->load($first);
             $this->assertSame(['old'], array_keys($clients->all()));
 
-            $ref = new ReflectionProperty(ClientDiscovery::class, 'file');
-            $ref->setValue($discovery, $second);
-            $discovery->discover();
+            $this->load($second, $clients);
 
             $this->assertSame(['new'], array_keys($clients->all()));
         } finally {
@@ -139,12 +144,10 @@ class ClientDiscoveryTest extends TestCase
         $configFile = $this->writeConfig("app:\n  command: php\n  args: [noop.php]\n");
 
         try {
-            [$discovery, $clients] = $this->load($configFile);
+            [, $clients] = $this->load($configFile);
             $this->assertCount(1, $clients->all());
 
-            $ref = new ReflectionProperty(ClientDiscovery::class, 'file');
-            $ref->setValue($discovery, sys_get_temp_dir() . '/missing-mcp-' . uniqid('', true) . '.yml');
-            $discovery->discover();
+            $this->load(sys_get_temp_dir() . '/missing-mcp-' . uniqid('', true) . '.yml', $clients);
 
             $this->assertSame([], $clients->all());
         } finally {
@@ -373,13 +376,9 @@ YAML);
     }
 
     /** @return array{ClientDiscovery, ClientsInterface} */
-    protected function load(string $file): array
+    protected function load(string $file, ?ClientsInterface $clients = null): array
     {
-        $this->container->set(YamlReaderInterface::class, [
-            'class' => YamlReader::class,
-        ]);
-
-        $clients = new Clients();
+        $clients ??= new Clients();
         $discovery = $this->make(ClientDiscovery::class, [
             'file' => $file,
             'clients' => $clients,

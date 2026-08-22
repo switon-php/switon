@@ -380,6 +380,18 @@ final class FakeHttpClient implements HttpClientInterface
     /** @var list<array{method: string, body: mixed, headers: array<string, mixed>}> */
     public array $calls = [];
 
+    public function fetch(
+        string $url,
+        string $method = 'GET',
+        array $headers = [],
+        ?string $body = null,
+        array $options = [],
+    ): array {
+        unset($url, $method, $headers, $body, $options);
+
+        throw new RuntimeException('unused');
+    }
+
     public function request(
         string $method,
         string|array $url,
