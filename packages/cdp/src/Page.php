@@ -108,6 +108,7 @@ function () {
   const el = this;
   if (!el) return false;
   el.focus();
+  if (el.tagName === 'SELECT') return 'select';
   if (typeof el.select === 'function') { el.select(); return true; }
   const range = document.createRange();
   range.selectNodeContents(el);
@@ -253,6 +254,12 @@ JS;
         // Select the whole field so the typed text replaces it. `select()` works on input and
         // textarea only, so a contenteditable node gets an explicit range over its contents.
         $focused = $this->selectElementContent($location);
+        if ($focused === 'select') {
+            Exception::raise(
+                'Selector "{selector}" is a <select>, which takes no typed text. Click the element to open it, then click the option you want.',
+                ['selector' => $selector],
+            );
+        }
         if ($focused !== true) {
             Exception::raise('Selector "{selector}" is not a field that can take text.', ['selector' => $selector]);
         }

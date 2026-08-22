@@ -221,6 +221,26 @@ class PageTest extends TestCase
     }
 
     #[Test]
+    public function fillRejectsASelectInsteadOfTypingIntoIt(): void
+    {
+        $socket = $this->socket();
+        $default = $socket->results['Runtime.evaluate'];
+        $socket->results['Runtime.evaluate'] = static function (array $message) use ($default): array {
+            $expression = (string) ($message['params']['expression'] ?? '');
+            if (str_contains($expression, 'createRange')) {
+                return ['result' => ['value' => 'select']];
+            }
+
+            return $default($message);
+        };
+        $page = $this->page($socket);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches('/is a <select>/');
+        $page->fill('#name', 'Ada');
+    }
+
+    #[Test]
     public function accessibilityTreeReturnsTheNodesChromeReported(): void
     {
         $socket = $this->socket();
