@@ -432,7 +432,7 @@ class InputBinderTest extends TestCase
             'createdAt' => 1704067200,
         ]);
 
-        self::assertSame('2024-01-01 00:00:00', $input->createdAt);
+        self::assertSame(date('Y-m-d H:i:s', 1704067200), $input->createdAt);
     }
 
     public function testBindUsesArrayConstructorForRootValueObject(): void
