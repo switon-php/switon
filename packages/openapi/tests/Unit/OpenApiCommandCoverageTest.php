@@ -19,7 +19,7 @@ class OpenApiCommandCoverageTest extends TestCase
 {
     public function testExportActionWritesDefaultDocumentFile(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_export_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_export_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $documentBuilder = $this->createMock(DocumentBuilderInterface::class);
@@ -54,7 +54,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testExportActionReportsFailureWhenDocumentBuilderThrows(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_export_fail_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_export_fail_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $documentBuilder = $this->createMock(DocumentBuilderInterface::class);
@@ -84,7 +84,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testExportActionWritesJsonToCustomOutWithoutPrintingPathLine(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_export_json_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_export_json_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $documentBuilder = $this->createMock(DocumentBuilderInterface::class);
@@ -124,7 +124,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testLintActionReportsWarningsAndSuccess(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_lint_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_lint_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $linter = $this->createMock(LinterInterface::class);
@@ -159,7 +159,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testLintActionReportsFailureWhenErrorsExist(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_lint_fail_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_lint_fail_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $linter = $this->createMock(LinterInterface::class);
@@ -198,7 +198,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testLintActionFailsInStrictModeWhenWarningsExist(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_lint_strict_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_lint_strict_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $linter = $this->createMock(LinterInterface::class);
@@ -235,7 +235,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testExportActionFailsWhenRootIsNotDirectory(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_export_not_dir_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_export_not_dir_' . uniqid('', true);
         $this->assertTrue(mkdir($root, 0777, true));
         file_put_contents($root . '/openapi', 'not-a-dir');
 
@@ -264,7 +264,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testLintActionFailsWhenRootIsNotDirectory(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_lint_not_dir_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_lint_not_dir_' . uniqid('', true);
         mkdir($root, 0777, true);
         file_put_contents($root . '/openapi', 'file');
 
@@ -287,7 +287,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testLintActionReportsFailureWhenLinterThrows(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_lint_throw_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_lint_throw_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $linter = $this->createStub(LinterInterface::class);
@@ -308,7 +308,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testSyncActionFailsWhenRootIsNotDirectory(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_sync_not_dir_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_sync_not_dir_' . uniqid('', true);
         mkdir($root, 0777, true);
         file_put_contents($root . '/openapi', 'file');
 
@@ -331,7 +331,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testSyncActionPrintsWarningsAndNothingWrittenMessage(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_sync_empty_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_sync_empty_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $ymlSync = $this->createStub(YmlSyncInterface::class);
@@ -358,7 +358,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testInitActionReturnsNonZeroWhenSyncFailsDuringInit(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_init_sync_fail_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_init_sync_fail_' . uniqid('', true);
         $pathAlias = (new Container())->get(PathAliasInterface::class);
         $pathAlias->set('@root', $root);
 
@@ -384,7 +384,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testSyncActionReportsFailureWhenSyncThrows(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_sync_fail_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_sync_fail_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
 
         $ymlSync = $this->createMock(YmlSyncInterface::class);
@@ -414,7 +414,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testInitActionSkipsSyncWhenNoSyncFlagIsSet(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_init_no_sync_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_init_no_sync_' . uniqid('', true);
         $pathAlias = (new Container())->get(PathAliasInterface::class);
         $pathAlias->set('@root', $root);
 
@@ -442,7 +442,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testInitActionRunsSyncAndWritesOptionalScaffoldFiles(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_init_sync_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_init_sync_' . uniqid('', true);
         $pathAlias = (new Container())->get(PathAliasInterface::class);
         $pathAlias->set('@root', $root);
 
@@ -478,7 +478,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testInitActionFailsWhenAlreadyInitialized(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_init_exists_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_init_exists_' . uniqid('', true);
         $this->assertTrue(mkdir($root . '/openapi', 0777, true));
         file_put_contents($root . '/openapi/openapi.yml', "openapi: 3.0.3\n");
 
@@ -503,7 +503,7 @@ class OpenApiCommandCoverageTest extends TestCase
 
     public function testInitActionFailsWhenScaffoldFilesAreMissing(): void
     {
-        $root = sys_get_temp_dir() . '/openapi_init_missing_' . uniqid('', true);
+        $root = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_init_missing_' . uniqid('', true);
         $this->assertTrue(mkdir($root, 0777, true));
 
         $pathAlias = (new Container())->get(PathAliasInterface::class);
