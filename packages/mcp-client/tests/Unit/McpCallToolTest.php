@@ -11,12 +11,14 @@ use Switon\Ai\Part\MediaPart;
 use Switon\Ai\Thread;
 use Switon\Ai\ToolCall;
 use Switon\Ai\ToolResult;
+use Switon\Ai\ToolSchema;
 use Switon\Core\Exception\CreateDirectoryFailedException;
 use Switon\Core\Exception\RuntimeException as CoreRuntimeException;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\Json;
 use Switon\McpClient\ClientInterface;
 use Switon\McpClient\ClientsInterface;
+use Switon\McpClient\Exception;
 use Switon\McpClient\Tests\Fixtures\StubToolAgent;
 use Switon\McpClient\Tests\TestCase;
 use Switon\McpClient\Tool\McpCallTool;
@@ -115,6 +117,48 @@ class McpCallToolTest extends TestCase
 
         $this->assertIsArray($result);
         $this->assertSame([], glob($dir . '/tool-asset/*') ?: []);
+    }
+
+    public function testCallBindsRemoteArgumentsBeforeToolsCall(): void
+    {
+        $client = new class implements ClientInterface {
+            /** @var array<string, mixed> */
+            public array $calledWith = [];
+
+            public function brief(): string
+            {
+                return '';
+            }
+
+            public function onNotification(callable $handler): void
+            {
+            }
+
+            public function ping(): void
+            {
+            }
+
+            public function listTools(bool $refresh = false): array
+            {
+                return [
+                    'echo' => new ToolSchema(description: 'echo', properties: [
+                        'limit' => ['type' => 'integer'],
+                    ]),
+                ];
+            }
+
+            public function callTool(string $name, array $arguments = [], ?callable $shouldAbort = null, bool $raw = true): mixed
+            {
+                $this->calledWith = $arguments;
+
+                return ['content' => [['type' => 'text', 'text' => 'ok']]];
+            }
+        };
+
+        $result = $this->callOn($client, ['arguments' => ['limit' => '20']], StubToolAgent::in());
+
+        $this->assertSame('ok', $result);
+        $this->assertSame(['limit' => 20], $client->calledWith);
     }
 
     public function testCallReturnsTextBlock(): void
@@ -261,7 +305,7 @@ class McpCallToolTest extends TestCase
 
             public function listTools(bool $refresh = false): array
             {
-                return [];
+                return ['echo' => new ToolSchema(description: 'echo')];
             }
 
             public function callTool(string $name, array $arguments = [], ?callable $shouldAbort = null, bool $raw = true): mixed
@@ -272,6 +316,38 @@ class McpCallToolTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('wire down');
+        $this->callOn($client, [], StubToolAgent::in());
+    }
+
+    public function testCallRaisesWhenRemoteToolMissing(): void
+    {
+        $client = new class () implements ClientInterface {
+            public function brief(): string
+            {
+                return '';
+            }
+
+            public function onNotification(callable $handler): void
+            {
+            }
+
+            public function ping(): void
+            {
+            }
+
+            public function listTools(bool $refresh = false): array
+            {
+                return [];
+            }
+
+            public function callTool(string $name, array $arguments = [], ?callable $shouldAbort = null, bool $raw = true): mixed
+            {
+                throw new RuntimeException('should not call');
+            }
+        };
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unknown MCP tool "echo" on "app".');
         $this->callOn($client, [], StubToolAgent::in());
     }
 
@@ -326,7 +402,7 @@ class McpCallToolTest extends TestCase
 
             public function listTools(bool $refresh = false): array
             {
-                return [];
+                return ['echo' => new ToolSchema(description: 'echo')];
             }
 
             public function callTool(string $name, array $arguments = [], ?callable $shouldAbort = null, bool $raw = true): mixed
@@ -347,7 +423,7 @@ class McpCallToolTest extends TestCase
             ) {
             }
 
-            public function add(string $id, ClientInterface $client): void
+            public function add(string $id, array $entry): void
             {
             }
 

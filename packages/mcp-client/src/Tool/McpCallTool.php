@@ -18,6 +18,7 @@ use Switon\Core\Strings;
 use Switon\McpClient\ClientsInterface;
 use Switon\McpClient\Exception;
 use Switon\Tooling\AbstractTool;
+use Switon\Tooling\ArgumentBinderInterface;
 
 use function base64_decode;
 use function dirname;
@@ -34,11 +35,13 @@ use function strtolower;
  * Tool `mcp_call`. Text spills under `tool-result/`. Images go to `tool-asset/`.
  *
  * Guidance: Text spill uses {@see AbstractTool}. Image files use `tool-asset/` in this class.
+ * Nested `arguments` are bound against the remote tool schema before `tools/call`.
  */
 class McpCallTool extends AbstractTool
 {
     #[Autowired] protected ClientsInterface|Lazy $clients;
     #[Autowired] protected FilesystemInterface $filesystem;
+    #[Autowired] protected ArgumentBinderInterface $argumentBinder;
 
     /** Inline / spill-start threshold in KiB. */
     #[Autowired] protected int $budget = 32;
@@ -73,9 +76,20 @@ class McpCallTool extends AbstractTool
 
     public function call(AgentInterface $agent, ToolCall $call, array $arguments): mixed
     {
+        $server = $arguments['server'];
+        $tool = $arguments['tool'];
+        /** @var array<string, mixed> $args */
         $args = $arguments['arguments'] ?? [];
-        $result = $this->clients->get($arguments['server'])->callTool(
-            $arguments['tool'],
+
+        $client = $this->clients->get($server);
+        $schema = $client->listTools(false)[$tool] ?? null;
+        if (!$schema instanceof ToolSchema) {
+            Exception::raise('Unknown MCP tool "{tool}" on "{server}".', ['tool' => $tool, 'server' => $server]);
+        }
+        $args = $this->argumentBinder->bind($schema, $args);
+
+        $result = $client->callTool(
+            $tool,
             $args,
             fn (): bool => $agent->isCancelled() || $call->cancelled,
         );
