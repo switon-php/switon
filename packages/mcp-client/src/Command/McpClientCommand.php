@@ -459,7 +459,7 @@ class McpClientCommand
     protected function stdioEntry(array $command): array
     {
         $entry = ['command' => $command[0]];
-        $args = array_values(array_slice($command, 1));
+        $args = array_slice($command, 1);
         if ($args !== []) {
             $entry['args'] = $args;
         }
