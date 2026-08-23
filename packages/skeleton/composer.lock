@@ -4,7 +4,7 @@
     "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
     "This file is @generated automatically"
   ],
-  "content-hash": "2a73686176e126b9442232dc1d8366bb",
+  "content-hash": "ef1b1bd4c309cfb14f5b8c569be08114",
   "packages": [
     {
       "name": "psr/container",
@@ -212,16 +212,11 @@
     },
     {
       "name": "switon/authz",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/authz.git",
-        "reference": "d07adbf443bc8e1a837371df16684294d8952cb9"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/authz/zipball/d07adbf443bc8e1a837371df16684294d8952cb9",
-        "reference": "d07adbf443bc8e1a837371df16684294d8952cb9",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/authz/v1.0.1/switon-authz-v1.0.1.zip",
+        "reference": "b6def0216d6351fc7f0b94ffd903554d8c9dcd9c",
         "shasum": ""
       },
       "require": {
@@ -233,6 +228,8 @@
         "switon/router": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -241,6 +238,9 @@
           "providers": [
             "Switon\\Authorizing\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -248,7 +248,6 @@
           "Switon\\Authorizing\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -258,7 +257,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Authorization and policy enforcement for Switon Framework",
+      "description": "Permission-based authorization with attributes, voters, and role-to-permission lookup for Switon Framework",
       "homepage": "https://github.com/switon-php/authz",
       "keywords": [
         "authorization",
@@ -267,24 +266,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/authz",
+        "docs": "https://github.com/switon-php/authz/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/authz/issues",
         "source": "https://github.com/switon-php/authz"
       },
-      "time": "2026-05-10T04:01:33+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/binding",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/binding.git",
-        "reference": "e1eb0b23ddf957d1fef67d40f011f1d216e49382"
-      },
+      "version": "v1.0.3",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/binding/zipball/e1eb0b23ddf957d1fef67d40f011f1d216e49382",
-        "reference": "e1eb0b23ddf957d1fef67d40f011f1d216e49382",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/binding/v1.0.3/switon-binding-v1.0.3.zip",
+        "reference": "19e7e5f9730788a175b8beb1b0ae51cfd488db27",
         "shasum": ""
       },
       "require": {
@@ -292,18 +286,25 @@
         "psr/container": "^2.0",
         "psr/event-dispatcher": "^1.0",
         "switon/core": "^1.0",
+        "switon/event": "^1.0",
         "switon/validation": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
+      "extra": {
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
       "autoload": {
         "psr-4": {
           "Switon\\Binding\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -313,7 +314,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Argument and input binding primitives for Switon Framework",
+      "description": "Method argument lists and typed input hydration from rules and container state for Switon Framework",
       "homepage": "https://github.com/switon-php/binding",
       "keywords": [
         "arguments",
@@ -322,24 +323,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/binding",
+        "docs": "https://github.com/switon-php/binding/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/binding/issues",
         "source": "https://github.com/switon-php/binding"
       },
-      "time": "2026-05-09T23:36:09+00:00"
+      "time": "2026-08-23T02:27:53+00:00"
     },
     {
       "name": "switon/cache",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/cache.git",
-        "reference": "e2a2dbe8c6b65bddbfb3138227faed9ae8b2030f"
-      },
+      "version": "v1.0.2",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/cache/zipball/e2a2dbe8c6b65bddbfb3138227faed9ae8b2030f",
-        "reference": "e2a2dbe8c6b65bddbfb3138227faed9ae8b2030f",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/cache/v1.0.2/switon-cache-v1.0.2.zip",
+        "reference": "77d9855118fbe1a428b039608c98288dc8d5fed9",
         "shasum": ""
       },
       "require": {
@@ -351,6 +347,8 @@
         "switon/redis": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -362,6 +360,9 @@
           "providers": [
             "Switon\\Caching\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -369,7 +370,6 @@
           "Switon\\Caching\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -379,7 +379,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "PSR-16 cache services with Redis-backed integration for Switon Framework",
+      "description": "Redis-backed PSR-16 cache with JSON values, prefix-scoped clear, and cache lifecycle events for Switon Framework",
       "homepage": "https://github.com/switon-php/cache",
       "keywords": [
         "cache",
@@ -388,24 +388,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/cache",
+        "docs": "https://github.com/switon-php/cache/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/cache/issues",
         "source": "https://github.com/switon-php/cache"
       },
-      "time": "2026-05-09T16:37:33+00:00"
+      "time": "2026-08-22T14:37:00+00:00"
     },
     {
       "name": "switon/cli",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/cli.git",
-        "reference": "8852fd54d7de770aafbb30c267b909814913abf6"
-      },
+      "version": "v1.0.4",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/cli/zipball/8852fd54d7de770aafbb30c267b909814913abf6",
-        "reference": "8852fd54d7de770aafbb30c267b909814913abf6",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/cli/v1.0.4/switon-cli-v1.0.4.zip",
+        "reference": "d9a032402b494030f96d59b817c64d4de3e44473",
         "shasum": ""
       },
       "require": {
@@ -415,12 +410,18 @@
         "switon/binding": "^1.0",
         "switon/command": "^1.0",
         "switon/console": "^1.0",
+        "switon/context": "^1.0",
         "switon/core": "^1.0",
+        "switon/di": "^1.0",
         "switon/event": "^1.0",
         "switon/invoker": "^1.0",
-        "switon/kernel": "^1.0"
+        "switon/kernel": "^1.0",
+        "switon/sync": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "switon/log": "^1.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -434,6 +435,9 @@
           "providers": [
             "Switon\\Cli\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -441,7 +445,6 @@
           "Switon\\Cli\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -451,7 +454,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "CLI commands and console tooling for Switon Framework",
+      "description": "Command surface with discovery, option binding, help output, and shell completion for Switon Framework",
       "homepage": "https://github.com/switon-php/cli",
       "keywords": [
         "cli",
@@ -460,24 +463,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/cli",
+        "docs": "https://github.com/switon-php/cli/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/cli/issues",
         "source": "https://github.com/switon-php/cli"
       },
-      "time": "2026-05-10T04:16:05+00:00"
+      "time": "2026-08-23T02:52:41+00:00"
     },
     {
       "name": "switon/command",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/command.git",
-        "reference": "cf6c52b04dbbde4a465ad3dfcbdfa1451a527a36"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/command/zipball/cf6c52b04dbbde4a465ad3dfcbdfa1451a527a36",
-        "reference": "cf6c52b04dbbde4a465ad3dfcbdfa1451a527a36",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/command/v1.0.1/switon-command-v1.0.1.zip",
+        "reference": "638b5a2649b4fab43d67226a2d38f3f1670d01cd",
         "shasum": ""
       },
       "require": {
@@ -486,16 +484,21 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
-        "phpunit/phpunit": "^12.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
+      "extra": {
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
       "autoload": {
         "psr-4": {
           "Switon\\Command\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -505,7 +508,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Command metadata, discovery, and tooling for Switon (standalone)",
+      "description": "Shared command discovery and reflection metadata for CLI listings and AI tooling for Switon Framework",
       "homepage": "https://github.com/switon-php/command",
       "keywords": [
         "command",
@@ -515,24 +518,19 @@
         "tooling"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/command",
+        "docs": "https://github.com/switon-php/command/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/command/issues",
         "source": "https://github.com/switon-php/command"
       },
-      "time": "2026-05-09T16:59:05+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/composer-extra",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/composer-extra.git",
-        "reference": "00a0fb17900dcb934dc299ec986135c0fe30f428"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/composer-extra/zipball/00a0fb17900dcb934dc299ec986135c0fe30f428",
-        "reference": "00a0fb17900dcb934dc299ec986135c0fe30f428",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/composer-extra/v1.0.1/switon-composer-extra-v1.0.1.zip",
+        "reference": "a674d858041f1a1494d33b2ac5a3169dd4ba4321",
         "shasum": ""
       },
       "require": {
@@ -542,18 +540,23 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
+        "composer/composer": "^2.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^12.0"
       },
       "type": "composer-plugin",
       "extra": {
-        "class": "Switon\\ComposerExtra\\Plugin"
+        "class": "Switon\\ComposerExtra\\Plugin",
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
       },
       "autoload": {
         "psr-4": {
           "Switon\\ComposerExtra\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -563,7 +566,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Composer extra metadata reader for Switon Framework",
+      "description": "Cached Composer extra metadata reader for fast framework discovery at runtime for Switon Framework",
       "homepage": "https://github.com/switon-php/composer-extra",
       "keywords": [
         "composer",
@@ -573,24 +576,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/composer-extra",
+        "docs": "https://github.com/switon-php/composer-extra/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/composer-extra/issues",
         "source": "https://github.com/switon-php/composer-extra"
       },
-      "time": "2026-05-09T15:31:38+00:00"
+      "time": "2026-08-22T14:27:28+00:00"
     },
     {
       "name": "switon/console",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/console.git",
-        "reference": "43976b7b5fff0e5dfea46adf5c07531558febc16"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/console/zipball/43976b7b5fff0e5dfea46adf5c07531558febc16",
-        "reference": "43976b7b5fff0e5dfea46adf5c07531558febc16",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/console/v1.0.1/switon-console-v1.0.1.zip",
+        "reference": "1828d4c969c2419243460eb4ac08f0920b512eba",
         "shasum": ""
       },
       "require": {
@@ -598,14 +596,14 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
       "extra": {
-        "switon": {
-          "providers": [
-            "Switon\\Console\\ServiceProvider"
-          ]
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -613,7 +611,6 @@
           "Switon\\Console\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -623,7 +620,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Terminal styling with output primitives for Switon Framework",
+      "description": "Reusable terminal primitives including progress bars, width detection, and ANSI styling for Switon Framework",
       "homepage": "https://github.com/switon-php/console",
       "keywords": [
         "ansi",
@@ -632,24 +629,19 @@
         "terminal"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/console",
+        "docs": "https://github.com/switon-php/console/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/console/issues",
         "source": "https://github.com/switon-php/console"
       },
-      "time": "2026-05-09T16:53:32+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/context",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/context.git",
-        "reference": "08bdb466c0c6c7a99334cc1d4154b0ba28d4e7af"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/context/zipball/08bdb466c0c6c7a99334cc1d4154b0ba28d4e7af",
-        "reference": "08bdb466c0c6c7a99334cc1d4154b0ba28d4e7af",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/context/v1.0.1/switon-context-v1.0.1.zip",
+        "reference": "6d1981b892f46cde7c44a3c1e5a9dd00a9d3cdb9",
         "shasum": ""
       },
       "require": {
@@ -659,6 +651,8 @@
         "switon/event": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -667,6 +661,9 @@
           "providers": [
             "Switon\\Context\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -674,7 +671,6 @@
           "Switon\\Context\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -684,7 +680,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Runtime context isolation with scoped state for Switon Framework",
+      "description": "Default context manager for request- and coroutine-scoped service-owned state for Switon Framework",
       "homepage": "https://github.com/switon-php/context",
       "keywords": [
         "Context",
@@ -693,24 +689,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/context",
+        "docs": "https://github.com/switon-php/context/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/context/issues",
         "source": "https://github.com/switon-php/context"
       },
-      "time": "2026-05-09T16:52:06+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/core",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/core.git",
-        "reference": "18ec171ea7324fce969642cb4cb789707545ac7e"
-      },
+      "version": "v1.0.2",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/core/zipball/18ec171ea7324fce969642cb4cb789707545ac7e",
-        "reference": "18ec171ea7324fce969642cb4cb789707545ac7e",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/core/v1.0.2/switon-core-v1.0.2.zip",
+        "reference": "13872facdc568c4a74b5c59f59c454e4c728a73a",
         "shasum": ""
       },
       "require": {
@@ -719,9 +710,21 @@
         "psr/container": "^2.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^12.0"
       },
       "type": "library",
+      "extra": {
+        "phpstan": {
+          "includes": [
+            "phpstan-extension.neon"
+          ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
       "autoload": {
         "files": [
           "helpers.php"
@@ -730,7 +733,6 @@
           "Switon\\Core\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -740,7 +742,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Core contracts, attributes, and runtime utilities for Switon Framework",
+      "description": "Shared framework contracts, attributes, helpers, and runtime vocabulary for Switon Framework",
       "homepage": "https://github.com/switon-php/core",
       "keywords": [
         "attributes",
@@ -750,24 +752,19 @@
         "utilities"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/core",
+        "docs": "https://github.com/switon-php/core/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/core/issues",
         "source": "https://github.com/switon-php/core"
       },
-      "time": "2026-05-10T00:37:40+00:00"
+      "time": "2026-08-23T00:59:47+00:00"
     },
     {
       "name": "switon/di",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/di.git",
-        "reference": "65e8358dc873e99e9cee5b962620290f406449cd"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/di/zipball/65e8358dc873e99e9cee5b962620290f406449cd",
-        "reference": "65e8358dc873e99e9cee5b962620290f406449cd",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/di/v1.0.1/switon-di-v1.0.1.zip",
+        "reference": "d0e625164e8d20af56242aa16f0917b995798477",
         "shasum": ""
       },
       "require": {
@@ -778,6 +775,8 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^12.0"
       },
       "type": "library",
@@ -789,6 +788,14 @@
           "providers": [
             "Switon\\Di\\ServiceProvider"
           ]
+        },
+        "phpstan": {
+          "includes": [
+            "phpstan-extension.neon"
+          ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -796,7 +803,6 @@
           "Switon\\Di\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -806,7 +812,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Dependency injection container and autowiring for Switon Framework",
+      "description": "Property-based dependency injection with interface autowiring, named slots, and shared versus fresh instances for Switon Framework",
       "homepage": "https://github.com/switon-php/di",
       "keywords": [
         "Autowiring",
@@ -815,24 +821,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/di",
+        "docs": "https://github.com/switon-php/di/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/di/issues",
         "source": "https://github.com/switon-php/di"
       },
-      "time": "2026-05-09T15:07:42+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/event",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/event.git",
-        "reference": "aa82a4ed1759e14246eb1a2d990ca891f9525434"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/event/zipball/aa82a4ed1759e14246eb1a2d990ca891f9525434",
-        "reference": "aa82a4ed1759e14246eb1a2d990ca891f9525434",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/event/v1.0.1/switon-event-v1.0.1.zip",
+        "reference": "2c63ab23bfdd3901c7b040bf316906ddcac9368c",
         "shasum": ""
       },
       "require": {
@@ -843,6 +844,8 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^12.0"
       },
       "type": "library",
@@ -851,6 +854,9 @@
           "providers": [
             "Switon\\Eventing\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -858,7 +864,6 @@
           "Switon\\Eventing\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -868,7 +873,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "PSR-14 event dispatching and listener discovery for Switon Framework",
+      "description": "Class-based synchronous PSR-14 dispatch with attribute-discovered listeners for Switon Framework",
       "homepage": "https://github.com/switon-php/event",
       "keywords": [
         "events",
@@ -877,24 +882,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/event",
+        "docs": "https://github.com/switon-php/event/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/event/issues",
         "source": "https://github.com/switon-php/event"
       },
-      "time": "2026-05-10T01:04:42+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/http",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/http.git",
-        "reference": "8099c7e31e9820535c97ab9e7c7f4a726172a8be"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/http/zipball/8099c7e31e9820535c97ab9e7c7f4a726172a8be",
-        "reference": "8099c7e31e9820535c97ab9e7c7f4a726172a8be",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/http/v1.0.1/switon-http-v1.0.1.zip",
+        "reference": "bcfe2016738f03331a07b858fc3598df6d47b304",
         "shasum": ""
       },
       "require": {
@@ -902,16 +902,23 @@
         "php": ">=8.3",
         "psr/event-dispatcher": "^1.0",
         "switon/binding": "^1.0",
+        "switon/command": "^1.0",
+        "switon/composer-extra": "^1.0",
         "switon/core": "^1.0",
         "switon/event": "^1.0",
         "switon/id": "^1.0",
+        "switon/invocation": "^1.0",
         "switon/invoker": "^1.0",
         "switon/kernel": "^1.0",
         "switon/principal": "^1.0",
         "switon/renderer": "^1.0",
-        "switon/router": "^1.0"
+        "switon/router": "^1.0",
+        "switon/sync": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "switon/di": "^1.0",
         "switon/i18n": "^1.0",
         "switon/testing": "^1.0",
         "switon/validation": "^1.0"
@@ -931,6 +938,9 @@
           "providers": [
             "Switon\\Http\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -941,7 +951,6 @@
           "Switon\\Http\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -951,7 +960,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "HTTP server, request pipeline, and response handling for Switon Framework",
+      "description": "Controller-based HTTP boundary with request input, response shaping, lifecycle hooks, and runtime adapters for Switon Framework",
       "homepage": "https://github.com/switon-php/http",
       "keywords": [
         "http",
@@ -961,38 +970,36 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/http",
+        "docs": "https://github.com/switon-php/http/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/http/issues",
         "source": "https://github.com/switon-php/http"
       },
-      "time": "2026-05-10T03:52:40+00:00"
+      "time": "2026-08-22T14:26:48+00:00"
     },
     {
       "name": "switon/id",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/id.git",
-        "reference": "27c463c89ba5e9ab2b0c040e66d614b052f2e173"
-      },
+      "version": "v1.0.2",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/id/zipball/27c463c89ba5e9ab2b0c040e66d614b052f2e173",
-        "reference": "27c463c89ba5e9ab2b0c040e66d614b052f2e173",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/id/v1.0.2/switon-id-v1.0.2.zip",
+        "reference": "53d0603519e766334c3d6d24f78bf317f56d9b55",
         "shasum": ""
       },
       "require": {
         "php": ">=8.3",
+        "switon/command": "^1.0",
         "switon/core": "^1.0",
-        "switon/redis": "^1.0",
         "switon/sync": "^1.0"
       },
       "require-dev": {
-        "phpunit/phpunit": "^12.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "switon/redis": "^1.0",
         "switon/testing": "^1.0"
       },
       "suggest": {
-        "ext-gmp": "Required for KSUID and ShortUuid support."
+        "ext-gmp": "Required for KSUID and ShortUuid support.",
+        "switon/redis": "Snowflake sequence allocation."
       },
       "type": "library",
       "extra": {
@@ -1003,6 +1010,9 @@
           "providers": [
             "Switon\\Id\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1010,7 +1020,6 @@
           "Switon\\Id\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1020,7 +1029,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Distributed ID generation services for Switon Framework",
+      "description": "Named ID generators for UUIDs, ULIDs, Snowflake, and compact public IDs for Switon Framework",
       "homepage": "https://github.com/switon-php/id",
       "keywords": [
         "ids",
@@ -1029,39 +1038,40 @@
         "uuid"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/id",
+        "docs": "https://github.com/switon-php/id/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/id/issues",
         "source": "https://github.com/switon-php/id"
       },
-      "time": "2026-05-09T16:50:03+00:00"
+      "time": "2026-08-22T14:37:00+00:00"
     },
     {
       "name": "switon/invocation",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/invocation.git",
-        "reference": "6cd1982738f8d921c89d29d65712e23c6901ff3e"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/invocation/zipball/6cd1982738f8d921c89d29d65712e23c6901ff3e",
-        "reference": "6cd1982738f8d921c89d29d65712e23c6901ff3e",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/invocation/v1.0.1/switon-invocation-v1.0.1.zip",
+        "reference": "bb2f83f0e930ec2f52426f745ac789845302455a",
         "shasum": ""
       },
       "require": {
         "php": ">=8.3"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
+      "extra": {
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
       "autoload": {
         "psr-4": {
           "Switon\\Invocation\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1071,7 +1081,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Invocation guards and interceptors for Switon (standalone)",
+      "description": "Method-level guard and interceptor contracts for managed invocations for Switon Framework",
       "homepage": "https://github.com/switon-php/invocation",
       "keywords": [
         "attribute",
@@ -1080,24 +1090,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/invocation",
+        "docs": "https://github.com/switon-php/invocation/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/invocation/issues",
         "source": "https://github.com/switon-php/invocation"
       },
-      "time": "2026-05-10T00:00:50+00:00"
+      "time": "2026-08-22T14:29:36+00:00"
     },
     {
       "name": "switon/invoker",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/invoker.git",
-        "reference": "7a950193f161887e8817057f4fb5b76e5c2999ff"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/invoker/zipball/7a950193f161887e8817057f4fb5b76e5c2999ff",
-        "reference": "7a950193f161887e8817057f4fb5b76e5c2999ff",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/invoker/v1.0.1/switon-invoker-v1.0.1.zip",
+        "reference": "7a2ed64a4950757327ac23b7ecd6a34a5115befc",
         "shasum": ""
       },
       "require": {
@@ -1107,15 +1112,20 @@
         "switon/invocation": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/binding": "^1.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
       "extra": {
-        "switon": {
-          "providers": [
-            "Switon\\Invoking\\ServiceProvider"
+        "phpstan": {
+          "includes": [
+            "phpstan-extension.neon"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1123,7 +1133,6 @@
           "Switon\\Invoking\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1133,7 +1142,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Method invocation orchestration for Switon (standalone)",
+      "description": "Guard-aware and intercepted method invocation on top of the DI invoker for Switon Framework",
       "homepage": "https://github.com/switon-php/invoker",
       "keywords": [
         "dispatch",
@@ -1142,34 +1151,34 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/invoker",
+        "docs": "https://github.com/switon-php/invoker/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/invoker/issues",
         "source": "https://github.com/switon-php/invoker"
       },
-      "time": "2026-05-10T03:07:36+00:00"
+      "time": "2026-08-22T14:28:00+00:00"
     },
     {
       "name": "switon/kernel",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/kernel.git",
-        "reference": "12767be58e19b3b6a51d77aef448486c490342f7"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/kernel/zipball/12767be58e19b3b6a51d77aef448486c490342f7",
-        "reference": "12767be58e19b3b6a51d77aef448486c490342f7",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/kernel/v1.0.1/switon-kernel-v1.0.1.zip",
+        "reference": "afcdb0fe33dea2b43551bf81f8372f0cfd6f3c03",
         "shasum": ""
       },
       "require": {
         "php": ">=8.3",
+        "psr/log": "^2.0",
+        "switon/command": "^1.0",
+        "switon/composer-extra": "^1.0",
         "switon/core": "^1.0",
         "switon/di": "^1.0",
         "switon/event": "^1.0",
         "switon/yaml": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -1179,6 +1188,9 @@
             "Switon\\Kernel\\Command\\VersionCommand"
           ],
           "providers": []
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1186,7 +1198,6 @@
           "Switon\\Kernel\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1196,7 +1207,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Application bootstrap and provider lifecycle for Switon Framework",
+      "description": "Application bootstrap for environment, config, provider lifecycle, and fatal error handling for Switon Framework",
       "homepage": "https://github.com/switon-php/kernel",
       "keywords": [
         "bootstrap",
@@ -1205,24 +1216,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/kernel",
+        "docs": "https://github.com/switon-php/kernel/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/kernel/issues",
         "source": "https://github.com/switon-php/kernel"
       },
-      "time": "2026-05-10T03:22:04+00:00"
+      "time": "2026-08-22T14:28:16+00:00"
     },
     {
       "name": "switon/log",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/log.git",
-        "reference": "8dd28b78ac1a1938e8e3692c53758a1c5d62bd81"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/log/zipball/8dd28b78ac1a1938e8e3692c53758a1c5d62bd81",
-        "reference": "8dd28b78ac1a1938e8e3692c53758a1c5d62bd81",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/log/v1.0.1/switon-log-v1.0.1.zip",
+        "reference": "6842c785bf50e45bb46f34a22d9ca67c736e6c78",
         "shasum": ""
       },
       "require": {
@@ -1233,7 +1239,8 @@
         "switon/event": "^1.0"
       },
       "require-dev": {
-        "phpunit/phpunit": "^12.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -1242,6 +1249,9 @@
           "providers": [
             "Switon\\Logging\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1249,7 +1259,6 @@
           "Switon\\Logging\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1259,7 +1268,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Structured logging with log routing for Switon Framework",
+      "description": "PSR-3 logging with automatic categories, structured context, and category-aware level filtering for Switon Framework",
       "homepage": "https://github.com/switon-php/log",
       "keywords": [
         "logging",
@@ -1268,24 +1277,88 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/log",
+        "docs": "https://github.com/switon-php/log/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/log/issues",
         "source": "https://github.com/switon-php/log"
       },
-      "time": "2026-05-09T16:42:50+00:00"
+      "time": "2026-08-22T14:28:32+00:00"
+    },
+    {
+      "name": "switon/mcp",
+      "version": "v1.0.0",
+      "dist": {
+        "type": "zip",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/mcp/v1.0.0/switon-mcp-v1.0.0.zip",
+        "reference": "c9732b2445202486c69b14f9db4dbaf1c98d5f0a",
+        "shasum": ""
+      },
+      "require": {
+        "php": ">=8.3",
+        "psr/event-dispatcher": "^1.0",
+        "psr/log": "^2.0",
+        "switon/command": "^1.0",
+        "switon/core": "^1.0",
+        "switon/event": "^1.0",
+        "switon/http": "^1.0"
+      },
+      "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0"
+      },
+      "suggest": {
+        "switon/http": "Streamable HTTP via HttpTransport; wire your own controller to POST /mcp (or any path)"
+      },
+      "type": "library",
+      "extra": {
+        "switon": {
+          "commands": [
+            "Switon\\Mcp\\Command\\McpCommand"
+          ],
+          "providers": [
+            "Switon\\Mcp\\ServiceProvider"
+          ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
+      "autoload": {
+        "psr-4": {
+          "Switon\\Mcp\\": "src/"
+        }
+      },
+      "license": [
+        "MIT"
+      ],
+      "authors": [
+        {
+          "name": "switon",
+          "email": "admin@switon.dev"
+        }
+      ],
+      "description": "Model Context Protocol tool catalog for Switon Framework",
+      "homepage": "https://github.com/switon-php/mcp",
+      "keywords": [
+        "mcp",
+        "model-context-protocol",
+        "switon",
+        "tools"
+      ],
+      "support": {
+        "docs": "https://github.com/switon-php/mcp/blob/main/docs/README.md",
+        "issues": "https://github.com/switon-php/mcp/issues",
+        "source": "https://github.com/switon-php/mcp"
+      },
+      "time": "2026-08-22T14:32:00+00:00"
     },
     {
       "name": "switon/pool",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/pool.git",
-        "reference": "4d884366d2241f04b713ac3cd676fc86ac06349b"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/pool/zipball/4d884366d2241f04b713ac3cd676fc86ac06349b",
-        "reference": "4d884366d2241f04b713ac3cd676fc86ac06349b",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/pool/v1.0.1/switon-pool-v1.0.1.zip",
+        "reference": "9e17745f3c3e1ab9b5f35b8e617da18fd01c341b",
         "shasum": ""
       },
       "require": {
@@ -1296,15 +1369,26 @@
         "switon/sync": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
+      "extra": {
+        "phpstan": {
+          "includes": [
+            "phpstan-extension.neon"
+          ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
       "autoload": {
         "psr-4": {
           "Switon\\Pooling\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1314,7 +1398,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Connection pooling and resource lifecycle management for Switon Framework",
+      "description": "Owner-scoped object pools with guard-based borrow and return for Switon Framework",
       "homepage": "https://github.com/switon-php/pool",
       "keywords": [
         "connections",
@@ -1323,24 +1407,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/pool",
+        "docs": "https://github.com/switon-php/pool/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/pool/issues",
         "source": "https://github.com/switon-php/pool"
       },
-      "time": "2026-05-09T16:34:16+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/principal",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/principal.git",
-        "reference": "dc32594b4d85c43cf2cb8b792712bef3e312d3e1"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/principal/zipball/dc32594b4d85c43cf2cb8b792712bef3e312d3e1",
-        "reference": "dc32594b4d85c43cf2cb8b792712bef3e312d3e1",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/principal/v1.0.1/switon-principal-v1.0.1.zip",
+        "reference": "43e083c6f28ced1693d48463ad2fcc5089f84761",
         "shasum": ""
       },
       "require": {
@@ -1348,12 +1427,17 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
       "extra": {
         "switon": {
           "providers": []
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1361,7 +1445,6 @@
           "Switon\\Principal\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1371,7 +1454,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Identity and tenant runtime contracts for Switon (standalone)",
+      "description": "Runtime contracts for resolved caller identity and tenant state after boundary resolution for Switon Framework",
       "homepage": "https://github.com/switon-php/principal",
       "keywords": [
         "identity",
@@ -1380,36 +1463,35 @@
         "tenant"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/principal",
+        "docs": "https://github.com/switon-php/principal/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/principal/issues",
         "source": "https://github.com/switon-php/principal"
       },
-      "time": "2026-05-10T01:54:42+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/redis",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/redis.git",
-        "reference": "58e833500ab454576891e1e9e930510b587405c7"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/redis/zipball/58e833500ab454576891e1e9e930510b587405c7",
-        "reference": "58e833500ab454576891e1e9e930510b587405c7",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/redis/v1.0.1/switon-redis-v1.0.1.zip",
+        "reference": "e4feb8ea15712d5423eae142e4f07f4429ad6017",
         "shasum": ""
       },
       "require": {
         "ext-redis": "*",
         "php": ">=8.3",
         "psr/event-dispatcher": "^1.0",
+        "switon/command": "^1.0",
+        "switon/console": "^1.0",
         "switon/core": "^1.0",
         "switon/di": "^1.0",
         "switon/event": "^1.0",
         "switon/pool": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -1418,6 +1500,9 @@
           "commands": [
             "Switon\\Redis\\Command\\RedisCommand"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1425,7 +1510,6 @@
           "Switon\\Redis\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1435,7 +1519,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Redis client services with pooling support for Switon Framework",
+      "description": "Pooled Redis client with transient connections for transactions, scans, and blocking commands for Switon Framework",
       "homepage": "https://github.com/switon-php/redis",
       "keywords": [
         "cache",
@@ -1444,24 +1528,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/redis",
+        "docs": "https://github.com/switon-php/redis/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/redis/issues",
         "source": "https://github.com/switon-php/redis"
       },
-      "time": "2026-05-09T16:35:39+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/renderer",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/renderer.git",
-        "reference": "c477c2dc1b9ad9a8fe677666b19f0bd07c0974b1"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/renderer/zipball/c477c2dc1b9ad9a8fe677666b19f0bd07c0974b1",
-        "reference": "c477c2dc1b9ad9a8fe677666b19f0bd07c0974b1",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/renderer/v1.0.1/switon-renderer-v1.0.1.zip",
+        "reference": "2bd2ac879427f349ebd360f2f2d748970498cc30",
         "shasum": ""
       },
       "require": {
@@ -1472,6 +1551,8 @@
         "switon/sync": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -1483,6 +1564,9 @@
           "collectors": {
             "renderer": "Switon\\Rendering\\Inspector\\RendererCollector"
           }
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1493,7 +1577,6 @@
           "Switon\\Rendering\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1503,7 +1586,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Template rendering and view output helpers for Switon Framework",
+      "description": "Template rendering with PHP and Sword engines, themes, and Frames composition for Switon Framework",
       "homepage": "https://github.com/switon-php/renderer",
       "keywords": [
         "renderer",
@@ -1512,33 +1595,32 @@
         "views"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/renderer",
+        "docs": "https://github.com/switon-php/renderer/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/renderer/issues",
         "source": "https://github.com/switon-php/renderer"
       },
-      "time": "2026-05-09T23:36:09+00:00"
+      "time": "2026-08-22T14:29:04+00:00"
     },
     {
       "name": "switon/router",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/router.git",
-        "reference": "b496ed4b028a88f77679394f2b6885c2e104b43b"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/router/zipball/b496ed4b028a88f77679394f2b6885c2e104b43b",
-        "reference": "b496ed4b028a88f77679394f2b6885c2e104b43b",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/router/v1.0.1/switon-router-v1.0.1.zip",
+        "reference": "ff611e30272ca6f13077dd5e39904b3937ff13dc",
         "shasum": ""
       },
       "require": {
         "php": ">=8.3",
         "psr/event-dispatcher": "^1.0",
+        "switon/command": "^1.0",
+        "switon/console": "^1.0",
         "switon/core": "^1.0",
         "switon/event": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -1550,6 +1632,9 @@
           "collectors": {
             "router": "Switon\\Routing\\Inspector\\RouterCollector"
           }
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1557,7 +1642,6 @@
           "Switon\\Routing\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1567,7 +1651,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Route matching, parameter resolution, and path mapping for Switon Framework",
+      "description": "Attribute-discovered routes, route tables, and literal and dynamic path matching for Switon Framework",
       "homepage": "https://github.com/switon-php/router",
       "keywords": [
         "paths",
@@ -1576,24 +1660,19 @@
         "switon"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/router",
+        "docs": "https://github.com/switon-php/router/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/router/issues",
         "source": "https://github.com/switon-php/router"
       },
-      "time": "2026-05-10T03:31:21+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/sync",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/sync.git",
-        "reference": "8037604a7b3885d199df5a7263e743a2b456140a"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/sync/zipball/8037604a7b3885d199df5a7263e743a2b456140a",
-        "reference": "8037604a7b3885d199df5a7263e743a2b456140a",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/sync/v1.0.1/switon-sync-v1.0.1.zip",
+        "reference": "c53794f6f9f2f789e3b4cc19ecab9e3a2967dd4d",
         "shasum": ""
       },
       "require": {
@@ -1601,15 +1680,21 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
+      "extra": {
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
       "autoload": {
         "psr-4": {
           "Switon\\Sync\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1619,7 +1704,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Channels, mutexes, and synchronization primitives for Switon Framework",
+      "description": "In-process channels, mutexes, wait groups, and stacks for coroutine-aware coordination for Switon Framework",
       "homepage": "https://github.com/switon-php/sync",
       "keywords": [
         "channels",
@@ -1628,24 +1713,19 @@
         "synchronization"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/sync",
+        "docs": "https://github.com/switon-php/sync/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/sync/issues",
         "source": "https://github.com/switon-php/sync"
       },
-      "time": "2026-05-09T16:24:39+00:00"
+      "time": "2026-08-22T14:25:00+00:00"
     },
     {
       "name": "switon/validation",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/validation.git",
-        "reference": "3f045bd6956c59474310e6940419d63dca1374e8"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/validation/zipball/3f045bd6956c59474310e6940419d63dca1374e8",
-        "reference": "3f045bd6956c59474310e6940419d63dca1374e8",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/validation/v1.0.1/switon-validation-v1.0.1.zip",
+        "reference": "38bcc800f538a0923f98de44fef16009da9748d7",
         "shasum": ""
       },
       "require": {
@@ -1653,6 +1733,8 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
         "switon/testing": "^1.0"
       },
       "type": "library",
@@ -1661,6 +1743,9 @@
           "providers": [
             "Switon\\Validating\\ServiceProvider"
           ]
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1668,7 +1753,6 @@
           "Switon\\Validating\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1678,7 +1762,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Validation rules, constraints, and error collection for Switon Framework",
+      "description": "Attribute-driven validation with normalization and locale-aware error messages for Switon Framework",
       "homepage": "https://github.com/switon-php/validation",
       "keywords": [
         "constraints",
@@ -1687,24 +1771,19 @@
         "validator"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/validation",
+        "docs": "https://github.com/switon-php/validation/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/validation/issues",
         "source": "https://github.com/switon-php/validation"
       },
-      "time": "2026-05-10T02:39:49+00:00"
+      "time": "2026-08-22T14:25:08+00:00"
     },
     {
       "name": "switon/yaml",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/yaml.git",
-        "reference": "8550ff3db18558c4d8772c0544aa5b43d9a168a2"
-      },
+      "version": "v1.0.2",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/yaml/zipball/8550ff3db18558c4d8772c0544aa5b43d9a168a2",
-        "reference": "8550ff3db18558c4d8772c0544aa5b43d9a168a2",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/yaml/v1.0.2/switon-yaml-v1.0.2.zip",
+        "reference": "b0f4d83fa2dbaf571abe425c56a5263dd89caf52",
         "shasum": ""
       },
       "require": {
@@ -1713,12 +1792,18 @@
         "switon/core": "^1.0"
       },
       "require-dev": {
-        "phpunit/phpunit": "^12.0"
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^12.0",
+        "switon/testing": "^1.0"
       },
       "type": "library",
       "extra": {
         "switon": {
           "providers": []
+        },
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
         }
       },
       "autoload": {
@@ -1726,7 +1811,6 @@
           "Switon\\Yaml\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -1736,20 +1820,21 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Switon YAML subset parsing and interpolation utilities",
+      "description": "Strict Switon YAML subset read/write with placeholder interpolation for Switon Framework",
       "homepage": "https://github.com/switon-php/yaml",
       "keywords": [
         "config",
         "parser",
         "switon",
+        "writer",
         "yaml"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/yaml",
+        "docs": "https://github.com/switon-php/yaml/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/yaml/issues",
         "source": "https://github.com/switon-php/yaml"
       },
-      "time": "2026-05-09T16:44:24+00:00"
+      "time": "2026-08-23T01:20:36+00:00"
     }
   ],
   "packages-dev": [
@@ -3375,16 +3460,11 @@
     },
     {
       "name": "switon/testing",
-      "version": "v1.0.0",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/switon-php/testing.git",
-        "reference": "60b3a20164a66eba2885ed997b1e3424aaa83047"
-      },
+      "version": "v1.0.1",
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/switon-php/testing/zipball/60b3a20164a66eba2885ed997b1e3424aaa83047",
-        "reference": "60b3a20164a66eba2885ed997b1e3424aaa83047",
+        "url": "https://mirrors.cloud.tencent.com/repository/composer/switon/testing/v1.0.1/switon-testing-v1.0.1.zip",
+        "reference": "2a3e5f5a700ba00ece989c279f50e6fb3d2ba923",
         "shasum": ""
       },
       "require": {
@@ -3399,13 +3479,21 @@
         "switon/di": "^1.0",
         "switon/event": "^1.0"
       },
+      "require-dev": {
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0"
+      },
       "type": "library",
+      "extra": {
+        "branch-alias": {
+          "dev-dev": "1.0.x-dev"
+        }
+      },
       "autoload": {
         "psr-4": {
           "Switon\\Testing\\": "src/"
         }
       },
-      "notification-url": "https://packagist.org/downloads/",
       "license": [
         "MIT"
       ],
@@ -3415,7 +3503,7 @@
           "email": "admin@switon.dev"
         }
       ],
-      "description": "Shared test bootstrap and utilities for Switon Framework packages",
+      "description": "Shared test container, TestCase base, and package-local test runner for Switon Framework",
       "homepage": "https://github.com/switon-php/testing",
       "keywords": [
         "bootstrap",
@@ -3424,11 +3512,11 @@
         "testing"
       ],
       "support": {
-        "docs": "https://docs.switon.dev/latest/testing",
+        "docs": "https://github.com/switon-php/testing/blob/main/docs/README.md",
         "issues": "https://github.com/switon-php/testing/issues",
         "source": "https://github.com/switon-php/testing"
       },
-      "time": "2026-05-10T03:52:40+00:00"
+      "time": "2026-08-22T14:29:20+00:00"
     },
     {
       "name": "theseer/tokenizer",
