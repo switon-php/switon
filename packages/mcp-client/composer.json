@@ -32,6 +32,7 @@
     "switon/di": "^1.0",
     "switon/event": "^1.0",
     "switon/http-client": "^1.0",
+    "switon/sync": "^1.0",
     "switon/tooling": "^1.0",
     "switon/yaml": "^1.0"
   },
