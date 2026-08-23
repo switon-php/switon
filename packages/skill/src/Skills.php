@@ -9,6 +9,7 @@ use Switon\Ai\Profile;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\FilesystemInterface;
 use Switon\Yaml\FrontmatterReaderInterface;
+use Throwable;
 
 use function basename;
 use function dirname;
@@ -44,11 +45,16 @@ class Skills implements SkillsInterface
     #[Autowired] protected array $paths = [
         '@switon/skill/resources/skills',
         '@root/skills',
-        '~/.switon/skills',
+        // Agent user catalogs: ~/.cursor/skills, ~/.codex/skills, ~/.switon/skills, …
+        // (not ~/.cursor/skills-cursor). Glob: $path/*/SKILL.md.
+        '~/.*/skills',
     ];
 
     /** @var array<string, Skill> */
     protected array $skills = [];
+
+    /** @var array<string, Skill> skill directory → last disk row (for mtime skip) */
+    protected array $byPath = [];
 
     public function get(string $id): Skill
     {
@@ -66,7 +72,14 @@ class Skills implements SkillsInterface
 
     public function load(string $dir): ?Skill
     {
-        $doc = $this->frontmatterReader->read(rtrim($dir, '/') . '/SKILL.md');
+        $dir = rtrim($dir, '/');
+        $file = $dir . '/SKILL.md';
+        try {
+            $doc = $this->frontmatterReader->read($file);
+        } catch (Throwable) {
+            // Foreign SKILL.md frontmatter may use YAML this reader rejects — skip the row.
+            return null;
+        }
         if ($doc === null) {
             return null;
         }
@@ -87,7 +100,8 @@ class Skills implements SkillsInterface
             'id' => $id,
             'description' => is_string($description) ? $description : '',
             'instructions' => $doc->body,
-            'path' => rtrim($dir, '/'),
+            'path' => $dir,
+            'mtime' => $this->filesystem->mtime($file) ?? 0,
         ]);
     }
 
@@ -95,10 +109,19 @@ class Skills implements SkillsInterface
     {
         foreach ($this->paths as $path) {
             foreach ($this->filesystem->glob($path . '/*/SKILL.md') as $file) {
-                $skill = $this->load(dirname($file));
+                $dir = rtrim(dirname($file), '/');
+                $mtime = $this->filesystem->mtime($file) ?? 0;
+                $prev = $this->byPath[$dir] ?? null;
+                if ($prev !== null && $prev->mtime === $mtime) {
+                    $this->skills[$prev->id] = $prev;
+
+                    continue;
+                }
+                $skill = $this->load($dir);
                 if ($skill === null) {
                     continue;
                 }
+                $this->byPath[$dir] = $skill;
                 $this->skills[$skill->id] = $skill;
             }
         }

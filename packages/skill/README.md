@@ -18,7 +18,7 @@ composer require switon/skill
 
 ## Quick Start
 
-The default paths are `@switon/skill/resources/skills`, then `@root/skills`, then `~/.switon/skills`. One child directory is one skill. A later path overrides the same id.
+The default paths are `@switon/skill/resources/skills`, then `@root/skills`, then `~/.*/skills` (agent user catalogs such as `~/.cursor/skills` / `~/.codex/skills` / `~/.switon/skills`). One child directory is one skill. A later path overrides the same id.
 
 ```markdown
 ---

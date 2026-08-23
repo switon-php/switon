@@ -8,7 +8,7 @@ Short answers for skill rows, links, lists, and `skill_run`.
 
 ### Where does a skill live? {#where}
 
-Under a configured path, one child directory per skill. The default paths are `@switon/skill/resources/skills`, then `@root/skills`, then `~/.switon/skills`. See [Quick Start](README.md#quick-start).
+Under a configured path, one child directory per skill. The default paths are `@switon/skill/resources/skills`, then `@root/skills`, then `~/.*/skills`. See [Quick Start](README.md#quick-start).
 
 ### What if frontmatter has no id? {#id}
 

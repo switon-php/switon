@@ -21,7 +21,7 @@ The agent loop is not part of this package. `skill_list`, `skill_load`, and `ski
 
 ## Quick Start {#quick-start}
 
-`@switon/skill/resources/skills`, `@root/skills`, and `~/.switon/skills` are the default paths, in that order. The first one ships `create-skill`. One child directory is one skill; a later path wins on the same id.
+`@switon/skill/resources/skills`, `@root/skills`, and `~/.*/skills` are the default paths, in that order. The first ships `create-skill`. `~/.*/skills` picks up agent user catalogs (`~/.cursor/skills`, `~/.codex/skills`, `~/.switon/skills`, … — not `skills-cursor`). One child directory is one skill; a later path wins on the same id.
 
 ```markdown
 ---
