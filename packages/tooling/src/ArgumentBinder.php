@@ -21,12 +21,15 @@ use function is_int;
 use function is_numeric;
 use function is_string;
 use function mb_strlen;
+use function preg_match;
 use function str_starts_with;
 
 /**
  * Binds one tool schema: defaults, then required, type, and value constraints.
  *
  * Guidance: one field path fails once and its children are skipped; an unknown keyword is skipped, not rejected.
+ * Digit strings coerce to integer when the declared type is unambiguously integer;
+ * integer values are not coerced to string.
  *
  * @see ArgumentBinderInterface
  */
@@ -85,7 +88,7 @@ class ArgumentBinder implements ArgumentBinderInterface
     /**
      * @param array<string, mixed> $schema
      */
-    protected function checkNode(array $schema, mixed $instance, string $path): void
+    protected function checkNode(array $schema, mixed &$instance, string $path): void
     {
         if ($path !== '' && array_key_exists($path, $this->errors)) {
             return;
@@ -93,6 +96,10 @@ class ArgumentBinder implements ArgumentBinderInterface
 
         if ($path !== '' && $instance === null) {
             return;
+        }
+
+        if ($path !== '') {
+            $instance = $this->coerceStringInteger($instance, $schema['type'] ?? null);
         }
 
         if ($path !== '' && !$this->typeSatisfied($instance, $schema['type'] ?? null)) {
@@ -121,7 +128,7 @@ class ArgumentBinder implements ArgumentBinderInterface
      * @param array<string, mixed> $schema
      * @param array<mixed> $instance
      */
-    protected function rejectProperties(array $schema, array $instance, string $path): void
+    protected function rejectProperties(array $schema, array &$instance, string $path): void
     {
         $properties = $this->properties($schema);
         $required = [];
@@ -158,7 +165,9 @@ class ArgumentBinder implements ArgumentBinderInterface
                 continue;
             }
 
-            $this->checkNode($property, $instance[$name], $child);
+            $value = $instance[$name];
+            $this->checkNode($property, $value, $child);
+            $instance[$name] = $value;
         }
     }
 
@@ -166,20 +175,68 @@ class ArgumentBinder implements ArgumentBinderInterface
      * @param array<string, mixed> $schema
      * @param array<mixed> $instance
      */
-    protected function rejectItems(array $schema, array $instance, string $path): void
+    protected function rejectItems(array $schema, array &$instance, string $path): void
     {
         $items = $this->itemsSchema($schema);
         if ($items === null || !array_is_list($instance)) {
             return;
         }
 
-        foreach ($instance as $index => $item) {
+        foreach ($instance as $index => &$item) {
             if ($item === null) {
                 continue;
             }
 
             $this->checkNode($items, $item, $this->childPath($path, (string)$index));
         }
+        unset($item);
+    }
+
+    /**
+     * Coerce a digit string to integer when the schema type unambiguously wants integer.
+     * Integer→string is not coerced: tools that declare string must reject ints.
+     */
+    protected function coerceStringInteger(mixed $value, mixed $type): mixed
+    {
+        if (!$this->wantsIntegerOnly($type)) {
+            return $value;
+        }
+        if (is_string($value) && preg_match('#^[+\-]?\d+$#', $value) === 1) {
+            return (int) $value;
+        }
+
+        return $value;
+    }
+
+    /**
+     * True when every known alternative is integer (optionally with null), never string/number/….
+     */
+    protected function wantsIntegerOnly(mixed $type): bool
+    {
+        if ($type === 'integer') {
+            return true;
+        }
+        if (!is_array($type) || !array_is_list($type) || $type === []) {
+            return false;
+        }
+
+        $sawInteger = false;
+        foreach ($type as $part) {
+            if (!is_string($part) || !$this->knownType($part)) {
+                return false;
+            }
+            if ($part === 'integer') {
+                $sawInteger = true;
+                continue;
+            }
+            if ($part === 'null') {
+                continue;
+            }
+
+            return false;
+        }
+
+        return $sawInteger;
     }
 
     /**

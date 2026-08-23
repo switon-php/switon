@@ -300,7 +300,8 @@ class GrepToolTest extends ToolTestCase
         try {
             (new ArgumentBinder())->bind($this->make(GrepTool::class)->schema('grep'), [
                 'pattern' => 'hit',
-                'head_limit' => '2',
+                // Digit strings coerce to integer; use a non-digit to assert rejection.
+                'head_limit' => 'two',
                 'type' => 1,
                 'multiline' => 'yes',
                 '-i' => 'yes',
@@ -312,6 +313,16 @@ class GrepToolTest extends ToolTestCase
             $this->assertSame('multiline type invalid', $e->errors['multiline']);
             $this->assertSame('-i type invalid', $e->errors['-i']);
         }
+    }
+
+    public function testCoercesDigitStringHeadLimit(): void
+    {
+        $bound = (new ArgumentBinder())->bind($this->make(GrepTool::class)->schema('grep'), [
+            'pattern' => 'hit',
+            'head_limit' => '2',
+        ]);
+
+        $this->assertSame(2, $bound['head_limit']);
     }
 
     public function testTruncatesOversizedStdout(): void

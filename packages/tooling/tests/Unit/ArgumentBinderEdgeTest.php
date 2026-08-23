@@ -118,4 +118,57 @@ class ArgumentBinderEdgeTest extends ToolTestCase
 
         $this->assertSame(['v' => null], (new ArgumentBinder())->bind($schema, ['v' => null]));
     }
+
+    public function testBindCoercesDigitStringToInteger(): void
+    {
+        $schema = new ToolSchema(description: 'd', properties: [
+            'limit' => ['type' => 'integer'],
+        ]);
+
+        $this->assertSame(['limit' => 20], (new ArgumentBinder())->bind($schema, ['limit' => '20']));
+        $this->assertSame(['limit' => -3], (new ArgumentBinder())->bind($schema, ['limit' => '-3']));
+    }
+
+    public function testBindDoesNotCoerceIntegerToString(): void
+    {
+        $schema = new ToolSchema(description: 'd', properties: [
+            'id' => ['type' => 'string'],
+        ]);
+
+        $this->expectException(ArgumentBindException::class);
+        $this->expectExceptionMessage('id type invalid');
+
+        (new ArgumentBinder())->bind($schema, ['id' => 42]);
+    }
+
+    public function testBindSkipsCoerceWhenStringAndIntegerAreBothAllowed(): void
+    {
+        $schema = new ToolSchema(description: 'd', properties: [
+            'v' => ['type' => ['string', 'integer']],
+        ]);
+
+        $this->assertSame(['v' => '20'], (new ArgumentBinder())->bind($schema, ['v' => '20']));
+        $this->assertSame(['v' => 20], (new ArgumentBinder())->bind($schema, ['v' => 20]));
+    }
+
+    public function testBindCoercesDigitStringWhenIntegerOrNull(): void
+    {
+        $schema = new ToolSchema(description: 'd', properties: [
+            'limit' => ['type' => ['integer', 'null']],
+        ]);
+
+        $this->assertSame(['limit' => 7], (new ArgumentBinder())->bind($schema, ['limit' => '7']));
+    }
+
+    public function testBindLeavesNonDigitStringForIntegerTypeCheck(): void
+    {
+        $schema = new ToolSchema(description: 'd', properties: [
+            'limit' => ['type' => 'integer'],
+        ]);
+
+        $this->expectException(ArgumentBindException::class);
+        $this->expectExceptionMessage('limit type invalid');
+
+        (new ArgumentBinder())->bind($schema, ['limit' => '1.5']);
+    }
 }

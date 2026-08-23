@@ -16,7 +16,7 @@ use Switon\Ai\ToolSchema;
 interface ArgumentBinderInterface
 {
     /**
-     * Apply defaults, then required, type, and value checks. One {@see \Switon\Tooling\Exception\ArgumentBindException}, one message per path. Wire fields such as `.caption` are skipped.
+     * Apply defaults, then required, type, and value checks (digit strings coerce to integer when unambiguous). One {@see \Switon\Tooling\Exception\ArgumentBindException}, one message per path. Wire fields such as `.caption` are skipped.
      *
      * @param array<string, mixed> $arguments
      *
