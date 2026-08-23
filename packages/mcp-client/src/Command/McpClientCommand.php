@@ -24,7 +24,6 @@ use Throwable;
 use function array_is_list;
 use function array_merge;
 use function array_slice;
-use function array_values;
 use function explode;
 use function implode;
 use function is_array;
