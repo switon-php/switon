@@ -17,7 +17,18 @@ namespace Switon\Core;
 interface PositionalInputInterface
 {
     /**
+     * Positional operands before `--` (or all bare operands when `--` is absent).
+     *
      * @return list<string>
      */
     public function getPositional(): array;
+
+    /**
+     * Operands after `--`, or <code>null</code> when `--` was not present.
+     *
+     * An empty list means `--` appeared with nothing after it.
+     *
+     * @return list<string>|null
+     */
+    public function getTrailing(): ?array;
 }
