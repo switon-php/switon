@@ -18,6 +18,7 @@ use Switon\McpClient\Event\TransportWrite;
 use Switon\McpClient\Exception;
 use Switon\McpClient\Exception\AbortedTransportException;
 use Switon\McpClient\Exception\DecodeException;
+use Swoole\Coroutine;
 use Throwable;
 
 use function array_key_exists;
@@ -150,6 +151,11 @@ class HttpTransport implements HttpTransportInterface
 
         $headers = $this->requestHeaders();
         $this->sessionId = null;
+        // http-client's pool uses coroutine channels; Client::__destruct may run at process
+        // shutdown outside a coroutine (fast /quit after /mcp). Skip DELETE then.
+        if (Coroutine::getCid() < 0) {
+            return;
+        }
         try {
             $this->httpClient->request(
                 'DELETE',

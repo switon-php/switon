@@ -331,11 +331,35 @@ class HttpTransportTest extends TestCase
             ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize'],
             static fn (): bool => false,
         );
+        // DELETE uses the http-client pool (coroutine channels); close() skips it when
+        // Coroutine::getCid() < 0, so assert teardown inside a scheduler.
+        \Swoole\Coroutine\run(static function () use ($transport, $http): void {
+            $transport->close();
+            self::assertSame('DELETE', $http->calls[1]['method']);
+            self::assertSame('sess-9', $http->calls[1]['headers']['Mcp-Session-Id']);
+            self::assertNull($transport->getSessionId());
+        });
+    }
+
+    public function testCloseOutsideCoroutineClearsSessionWithoutDelete(): void
+    {
+        $http = new FakeHttpClient();
+        $http->responses[] = $this->response(200, '{"jsonrpc":"2.0","id":1,"result":{}}', [
+            'Content-Type' => 'application/json',
+            'Mcp-Session-Id' => 'sess-out',
+        ]);
+
+        $transport = $this->transport($http);
+        $transport->send(
+            ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize'],
+            static fn (): bool => false,
+        );
+        $this->assertSame('sess-out', $transport->getSessionId());
         $transport->close();
 
-        $this->assertSame('DELETE', $http->calls[1]['method']);
-        $this->assertSame('sess-9', $http->calls[1]['headers']['Mcp-Session-Id']);
         $this->assertNull($transport->getSessionId());
+        $this->assertCount(1, $http->calls);
+        $this->assertSame('POST', $http->calls[0]['method']);
     }
 
     private function transport(FakeHttpClient $http, ?ClientInfo $clientInfo = null): HttpTransport
