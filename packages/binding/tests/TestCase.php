@@ -28,7 +28,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $validatorTemplateDir = dirname(__DIR__) . '/../validation/src/Templates';
+        $validatorTemplateDir = dirname((new \ReflectionClass(Validator::class))->getFileName()) . '/Templates';
 
         $pathAlias = new PathAlias();
         $pathAlias->set('@switon.validator.resources', $validatorTemplateDir);
