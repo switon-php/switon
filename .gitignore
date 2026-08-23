@@ -27,11 +27,13 @@
 /AGENTS.md
 /docs/en/jwt/jwt
 /.phpunit.result.cache
+.phpunit.cache/
 /.php-cs-fixer.cache
+.phpstan.cache/
 # IDE inspection workspace (bash scripts/sync-framework-links.sh / composer framework:sync)
 /framework
 /.codebuddy
-/node_modules
+node_modules/
 /docs/.vitepress/dist
 /.site
 /docs/.vitepress/cache
