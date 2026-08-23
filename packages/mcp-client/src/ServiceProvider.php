@@ -7,12 +7,14 @@ namespace Switon\McpClient;
 use Switon\Core\Attribute\Autowired;
 use Switon\Core\ContainerInterface;
 use Switon\Core\ServiceProviderInterface;
+use Switon\McpClient\Importer\ImporterDiscoveryInterface;
 
 /**
- * Boot: read `mcp.yml` into {@see ClientsInterface}.
+ * Boot: register importers from extra, then read `mcp.yml` into {@see ClientsInterface}.
  */
 class ServiceProvider implements ServiceProviderInterface
 {
+    #[Autowired] protected ImporterDiscoveryInterface $importerDiscovery;
     #[Autowired] protected ClientDiscoveryInterface $clientDiscovery;
 
     public function register(ContainerInterface $container): void
@@ -21,6 +23,7 @@ class ServiceProvider implements ServiceProviderInterface
 
     public function boot(): void
     {
+        $this->importerDiscovery->discover();
         $this->clientDiscovery->discover();
     }
 }
