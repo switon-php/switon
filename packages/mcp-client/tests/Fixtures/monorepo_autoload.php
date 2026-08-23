@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Minimal monorepo autoload for MCP stdio subprocess fixtures.
+ * Minimal autoload for MCP stdio subprocess fixtures (monorepo or split package).
  */
 function mcp_client_register_psr4_autoload(array $mapping, string $packageRoot): void
 {
@@ -44,11 +44,31 @@ function mcp_client_register_monorepo_package_autoloads(string $repoRoot): void
     }
 }
 
+$packageRoot = dirname(__DIR__, 2);
 $repoRoot = dirname(__DIR__, 4);
-require $repoRoot . '/vendor/autoload.php';
+$autoload = null;
+$runtimeRoot = null;
+
+if (is_file($packageRoot . '/vendor/autoload.php')) {
+    // Split package checkout: vendor lives beside the package root.
+    $autoload = $packageRoot . '/vendor/autoload.php';
+    $runtimeRoot = $packageRoot;
+} elseif (is_file($repoRoot . '/vendor/autoload.php')) {
+    // Monorepo checkout: shared vendor at the repository root.
+    $autoload = $repoRoot . '/vendor/autoload.php';
+    $runtimeRoot = $repoRoot;
+}
+
+if ($autoload === null || $runtimeRoot === null) {
+    throw new RuntimeException('Unable to locate vendor/autoload.php for MCP stdio fixtures.');
+}
+
+require $autoload;
 
 // This bootstrap file name ends in "autoload.php", which Runtime::getRoot() would otherwise
 // mistake for the Composer autoloader and derive a wrong project root from. Pin it explicitly.
-\Switon\Core\Runtime::setRoot($repoRoot);
+\Switon\Core\Runtime::setRoot($runtimeRoot);
 
-mcp_client_register_monorepo_package_autoloads($repoRoot);
+if ($runtimeRoot === $repoRoot && is_dir($repoRoot . '/packages')) {
+    mcp_client_register_monorepo_package_autoloads($repoRoot);
+}

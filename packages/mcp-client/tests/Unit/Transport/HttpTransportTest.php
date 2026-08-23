@@ -333,6 +333,9 @@ class HttpTransportTest extends TestCase
         );
         // DELETE uses the http-client pool (coroutine channels); close() skips it when
         // Coroutine::getCid() < 0, so assert teardown inside a scheduler.
+        if (!extension_loaded('swoole')) {
+            self::markTestSkipped('Swoole extension is required');
+        }
         \Swoole\Coroutine\run(static function () use ($transport, $http): void {
             $transport->close();
             self::assertSame('DELETE', $http->calls[1]['method']);

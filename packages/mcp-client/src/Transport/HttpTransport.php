@@ -153,7 +153,8 @@ class HttpTransport implements HttpTransportInterface
         $this->sessionId = null;
         // http-client's pool uses coroutine channels; Client::__destruct may run at process
         // shutdown outside a coroutine (fast /quit after /mcp). Skip DELETE then.
-        if (Coroutine::getCid() < 0) {
+        // Split CI may run without ext-swoole; treat that like "outside a coroutine".
+        if (!extension_loaded('swoole') || Coroutine::getCid() < 0) {
             return;
         }
         try {
