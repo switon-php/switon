@@ -32,4 +32,4 @@ The client offers `2025-03-26`. It keeps any version string in the `initialize` 
 
 ### When is `mcp.yml` read again? {#reread}
 
-Boot calls `discover()` once and does not connect. Call `discover()` again to reread the file. An unchanged entry keeps its client. A changed or removed entry drops the previous client. There is no timer.
+Boot calls `discover()` once (registers entries on `Clients`) and does not connect. Call `discover()` again to reread the file. An unchanged entry keeps its client. A changed or removed entry drops the previous client. There is no timer.

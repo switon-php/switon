@@ -6,11 +6,11 @@ Switon's Model Context Protocol client: a server catalog, stdio and streamable H
 
 ## Highlights
 
-- **One file, many servers:** `~/.switon/mcp.yml` names each server. A key is a stdio command or an HTTP URL.
+- **One file, many servers:** `~/.switon/mcp.yml` names each server (stdio `command`/`args`/`env` or HTTP `url`/`headers`).
 - **Connect on first use:** `Switon\McpClient\ClientDiscoveryInterface` registers a lazy client per server. A tool call opens it.
 - **Two transports:** newline-delimited JSON-RPC over stdio, or one POST per message over streamable HTTP.
 - **Four agent tools:** `mcp_servers`, `mcp_tools`, `mcp_schema`, and `mcp_call`.
-- **Catalog command:** `mcp-client:list` prints each client's id and brief. It does not connect.
+- **Catalog CLI:** `mcp-client:list` / `get` / `add` / `remove` / `enable` / `disable`, plus `import`, `tools`, `schema`, `ping`, and `call`.
 
 ## Installation
 
@@ -30,7 +30,15 @@ github:
     Authorization: Bearer token
 ```
 
-Save that as `~/.switon/mcp.yml`. An installed app then exposes `mcp_servers`, `mcp_tools`, `mcp_schema`, and `mcp_call`. A server id must not contain `_`.
+Save that as `~/.switon/mcp.yml`, or build it with the CLI:
+
+```bash
+mcp-client:add docs --url=https://example.com/mcp --header=Authorization=Bearer token
+mcp-client:add app --env=API_KEY=secret -- npx -y some-mcp
+mcp-client:import --force
+```
+
+An installed app then exposes `mcp_servers`, `mcp_tools`, `mcp_schema`, and `mcp_call`.
 
 Docs: https://github.com/switon-php/mcp-client/blob/main/docs/README.md
 
