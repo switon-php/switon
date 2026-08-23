@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace Switon\McpClient;
 
 /**
- * Server id → client. Filled by {@see ClientDiscoveryInterface::discover()}.
+ * Server id → client. Filled by {@see ClientDiscoveryInterface::discover()} via {@see add()}.
  *
- * Guidance: `get()` does not read the file and does not connect.
+ * Guidance: `add()` takes an mcp.yml entry; `get()` / `all()` return wired clients. Neither reads the file nor connects.
  */
 interface ClientsInterface
 {
-    public function add(string $id, ClientInterface $client): void;
+    /**
+     * @param array<string, mixed> $entry mcp.yml-shaped entry (`command` or `url`)
+     */
+    public function add(string $id, array $entry): void;
 
     /**
      * @throws \Switon\McpClient\Exception when the id is not registered

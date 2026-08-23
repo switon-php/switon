@@ -66,6 +66,21 @@ class ClientDiscoveryTest extends TestCase
         }
     }
 
+    public function testHttpBriefStripsQueryString(): void
+    {
+        $this->stubClient($this->emptyClient());
+        $configFile = $this->writeConfig(
+            "app:\n  url: https://example.com/mcp?access_key=secret&smart=0\n",
+        );
+
+        try {
+            [, $clients] = $this->load($configFile);
+            $this->assertSame('https://example.com/mcp', $clients->get('app')->brief());
+        } finally {
+            @unlink($configFile);
+        }
+    }
+
     public function testLoadCommandBriefAndCall(): void
     {
         $this->stubClient(new class () implements ClientInterface {
@@ -86,7 +101,9 @@ class ClientDiscoveryTest extends TestCase
 
             public function listTools(bool $refresh = false): array
             {
-                return [];
+                return [
+                    'time_now' => new ToolSchema(description: 'current time', properties: []),
+                ];
             }
 
             public function callTool(string $name, array $arguments = [], ?callable $shouldAbort = null, bool $raw = true): mixed
@@ -189,28 +206,27 @@ YAML);
         }
     }
 
-    public function testDiscoverRejectsANonObjectEntry(): void
+    public function testDiscoverSkipsANonObjectEntry(): void
     {
         $this->stubClient($this->emptyClient());
         $configFile = $this->writeConfig("- command: php\n");
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('string keys mapped to objects');
 
         try {
-            $this->load($configFile);
+            [, $clients] = $this->load($configFile);
+            $this->assertSame([], $clients->all());
         } finally {
             @unlink($configFile);
         }
     }
 
-    public function testDiscoverUsesAnEmptyBriefWhenCommandIsNotText(): void
+    public function testDiscoverSkipsWhenCommandIsNotText(): void
     {
         $this->stubClient($this->emptyClient());
         $configFile = $this->writeConfig("app:\n  command: 123\n");
 
         try {
             [, $clients] = $this->load($configFile);
-            $this->assertSame('', $clients->get('app')->brief());
+            $this->assertSame([], $clients->all());
         } finally {
             @unlink($configFile);
         }
@@ -223,29 +239,27 @@ YAML);
         (new Clients())->get('missing');
     }
 
-    public function testDiscoverRejectsAServerIdThatContainsAnUnderscore(): void
+    public function testDiscoverAllowsAServerIdThatContainsAnUnderscore(): void
     {
         $this->stubClient($this->emptyClient());
         $configFile = $this->writeConfig("bad_id:\n  command: php\n");
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('must not contain "_"');
 
         try {
-            $this->load($configFile);
+            [, $clients] = $this->load($configFile);
+            $this->assertArrayHasKey('bad_id', $clients->all());
         } finally {
             @unlink($configFile);
         }
     }
 
-    public function testDiscoverRejectsAnEntryWithoutCommandOrUrl(): void
+    public function testDiscoverSkipsAnEntryWithoutCommandOrUrl(): void
     {
         $this->stubClient($this->emptyClient());
         $configFile = $this->writeConfig("only:\n  headers:\n    Authorization: token\n");
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('must define command or url');
 
         try {
-            $this->load($configFile);
+            [, $clients] = $this->load($configFile);
+            $this->assertSame([], $clients->all());
         } finally {
             @unlink($configFile);
         }
@@ -378,7 +392,7 @@ YAML);
     /** @return array{ClientDiscovery, ClientsInterface} */
     protected function load(string $file, ?ClientsInterface $clients = null): array
     {
-        $clients ??= new Clients();
+        $clients ??= $this->make(Clients::class);
         $discovery = $this->make(ClientDiscovery::class, [
             'file' => $file,
             'clients' => $clients,

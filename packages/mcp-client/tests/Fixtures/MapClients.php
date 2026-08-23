@@ -20,9 +20,8 @@ class MapClients implements ClientsInterface
     {
     }
 
-    public function add(string $id, ClientInterface $client): void
+    public function add(string $id, array $entry): void
     {
-        $this->clients[$id] = $client;
     }
 
     public function get(string $id): ClientInterface

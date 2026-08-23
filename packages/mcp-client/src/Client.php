@@ -14,6 +14,7 @@ use Switon\McpClient\Exception\AbortedTransportException;
 use Switon\McpClient\Exception\RpcException;
 use Switon\McpClient\Exception\TransportException;
 use Switon\McpClient\Transport\TransportInterface;
+use Switon\Sync\CloseableInterface;
 
 use function array_key_last;
 use function is_array;
@@ -24,8 +25,11 @@ use function trim;
 
 /**
  * Lazy `initialize` on first use. A dead idle `ping` reconnects before the request; a rejected `ping` is not tried again. A failed request is not sent again.
+ *
+ * Register with {@see \Switon\Sync\TerminationInterface} (via {@see ClientDiscovery}) so CLI
+ * {@see \Switon\Cli\Server} terminates the transport in-coroutine; {@see __destruct()} is only a fallback.
  */
-class Client implements ClientInterface
+class Client implements ClientInterface, CloseableInterface
 {
     #[Autowired] protected TransportInterface $transport;
     #[Autowired] protected ClientInfo $clientInfo;
@@ -44,10 +48,25 @@ class Client implements ClientInterface
     protected float $seen = 0.0;
     /** @var array<string, ToolSchema>|null */
     protected ?array $tools = null;
+    protected bool $closed = false;
+
+    public function close(): void
+    {
+        if ($this->closed) {
+            return;
+        }
+        $this->closed = true;
+        $this->closeConnection();
+    }
+
+    public function isClosed(): bool
+    {
+        return $this->closed;
+    }
 
     public function __destruct()
     {
-        $this->transport->close();
+        $this->close();
     }
 
     public function onNotification(callable $handler): void
