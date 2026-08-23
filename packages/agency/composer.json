@@ -1,0 +1,99 @@
+{
+  "name": "switon/agency",
+  "description": "Agent sessions, run loop, and prompt rendering for Switon Framework",
+  "type": "library",
+  "keywords": [
+    "switon",
+    "agent",
+    "llm",
+    "prompt",
+    "session"
+  ],
+  "homepage": "https://github.com/switon-php/agency",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "switon",
+      "email": "admin@switon.dev"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/switon-php/agency",
+    "issues": "https://github.com/switon-php/agency/issues",
+    "docs": "https://github.com/switon-php/agency/blob/main/docs/README.md"
+  },
+  "require": {
+    "php": ">=8.3",
+    "ext-mbstring": "*",
+    "ext-swoole": "*",
+    "switon/composer-extra": "^1.0",
+    "switon/cli": "^1.0",
+    "switon/console": "^1.0",
+    "switon/ai": "^1.0",
+    "switon/core": "^1.0",
+    "switon/di": "^1.0",
+    "switon/event": "^1.0",
+    "switon/i18n": "^1.0",
+    "switon/llm": "^1.0",
+    "switon/sync": "^1.0",
+    "switon/thread": "^1.0",
+    "switon/tooling": "^1.0",
+    "switon/yaml": "^1.0"
+  },
+  "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "switon/testing": "^1.0",
+    "phpstan/extension-installer": "^1.4"
+  },
+  "config": {
+    "allow-plugins": {
+      "switon/composer-extra": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "Switon\\Agency\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Switon\\Agency\\Tests\\": "tests/"
+    }
+  },
+  "bin": [
+    "bin/agent-chat.php",
+    "bin/agent-run.php",
+    "bin/agent-prompt.php",
+    "bin/agent-instruct.php"
+  ],
+  "scripts": {
+    "phpstan": "@php vendor/bin/phpstan analyse",
+    "test:unit": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=unit --display-deprecations --display-phpunit-notices",
+    "test": "@php vendor/bin/phpunit --configuration tests/phpunit.xml.dist --testsuite=all --display-deprecations --display-phpunit-notices"
+  },
+  "extra": {
+    "switon": {
+      "providers": [
+        "Switon\\Agency\\ServiceProvider"
+      ],
+      "commands": [
+        "Switon\\Agency\\Command\\AgentCommand"
+      ],
+      "tools": {
+        "thread_fork": "Switon\\Agency\\Tool\\ThreadForkTool",
+        "task_deliver": "Switon\\Agency\\Tool\\TaskDeliverTool",
+        "form_ask": "Switon\\Agency\\Tool\\FormAskTool",
+        "profile_switch": "Switon\\Agency\\Tool\\ProfileSwitchTool"
+      },
+      "prompt": {
+        "variables": [
+          "Switon\\Agency\\EnvironmentVariables"
+        ]
+      }
+    },
+    "branch-alias": {
+      "dev-dev": "1.0.x-dev"
+    }
+  }
+}

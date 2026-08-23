@@ -1,0 +1,16 @@
+parameters:
+    level: 7
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    paths:
+        - src
+    tmpDir: tests/.phpstan.cache
+    ignoreErrors:
+        -
+            # `isCancelled()` reads a channel another coroutine writes. PHPStan narrows it to false from
+            # the loop-top check, so the re-check after a tool batch looks constant. Package-local: the
+            # annotation would otherwise ride the published AgentInterface contract in switon/ai.
+            # count: 1 — a second constant branch in this file is a real defect, not this one.
+            identifier: booleanAnd.leftAlwaysFalse
+            path: src/Loop.php
+            count: 1

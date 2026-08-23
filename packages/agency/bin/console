@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Agent package CLI entry (monorepo). Plain console — no TUI.
+set -euo pipefail
+
+PKG_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+case "${1:-}" in
+  agent:chat)
+    shift
+    exec php "$PKG_ROOT/bin/agent-chat.php" "$@"
+    ;;
+  agent:run)
+    shift
+    exec php "$PKG_ROOT/bin/agent-run.php" "$@"
+    ;;
+  agent:prompt)
+    shift
+    exec php "$PKG_ROOT/bin/agent-prompt.php" "$@"
+    ;;
+  agent:instruct)
+    shift
+    exec php "$PKG_ROOT/bin/agent-instruct.php" "$@"
+    ;;
+  help|--help|-h)
+    cat <<'HELP'
+Agent package CLI (monorepo)
+
+Usage:
+  bash packages/agency/bin/console agent:chat [options]
+  bash packages/agency/bin/console agent:run --message=TEXT [options]
+  bash packages/agency/bin/console agent:prompt --profile=ID [--depth=N] [--segment=ID]
+  bash packages/agency/bin/console agent:instruct --message=TEXT [--schema=JSON]
+
+agent:chat — interactive multi-turn REPL
+  --agent=NAME         catalog profile id (default: assist; e.g. plan, coding.explore) or agent service class
+  --thread=ID          persisted thread id
+  --message=TEXT       first user message; with stdin at EOF (< /dev/null) the REPL exits after it
+  --show-prompt        print the full system prompt (hidden by default)
+  --raw-tools          print tool-call arguments as raw JSON
+  --tools=LIST         comma-separated tool allowlist; overrides the profile grant
+
+agent:run — one-shot run; stdout carries only the reply
+  --message=TEXT       user message (required)
+  --agent=NAME         catalog profile id (default: assist) or agent service class
+  --thread=ID          resume this id; omit or `new` to create a fresh thread
+  --tools=LIST         comma-separated tool allowlist; overrides the profile grant
+
+agent:prompt — print the composed prompt for one profile
+  --profile=ID         catalog profile id (required)
+  --depth=N            0 = root session (default); 1 = delegated worker
+  --segment=ID         extra live segment id; repeat to append more than one
+  --tools=LIST         comma-separated tool allowlist; overrides the profile grant
+
+agent:instruct — one structured turn; stdout is the unwrapped data JSON
+  --message=TEXT       user message (required)
+  --agent=NAME         catalog profile id (default: assist) or agent service class
+  --schema=JSON        business fields under response data; omit for no fields
+  --tools=LIST         comma-separated tool allowlist; overrides the profile grant
+
+Direct entry:
+  php packages/agency/bin/agent-chat.php [options]
+  php packages/agency/bin/agent-run.php --message=TEXT [options]
+  php packages/agency/bin/agent-prompt.php --profile=ID [--depth=N] [--segment=ID]
+  php packages/agency/bin/agent-instruct.php --message=TEXT [--schema=JSON]
+
+Note: app-admin does not include switon/agency; install it in your app or use this entry from the monorepo.
+HELP
+    ;;
+  *)
+    echo "\"${1:-}\" command does not exist" >&2
+    echo "Run: bash packages/agency/bin/console help" >&2
+    exit 1
+    ;;
+esac
