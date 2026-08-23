@@ -75,8 +75,32 @@ class BindingFixtures
     {
     }
 
+    /**
+     * @param list<string> $command
+     */
+    public function withOptionalThenArray(
+        string $server,
+        bool $force = false,
+        string $url = '',
+        array $command = [],
+    ): void {
+    }
+
     public function withPlainObjectAndString(PlainBindObject $dep, string $label): void
     {
+    }
+
+    /**
+     * Mirrors Codex-style `add <id> [--force] [--url=] -- <cmd…>` binding.
+     *
+     * @param list<string> $command
+     */
+    public function addStyle(
+        string $server,
+        bool $force = false,
+        string $url = '',
+        array $command = [],
+    ): void {
     }
 
     public function noop(): void

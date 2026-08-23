@@ -206,6 +206,11 @@ class ArgumentsBinderTest extends TestCase
             {
                 return $this->positional;
             }
+
+            public function getTrailing(): ?array
+            {
+                return null;
+            }
         };
 
         $scalarResolver = new class () extends \Switon\Binding\ScalarResolver {
@@ -221,6 +226,123 @@ class ArgumentsBinderTest extends TestCase
 
         $this->expectException(TooManyPositionalArgumentsException::class);
         $binder->resolve($method);
+    }
+
+    public function testResolveAppliesDefaultsWhenTrailingProtectsCommandArray(): void
+    {
+        $input = new class () implements InputInterface, PositionalInputInterface {
+            public function has(string|int $name): bool
+            {
+                return $name === 'force';
+            }
+
+            public function get(string|int $name, mixed $default = null): mixed
+            {
+                return $name === 'force' ? true : $default;
+            }
+
+            public function all(): array
+            {
+                return ['force' => true];
+            }
+
+            public function getPositional(): array
+            {
+                return ['app'];
+            }
+
+            public function getTrailing(): ?array
+            {
+                return ['npx', '-y', 'tool'];
+            }
+        };
+
+        $scalarResolver = new class () extends \Switon\Binding\ScalarResolver {
+            public function setInput(InputInterface $input): void
+            {
+                $this->input = $input;
+            }
+        };
+        $scalarResolver->setInput($input);
+
+        $validation = $this->createStub(Validation::class);
+        $validation->method('validate')->willReturn(true);
+        $validator = $this->createStub(ValidatorInterface::class);
+        $validator->method('beginValidate')->willReturn($validation);
+
+        $binder = $this->createBinder(
+            $scalarResolver,
+            $this->createStub(ObjectResolverInterface::class),
+            $this->createStub(ContainerInterface::class),
+            $validator,
+            $this->createStub(EventDispatcherInterface::class),
+        );
+
+        $resolved = $binder->resolve(
+            new ReflectionMethod(BindingFixtures::class, 'withOptionalThenArray'),
+        );
+
+        self::assertSame('app', $resolved[0]);
+        self::assertTrue($resolved[1]);
+        self::assertSame('', $resolved[2]);
+        self::assertSame(['npx', '-y', 'tool'], $resolved[3]);
+    }
+
+    public function testResolveDefaultsCommandWhenTrailingEmpty(): void
+    {
+        $input = new class () implements InputInterface, PositionalInputInterface {
+            public function has(string|int $name): bool
+            {
+                return false;
+            }
+
+            public function get(string|int $name, mixed $default = null): mixed
+            {
+                return $default;
+            }
+
+            public function all(): array
+            {
+                return [];
+            }
+
+            public function getPositional(): array
+            {
+                return ['docs'];
+            }
+
+            public function getTrailing(): ?array
+            {
+                return [];
+            }
+        };
+
+        $scalarResolver = new class () extends \Switon\Binding\ScalarResolver {
+            public function setInput(InputInterface $input): void
+            {
+                $this->input = $input;
+            }
+        };
+        $scalarResolver->setInput($input);
+
+        $validation = $this->createStub(Validation::class);
+        $validation->method('validate')->willReturn(true);
+        $validator = $this->createStub(ValidatorInterface::class);
+        $validator->method('beginValidate')->willReturn($validation);
+
+        $binder = $this->createBinder(
+            $scalarResolver,
+            $this->createStub(ObjectResolverInterface::class),
+            $this->createStub(ContainerInterface::class),
+            $validator,
+            $this->createStub(EventDispatcherInterface::class),
+        );
+
+        $resolved = $binder->resolve(
+            new ReflectionMethod(BindingFixtures::class, 'withOptionalThenArray'),
+        );
+
+        self::assertSame(['docs', false, '', []], $resolved);
     }
 
     public function testResolveThrowsOnUnsupportedUnionType(): void

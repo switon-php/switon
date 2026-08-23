@@ -70,6 +70,10 @@ Index slots start as `null`, so index-based `null` looks the same as â€œnot setâ
 
 Positional binding rejects extra values unless the **last unresolved scalar parameter** is typed as `array`.
 
+### How does bare `--` affect array parameters? {#double-dash-trailing}
+
+When input implements `PositionalInputInterface` and argv contains bare `--`, `getTrailing()` holds the tokens after it. The last unbound `array` parameter receives that list only; unbound optional scalars do not consume trailing tokens. Without `--`, that array still takes the remaining positionals.
+
 ### Does binding support union or intersection parameter types? {#union-intersection}
 
 No. `ArgumentsBinderInterface` supports **simple named parameter types** only.

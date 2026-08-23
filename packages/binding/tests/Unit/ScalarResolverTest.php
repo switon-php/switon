@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Switon\Binding\Tests\Unit;
 
-use ReflectionParameter;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use ReflectionParameter;
 use Switon\Binding\Exception\TooManyPositionalArgumentsException;
 use Switon\Binding\ScalarResolver;
-use PHPUnit\Framework\TestCase;
 use Switon\Core\InputInterface;
 use Switon\Core\PositionalInputInterface;
 
@@ -232,6 +233,11 @@ class ScalarResolverTest extends TestCase
             {
                 return ['only'];
             }
+
+            public function getTrailing(): ?array
+            {
+                return null;
+            }
         });
 
         $parameter = (new ReflectionMethod(ScalarResolverFixture::class, 'handle'))->getParameters()[0];
@@ -344,14 +350,184 @@ class ScalarResolverTest extends TestCase
         $resolver->resolve($parameter, 'string');
     }
 
-    protected function createScalarResolver(array $named = [], array $positional = []): ScalarResolver
+    public function testTrailingFillsLastArrayWithoutStealingOptionalScalars(): void
+    {
+        $resolver = $this->createScalarResolver([], ['app'], ['npx', '-y', 'tool']);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handleOptionalThenArray'))->getParameters();
+
+        self::assertSame('app', $resolver->resolve($parameters[0], 'string'));
+        self::assertNull($resolver->resolve($parameters[1], 'bool'));
+        self::assertNull($resolver->resolve($parameters[2], 'string'));
+        self::assertSame(['npx', '-y', 'tool'], $resolver->resolve($parameters[3], 'array'));
+    }
+
+    public function testTrailingEmptyLeavesArrayNullForDefault(): void
+    {
+        $resolver = $this->createScalarResolver([], ['app'], []);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handleOptionalThenArray'))->getParameters();
+
+        self::assertSame('app', $resolver->resolve($parameters[0], 'string'));
+        self::assertNull($resolver->resolve($parameters[3], 'array'));
+    }
+
+    public function testNamedForceWithTrailingDoesNotConsumeCommand(): void
+    {
+        $resolver = $this->createScalarResolver(['force' => true], ['app'], ['npx', '-y', 'tool']);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handleOptionalThenArray'))->getParameters();
+
+        self::assertSame('app', $resolver->resolve($parameters[0], 'string'));
+        self::assertTrue($resolver->resolve($parameters[1], 'bool'));
+        self::assertNull($resolver->resolve($parameters[2], 'string'));
+        self::assertSame(['npx', '-y', 'tool'], $resolver->resolve($parameters[3], 'array'));
+    }
+
+    public function testNamedUrlWithTrailingLeavesCommandIntact(): void
+    {
+        $resolver = $this->createScalarResolver(
+            ['url' => 'https://example.com/mcp'],
+            ['docs'],
+            ['should', 'stay'],
+        );
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handleOptionalThenArray'))->getParameters();
+
+        self::assertSame('docs', $resolver->resolve($parameters[0], 'string'));
+        self::assertNull($resolver->resolve($parameters[1], 'bool'));
+        self::assertSame('https://example.com/mcp', $resolver->resolve($parameters[2], 'string'));
+        self::assertSame(['should', 'stay'], $resolver->resolve($parameters[3], 'array'));
+    }
+
+    public function testWithoutTrailingOptionalScalarsStealRemainingPositionals(): void
+    {
+        $resolver = $this->createScalarResolver([], ['app', 'npx', 'pkg', 'extra'], null);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handleOptionalThenArray'))->getParameters();
+
+        self::assertSame('app', $resolver->resolve($parameters[0], 'string'));
+        self::assertSame('npx', $resolver->resolve($parameters[1], 'bool')); // raw positional into bool slot
+        self::assertSame('pkg', $resolver->resolve($parameters[2], 'string'));
+        self::assertSame(['extra'], $resolver->resolve($parameters[3], 'array'));
+    }
+
+    public function testTrailingAloneFillsArrayWhenNoPositionals(): void
+    {
+        $resolver = $this->createScalarResolver([], [], ['only', 'cmd']);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handleOptionalThenArray'))->getParameters();
+
+        self::assertNull($resolver->resolve($parameters[0], 'string'));
+        self::assertNull($resolver->resolve($parameters[1], 'bool'));
+        self::assertNull($resolver->resolve($parameters[2], 'string'));
+        self::assertSame(['only', 'cmd'], $resolver->resolve($parameters[3], 'array'));
+    }
+
+    public function testTrailingDoesNotApplyWhenLastUnboundIsNotArray(): void
+    {
+        $resolver = $this->createScalarResolver([], ['a'], ['ignored']);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handlePositional'))->getParameters();
+
+        self::assertSame('a', $resolver->resolve($parameters[0], 'string'));
+        self::assertNull($resolver->resolve($parameters[1], 'string'));
+    }
+
+    public function testTrailingPreferredOverLeftoverPositionalsForArray(): void
+    {
+        // Extra left-side tokens after server would historically feed the array;
+        // with `--`, trailing wins exclusively.
+        $resolver = $this->createScalarResolver([], ['app', 'left-over'], ['npx', 'tool']);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handlePositionalArray'))->getParameters();
+
+        self::assertSame('app', $resolver->resolve($parameters[0], 'string'));
+        self::assertSame(['npx', 'tool'], $resolver->resolve($parameters[1], 'array'));
+    }
+
+    public function testNoTrailingStillUsesRemainingPositionalsForArray(): void
+    {
+        $resolver = $this->createScalarResolver([], ['app', 'npx', 'tool'], null);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handlePositionalArray'))->getParameters();
+
+        self::assertSame('app', $resolver->resolve($parameters[0], 'string'));
+        self::assertSame(['npx', 'tool'], $resolver->resolve($parameters[1], 'array'));
+    }
+
+    /**
+     * @param array<string, mixed> $named
+     * @param list<string> $positional
+     * @param list<string>|null $trailing
+     * @param list<mixed> $expected server, force, url, command (null = unresolved)
+     */
+    #[DataProvider('trailingBindMatrixProvider')]
+    public function testTrailingBindMatrix(
+        array $named,
+        array $positional,
+        ?array $trailing,
+        array $expected,
+    ): void {
+        $resolver = $this->createScalarResolver($named, $positional, $trailing);
+        $parameters = (new ReflectionMethod(ScalarResolverFixture::class, 'handleOptionalThenArray'))->getParameters();
+
+        self::assertSame($expected[0], $resolver->resolve($parameters[0], 'string'));
+        self::assertSame($expected[1], $resolver->resolve($parameters[1], 'bool'));
+        self::assertSame($expected[2], $resolver->resolve($parameters[2], 'string'));
+        self::assertSame($expected[3], $resolver->resolve($parameters[3], 'array'));
+    }
+
+    /**
+     * @return iterable<string, array{
+     *   0: array<string, mixed>,
+     *   1: list<string>,
+     *   2: list<string>|null,
+     *   3: list<mixed>
+     * }>
+     */
+    public static function trailingBindMatrixProvider(): iterable
+    {
+        yield 'separator protects command from force/url defaults' => [
+            [],
+            ['app'],
+            ['npx', '-y', 'tool'],
+            ['app', null, null, ['npx', '-y', 'tool']],
+        ];
+        yield 'named force true with separator' => [
+            ['force' => true],
+            ['app'],
+            ['echo'],
+            ['app', true, null, ['echo']],
+        ];
+        yield 'named url empty string is bound' => [
+            ['url' => ''],
+            ['docs'],
+            null,
+            ['docs', null, '', null],
+        ];
+        yield 'separator with option-looking trailing' => [
+            [],
+            ['app'],
+            ['--force', '--url=x'],
+            ['app', null, null, ['--force', '--url=x']],
+        ];
+        yield 'empty trailing nulls array for default' => [
+            ['force' => true],
+            ['app'],
+            [],
+            ['app', true, null, null],
+        ];
+        yield 'no argv at all' => [
+            [],
+            [],
+            null,
+            [null, null, null, null],
+        ];
+    }
+
+    protected function createScalarResolver(array $named = [], array $positional = [], ?array $trailing = null): ScalarResolver
     {
         return $this->createInspectableScalarResolver(
-            new class ($named, $positional) implements
+            new class ($named, $positional, $trailing) implements
                 InputInterface,
                 PositionalInputInterface {
-                public function __construct(protected array $named, protected array $positional)
-                {
+                public function __construct(
+                    protected array $named,
+                    protected array $positional,
+                    protected ?array $trailing,
+                ) {
                 }
 
                 public function has(string|int $name): bool
@@ -372,6 +548,11 @@ class ScalarResolverTest extends TestCase
                 public function getPositional(): array
                 {
                     return $this->positional;
+                }
+
+                public function getTrailing(): ?array
+                {
+                    return $this->trailing;
                 }
             }
         );
@@ -441,6 +622,10 @@ class ScalarResolverFixture
     }
 
     public function handlePositionalArray(string $first, array $rest): void
+    {
+    }
+
+    public function handleOptionalThenArray(string $server, bool $force = false, string $url = '', array $command = []): void
     {
     }
 

@@ -28,9 +28,14 @@ use function strtolower;
  * - textual truthy values resolve to <code>true</code>
  * - absent input resolves to <code>null</code>
  *
+ * When argv contains bare <code>--</code>, the last unbound <code>array</code> parameter
+ * receives {@see PositionalInputInterface::getTrailing()} only. Optional scalars
+ * before that array do not consume trailing tokens.
+ *
  * @see \Switon\Binding\ScalarResolverInterface::resolve()
  * @see \Switon\Core\InputInterface::get()
  * @see \Switon\Core\InputInterface::has()
+ * @see \Switon\Core\PositionalInputInterface::getTrailing()
  */
 class ScalarResolver implements ScalarResolverInterface
 {
@@ -52,11 +57,12 @@ class ScalarResolver implements ScalarResolverInterface
         }
 
         $positional = $this->getPositionalArgs();
-        if ($positional === []) {
+        $trailing = $this->getTrailingArgs();
+        if ($positional === [] && $trailing === null) {
             return null;
         }
 
-        return $this->resolvePositional($parameters, $parameterIndex, $positional);
+        return $this->resolvePositional($parameters, $parameterIndex, $positional, $trailing);
     }
 
     /**
@@ -68,7 +74,7 @@ class ScalarResolver implements ScalarResolverInterface
     }
 
     /**
-     * @return array<int, mixed>
+     * @return list<string>
      */
     protected function getPositionalArgs(): array
     {
@@ -77,6 +83,18 @@ class ScalarResolver implements ScalarResolverInterface
         }
 
         return $this->input->getPositional();
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    protected function getTrailingArgs(): ?array
+    {
+        if (!$this->input instanceof PositionalInputInterface) {
+            return null;
+        }
+
+        return $this->input->getTrailing();
     }
 
     protected function resolveByName(string $name, string $type): mixed
@@ -137,10 +155,15 @@ class ScalarResolver implements ScalarResolverInterface
 
     /**
      * @param array<int, ReflectionParameter> $parameters
-     * @param string[] $positional
+     * @param list<string> $positional
+     * @param list<string>|null $trailing
      */
-    protected function resolvePositional(array $parameters, int $currentIndex, array $positional): mixed
-    {
+    protected function resolvePositional(
+        array $parameters,
+        int $currentIndex,
+        array $positional,
+        ?array $trailing,
+    ): mixed {
         $unbound = [];
         foreach ($parameters as $index => $parameter) {
             $type = $parameter->getType();
@@ -188,7 +211,11 @@ class ScalarResolver implements ScalarResolverInterface
         }
 
         if ($arrayParamIdx !== null && $currentIndex === $arrayParamIdx) {
+            if ($trailing !== null) {
+                return $trailing !== [] ? $trailing : null;
+            }
             $remaining = array_slice($positional, $posIndex);
+
             return $remaining !== [] ? $remaining : null;
         }
 
