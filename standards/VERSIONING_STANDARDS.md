@@ -53,6 +53,13 @@ For package releases, framework distribution releases, tags, and release-time ve
 - Use the latest commit under `packages/{name}/` as the default package tag target.
 - If a package has not changed recently, it is valid to tag that older `packages/{name}/` commit instead of current monorepo `HEAD`.
 
+### Hard constraints
+
+- **One package commit → one version tag.** For a given package, do not hang two version tags on the same commit (bad: `cli-v1.0.3` and `cli-v1.0.4` both on the same `packages/cli` commit). A new version number requires a real package change (new commit under that package).
+- **Do not tag before builds are green.** Local package gate (`release-check`) must pass, and the split-repo CI for that tag/commit must be confirmed successful before treating the release as done. CI red means fix and **replace the same version tag**, not invent the next version for the same commit.
+- **Failed publish ≠ bump.** When a tag is wrong (CI fail, force-push, Packagist SHA mismatch), delete/replace that version; do not mint `vX.Y.Z+1` just to dodge the failure.
+- **Packagist: user clicks Update; AI only lists packages.** Prefer no auto-webhook sync. Packagist versions are immutable — an early auto-import locks the wrong SHA (“Upstream re-tag blocked”). Flow: gate green → split CI green → final tag → tell the user **which packages** need a Packagist Update (name + version + tag SHA) and let them click Update themselves. Do not drive Packagist Update in the browser unless the user explicitly asks. Soft-delete / replace stays on the **same** version number when the package commit did not change; never bump solely for Packagist recovery.
+
 ## Release-time version records
 
 - A framework distribution release must record the resolved component versions used at release time.

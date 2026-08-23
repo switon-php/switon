@@ -30,6 +30,9 @@ Waves from `package-deps.php` are the split order.
 - Publish only after all work is done.
 - Tags belong at the end of a successful release flow, never before tests/split.
 - Package tags follow the latest tracked commit under `packages/{name}/`, not automatically monorepo `HEAD`.
+- **One package commit → one version tag.** Never put two version tags of the same package on the same commit (e.g. `cli` `v1.0.3` and `v1.0.4` both on one SHA). New version number ⇒ new package commit.
+- **Ship only after builds are green.** Local gate green is not enough — confirm split-repo CI succeeded for that tag/commit before calling the release done. CI red → fix and **replace the same version**, never bump to dodge failure.
+- **Packagist Update is the user's click.** Do not rely on auto-webhook. After final tag + green CI, list the packages that need a Packagist refresh (package name, version, tag SHA, package URL) and stop — the user clicks Update. Do not operate Packagist in the browser unless the user explicitly asks. See `standards/VERSIONING_STANDARDS.md` (Tags → Hard constraints).
 
 ## Required package files
 
@@ -91,6 +94,7 @@ Operational expectation around the script:
 - Ordinary packages pass the package-test-based release gate
 - `skeleton` passes the distribution-metadata release gate
 - The latest tracked commit under `packages/{name}` is identified for the package tag target
+- That commit does not already carry another version tag for this same package (one commit → one version)
 - Release notes are ready on an accepted surface
 - If a package changelog is used, its package/version mapping was freshly reviewed for correctness
 - `skeleton` has a release-time resolved component-version record
@@ -112,6 +116,8 @@ Keep this order:
 2. release-note readiness check
 3. split/push success
 4. final tag creation
+5. confirm split-repo CI green for that tag
+6. list packages for the user to Packagist-Update (do not click unless asked)
 
 If tag automation is not implemented yet, say so clearly and stop after the verified publish steps already supported by the repo.
 
@@ -143,6 +149,7 @@ Always include:
 - release summary or changelog draft for this version
 - chosen release-note surface
 - whether publish will be dry-run or real publish
+- after tag + CI green: the Packagist refresh list for the user (which packages)
 
 Use this shape:
 
@@ -156,6 +163,14 @@ Release notes:
 Surface: package changelog | hosted release notes | generated notes | other
 Publish mode: dry-run | publish
 Confirm before publishing.
+```
+
+After split CI is green, tell the user which packages to refresh:
+
+```md
+Split CI: green
+Please Packagist Update these packages:
+- switon/{name} vX.Y.Z @ <sha> — https://packagist.org/packages/switon/{name}
 ```
 
 Version discovery should prefer package tags first:
