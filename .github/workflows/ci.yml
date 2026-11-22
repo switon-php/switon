@@ -50,7 +50,7 @@ jobs:
           coverage: none
 
       - name: Setup Composer cache
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: --no-interaction --prefer-dist
 
@@ -99,12 +99,12 @@ jobs:
           coverage: none
 
       - name: Install monorepo dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: --no-interaction --prefer-dist
 
       - name: Install shared test dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: packages/testing
           composer-options: --no-interaction --prefer-dist
@@ -141,12 +141,12 @@ jobs:
           extensions: redis, sockets, fileinfo
 
       - name: Install monorepo dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: --no-interaction --prefer-dist
 
       - name: Install shared test dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: packages/testing
           composer-options: --no-interaction --prefer-dist

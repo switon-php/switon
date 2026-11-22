@@ -60,13 +60,13 @@ jobs:
           coverage: none
 
       - name: Install monorepo dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           composer-options: --no-interaction --prefer-dist
 
       - name: Install shared test dependencies
         if: needs.resolve.outputs.package != 'skeleton'
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           working-directory: packages/testing
           composer-options: --no-interaction --prefer-dist
