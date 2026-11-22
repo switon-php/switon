@@ -189,7 +189,7 @@ class PathTest extends TestCase
 
     public function testResolvePharRoot(): void
     {
-        $root = 'phar://' . dirname(__DIR__) . '/Fixtures/filesystem.phar';
+        $root = Path::normalize('phar://' . dirname(__DIR__) . '/Fixtures/filesystem.phar');
 
         $this->assertSame($root . '/index.html', Path::resolve($root, 'index.html'));
         $this->assertSame($root . '/index.html', Path::resolve($root . '/.', 'index.html'));
@@ -200,7 +200,7 @@ class PathTest extends TestCase
 
     public function testPharCanonicalRejectsTraversalNullByteAndEmpty(): void
     {
-        $root = 'phar://' . dirname(__DIR__) . '/Fixtures/filesystem.phar';
+        $root = Path::normalize('phar://' . dirname(__DIR__) . '/Fixtures/filesystem.phar');
 
         $this->assertSame($root, Path::pharCanonical($root . '/.'));
         $this->assertNull(Path::pharCanonical('phar://app.phar/..'));

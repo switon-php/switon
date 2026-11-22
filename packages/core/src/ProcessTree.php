@@ -8,8 +8,11 @@ use function ctype_digit;
 use function exec;
 use function function_exists;
 use function implode;
+use function is_resource;
 use function microtime;
 use function min;
+use function pclose;
+use function popen;
 use function posix_kill;
 use function str_contains;
 use function trim;
@@ -61,12 +64,17 @@ class ProcessTree
             if (!function_exists('exec')) {
                 return;
             }
-            @exec('taskkill /T /PID ' . $pid . ' 2>NUL');
+            // taskkill without /F waits until the process exits. A PHP process sitting in
+            // sleep() never does, which would block the force-kill below.
+            $grace = @popen('start /b taskkill /T /PID ' . $pid . ' >NUL 2>&1', 'r');
+            if (is_resource($grace)) {
+                pclose($grace);
+            }
             if ($graceSeconds > 0) {
                 self::awaitExit([$pid], $graceSeconds, $sleep);
             }
             if (self::alive($pid)) {
-                @exec('taskkill /F /T /PID ' . $pid . ' 2>NUL');
+                @exec('taskkill /F /T /PID ' . $pid . ' >NUL 2>&1');
             }
 
             return;

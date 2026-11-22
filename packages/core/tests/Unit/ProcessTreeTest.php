@@ -20,6 +20,7 @@ use function mkdir;
 use function proc_close;
 use function proc_get_status;
 use function proc_open;
+use function proc_terminate;
 use function random_bytes;
 use function rmdir;
 use function scandir;
@@ -138,7 +139,8 @@ $deadline = microtime(true) + 5;
 while (microtime(true) < $deadline && !(is_file($grandFile) && is_file($childFile))) {
     usleep(10000);
 }
-echo "ready\n";
+fwrite(STDOUT, "ready\n");
+fflush(STDOUT);
 while (true) {
     sleep(30);
 }
@@ -208,6 +210,7 @@ PHP);
                 fclose($pipes[2]);
             }
             if (is_resource($process)) {
+                proc_terminate($process);
                 proc_close($process);
             }
         }
