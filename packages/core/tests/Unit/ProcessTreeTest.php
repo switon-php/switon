@@ -25,9 +25,6 @@ use function random_bytes;
 use function rmdir;
 use function scandir;
 use function shell_exec;
-use function stream_get_contents;
-use function stream_set_blocking;
-use function str_contains;
 use function sys_get_temp_dir;
 use function trim;
 use function unlink;
@@ -154,18 +151,20 @@ PHP);
         );
         $this->assertTrue(is_resource($process));
         fclose($pipes[0]);
-        stream_set_blocking($pipes[1], false);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
         $root = 0;
         $childPid = 0;
         $grandPid = 0;
         try {
-            $stdout = '';
+            // Windows pipes ignore non-blocking reads, so "ready" on stdout can block forever.
+            // The pid files are written before that line.
             $deadline = microtime(true) + 5;
-            while (microtime(true) < $deadline && !str_contains($stdout, 'ready')) {
-                $stdout .= stream_get_contents($pipes[1]) ?: '';
+            while (microtime(true) < $deadline && !(is_file($grandFile) && is_file($childFile))) {
                 usleep(10000);
             }
-            $this->assertStringContainsString('ready', $stdout);
+            $this->assertFileExists($grandFile);
+            $this->assertFileExists($childFile);
 
             $status = proc_get_status($process);
             $root = is_int($status['pid'] ?? null) ? $status['pid'] : 0;
@@ -188,8 +187,7 @@ PHP);
             });
             $this->assertGreaterThan(0, $polls);
 
-            fclose($pipes[1]);
-            fclose($pipes[2]);
+            proc_terminate($process);
             proc_close($process);
             $process = null;
             usleep(200000);
