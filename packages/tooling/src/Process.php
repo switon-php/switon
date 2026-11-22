@@ -17,10 +17,14 @@ use function array_slice;
 use function count;
 use function fclose;
 use function feof;
+use function fopen;
 use function fread;
+use function fseek;
+use function ftell;
 use function is_dir;
 use function is_int;
 use function is_resource;
+use function is_string;
 use function preg_match;
 use function proc_close;
 use function proc_get_status;
@@ -28,10 +32,14 @@ use function proc_open;
 use function proc_terminate;
 use function rtrim;
 use function str_replace;
+use function stream_get_meta_data;
 use function stream_set_blocking;
 use function strlen;
 use function strpos;
 use function substr;
+use function sys_get_temp_dir;
+use function tempnam;
+use function unlink;
 
 use const PHP_OS_FAMILY;
 
@@ -70,6 +78,13 @@ class Process implements ProcessInterface
     /** @var array<int, resource> */
     protected array $pipes = [];
 
+    /**
+     * Windows stdout/stderr files. A non-blocking `fread()` on a `proc_open` pipe still blocks.
+     *
+     * @var list<string>
+     */
+    protected array $captureFiles = [];
+
     protected float $startedAt = 0.0;
 
     protected float $deadline = 0.0;
@@ -81,18 +96,61 @@ class Process implements ProcessInterface
      */
     public function start(array $command, string $cwd, int $timeout): static
     {
-        $descriptors = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ];
+        $stdoutFile = null;
+        $stderrFile = null;
+        if (PHP_OS_FAMILY === 'Windows') {
+            $stdoutFile = tempnam(sys_get_temp_dir(), 'switon-proc-out-');
+            $stderrFile = tempnam(sys_get_temp_dir(), 'switon-proc-err-');
+            if ($stdoutFile === false || $stderrFile === false) {
+                Exception::raise('Failed to create process capture files.');
+            }
+            $descriptors = [
+                0 => ['pipe', 'r'],
+                1 => ['file', $stdoutFile, 'w'],
+                2 => ['file', $stderrFile, 'w'],
+            ];
+        } else {
+            $descriptors = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ];
+        }
 
         $cwd = $this->directory($cwd);
         /** @var array<int, resource> $pipes */
         $pipes = [];
-        $this->process = $this->open($command, $descriptors, $pipes, $cwd);
+        try {
+            $this->process = $this->open($command, $descriptors, $pipes, $cwd);
+        } catch (Exception $e) {
+            if (is_string($stdoutFile)) {
+                @unlink($stdoutFile);
+            }
+            if (is_string($stderrFile)) {
+                @unlink($stderrFile);
+            }
+            throw $e;
+        }
 
         fclose($pipes[0]);
+        if (is_string($stdoutFile) && is_string($stderrFile)) {
+            $stdout = fopen($stdoutFile, 'rb');
+            $stderr = fopen($stderrFile, 'rb');
+            if ($stdout === false || $stderr === false) {
+                if (is_resource($stdout)) {
+                    fclose($stdout);
+                }
+                if (is_resource($stderr)) {
+                    fclose($stderr);
+                }
+                @unlink($stdoutFile);
+                @unlink($stderrFile);
+                Exception::raise('Failed to open process capture files.');
+            }
+            $pipes[1] = $stdout;
+            $pipes[2] = $stderr;
+            $this->captureFiles = [$stdoutFile, $stderrFile];
+        }
         stream_set_blocking($pipes[1], false);
         stream_set_blocking($pipes[2], false);
 
@@ -413,6 +471,10 @@ class Process implements ProcessInterface
     {
         fclose($this->pipes[1]);
         fclose($this->pipes[2]);
+        foreach ($this->captureFiles as $file) {
+            @unlink($file);
+        }
+        $this->captureFiles = [];
     }
 
     protected function assertValidPattern(string $pattern): void
@@ -448,6 +510,8 @@ class Process implements ProcessInterface
         while (true) {
             $chunk = fread($pipe, 8192);
             if ($chunk === false || $chunk === '') {
+                $this->clearFileEof($pipe);
+
                 return $window;
             }
 
@@ -480,7 +544,26 @@ class Process implements ProcessInterface
             $window = self::patternWindow($window . $chunk);
             if (preg_match('#' . str_replace('#', '\#', $pattern) . '#s', $window) === 1) {
                 $matched = true;
+
+                return $window;
             }
+        }
+    }
+
+    /**
+     * A capture file stays at EOF after a short read. Rewind the flag so the next poll sees later bytes.
+     *
+     * @param resource $pipe
+     */
+    protected function clearFileEof($pipe): void
+    {
+        $meta = stream_get_meta_data($pipe);
+        if (($meta['seekable'] ?? false) !== true) {
+            return;
+        }
+        $pos = ftell($pipe);
+        if (is_int($pos)) {
+            fseek($pipe, $pos, SEEK_SET);
         }
     }
 
@@ -521,13 +604,19 @@ class Process implements ProcessInterface
         bool &$stoppedEarly,
         ?ToolResultDelta $delta,
     ): void {
-        if (!is_resource($pipe) || feof($pipe) || $stoppedEarly) {
+        if (!is_resource($pipe) || $stoppedEarly) {
+            return;
+        }
+        $this->clearFileEof($pipe);
+        if (feof($pipe)) {
             return;
         }
 
         while (true) {
             $chunk = fread($pipe, 8192);
             if ($chunk === false || $chunk === '') {
+                $this->clearFileEof($pipe);
+
                 return;
             }
 

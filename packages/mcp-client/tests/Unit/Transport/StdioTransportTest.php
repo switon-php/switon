@@ -188,9 +188,28 @@ class StdioTransportTest extends TestCase
         $dir = sys_get_temp_dir() . '/switon-stdio-proc-' . bin2hex(random_bytes(4));
         mkdir($dir, 0700, true);
         $pidFile = $dir . '/child.pid';
+        $launcher = $dir . '/parent.php';
+        file_put_contents($launcher, <<<'PHP'
+<?php
+$pidFile = $argv[1];
+$proc = proc_open(
+    [PHP_BINARY, '-r', 'sleep(60);'],
+    [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+    $pipes,
+);
+if (!is_resource($proc)) {
+    fwrite(STDERR, "child did not start\n");
+    exit(1);
+}
+$status = proc_get_status($proc);
+file_put_contents($pidFile, (string) $status['pid']);
+while (true) {
+    sleep(30);
+}
+PHP);
         $transport = $this->make(StdioTransport::class, [
-            'command' => '/bin/sh',
-            'args' => ['-c', 'sleep 60 & echo $! > "$1"; while true; do sleep 30; done', 'sh', $pidFile],
+            'command' => PHP_BINARY,
+            'args' => [$launcher, $pidFile],
         ]);
         $pid = 0;
         try {
@@ -214,6 +233,7 @@ class StdioTransportTest extends TestCase
                 ProcessTree::terminate($pid, 0.0);
             }
             @unlink($pidFile);
+            @unlink($launcher);
             @rmdir($dir);
         }
     }
