@@ -22,7 +22,10 @@ use function fclose;
 use function feof;
 use function fflush;
 use function fgets;
+use function fopen;
 use function fread;
+use function fseek;
+use function ftell;
 use function fwrite;
 use function in_array;
 use function is_array;
@@ -39,7 +42,10 @@ use function stream_set_blocking;
 use function strlen;
 use function strpos;
 use function substr;
+use function sys_get_temp_dir;
+use function tempnam;
 use function trim;
+use function unlink;
 use function usleep;
 
 /** Newline-delimited JSON-RPC over a child process. */
@@ -75,6 +81,10 @@ class StdioTransport implements StdioTransportInterface
     protected mixed $stderr = null;
     protected string $stderrTail = '';
     protected string $stdoutPending = '';
+    /** Windows captures stdout here. A pipe `fread()` blocks even when set non-blocking. */
+    protected ?string $stdoutFile = null;
+    /** Windows captures stderr here so a full pipe cannot stall the child. */
+    protected ?string $stderrFile = null;
 
     public function open(): void
     {
@@ -83,11 +93,26 @@ class StdioTransport implements StdioTransportInterface
         }
 
         $command = array_merge([$this->command], $this->args);
-        $descriptorSpec = [
-            0 => ['pipe', 'r'],
-            1 => ['pipe', 'w'],
-            2 => ['pipe', 'w'],
-        ];
+        $stdoutFile = null;
+        $stderrFile = null;
+        if (PHP_OS_FAMILY === 'Windows') {
+            $stdoutFile = tempnam(sys_get_temp_dir(), 'switon-mcp-out-');
+            $stderrFile = tempnam(sys_get_temp_dir(), 'switon-mcp-err-');
+            if ($stdoutFile === false || $stderrFile === false) {
+                TransportException::raise('Failed to create MCP stdio capture files.');
+            }
+            $descriptorSpec = [
+                0 => ['pipe', 'r'],
+                1 => ['file', $stdoutFile, 'w'],
+                2 => ['file', $stderrFile, 'w'],
+            ];
+        } else {
+            $descriptorSpec = [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ];
+        }
         // $_ENV is usually empty (variables_order defaults to GPCS), so merging it alone
         // would strip PATH and the child could not resolve its own command. Only scalar
         // entries qualify as environment variables; argv and argc are arrays.
@@ -98,6 +123,12 @@ class StdioTransport implements StdioTransportInterface
 
         $process = proc_open($command, $descriptorSpec, $pipes, $this->cwd, $env);
         if (!is_resource($process)) {
+            if (is_string($stdoutFile)) {
+                @unlink($stdoutFile);
+            }
+            if (is_string($stderrFile)) {
+                @unlink($stderrFile);
+            }
             TransportException::raise('Failed to start MCP stdio process "{command}".', [
                 'command' => implode(' ', $command),
             ]);
@@ -105,11 +136,30 @@ class StdioTransport implements StdioTransportInterface
 
         $this->process = $process;
         $this->stdin = $pipes[0];
-        $this->stdout = $pipes[1];
-        $this->stderr = $pipes[2];
+        if (is_string($stdoutFile) && is_string($stderrFile)) {
+            $this->stdoutFile = $stdoutFile;
+            $this->stderrFile = $stderrFile;
+            $stdout = fopen($stdoutFile, 'rb');
+            $stderr = fopen($stderrFile, 'rb');
+            if ($stdout === false || $stderr === false) {
+                if (is_resource($stdout)) {
+                    fclose($stdout);
+                }
+                if (is_resource($stderr)) {
+                    fclose($stderr);
+                }
+                $this->close();
+                TransportException::raise('Failed to open MCP stdio capture files.');
+            }
+            $this->stdout = $stdout;
+            $this->stderr = $stderr;
+        } else {
+            $this->stdout = $pipes[1];
+            $this->stderr = $pipes[2];
+            stream_set_blocking($this->stderr, false);
+        }
         $this->stderrTail = '';
-        stream_set_blocking($this->stdout, true);
-        stream_set_blocking($this->stderr, false);
+        stream_set_blocking($this->stdout, false);
     }
 
     public function send(array $message, callable $shouldAbort, ?callable $notificationHandler = null): ?array
@@ -208,6 +258,14 @@ class StdioTransport implements StdioTransportInterface
         $this->stderr = null;
         $this->stderrTail = '';
         $this->stdoutPending = '';
+        if ($this->stdoutFile !== null) {
+            @unlink($this->stdoutFile);
+            $this->stdoutFile = null;
+        }
+        if ($this->stderrFile !== null) {
+            @unlink($this->stderrFile);
+            $this->stderrFile = null;
+        }
     }
 
     /**
@@ -312,10 +370,10 @@ class StdioTransport implements StdioTransportInterface
     }
 
     /**
-     * Next stdout bytes when the pipe cannot be selected.
+     * Next stdout bytes from the capture file.
      *
-     * Windows `proc_open` pipes make `stream_select()` ignore its timeout. An empty read is
-     * end-of-file only after the child has exited; `feof()` is true on a live non-blocking pipe.
+     * An empty read is end-of-file only after the child has exited. `fseek()` clears the
+     * file EOF mark so a later append is visible.
      *
      * @param resource $stdout
      */
@@ -325,8 +383,12 @@ class StdioTransport implements StdioTransportInterface
         if (is_string($chunk) && $chunk !== '') {
             return $chunk;
         }
-        if (!$this->childRunning() && feof($stdout)) {
+        if (!$this->childRunning()) {
             return false;
+        }
+        $pos = ftell($stdout);
+        if (is_int($pos)) {
+            fseek($stdout, $pos, SEEK_SET);
         }
 
         usleep((int) (self::ABORT_POLL_SECONDS * 1_000_000));
@@ -429,6 +491,12 @@ class StdioTransport implements StdioTransportInterface
     {
         if (!is_resource($this->stderr)) {
             return;
+        }
+        if ($this->stderrFile !== null) {
+            $pos = ftell($this->stderr);
+            if (is_int($pos)) {
+                fseek($this->stderr, $pos, SEEK_SET);
+            }
         }
 
         $read = 0;

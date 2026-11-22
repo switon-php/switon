@@ -103,10 +103,14 @@ class BashTool extends AbstractTool
                 $sink = $this->bashPath($log);
             }
             $quotedBash = "'" . str_replace("'", "'\\''", $this->bashPath($bash)) . "'";
-            $script = 'nohup ' . $quotedBash
-                . ' -c ' . "'" . str_replace("'", "'\\''", $command) . "'"
-                . ' >' . "'" . str_replace("'", "'\\''", $sink) . "'"
-                . ' 2>&1 & echo $!';
+            $quotedCommand = "'" . str_replace("'", "'\\''", $command) . "'";
+            $quotedSink = "'" . str_replace("'", "'\\''", $sink) . "'";
+            // Non-interactive bash waits for background jobs on exit. Monitor mode plus
+            // disown lets the launcher print $! and return while the command keeps running.
+            $script = 'set -m; nohup ' . $quotedBash
+                . ' -c ' . $quotedCommand
+                . ' </dev/null >' . $quotedSink
+                . ' 2>&1 & echo $!; disown >/dev/null 2>&1 || true';
         }
 
         /** @var ProcessInterface $process */
