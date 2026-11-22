@@ -16,6 +16,8 @@ use function bin2hex;
 use function file_put_contents;
 use function mkdir;
 use function random_bytes;
+use function rtrim;
+use function strtr;
 use function sys_get_temp_dir;
 use function unlink;
 
@@ -69,7 +71,7 @@ class ResourceAliasRegistrarTest extends TestCase
 
         (new ResourceAliasRegistrar())->register($pathAlias, ResourceAliasAnnotatedProviderFixture::class);
 
-        $root = dirname(__DIR__, 2);
+        $root = rtrim(strtr(dirname(__DIR__, 2), '\\', '/'), '/');
         $this->assertTrue($pathAlias->has('@test.fixture.resources'));
         $this->assertSame($root . '/resources', $pathAlias->get('@test.fixture.resources'));
     }
@@ -81,7 +83,7 @@ class ResourceAliasRegistrarTest extends TestCase
 
         (new ResourceAliasRegistrar())->register($pathAlias, ResourceAliasAutoAliasFixture::class);
 
-        $coreRoot = dirname(__DIR__, 2);
+        $coreRoot = rtrim(strtr(dirname(__DIR__, 2), '\\', '/'), '/');
         $this->assertTrue($pathAlias->has('@switon.core.validators'));
         $this->assertSame($coreRoot . '/validators', $pathAlias->get('@switon.core.validators'));
     }

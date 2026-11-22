@@ -176,10 +176,14 @@ class Strings
         }
 
         if ($root !== null && ($realRoot = realpath($root)) !== false) {
-            $str = strtr($str, [dirname($realRoot) . '/' => '']);
+            $prefix = dirname($realRoot);
+            $str = strtr($str, [
+                strtr($prefix, '\\', '/') . '/' => '',
+                strtr($prefix, '/', '\\') . '\\' => '',
+            ]);
         }
 
-        return $str;
+        return str_replace(["\r\n", "\r"], "\n", $str);
     }
 
     /** Generate a random UUID v4 string (RFC 4122). */
