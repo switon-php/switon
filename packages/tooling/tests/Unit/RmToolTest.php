@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Switon\Tooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use Switon\Core\Path;
 use Switon\Tooling\Tests\ToolTestCase;
+
+use const PHP_OS_FAMILY;
 use Switon\Tooling\Tool\RmTool;
 
 #[CoversClass(RmTool::class)]
@@ -78,7 +81,7 @@ class RmToolTest extends ToolTestCase
     {
         $dir = $this->tempDir();
         $kept = $dir . '/kept.txt';
-        $missing = $dir . '/missing.txt';
+        $missing = Path::absolute($dir . '/missing.txt');
         file_put_contents($kept, 'ok');
 
         $result = $this->callTool($this->make(RmTool::class), 'rm', ['paths' => [$kept, $missing]]);
@@ -108,7 +111,7 @@ class RmToolTest extends ToolTestCase
 
     public function testCallRejectsMissingFile(): void
     {
-        $missing = $this->tempDir() . '/missing.txt';
+        $missing = Path::absolute($this->tempDir() . '/missing.txt');
 
         $result = $this->callTool($this->make(RmTool::class), 'rm', ['paths' => [$missing]]);
 
@@ -119,7 +122,7 @@ class RmToolTest extends ToolTestCase
 
     public function testCallRejectsDirectoryPath(): void
     {
-        $dir = $this->tempDir();
+        $dir = Path::absolute($this->tempDir());
 
         $result = $this->callTool($this->make(RmTool::class), 'rm', ['paths' => [$dir]]);
 
@@ -130,6 +133,10 @@ class RmToolTest extends ToolTestCase
 
     public function testCallRaisesWhenUnlinkFails(): void
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('The owner can still delete a file in a mode-0555 directory.');
+        }
+
         $dir = $this->tempDir();
         $file = $dir . '/locked.txt';
         file_put_contents($file, 'x');

@@ -6,6 +6,8 @@ namespace Switon\Tooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Switon\Tooling\Exception;
+
+use const PHP_OS_FAMILY;
 use Switon\Tooling\Tests\ToolTestCase;
 use Switon\Tooling\Tool\LsTool;
 
@@ -134,6 +136,10 @@ class LsToolTest extends ToolTestCase
 
     public function testCallRaisesWhenScandirFails(): void
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('The owner can still list a mode-0100 directory.');
+        }
+
         $dir = $this->tempDir();
         chmod($dir, 0100);
         set_error_handler(static fn (): bool => true);
@@ -152,7 +158,9 @@ class LsToolTest extends ToolTestCase
     {
         $dir = $this->tempDir();
         $broken = $dir . '/broken';
-        symlink('/no-such-switon-' . uniqid('', true), $broken);
+        if (!@symlink('/no-such-switon-' . uniqid('', true), $broken)) {
+            $this->markTestSkipped('This OS refused the dangling symlink.');
+        }
         set_error_handler(static fn (): bool => true);
 
         try {

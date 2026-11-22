@@ -134,29 +134,26 @@ class GlobTool extends AbstractTool
         return $result;
     }
 
-    /** Path of `$line` relative to `$root`. `$root` itself is `.`. A line outside `$root` stays unchanged. */
+    /** Path of `$line` relative to `$root`. `$root` itself is `.`. A line outside `$root` stays unchanged. Slashes are normalized first so a Windows `rg` line still strips. */
     protected function relativePath(string $line, string $root): string
     {
-        if ($root !== '/' && $root !== '\\') {
-            $root = rtrim($root, '/\\');
+        $line = strtr($line, '\\', '/');
+        $root = strtr($root, '\\', '/');
+        if ($root !== '/') {
+            $root = rtrim($root, '/');
         }
 
         if ($line === $root) {
             return '.';
         }
 
-        foreach (['/', '\\'] as $separator) {
-            if ($root === $separator) {
-                if (str_starts_with($line, $separator)) {
-                    return substr($line, 1);
-                }
-                continue;
-            }
+        if ($root === '/') {
+            return str_starts_with($line, '/') ? substr($line, 1) : $line;
+        }
 
-            $prefix = $root . $separator;
-            if (str_starts_with($line, $prefix)) {
-                return substr($line, strlen($prefix));
-            }
+        $prefix = $root . '/';
+        if (str_starts_with($line, $prefix)) {
+            return substr($line, strlen($prefix));
         }
 
         return $line;

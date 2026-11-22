@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Switon\Tooling\ExecToolkit;
 use Switon\Tooling\Tests\ToolTestCase;
 
+use const PHP_OS_FAMILY;
+
 #[CoversClass(ExecToolkit::class)]
 class ExecToolkitTest extends ToolTestCase
 {
@@ -63,6 +65,10 @@ class ExecToolkitTest extends ToolTestCase
 
     public function testAutoClaimCachesResolvedExecutable(): void
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('CreateProcess does not run an extensionless shell script.');
+        }
+
         $dir = sys_get_temp_dir() . '/switon-exec-bin-' . uniqid('', true);
         mkdir($dir);
         $bin = $dir . '/demo-bin';
@@ -148,6 +154,10 @@ class ExecToolkitTest extends ToolTestCase
 
     public function testCallSpillsLargeStdout(): void
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('CreateProcess rejects a command line this long.');
+        }
+
         $tool = $this->make(ExecToolkit::class);
         $payload = str_repeat('x', 33 * 1024);
         $result = $this->callExec($tool, 'echo', [
@@ -206,7 +216,6 @@ class ExecToolkitTest extends ToolTestCase
     {
         $cwd = sys_get_temp_dir() . '/switon-exec-cwd-' . uniqid('', true);
         mkdir($cwd);
-        $resolved = realpath($cwd);
         try {
             $result = $this->callExec($this->make(ExecToolkit::class), 'pwd', [
                 'argv' => [],
@@ -217,7 +226,11 @@ class ExecToolkitTest extends ToolTestCase
         }
 
         $this->assertSame(0, $result['exit']);
-        $this->assertSame($resolved . "\n", $result['stdout']);
+        $printed = rtrim(str_replace("\r", '', $result['stdout']));
+        if (preg_match('#^/([A-Za-z])/(.*)$#', strtr($printed, '\\', '/'), $match) === 1) {
+            $printed = $match[1] . ':/' . $match[2];
+        }
+        $this->assertSame(realpath($cwd), realpath($printed));
     }
 
     public function testIsReadonly(): void
@@ -227,6 +240,10 @@ class ExecToolkitTest extends ToolTestCase
 
     public function testCallAllowsRegisteredUnderscoredToolName(): void
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('CreateProcess does not run an extensionless shell script.');
+        }
+
         $dir = sys_get_temp_dir() . '/switon-exec-odd-' . uniqid('', true);
         mkdir($dir);
         $bin = $dir . '/odd_bin';

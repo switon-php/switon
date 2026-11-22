@@ -106,11 +106,12 @@ class BashTool extends AbstractTool
             $quotedCommand = "'" . str_replace("'", "'\\''", $command) . "'";
             $quotedSink = "'" . str_replace("'", "'\\''", $sink) . "'";
             // Non-interactive bash waits for background jobs on exit. Monitor mode plus
-            // disown lets the launcher print $! and return while the command keeps running.
+            // disown lets the launcher return while the command keeps running.
+            // $! is an MSYS pid; tasklist needs the Windows pid from /proc/$pid/winpid.
             $script = 'set -m; nohup ' . $quotedBash
                 . ' -c ' . $quotedCommand
                 . ' </dev/null >' . $quotedSink
-                . ' 2>&1 & echo $!; disown >/dev/null 2>&1 || true';
+                . ' 2>&1 & pid=$!; if [ -r "/proc/$pid/winpid" ]; then tr -cd "0-9" < "/proc/$pid/winpid"; echo; else echo "$pid"; fi; disown >/dev/null 2>&1 || true';
         }
 
         /** @var ProcessInterface $process */

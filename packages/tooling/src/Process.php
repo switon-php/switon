@@ -15,13 +15,16 @@ use Switon\Eventing\EventDispatcherInterface;
 
 use function array_slice;
 use function count;
+use function explode;
 use function fclose;
 use function feof;
 use function fopen;
 use function fread;
 use function fseek;
 use function ftell;
+use function getenv;
 use function is_dir;
+use function is_file;
 use function is_int;
 use function is_resource;
 use function is_string;
@@ -31,6 +34,7 @@ use function proc_get_status;
 use function proc_open;
 use function proc_terminate;
 use function rtrim;
+use function str_contains;
 use function str_replace;
 use function stream_get_meta_data;
 use function stream_set_blocking;
@@ -40,6 +44,9 @@ use function substr;
 use function sys_get_temp_dir;
 use function tempnam;
 use function unlink;
+
+use const DIRECTORY_SEPARATOR;
+use const PATH_SEPARATOR;
 
 use const PHP_OS_FAMILY;
 
@@ -377,7 +384,7 @@ class Process implements ProcessInterface
      */
     protected function open(array $command, array $descriptors, ?array &$pipes, string $cwd)
     {
-        $process = @proc_open($command, $descriptors, $pipes, $cwd, null, ['bypass_shell' => true]);
+        $process = @proc_open($this->command($command), $descriptors, $pipes, $cwd, null, ['bypass_shell' => true]);
         if (is_resource($process)) {
             return $process;
         }
@@ -389,6 +396,75 @@ class Process implements ProcessInterface
                 'cwd' => ' in ' . $cwd,
             ],
         );
+    }
+
+    /**
+     * CreateProcess starts a PE binary, not a `#!` script. Hand that script to Git bash.
+     *
+     * @param list<string> $command
+     *
+     * @return list<string>
+     */
+    protected function command(array $command): array
+    {
+        if (PHP_OS_FAMILY !== 'Windows' || !isset($command[0]) || $command[0] === '') {
+            return $command;
+        }
+
+        $script = $this->shebang($command[0]);
+        if ($script === null) {
+            return $command;
+        }
+
+        $bash = $this->gitBash();
+        if (!is_file($bash)) {
+            return $command;
+        }
+
+        return [$bash, $script, ...array_slice($command, 1)];
+    }
+
+    /** Absolute path of a shebang script named `$program`, on `PATH` when `$program` is a bare name. */
+    protected function shebang(string $program): ?string
+    {
+        $candidates = [$program];
+        if (!str_contains($program, '/') && !str_contains($program, '\\') && !str_contains($program, ':')) {
+            $candidates = [];
+            foreach (explode(PATH_SEPARATOR, (string) getenv('PATH')) as $dir) {
+                if ($dir === '') {
+                    continue;
+                }
+                $candidates[] = $dir . DIRECTORY_SEPARATOR . $program;
+            }
+        }
+
+        foreach ($candidates as $path) {
+            if (!is_file($path)) {
+                continue;
+            }
+            $handle = fopen($path, 'rb');
+            if ($handle === false) {
+                continue;
+            }
+            $prefix = fread($handle, 2);
+            fclose($handle);
+            if ($prefix === '#!') {
+                return $path;
+            }
+            if ($path === $program) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /** System32 `bash.exe` is the WSL stub. Git bash is the one that runs `#!` scripts. */
+    protected function gitBash(): string
+    {
+        $root = getenv('ProgramFiles');
+
+        return (is_string($root) && $root !== '' ? $root : 'C:\\Program Files') . '\\Git\\bin\\bash.exe';
     }
 
     /** Configured wall-clock cap in seconds. Override in tests for a short bound. */

@@ -74,6 +74,13 @@ jobs:
       - name: Put Git bash on PATH
         run: printf '%s\n' 'C:\Program Files\Git\bin' >> "$GITHUB_PATH"
 
+      - name: Install ripgrep
+        if: matrix.package == 'tooling'
+        run: |
+          curl -fsSL -o rg.zip https://github.com/BurntSushi/ripgrep/releases/download/14.1.1/ripgrep-14.1.1-x86_64-pc-windows-msvc.zip
+          unzip -q rg.zip
+          printf '%s\n' "$(pwd -W)/ripgrep-14.1.1-x86_64-pc-windows-msvc" >> "$GITHUB_PATH"
+
       - name: Run release check
         run: bash build/release-check.sh "${{ matrix.package }}" --fast -- --debug
 

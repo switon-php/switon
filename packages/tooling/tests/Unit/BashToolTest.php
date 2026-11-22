@@ -20,6 +20,8 @@ use Switon\Tooling\Tests\ToolTestCase;
 use Switon\Tooling\Tool\BashTool;
 use Throwable;
 
+use const PHP_OS_FAMILY;
+
 #[CoversClass(BashTool::class)]
 #[CoversClass(Process::class)]
 class BashToolTest extends ToolTestCase
@@ -326,6 +328,10 @@ class BashToolTest extends ToolTestCase
 
     public function testCallDaemonWithPatternSpillsLargeOutput(): void
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('CreateProcess rejects a command line this long.');
+        }
+
         $payload = str_repeat('a', 16 * 1024) . 'READY' . str_repeat('z', 16 * 1024);
         $result = $this->callTool(
             $this->make(BashTool::class),

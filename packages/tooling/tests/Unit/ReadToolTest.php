@@ -6,6 +6,7 @@ namespace Switon\Tooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Switon\Ai\Exception\ToolInvalidArgumentException;
+use Switon\Core\Path;
 use Switon\Ai\Part\MediaPart;
 use Switon\Ai\ToolResult;
 use Switon\Tooling\ArgumentBinder;
@@ -40,7 +41,7 @@ class ReadToolTest extends ToolTestCase
         $this->assertCount(1, $result->parts);
         $this->assertInstanceOf(MediaPart::class, $result->parts[0]);
         $this->assertSame('image/png', $result->parts[0]->mime);
-        $this->assertSame($file, $result->parts[0]->ref);
+        $this->assertSame(Path::absolute($file), $result->parts[0]->ref);
     }
 
     public function testReadSvgStaysTextNotMedia(): void
@@ -74,7 +75,7 @@ class ReadToolTest extends ToolTestCase
         ]);
 
         $this->assertInstanceOf(ToolResult::class, $result);
-        $this->assertSame($file, $result->parts[0]->ref);
+        $this->assertSame(Path::absolute($file), $result->parts[0]->ref);
         $this->assertSame('image/png', $result->parts[0]->mime);
     }
 

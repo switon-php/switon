@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Switon\Tooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use Switon\Core\Path;
 use Switon\Tooling\Exception;
 use Switon\Tooling\Process;
 use Switon\Tooling\ProcessInterface;
@@ -114,7 +115,7 @@ class GlobToolTest extends ToolTestCase
         $rg = $dir . '/rg';
         file_put_contents(
             $rg,
-            "#!/bin/sh\nprintf '%s\\n' '/elsewhere/keep-me.txt' " . escapeshellarg($dir) . ' ' . escapeshellarg($dir . '/nested/file.txt') . "\n",
+            "#!/bin/sh\nprintf '%s\\n' '/elsewhere/keep-me.txt' " . $this->shQuote(Path::absolute($dir)) . ' ' . $this->shQuote(Path::absolute($dir) . '/nested/file.txt') . "\n",
         );
         chmod($rg, 0755);
 
@@ -271,7 +272,7 @@ class GlobToolTest extends ToolTestCase
         $binDir = $this->tempDir();
         $dir = $this->tempDir();
         $rg = $binDir . '/rg';
-        file_put_contents($rg, "#!/bin/sh\necho warn >&2\necho " . escapeshellarg($dir . '/fake.txt') . "\nexit 0\n");
+        file_put_contents($rg, "#!/bin/sh\necho warn >&2\necho " . $this->shQuote(Path::absolute($dir) . '/fake.txt') . "\nexit 0\n");
         chmod($rg, 0755);
 
         $previous = getenv('PATH') ?: '';
@@ -296,7 +297,7 @@ class GlobToolTest extends ToolTestCase
         $binDir = $this->tempDir();
         $dir = $this->tempDir();
         $rg = $binDir . '/rg';
-        file_put_contents($rg, "#!/bin/sh\necho " . escapeshellarg($dir . '/partial.txt') . "\nsleep 30\n");
+        file_put_contents($rg, "#!/bin/sh\necho " . $this->shQuote(Path::absolute($dir) . '/partial.txt') . "\nsleep 30\n");
         chmod($rg, 0755);
 
         $previous = getenv('PATH') ?: '';
@@ -318,6 +319,12 @@ class GlobToolTest extends ToolTestCase
 
         $this->assertTrue($result['timeout'] ?? false);
         $this->assertContains('partial.txt', $result['paths']);
+    }
+
+    /** Single-quoted path for a `#!/bin/sh` fixture. Forward slashes match `Path::absolute()`. */
+    protected function shQuote(string $path): string
+    {
+        return "'" . str_replace("'", "'\\''", strtr($path, '\\', '/')) . "'";
     }
 
     protected function tempDir(): string

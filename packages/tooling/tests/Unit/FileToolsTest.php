@@ -6,6 +6,7 @@ namespace Switon\Tooling\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Switon\Core\Exception\RuntimeException;
+use Switon\Core\Path;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\PathAliasInterface;
 use Switon\Ai\Exception\ToolInvalidArgumentException;
@@ -433,7 +434,7 @@ class FileToolsTest extends ToolTestCase
     public function testEditsInheritsTopLevelPathWhenItemOmitsPath(): void
     {
         $dir = $this->tempDir();
-        $file = $dir . '/same.txt';
+        $file = Path::absolute($dir . '/same.txt');
         file_put_contents($file, "one\ntwo\nthree\n");
 
         $result = $this->callTool($this->make(EditsTool::class), 'edits', [
@@ -540,8 +541,8 @@ class FileToolsTest extends ToolTestCase
     public function testEditsAppliesAcrossFilesAtomically(): void
     {
         $dir = $this->tempDir();
-        $a = $dir . '/a.txt';
-        $b = $dir . '/b.txt';
+        $a = Path::absolute($dir . '/a.txt');
+        $b = Path::absolute($dir . '/b.txt');
         file_put_contents($a, "one\ntwo\n");
         file_put_contents($b, "three\n");
 
