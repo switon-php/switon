@@ -185,7 +185,7 @@ class LinterTest extends TestCase
         $result = $this->make(Linter::class)->lint($file, static fn (): bool => false);
 
         $this->assertSame($file, $result['path']);
-        $this->assertSame([], $result['diagnostics']);
+        $this->assertSame([], $result['diagnostics'], json_encode($result['diagnostics'], JSON_THROW_ON_ERROR));
         $this->assertSame([['name' => 'bash -n', 'ok' => true]], $result['tools']);
     }
 

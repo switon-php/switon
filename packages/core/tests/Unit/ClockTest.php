@@ -185,8 +185,9 @@ class ClockTest extends TestCase
     {
         $clock = new Clock();
         $started = microtime(true);
-        $clock->sleep(0.002);
-        $this->assertGreaterThanOrEqual(0.001, microtime(true) - $started);
+        // Windows usleep can return a 2ms sleep in under 1ms. Stay above that timer grain.
+        $clock->sleep(0.05);
+        $this->assertGreaterThanOrEqual(0.02, microtime(true) - $started);
 
         $clock->sleep(0);
         $clock->sleep(-1);

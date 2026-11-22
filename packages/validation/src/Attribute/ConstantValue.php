@@ -6,10 +6,10 @@ namespace Switon\Validating\Attribute;
 
 use Attribute;
 use ReflectionClass;
-use ReflectionException;
 use Switon\Validating\AbstractConstraint;
 use Switon\Validating\Validation;
 
+use function class_exists;
 use function is_object;
 use function str_starts_with;
 use function strtoupper;
@@ -85,10 +85,10 @@ class ConstantValue extends AbstractConstraint
             }
         }
 
-        try {
-            return new ReflectionClass($class);
-        } catch (ReflectionException) {
+        if (!class_exists($class)) {
             return null;
         }
+
+        return new ReflectionClass($class);
     }
 }

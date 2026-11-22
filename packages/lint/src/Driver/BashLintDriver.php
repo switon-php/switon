@@ -52,13 +52,36 @@ class BashLintDriver implements LintDriverInterface
         ];
     }
 
+    /** Git bash does not open `C:/...` reliably; `/c/...` is the path it can read. */
+    protected function bashPath(string $path): string
+    {
+        $path = strtr($path, '\\', '/');
+        if (preg_match('#^([A-Za-z]):/(.*)$#', $path, $match) !== 1) {
+            return $path;
+        }
+
+        return '/' . strtolower($match[1]) . '/' . $match[2];
+    }
+
+    protected function bashProgram(): string
+    {
+        if (PHP_OS_FAMILY !== 'Windows' || str_contains($this->bashBinary, '/') || str_contains($this->bashBinary, '\\')) {
+            return $this->bashBinary;
+        }
+
+        $root = getenv('ProgramFiles');
+        $candidate = (is_string($root) && $root !== '' ? $root : 'C:\\Program Files') . '\\Git\\bin\\bash.exe';
+
+        return is_file($candidate) ? $candidate : $this->bashBinary;
+    }
+
     /**
      * @return list<array{line: int, severity: string, message: string}>
      */
     protected function bashSyntax(string $path, callable $shouldAbort): array
     {
         $result = $this->process->run(
-            [$this->bashBinary, '-n', strtr($path, '\\', '/')],
+            [$this->bashProgram(), '-n', $this->bashPath($path)],
             $shouldAbort,
             null
         );
@@ -73,7 +96,9 @@ class BashLintDriver implements LintDriverInterface
             $line = max(1, (int) $m[1]);
         }
 
-        $message = $blob !== '' ? $blob : 'bash -n failed';
+        $message = $blob !== ''
+            ? $blob
+            : 'bash -n failed (exit ' . (string) ($result['exit'] ?? '') . ' ' . $this->bashProgram() . ')';
         $message = preg_replace('/\s+/', ' ', $message) ?? $message;
 
         return [[
