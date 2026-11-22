@@ -1,0 +1,99 @@
+name: Windows
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover-packages:
+    name: Discover packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Build package matrix
+        id: packages
+        shell: bash
+        run: |
+          mapfile -t packages < <(find packages -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort)
+          filtered=()
+          for package in "${packages[@]}"; do
+            if [ "$package" = "skeleton" ]; then
+              continue
+            fi
+            filtered+=("\"$package\"")
+          done
+
+          json="[$(IFS=,; echo "${filtered[*]}")]"
+          echo "packages=$json" >> "$GITHUB_OUTPUT"
+
+  package:
+    name: ${{ matrix.package }} / windows-latest / PHP 8.5
+    needs: discover-packages
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Name the checkout dev
+        run: git checkout -B dev
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          coverage: none
+          extensions: redis, sockets, fileinfo
+
+      - name: Install monorepo dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Install shared test dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: packages/testing
+          composer-options: --no-interaction --prefer-dist
+
+      - name: Run release check
+        run: bash build/release-check.sh "${{ matrix.package }}" --fast -- --debug
+
+  skeleton:
+    name: skeleton / windows-latest / PHP 8.5
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Name the checkout dev
+        run: git checkout -B dev
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          coverage: none
+          extensions: redis, sockets, fileinfo
+
+      - name: Run skeleton distribution release check
+        run: bash build/release-check.sh skeleton
