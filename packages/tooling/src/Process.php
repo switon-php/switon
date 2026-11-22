@@ -109,6 +109,12 @@ class Process implements ProcessInterface
             $stdoutFile = tempnam(sys_get_temp_dir(), 'switon-proc-out-');
             $stderrFile = tempnam(sys_get_temp_dir(), 'switon-proc-err-');
             if ($stdoutFile === false || $stderrFile === false) {
+                if (is_string($stdoutFile)) {
+                    @unlink($stdoutFile);
+                }
+                if (is_string($stderrFile)) {
+                    @unlink($stderrFile);
+                }
                 Exception::raise('Failed to create process capture files.');
             }
             $descriptors = [
@@ -149,6 +155,10 @@ class Process implements ProcessInterface
                 }
                 if (is_resource($stderr)) {
                     fclose($stderr);
+                }
+                if (is_resource($this->process)) {
+                    @proc_terminate($this->process);
+                    @proc_close($this->process);
                 }
                 @unlink($stdoutFile);
                 @unlink($stderrFile);
@@ -241,6 +251,7 @@ class Process implements ProcessInterface
         $this->releasePipes();
 
         $fromClose = $this->closeProcess();
+        $this->removeCaptureFiles();
         $exitCode ??= $fromClose;
 
         $result = ['exit' => $exitCode];
@@ -337,6 +348,7 @@ class Process implements ProcessInterface
         $this->releasePipes();
 
         $fromClose = $this->closeProcess();
+        $this->removeCaptureFiles();
         $exitCode ??= $fromClose;
         $stderrText = $this->finish($stderr['buffer'], 'stderr');
 
@@ -547,6 +559,11 @@ class Process implements ProcessInterface
     {
         fclose($this->pipes[1]);
         fclose($this->pipes[2]);
+    }
+
+    /** Unlink after the child closes the files. Windows refuses the delete while they are open. */
+    protected function removeCaptureFiles(): void
+    {
         foreach ($this->captureFiles as $file) {
             @unlink($file);
         }
@@ -609,6 +626,7 @@ class Process implements ProcessInterface
 
             if ($halt !== null && $halt($stream['buffer']) === true) {
                 $halted = true;
+                $this->clearFileEof($pipe);
 
                 return $window;
             }
@@ -620,6 +638,7 @@ class Process implements ProcessInterface
             $window = self::patternWindow($window . $chunk);
             if (preg_match('#' . str_replace('#', '\#', $pattern) . '#s', $window) === 1) {
                 $matched = true;
+                $this->clearFileEof($pipe);
 
                 return $window;
             }

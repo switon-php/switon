@@ -35,6 +35,8 @@ use function sys_get_temp_dir;
 use function tempnam;
 use function unlink;
 
+use const PHP_OS_FAMILY;
+
 /**
  * Tool `bash`. One fresh shell per call.
  *
@@ -92,6 +94,7 @@ class BashTool extends AbstractTool
         $log = null;
 
         $bash = $this->bashProgram();
+        $launch = [$bash, '-lc', $script];
         if ($daemon) {
             // One bash script on Unix and Git Bash. Quotes are bash quotes, not the host shell.
             $sink = '/dev/null';
@@ -102,16 +105,26 @@ class BashTool extends AbstractTool
                 }
                 $sink = $this->bashPath($log);
             }
-            $quotedBash = "'" . str_replace("'", "'\\''", $this->bashPath($bash)) . "'";
-            $quotedCommand = "'" . str_replace("'", "'\\''", $command) . "'";
-            $quotedSink = "'" . str_replace("'", "'\\''", $sink) . "'";
-            // Non-interactive bash waits for background jobs on exit. Monitor mode plus
-            // disown lets the launcher return while the command keeps running.
-            // $! is an MSYS pid; tasklist needs the Windows pid from /proc/$pid/winpid.
-            $script = 'set -m; nohup ' . $quotedBash
-                . ' -c ' . $quotedCommand
-                . ' </dev/null >' . $quotedSink
-                . ' 2>&1 & pid=$!; if [ -r "/proc/$pid/winpid" ]; then tr -cd "0-9" < "/proc/$pid/winpid"; echo; else echo "$pid"; fi; disown >/dev/null 2>&1 || true';
+            if (PHP_OS_FAMILY === 'Windows') {
+                // Git Bash waits for background jobs when set -m has no tty. Start-Process
+                // returns a Win32 pid and does not stay in that job table.
+                $launch = [
+                    'powershell.exe',
+                    '-NoProfile',
+                    '-NonInteractive',
+                    '-Command',
+                    $this->windowsDaemonCommand($bash, $command, $sink, $cwd),
+                ];
+            } else {
+                $quotedBash = "'" . str_replace("'", "'\\''", $this->bashPath($bash)) . "'";
+                $quotedCommand = "'" . str_replace("'", "'\\''", $command) . "'";
+                $quotedSink = "'" . str_replace("'", "'\\''", $sink) . "'";
+                $script = 'nohup ' . $quotedBash
+                    . ' -c ' . $quotedCommand
+                    . ' </dev/null >' . $quotedSink
+                    . ' 2>&1 & echo $!; disown >/dev/null 2>&1 || true';
+                $launch = [$bash, '-lc', $script];
+            }
         }
 
         /** @var ProcessInterface $process */
@@ -120,7 +133,7 @@ class BashTool extends AbstractTool
             'call' => $call,
         ]);
         $startedAt = $this->clock->microtime();
-        $result = $process->start([$bash, '-lc', $script], $cwd, $timeout)
+        $result = $process->start($launch, $cwd, $timeout)
             ->output(new ToolResultDelta($this, $call->id, $call->name, $agent, ''), $daemon ? null : $pattern);
         if (!$daemon) {
             return $result;
@@ -225,6 +238,27 @@ class BashTool extends AbstractTool
         if (strlen($window) > ProcessInterface::PATTERN_WINDOW_BYTES) {
             $window = substr($window, -ProcessInterface::PATTERN_WINDOW_BYTES);
         }
+    }
+
+    /** PowerShell starts Git Bash and prints its Win32 pid. The launcher then exits. */
+    protected function windowsDaemonCommand(string $bash, string $command, string $sink, string $cwd): string
+    {
+        $script = $command . ' >' . $this->bashQuote($sink) . ' 2>&1';
+
+        return '(Start-Process -FilePath ' . $this->psQuote($bash)
+            . ' -ArgumentList @(' . $this->psQuote('-c') . ',' . $this->psQuote($script) . ')'
+            . ' -WorkingDirectory ' . $this->psQuote($cwd)
+            . ' -WindowStyle Hidden -PassThru).Id';
+    }
+
+    protected function psQuote(string $value): string
+    {
+        return "'" . str_replace("'", "''", $value) . "'";
+    }
+
+    protected function bashQuote(string $value): string
+    {
+        return "'" . str_replace("'", "'\\''", $value) . "'";
     }
 
     /** CreateProcess searches System32 before PATH, so a bare `bash` is the WSL stub. */

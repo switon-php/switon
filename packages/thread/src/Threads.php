@@ -21,7 +21,6 @@ use Switon\Thread\Event\TurnCommitted;
 use Switon\Thread\Exception\ThreadNotFoundException;
 
 use function dirname;
-use function is_array;
 use function implode;
 use function round;
 use function trim;
@@ -104,8 +103,11 @@ class Threads implements ThreadsInterface
     protected function loadState(string $datadir): array
     {
         $state = $this->filesystem->readJson($datadir . '/state.json');
+        if ($state === null) {
+            return [];
+        }
 
-        return is_array($state) ? $state : [];
+        return $state;
     }
 
     public function saveState(Thread $thread): void

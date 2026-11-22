@@ -384,6 +384,16 @@ class StdioTransport implements StdioTransportInterface
             return $chunk;
         }
         if (!$this->childRunning()) {
+            // The exit flush can sit behind a sticky EOF from the short read above.
+            $pos = ftell($stdout);
+            if (is_int($pos)) {
+                fseek($stdout, $pos, SEEK_SET);
+            }
+            $retry = fread($stdout, 8192);
+            if (is_string($retry) && $retry !== '') {
+                return $retry;
+            }
+
             return false;
         }
         $pos = ftell($stdout);

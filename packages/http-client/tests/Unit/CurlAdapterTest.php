@@ -10,6 +10,8 @@ use Switon\HttpClient\Curl;
 use function extension_loaded;
 use function is_string;
 
+use const PHP_OS_FAMILY;
+
 class CurlAdapterTest extends TestCase
 {
     public function testAdapterDelegatesToNativeCurlFunctions(): void
@@ -29,8 +31,12 @@ class CurlAdapterTest extends TestCase
         $this->assertSame(0, $curl->errno($handle));
         $this->assertSame('', $curl->error($handle));
         $effective = $curl->getinfo($handle, CURLINFO_EFFECTIVE_URL);
-        // libcurl may leave the effective URL unset until a transfer runs.
-        $this->assertTrue($effective === false || is_string($effective));
+        if (PHP_OS_FAMILY === 'Windows') {
+            // Some Windows libcurl builds leave this unset, or return another string, before a transfer.
+            $this->assertTrue($effective === false || is_string($effective));
+        } else {
+            $this->assertSame('https://example.com', $effective);
+        }
 
         $curl->reset($handle);
         $curl->close($handle);

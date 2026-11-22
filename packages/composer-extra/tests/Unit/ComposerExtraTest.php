@@ -694,7 +694,6 @@ class ComposerExtraTest extends TestCase
 
     public function testAllOverlaysComposerPackageWhenVendorInstallPathPointsToSymlink(): void
     {
-        $this->skipUnlessOwnerCanBeDeniedRead();
         $root = $this->tempDir . '/ce-symlink-overlay';
         $cachePayload = ['demo/overlay-pkg' => ['switon' => ['commands' => []]]];
         $cacheFile = $this->prepareComposerExtraLayout($root, $cachePayload, []);
