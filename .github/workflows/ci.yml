@@ -139,6 +139,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+          extensions: redis, sockets, fileinfo
 
       - name: Install monorepo dependencies
         uses: ramsey/composer-install@v3
