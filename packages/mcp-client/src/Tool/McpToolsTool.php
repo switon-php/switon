@@ -107,6 +107,7 @@ class McpToolsTool implements ToolInterface
         return $names;
     }
 
+    /** @param array<string, mixed> $schema */
     protected function isFlatObject(array $schema): bool
     {
         foreach (['oneOf', 'anyOf', 'allOf', '$ref', 'not', 'patternProperties'] as $key) {
@@ -122,6 +123,7 @@ class McpToolsTool implements ToolInterface
             && (!array_key_exists('properties', $schema) || is_array($schema['properties']));
     }
 
+    /** @param array<string, mixed> $property */
     protected function isFlatProperty(array $property): bool
     {
         foreach (['properties', 'oneOf', 'anyOf', 'allOf', '$ref', 'not', 'patternProperties'] as $key) {
@@ -141,6 +143,7 @@ class McpToolsTool implements ToolInterface
         return $this->isScalar($property);
     }
 
+    /** @param array<string, mixed> $schema */
     protected function isScalar(array $schema): bool
     {
         if (isset($schema['enum'])) {

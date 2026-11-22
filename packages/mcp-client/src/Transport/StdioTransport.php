@@ -335,6 +335,7 @@ class StdioTransport implements StdioTransportInterface
         $this->failRead('MCP stdio read timed out after {seconds}s.', ['seconds' => $this->readTimeout]);
     }
 
+    /** @param array<string, mixed> $context */
     protected function failRead(string $message, array $context = []): never
     {
         $this->drainStderr();

@@ -112,6 +112,7 @@ class McpCallTool extends AbstractTool
         return false;
     }
 
+    /** @param array<string, mixed> $result */
     protected function textFromBlocks(array $result): string
     {
         $content = $result['content'] ?? null;
@@ -132,7 +133,11 @@ class McpCallTool extends AbstractTool
         return implode("\n", $parts);
     }
 
-    /** @return list<MediaPart> */
+    /**
+     * @param array<string, mixed> $result
+     *
+     * @return list<MediaPart>
+     */
     protected function storeImageParts(array $result, string $id, AgentInterface $agent): array
     {
         $content = $result['content'] ?? null;

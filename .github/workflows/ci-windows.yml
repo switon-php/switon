@@ -71,6 +71,9 @@ jobs:
           working-directory: packages/testing
           composer-options: --no-interaction --prefer-dist
 
+      - name: Put Git bash on PATH
+        run: printf '%s\n' 'C:\Program Files\Git\bin' >> "$GITHUB_PATH"
+
       - name: Run release check
         run: bash build/release-check.sh "${{ matrix.package }}" --fast -- --debug
 

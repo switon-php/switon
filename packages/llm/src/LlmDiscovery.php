@@ -13,6 +13,7 @@ use Switon\Llm\Exception\ConfigurationException;
 use Switon\Yaml\YamlReaderInterface;
 
 use function array_key_exists;
+use function get_debug_type;
 use function explode;
 use function in_array;
 use function is_array;
@@ -137,8 +138,15 @@ class LlmDiscovery implements LlmDiscoveryInterface
             trim($modelEntry['description'] ?? ''),
         );
 
-        /** @var LlmInterface $llm */
-        return $this->maker->make($class, $config);
+        $llm = $this->maker->make($class, $config);
+        if (!$llm instanceof LlmInterface) {
+            ConfigurationException::raise('LLM class "{class}" does not implement {interface}.', [
+                'class' => is_string($class) ? $class : get_debug_type($class),
+                'interface' => LlmInterface::class,
+            ]);
+        }
+
+        return $llm;
     }
 
     /** @param array<string, mixed> $config */
@@ -173,13 +181,21 @@ class LlmDiscovery implements LlmDiscoveryInterface
         return $levels === [] ? null : $levels;
     }
 
-    /** Known client field is present. Camel case or snake case. */
+    /**
+     * Known client field is present. Camel case or snake case.
+     *
+     * @param array<string, mixed> $bag
+     */
     protected function hasClientField(array $bag, string $name): bool
     {
         return array_key_exists($name, $bag) || array_key_exists(Naming::snake($name), $bag);
     }
 
-    /** Known client field. Camel case wins over snake case. */
+    /**
+     * Known client field. Camel case wins over snake case.
+     *
+     * @param array<string, mixed> $bag
+     */
     protected function clientField(array $bag, string $name): mixed
     {
         if (array_key_exists($name, $bag)) {

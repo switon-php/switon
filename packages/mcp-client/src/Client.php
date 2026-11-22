@@ -171,6 +171,7 @@ class Client implements ClientInterface
         return $this->textFromCallResult($result);
     }
 
+    /** @param array<string, mixed> $result */
     protected function textFromCallResult(array $result): mixed
     {
         $content = $result['content'] ?? null;
@@ -229,7 +230,13 @@ class Client implements ClientInterface
         $this->initialize();
     }
 
-    /** A transport failure closes the connection and is not sent again. */
+    /**
+     * A transport failure closes the connection and is not sent again.
+     *
+     * @param array<string, mixed> $params
+     *
+     * @return array<string, mixed>
+     */
     protected function send(string $method, array $params, callable $shouldAbort): array
     {
         $this->ensureReady();
@@ -250,6 +257,11 @@ class Client implements ClientInterface
         $this->tools = null;
     }
 
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return array<string, mixed>
+     */
     protected function request(string $method, int $id, array $params = [], ?callable $shouldAbort = null): array
     {
         $response = $this->transport->send($this->encodeMessage($id, $method, $params), $shouldAbort ?? self::neverAbort(...), $this->onNotify);
@@ -260,12 +272,19 @@ class Client implements ClientInterface
         return $this->decodeMessage($response);
     }
 
+    /** @param array<string, mixed> $params */
     protected function notify(string $method, array $params = []): void
     {
         $this->transport->send($this->encodeMessage(null, $method, $params), self::neverAbort(...));
     }
 
-    /** Empty `$params` are omitted. */
+    /**
+     * Empty `$params` are omitted.
+     *
+     * @param array<string, mixed> $params
+     *
+     * @return array<string, mixed>
+     */
     protected function encodeMessage(?int $id, string $method, array $params = []): array
     {
         $message = [
@@ -284,6 +303,11 @@ class Client implements ClientInterface
         return $message;
     }
 
+    /**
+     * @param array<string, mixed> $message
+     *
+     * @return array<string, mixed>
+     */
     protected function decodeMessage(array $message): array
     {
         if (isset($message['error']) && is_array($message['error'])) {
