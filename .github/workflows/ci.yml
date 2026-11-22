@@ -131,6 +131,9 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v5
 
+      - name: Name the checkout dev
+        run: git checkout -B dev
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
