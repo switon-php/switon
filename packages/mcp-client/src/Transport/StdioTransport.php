@@ -238,40 +238,20 @@ class StdioTransport implements StdioTransportInterface
             }
 
             $this->drainStderr();
-            $read = [$stdout];
-            if (is_resource($this->stderr)) {
-                $read[] = $this->stderr;
-            }
-            $write = null;
-            $except = null;
-            $remainingUs = (int) max(0, ($deadline - microtime(true)) * 1_000_000);
-            $waitUs = min((int) (self::ABORT_POLL_SECONDS * 1_000_000), max(1, $remainingUs));
-            $seconds = intdiv($waitUs, 1_000_000);
-            $microseconds = $waitUs % 1_000_000;
-            $ready = stream_select($read, $write, $except, $seconds, $microseconds);
-            if ($ready === false || $ready === 0) {
+            $chunk = PHP_OS_FAMILY === 'Windows'
+                ? $this->pollStdout($stdout)
+                : $this->selectStdout($stdout, $deadline);
+            if ($chunk === null) {
                 continue;
             }
-
-            if (is_resource($this->stderr) && in_array($this->stderr, $read, true)) {
-                $this->drainStderr();
-            }
-            if (!in_array($stdout, $read, true)) {
-                continue;
-            }
-
-            $chunk = fread($stdout, 8192);
-            if (!is_string($chunk) || $chunk === '') {
-                if (feof($stdout)) {
-                    if ($this->stdoutPending === '') {
-                        return false;
-                    }
-                    $line = $this->stdoutPending;
-                    $this->stdoutPending = '';
-
-                    return $line;
+            if ($chunk === false) {
+                if ($this->stdoutPending === '') {
+                    return false;
                 }
-                continue;
+                $line = $this->stdoutPending;
+                $this->stdoutPending = '';
+
+                return $line;
             }
 
             if (strlen($this->stdoutPending) + strlen($chunk) > $this->maxLineBytes) {
@@ -290,6 +270,79 @@ class StdioTransport implements StdioTransportInterface
         }
 
         $this->failRead('MCP stdio read timed out after {seconds}s.', ['seconds' => $this->readTimeout]);
+    }
+
+    /**
+     * Next stdout bytes from a selectable pipe.
+     *
+     * Null waits for another poll. False means the pipe closed.
+     *
+     * @param resource $stdout
+     */
+    protected function selectStdout(mixed $stdout, float $deadline): string|false|null
+    {
+        $read = [$stdout];
+        if (is_resource($this->stderr)) {
+            $read[] = $this->stderr;
+        }
+        $write = null;
+        $except = null;
+        $remainingUs = (int) max(0, ($deadline - microtime(true)) * 1_000_000);
+        $waitUs = min((int) (self::ABORT_POLL_SECONDS * 1_000_000), max(1, $remainingUs));
+        $seconds = intdiv($waitUs, 1_000_000);
+        $microseconds = $waitUs % 1_000_000;
+        $ready = stream_select($read, $write, $except, $seconds, $microseconds);
+        if ($ready === false || $ready === 0) {
+            return null;
+        }
+
+        if (is_resource($this->stderr) && in_array($this->stderr, $read, true)) {
+            $this->drainStderr();
+        }
+        if (!in_array($stdout, $read, true)) {
+            return null;
+        }
+
+        $chunk = fread($stdout, 8192);
+        if (!is_string($chunk) || $chunk === '') {
+            return feof($stdout) ? false : null;
+        }
+
+        return $chunk;
+    }
+
+    /**
+     * Next stdout bytes when the pipe cannot be selected.
+     *
+     * Windows `proc_open` pipes make `stream_select()` ignore its timeout. An empty read is
+     * end-of-file only after the child has exited; `feof()` is true on a live non-blocking pipe.
+     *
+     * @param resource $stdout
+     */
+    protected function pollStdout(mixed $stdout): string|false|null
+    {
+        $chunk = fread($stdout, 8192);
+        if (is_string($chunk) && $chunk !== '') {
+            return $chunk;
+        }
+        if (!$this->childRunning() && feof($stdout)) {
+            return false;
+        }
+
+        usleep((int) (self::ABORT_POLL_SECONDS * 1_000_000));
+
+        return null;
+    }
+
+    protected function childRunning(): bool
+    {
+        if (!is_resource($this->process)) {
+            return false;
+        }
+
+        $status = proc_get_status($this->process);
+
+        return ($status['running'] ?? false) === true;
     }
 
     /** A numeric id may come back as the other JSON type. Compare the numeric form. */

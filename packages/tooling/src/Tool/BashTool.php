@@ -20,16 +20,19 @@ use Switon\Tooling\Spiller;
 use function fclose;
 use function fopen;
 use function fseek;
+use function getenv;
+use function is_file;
 use function is_string;
 use function max;
 use function preg_match;
+use function str_contains;
 use function str_replace;
 use function stream_get_contents;
 use function strlen;
+use function strtolower;
 use function substr;
 use function sys_get_temp_dir;
 use function tempnam;
-use function trim;
 use function unlink;
 
 /**
@@ -88,6 +91,7 @@ class BashTool extends AbstractTool
         $script = $command;
         $log = null;
 
+        $bash = $this->bashProgram();
         if ($daemon) {
             // One bash script on Unix and Git Bash. Quotes are bash quotes, not the host shell.
             $sink = '/dev/null';
@@ -96,9 +100,10 @@ class BashTool extends AbstractTool
                 if ($log === false) {
                     Exception::raise('Failed to create daemon log file.');
                 }
-                $sink = $log;
+                $sink = $this->bashPath($log);
             }
-            $script = 'nohup ' . "'" . str_replace("'", "'\\''", $this->bash) . "'"
+            $quotedBash = "'" . str_replace("'", "'\\''", $this->bashPath($bash)) . "'";
+            $script = 'nohup ' . $quotedBash
                 . ' -c ' . "'" . str_replace("'", "'\\''", $command) . "'"
                 . ' >' . "'" . str_replace("'", "'\\''", $sink) . "'"
                 . ' 2>&1 & echo $!';
@@ -110,13 +115,13 @@ class BashTool extends AbstractTool
             'call' => $call,
         ]);
         $startedAt = $this->clock->microtime();
-        $result = $process->start([$this->bash, '-lc', $script], $cwd, $timeout)
+        $result = $process->start([$bash, '-lc', $script], $cwd, $timeout)
             ->output(new ToolResultDelta($this, $call->id, $call->name, $agent, ''), $daemon ? null : $pattern);
         if (!$daemon) {
             return $result;
         }
 
-        $pid = (int)trim($result['stdout']);
+        $pid = $this->daemonPid($result['stdout']);
         $result['daemon'] = true;
         $result['stdout'] = '';
         if ($pid > 0) {
@@ -215,5 +220,40 @@ class BashTool extends AbstractTool
         if (strlen($window) > ProcessInterface::PATTERN_WINDOW_BYTES) {
             $window = substr($window, -ProcessInterface::PATTERN_WINDOW_BYTES);
         }
+    }
+
+    /** CreateProcess searches System32 before PATH, so a bare `bash` is the WSL stub. */
+    protected function bashProgram(): string
+    {
+        if (PHP_OS_FAMILY !== 'Windows' || str_contains($this->bash, '/') || str_contains($this->bash, '\\')) {
+            return $this->bash;
+        }
+
+        $root = getenv('ProgramFiles');
+        $candidate = (is_string($root) && $root !== '' ? $root : 'C:\\Program Files') . '\\Git\\bin\\bash.exe';
+
+        return is_file($candidate) ? $candidate : $this->bash;
+    }
+
+    /** Git bash reads `/c/...`. A `C:\...` redirect does not open the file PHP is polling. */
+    protected function bashPath(string $path): string
+    {
+        $path = strtr($path, '\\', '/');
+        if (preg_match('#^([A-Za-z]):/(.*)$#', $path, $match) !== 1) {
+            return $path;
+        }
+
+        return '/' . strtolower($match[1]) . '/' . $match[2];
+    }
+
+    /** The pid is the last integer line. Login noise before `echo $!` must not hide it. */
+    protected function daemonPid(string $stdout): int
+    {
+        $stdout = str_replace("\r", '', $stdout);
+        if (preg_match('/(?:^|\n)(\d+)\s*$/', $stdout, $match) !== 1) {
+            return 0;
+        }
+
+        return (int) $match[1];
     }
 }
