@@ -468,11 +468,9 @@ class ComposerExtraTest extends TestCase
         $this->assertSame(0, $health['packageCount']);
     }
 
-    /**
-     * @requires OSFAMILY Linux Darwin
-     */
     public function testHealthReturnsCacheUnreadableWhenFileCannotBeRead(): void
     {
+        $this->skipUnlessOwnerCanBeDeniedRead();
         $path = $this->tempDir . '/health-unreadable.json';
         file_put_contents($path, Json::stringify(['pkg' => ['version' => '1']]));
         $this->assertTrue(@chmod($path, 0000));
@@ -489,11 +487,10 @@ class ComposerExtraTest extends TestCase
 
     /**
      * When the cache file exists but is not readable, loading must fail with a clear runtime error (not a JSON parse error).
-     *
-     * @requires OSFAMILY Linux Darwin
      */
     public function testAllRaisesWhenCacheFileIsUnreadable(): void
     {
+        $this->skipUnlessOwnerCanBeDeniedRead();
         $path = $this->tempDir . '/unreadable.json';
         file_put_contents($path, Json::stringify(['pkg' => ['version' => '1']]));
         $this->assertTrue(@chmod($path, 0000));
@@ -619,11 +616,9 @@ class ComposerExtraTest extends TestCase
         return $cacheFile;
     }
 
-    /**
-     * @requires OSFAMILY Linux Darwin
-     */
     public function testAllIgnoresOverlayWhenComposerInstalledFileIsUnreadable(): void
     {
+        $this->skipUnlessOwnerCanBeDeniedRead();
         $root = $this->tempDir . '/ce-overlay-installed-unreadable';
         $payload = ['switon/warm' => ['switon' => ['listeners' => ['App\\Cached']]]];
         $cacheFile = $this->prepareComposerExtraLayout($root, $payload, []);
@@ -697,11 +692,9 @@ class ComposerExtraTest extends TestCase
         $this->deletePath(dirname($installedFile));
     }
 
-    /**
-     * @requires OSFAMILY Linux Darwin
-     */
     public function testAllOverlaysComposerPackageWhenVendorInstallPathPointsToSymlink(): void
     {
+        $this->skipUnlessOwnerCanBeDeniedRead();
         $root = $this->tempDir . '/ce-symlink-overlay';
         $cachePayload = ['demo/overlay-pkg' => ['switon' => ['commands' => []]]];
         $cacheFile = $this->prepareComposerExtraLayout($root, $cachePayload, []);
@@ -775,11 +768,9 @@ class ComposerExtraTest extends TestCase
         @rmdir($installPhysical);
     }
 
-    /**
-     * @requires OSFAMILY Linux Darwin
-     */
     public function testOverlaySkipsLiveComposerJsonWhenUnreadable(): void
     {
+        $this->skipUnlessOwnerCanBeDeniedRead();
         $root = $this->tempDir . '/ce-live-extra-unreadable';
         $payload = ['live/unread' => ['switon' => ['jobs' => ['App\\Queue\\CachedJob']]]];
         $cacheFile = $this->prepareComposerExtraLayout($root, $payload, [[
@@ -918,5 +909,15 @@ class ComposerExtraTest extends TestCase
 
         $ce = new ComposerExtra($cacheFile);
         $this->assertSame(['App\\Job'], $ce->collect('switon.tasks'));
+    }
+
+    /**
+     * PHPUnit 12 ignores docblock <code>@requires</code>. Mode 000 does not hide a file from its owner on Windows.
+     */
+    private function skipUnlessOwnerCanBeDeniedRead(): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $this->markTestSkipped('The owner can still read a mode-000 file on Windows.');
+        }
     }
 }

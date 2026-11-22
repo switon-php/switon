@@ -18,6 +18,7 @@ use Switon\Tooling\Exception;
 
 use function array_merge;
 use function array_slice;
+use function array_values;
 use function count;
 use function fclose;
 use function feof;
@@ -284,6 +285,8 @@ class ReadTool extends AbstractTool
 
         if ($cursor !== 0) {
             $ring = array_merge(array_slice($ring, $cursor), array_slice($ring, 0, $cursor));
+        } else {
+            $ring = array_values($ring);
         }
 
         $start = $total - $tailSize + 1;

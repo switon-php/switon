@@ -14,5 +14,5 @@ parameters:
     excludePaths:
         analyseAndScan:
             - src/InvokerInterface.php
-            - vendor/switon/di/src/InvokerInterface.php
+            - vendor/switon/di/src/InvokerInterface.php (?)
     tmpDir: tests/.phpstan.cache

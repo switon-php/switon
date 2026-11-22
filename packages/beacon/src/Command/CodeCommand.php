@@ -16,8 +16,10 @@ use Switon\Core\Exception\FileNotFoundException;
 use Switon\Core\Exception\RuntimeException;
 use Switon\Core\FilesystemInterface;
 use Switon\Core\Json;
+use Switon\Core\Path;
 
 use function getcwd;
+use function str_replace;
 use function implode;
 use function json_decode;
 use function token_get_all;
@@ -77,10 +79,10 @@ class CodeCommand
     protected function resolvePath(string $path): string
     {
         $p = $path !== '' ? $path : self::DEFAULT_PATH;
-        $cwd = getcwd();
-        if (isset($p[0]) && $p[0] === '/') {
+        if (Path::isAbsolute($p)) {
             return $p;
         }
+        $cwd = getcwd();
         return $cwd . '/' . $p;
     }
 
@@ -96,7 +98,7 @@ class CodeCommand
         );
         foreach ($it as $f) {
             if ($f->isFile() && $f->getExtension() === 'php') {
-                $files[] = $f->getPathname();
+                $files[] = str_replace('\\', '/', $f->getPathname());
             }
         }
         return $files;

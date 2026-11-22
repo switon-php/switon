@@ -15,7 +15,7 @@ class OpenApiCommandTest extends TestCase
 {
     public function testInitActionReadsScaffoldFromResourceAlias(): void
     {
-        $targetRoot = sys_get_temp_dir() . '/openapi_init_' . uniqid('', true);
+        $targetRoot = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_init_' . uniqid('', true);
         $pathAlias = (new Container())->get(PathAliasInterface::class);
         $pathAlias->set('@root', $targetRoot);
 
@@ -72,7 +72,7 @@ class OpenApiCommandTest extends TestCase
 
     public function testInitActionReturnsErrorWhenOpenApiAlreadyExists(): void
     {
-        $targetRoot = sys_get_temp_dir() . '/openapi_init_dup_' . uniqid('', true);
+        $targetRoot = strtr(sys_get_temp_dir(), '\\', '/') . '/openapi_init_dup_' . uniqid('', true);
         $pathAlias = (new Container())->get(PathAliasInterface::class);
         $pathAlias->set('@root', $targetRoot);
 

@@ -23,7 +23,9 @@ class Attributes
     /**
      * Returns whether the reflector declares at least one matching attribute.
      *
-     * @param ReflectionClass<object>|ReflectionMethod|ReflectionProperty|ReflectionParameter $ref
+     * @template TRef of object
+     *
+     * @param ReflectionClass<TRef>|ReflectionMethod|ReflectionProperty|ReflectionParameter $ref
      * @param class-string $name Attribute class name
      */
     public static function has(ReflectionClass|ReflectionMethod|ReflectionProperty|ReflectionParameter $ref, string $name): bool
@@ -35,8 +37,9 @@ class Attributes
      * Returns the first matching attribute instance, or null when none is declared.
      *
      * @template T of object
+     * @template TRef of object
      *
-     * @param ReflectionClass<object>|ReflectionMethod|ReflectionProperty|ReflectionParameter $ref
+     * @param ReflectionClass<TRef>|ReflectionMethod|ReflectionProperty|ReflectionParameter $ref
      * @param class-string<T> $name Attribute class name
      *
      * @return T|null
@@ -55,8 +58,9 @@ class Attributes
      * Returns all matching attribute instances in declaration order.
      *
      * @template T of object
+     * @template TRef of object
      *
-     * @param ReflectionClass<object>|ReflectionMethod|ReflectionProperty|ReflectionParameter $ref
+     * @param ReflectionClass<TRef>|ReflectionMethod|ReflectionProperty|ReflectionParameter $ref
      * @param class-string<T> $name Attribute class name
      *
      * @return list<T>

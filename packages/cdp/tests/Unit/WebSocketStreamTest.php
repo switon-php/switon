@@ -169,7 +169,11 @@ PHP);
      */
     private function pair(): array
     {
-        $pair = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        $pair = @stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        if ($pair === false) {
+            // Windows rejects AF_UNIX (WSAEPROTONOSUPPORT) and accepts AF_INET.
+            $pair = @stream_socket_pair(STREAM_PF_INET, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        }
         $this->assertIsArray($pair);
         stream_set_blocking($pair[0], false);
         stream_set_blocking($pair[1], false);

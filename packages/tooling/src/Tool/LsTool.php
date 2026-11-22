@@ -88,9 +88,9 @@ class LsTool extends AbstractTool
      * Spill `dirs` and `files` on their own. The envelope stays an object unless both fields
      * are under budget and the whole JSON still is not.
      *
-     * @param array{dirs: list<string>, files: list<array{name: string, size?: int<0, max>}>} $result
+     * @param array{dirs: list<string>, files: list<array{name: string, size?: int}>} $result
      *
-     * @return array{dirs: list<string>|string, files: list<array{name: string, size?: int<0, max>}>|string}|string
+     * @return array{dirs: list<string>|string, files: list<array{name: string, size?: int}>|string}|string
      */
     protected function spillListing(string $callId, AgentInterface $agent, array $result): array|string
     {

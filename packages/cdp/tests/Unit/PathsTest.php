@@ -338,7 +338,9 @@ class PathsTest extends TestCase
     public function pathsWithoutAHomeDoNotUseTheLoginDirectory(): void
     {
         $previous = getenv('HOME');
+        $previousProfile = getenv('USERPROFILE');
         putenv('HOME');
+        putenv('USERPROFILE');
         try {
             $this->assertSame('/tmp/file', Paths::displayPath('/tmp/file'));
             $this->assertStringEndsWith('switon-chrome', Paths::chromeRoot());
@@ -348,6 +350,11 @@ class PathsTest extends TestCase
                 putenv('HOME');
             } else {
                 putenv('HOME=' . $previous);
+            }
+            if ($previousProfile === false) {
+                putenv('USERPROFILE');
+            } else {
+                putenv('USERPROFILE=' . $previousProfile);
             }
         }
     }

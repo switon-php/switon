@@ -265,8 +265,11 @@ class FileAppenderTest extends TestCase
      */
     public function testFileAppenderHandlesWriteFailures(): void
     {
-        // Arrange - Use an invalid path to simulate write failure
-        $invalidFile = '/invalid/path/that/does/not/exist/test.log';
+        // A file used as a parent directory fails on Unix and Windows.
+        // `/invalid/...` is `C:\invalid\...` on Windows, and the runner can create it.
+        $blocker = sys_get_temp_dir() . '/switon-log-blocker-' . bin2hex(random_bytes(8));
+        file_put_contents($blocker, 'x');
+        $invalidFile = $blocker . '/test.log';
         $eventDispatcher = new MockEventDispatcher();
 
         $appender = $this->make(FileAppender::class, [
@@ -294,6 +297,7 @@ class FileAppenderTest extends TestCase
         if (file_exists($tmpErrorLog)) {
             @unlink($tmpErrorLog);
         }
+        @unlink($blocker);
     }
 
     /**

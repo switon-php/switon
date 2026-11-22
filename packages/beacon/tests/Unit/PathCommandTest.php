@@ -102,7 +102,9 @@ class PathCommandTest extends TestCase
         $code = $this->command->fqcnAction('PathCommand\\DummyPathTarget.php');
 
         $this->assertSame(0, $code);
-        $this->assertSame([], $captured['fqcns']);
+        // On Windows `\` is a separator, so the same text is a relative path to the fixture.
+        $expected = DIRECTORY_SEPARATOR === '\\' ? [DummyPathTarget::class] : [];
+        $this->assertSame($expected, $captured['fqcns']);
     }
 
     protected function makeCommand(): PathCommand

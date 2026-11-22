@@ -133,8 +133,8 @@ class StdioTransportTest extends TestCase
 
     public function testSendRejectsALinePastTheCap(): void
     {
-        $stdout = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
-        $stderr = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        $stdout = $this->socketPair();
+        $stderr = $this->socketPair();
         $this->assertNotFalse($stdout);
         $this->assertNotFalse($stderr);
         stream_set_blocking($stderr[0], false);
@@ -160,8 +160,7 @@ class StdioTransportTest extends TestCase
 
     public function testSendRaisesTransportExceptionOnReadTimeout(): void
     {
-        $pair = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
-        $this->assertNotFalse($pair);
+        $pair = $this->socketPair();
         [$read, $write] = $pair;
         // Keep $write open but never write -> $read blocks until the timeout fires.
 
@@ -225,6 +224,23 @@ class StdioTransportTest extends TestCase
         $this->injector->inject($transport);
 
         return $transport;
+    }
+
+    /**
+     * @return resource
+     */
+    /**
+     * @return array{0: resource, 1: resource}
+     */
+    protected function socketPair(): array
+    {
+        $pair = @stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        if ($pair === false) {
+            $pair = @stream_socket_pair(STREAM_PF_INET, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        }
+        $this->assertIsArray($pair);
+
+        return $pair;
     }
 
     /**

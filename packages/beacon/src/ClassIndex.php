@@ -16,6 +16,7 @@ use Throwable;
 
 use function array_diff;
 use function array_flip;
+use function array_map;
 use function array_merge;
 use function array_values;
 use function basename;
@@ -207,7 +208,10 @@ class ClassIndex implements ClassIndexInterface
      */
     protected function collectFqcnsFromFiles(array $files): array
     {
-        $files = array_values(array_unique($files));
+        $files = array_values(array_unique(array_map(
+            static fn (string $file): string => str_replace('\\', '/', $file),
+            $files,
+        )));
         if ($files === []) {
             return [];
         }

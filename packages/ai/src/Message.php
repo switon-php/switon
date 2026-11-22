@@ -49,9 +49,6 @@ abstract class Message implements Letter, JsonSerializable
     {
         $lines = [];
         foreach ($this->wire() as $block) {
-            if (!isset($block['text'])) {
-                continue;
-            }
             $lines[] = $block['text'];
         }
         $text = implode("\n", $lines);

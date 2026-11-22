@@ -35,6 +35,13 @@ class RunnerTest extends TestCase
     {
         $seen = null;
         $cid = 0;
+        $home = sys_get_temp_dir() . '/switon-cli-home-' . uniqid('', true);
+        mkdir($home . '/.switon', 0777, true);
+        file_put_contents($home . '/.switon/llm.yml', "aliases:\n  best: missing\n");
+        $previousHome = getenv('HOME');
+        $previousProfile = getenv('USERPROFILE');
+        putenv('HOME=' . $home);
+        putenv('USERPROFILE=' . $home);
 
         try {
             $result = Runner::run(function (ContainerInterface $container) use (&$seen, &$cid): string {
@@ -46,6 +53,19 @@ class RunnerTest extends TestCase
             });
         } finally {
             Runtime::setCoroutineEnabled(false);
+            if ($previousHome === false) {
+                putenv('HOME');
+            } else {
+                putenv('HOME=' . $previousHome);
+            }
+            if ($previousProfile === false) {
+                putenv('USERPROFILE');
+            } else {
+                putenv('USERPROFILE=' . $previousProfile);
+            }
+            @unlink($home . '/.switon/llm.yml');
+            @rmdir($home . '/.switon');
+            @rmdir($home);
         }
 
         $this->assertSame('ok', $result);

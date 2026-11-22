@@ -90,7 +90,7 @@ class CodeCommandTest extends TestCase
         $this->assertSame(1, $code);
         $this->assertFalse($captured['ok']);
         $this->assertCount(1, $captured['errors']);
-        $this->assertSame($badFile, $captured['errors'][0]['file']);
+        $this->assertSame(str_replace('\\', '/', $badFile), $captured['errors'][0]['file']);
     }
 
     public function testResolvePathUsesAbsoluteRelativeAndDefault(): void
@@ -111,8 +111,9 @@ class CodeCommandTest extends TestCase
         $files = $this->command->callCollectPhpFiles($dir);
         sort($files);
 
+        $root = str_replace('\\', '/', $dir);
         $this->assertCount(2, $files);
-        $this->assertSame([$dir . '/A.php', $dir . '/nested/B.php'], $files);
+        $this->assertSame([$root . '/A.php', $root . '/nested/B.php'], $files);
     }
 
     public function testVisibilityMapsMethodModifiers(): void

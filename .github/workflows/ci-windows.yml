@@ -58,7 +58,7 @@ jobs:
         with:
           php-version: "8.5"
           coverage: none
-          extensions: redis, sockets, fileinfo
+          extensions: redis, sockets, fileinfo, gmp, gd, pdo_mysql, curl
 
       - name: Install monorepo dependencies
         uses: ramsey/composer-install@v3
@@ -93,7 +93,7 @@ jobs:
         with:
           php-version: "8.5"
           coverage: none
-          extensions: redis, sockets, fileinfo
+          extensions: redis, sockets, fileinfo, gmp, gd, pdo_mysql, curl
 
       - name: Run skeleton distribution release check
         run: bash build/release-check.sh skeleton
