@@ -225,7 +225,11 @@ class JsLintDriverTest extends TestCase
         $driver = $this->make(OpenJsLintDriver::class);
         $found = $driver->discover($file);
 
-        $this->assertSame(['bin' => $bin, 'cwd' => $root], $found);
+        $slash = static fn (string $path): string => strtr($path, '\\', '/');
+        $this->assertSame(
+            ['bin' => $slash($bin), 'cwd' => $slash($root)],
+            ['bin' => $slash($found['bin']), 'cwd' => $slash($found['cwd'])],
+        );
     }
 
     public function testDiscoverReturnsNullWithoutEslint(): void

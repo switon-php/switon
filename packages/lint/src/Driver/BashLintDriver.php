@@ -58,7 +58,7 @@ class BashLintDriver implements LintDriverInterface
     protected function bashSyntax(string $path, callable $shouldAbort): array
     {
         $result = $this->process->run(
-            [$this->bashBinary, '-n', $path],
+            [$this->bashBinary, '-n', strtr($path, '\\', '/')],
             $shouldAbort,
             null
         );

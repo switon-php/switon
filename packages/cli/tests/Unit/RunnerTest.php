@@ -11,7 +11,6 @@ use Switon\Core\App;
 use Switon\Core\Runtime;
 use Switon\Sync\Channel;
 use Switon\Sync\TerminationInterface;
-use Swoole\Coroutine;
 
 class RunnerTest extends TestCase
 {
@@ -46,7 +45,7 @@ class RunnerTest extends TestCase
         try {
             $result = Runner::run(function (ContainerInterface $container) use (&$seen, &$cid): string {
                 $seen = $container;
-                $cid = Coroutine::getCid();
+                $cid = extension_loaded('swoole') ? \Swoole\Coroutine::getCid() : -1;
                 $container->get(TerminationInterface::class)->register(new Channel(1));
 
                 return 'ok';

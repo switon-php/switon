@@ -270,9 +270,10 @@ class PhpLintDriverTest extends TestCase
         $found = $driver->discover($file);
 
         $this->assertNotNull($found);
-        $this->assertSame($bin, $found['bin']);
-        $this->assertSame($neon, $found['config']);
-        $this->assertSame($root, $found['cwd']);
+        $slash = static fn (string $path): string => strtr($path, '\\', '/');
+        $this->assertSame($slash($bin), $slash($found['bin']));
+        $this->assertSame($slash($neon), $slash((string) $found['config']));
+        $this->assertSame($slash($root), $slash($found['cwd']));
     }
 
     public function testDiscoverReturnsNullWithoutVendor(): void

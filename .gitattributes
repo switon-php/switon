@@ -1,5 +1,5 @@
 # Autodetect text files
-* text=auto
+* text=auto eol=lf
 
 # Ignore all test and documentation for archive
 /.gitattributes export-ignore
